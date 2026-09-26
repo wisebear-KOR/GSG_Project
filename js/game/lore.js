@@ -47,7 +47,7 @@ export function parseNaming(text) {
   const m = text.match(/(강물|강|숲|산|평원|들판|들|언덕|사막|마을|신전)(?:을|를)\s*['"“‘]?([가-힣]{1,6}(?:\s[가-힣]{1,4})?)['"”’]?\s*(?:이)?라\s*(?:부르|칭하|하라|이름)/);
   if (!m) return null;
   const name = m[2].replace(/(이)$/, '').trim();
-  if (name.length < 1 || name.length > 8) return null;
+  if (name.length < 2 || name.length > 8) return null; // 한 글자 이름은 다른 말과 너무 쉽게 겹친다
   return { kind: NAMEABLE[m[1]], name };
 }
 
@@ -59,6 +59,9 @@ export function parseProphecy(text) {
   else if (/(개종|돌아오|돌아서|품으|말씀을 받)/.test(text)) kind = 'convert';
   else if (/(불어나|번성|늘어나|자손|태어나)/.test(text)) kind = 'pop';
   if (!kind || !/리라|리니|것이다|되리|지리/.test(text)) return null;
+  if (/지\s*않|지\s*못|아니하|마라|말라|지\s*마/.test(text)) return null; // 부정하는 예언은 봉인하지 않는다
+  const big = text.match(/(\d+)\s*(장|계절|번)/);
+  if (big && Number(big[1]) > 3) return null;
   const n = text.match(/(한|두|세|1|2|3)\s*(장|계절|번)/);
   const rounds = n ? ({ 한: 1, 두: 2, 세: 3 }[n[1]] ?? Number(n[1])) : 2;
   return { kind, rounds: Math.min(3, Math.max(1, rounds)) };
@@ -71,5 +74,10 @@ export function leaderLine(state, kind, ctx = {}) {
   if (kind === 'card') pool = leader.lines.card[ctx.card?.id] ?? leader.lines.card.any;
   if (kind === 'rebuttal') pool = leader.lines.rebuttal[ctx.doctrine] ?? leader.lines.rebuttal.any;
   const line = hashPick(pool, state.config.seed, state.round, kind, ctx.card?.id ?? '', ctx.word ?? '');
-  return line ? line.replaceAll('{word}', ctx.word ?? '그 말') : '';
+  if (!line) return '';
+  const w = ctx.word ?? '그 말';
+  const c = w.charCodeAt(w.length - 1) - 0xac00;
+  const b = c >= 0 && c <= 11171 && c % 28 !== 0;
+  return line.replaceAll("'{word}'라", `'${w}'${b ? '이라' : '라'}`).replaceAll("'{word}'를", `'${w}'${b ? '을' : '를'}`)
+    .replaceAll("'{word}'?", `'${w}'?`).replaceAll('{word}', w);
 }

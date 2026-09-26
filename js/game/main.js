@@ -2,7 +2,7 @@
 import {
   createState, startRound, legalActions, validateOrders, autoFill, planEnemy, resolveRound,
   recordRevelation, castMiracle, actionLimit, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
-  faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent,
+  faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent, josa, batchim,
   grantGrace, petitionAnswered, nameTile, applyTone, sealProphecy, takeMiracle, resolveSite,
 } from './engine.js';
 import {
@@ -212,6 +212,7 @@ function resumeLoaded() {
   music.setMood('calm');
   render();
   fx.chapter(frameEl(), `제 ${state.round} 장`, '다시 이어서');
+  if (state.miracleOffer) setTimeout(showMiracleDraft, fx.motion.reduced ? 300 : 2500);
 }
 
 function beginGame(config) {
@@ -257,7 +258,7 @@ function bindMain() {
       e.preventDefault();
       startFromMain($('resumeGame') ? 'resume' : 'new');
     }
-    if (e.key === 'Escape' && $('mainScreen').hidden && phase !== 'thinking' && phase !== 'playing') showMain();
+    if (e.key === 'Escape' && $('mainScreen').hidden && phase !== 'thinking' && phase !== 'playing' && !document.querySelector('.choice-modal:not(.list-modal)')) showMain();
   });
   addEventListener('keydown', onKey);
 }
@@ -294,7 +295,7 @@ function tileTipHTML(cur, t) {
 function bindTools() {
   bindMain();
   bindTileTips();
-  $('home').onclick = () => { sfx.click(); showMain(); };
+  $('home').onclick = () => { if (document.querySelector('.choice-modal:not(.list-modal)')) return; sfx.click(); showMain(); };
   $('ai').onclick = () => {
     if (!aiUsable || phase === 'thinking') return;
     aiMode = aiMode === 'llm' ? 'tablet' : 'llm';
@@ -367,6 +368,7 @@ async function speak() {
   p.faith -= cost;
   draft = '';
   hintTiles = [];
+  targeting = null;
   lockAltar();
   tutorial?.hide();
   // 이름 붙이기는 해석 전에 새긴다 (새 이름이 대사제의 목록에 들어간다)
@@ -436,6 +438,7 @@ function landMeeple(tile, side) {
 function silence() {
   sfx.page();
   hintTiles = [];
+  targeting = null;
   const auto = autoFill(state, 'player', []);
   pending = {
     text: null,
@@ -464,7 +467,7 @@ async function accept() {
   const before = snapshot(state);
   const enemyPlan = planEnemy(state);
   const from = state.log.length;
-  if (text) applyTone(state, pending.tone); else state.roundMods = {};
+  applyTone(state, text ? pending.tone : null);
   if (pending.seal && pending.prophecy) sealProphecy(state, pending.prophecy);
   resolveRound(state, [...accepted, ...auto], enemyPlan);
   if (!state.winner) wordsAfter(pending);
@@ -499,11 +502,11 @@ function wordsAfter(pd) {
   if (pd.naming) grantGrace(state, 1, `${TERRAIN_NAME(pd.naming.tile)}${hasBatchim(TERRAIN_NAME(pd.naming.tile)) ? '을' : '를'} '${pd.naming.name}'${hasBatchim(pd.naming.name) ? '이라' : '라'} 부르게 했다`);
 }
 const hasBatchim = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c <= 11171 && c % 28 !== 0; };
-const TERRAIN_NAME = (id) => TERRAIN[state.tileAt[id].terrain]?.name ?? '땅';
+const TERRAIN_NAME = (id) => { const t = state.tileAt[id]; return t.building === 'village' ? '마을' : t.building === 'capital' ? '신전' : TERRAIN[t.terrain]?.name ?? '땅'; };
 
 // ---------- 판의 끝: 서고에 남기고, 성서를 채우고, 종료 양피지를 편다 ----------
 function finishGame() {
-  meta.clearSave();
+  if (!state.tutorial) meta.clearSave();
   const h = state.history;
   const summary = summarizeGame(state, {
     comeback: state.winner === 'player' && h.some((x) => x.es - x.ps >= 6),
@@ -664,6 +667,7 @@ function choiceModal({ kind, title, text, options }) {
     o.innerHTML = `<div class="choice-box"><div class="kind">${esc(kind)}</div><h3>${esc(title)}</h3>${text ? `<p>${esc(text)}</p>` : ''}
       <div class="choice-row">${options.map((op, i) => `<button type="button" class="choice-card" data-i="${i}">${op.art ? svgUse(op.art, 'art', '0 0 48 48') : ''}<b>${esc(op.label)}</b><span>${esc(op.text)}</span>${op.cost != null ? `<i>신앙 ${op.cost}</i>` : ''}</button>`).join('')}</div></div>`;
     document.body.append(o);
+    document.activeElement?.blur?.();
     sfx.deal();
     o.querySelectorAll('.choice-card').forEach((b) => fx.attachTilt(b, 8));
     o.querySelectorAll('.choice-card').forEach((b) => {
@@ -679,7 +683,7 @@ async function showMiracleDraft() {
     options: state.miracleOffer.map((mid) => { const m = MIRACLES.find((x) => x.id === mid); return { id: mid, label: m.name, text: m.text, cost: m.cost, art: MIRACLE_ART[mid] }; }),
   });
   takeMiracle(state, id);
-  meta.saveGame(state, 'speak');
+  if (phase === 'speak') meta.saveGame(state, 'speak');
   renderAltar();
 }
 
@@ -688,6 +692,7 @@ async function showSiteChoice() {
   const site = SITES[t.site.id];
   const id = await choiceModal({ kind: `발견 · ${tileName(state, t)}`, title: site.name, text: site.text, options: site.choice.map((c) => ({ id: c.id, label: c.label, text: c.text })) });
   const msg = resolveSite(state, id);
+  if (!msg) return;
   state.log.push({ round: state.round, side: 'player', text: msg });
   fx.floatText($('board'), t, msg.split('.')[0], 'good');
   renderMats();
@@ -781,9 +786,9 @@ async function playback(before) {
   render();
   playLedger();
   if (resolved.verdict) setTimeout(() => (resolved.verdict.grade === 'miss' ? sfx.fail() : sfx.seal?.()), 200);
-  if (pendingLesson) { const l = pendingLesson; pendingLesson = null; setTimeout(() => priestSay(`깨달았나이다. 신께서 '${l.word}'라 하시면 ${describeLesson(l)}을 뜻하시는군요.`), 900); }
+  if (pendingLesson) { const l = pendingLesson; pendingLesson = null; setTimeout(() => priestSay(`깨달았나이다. 신께서 '${l.word}'${batchim(l.word) ? '이라' : '라'} 하시면 ${josa(describeLesson(l), '을', '를')} 뜻하시는군요.`), 900); }
   if (state.pendingSite && phase !== 'over') await showSiteChoice();
-  if (phase === 'over') meta.clearSave(); else meta.saveGame(state, 'resolved');
+  if (phase === 'over') { if (!state.tutorial) meta.clearSave(); } else meta.saveGame(state, 'resolved');
   if (tutorial) {
     if (phase === 'over') { music.setMood('end'); tutorial.on('end', state.round); return; }
     tutorial.on('resolved', state.round);
@@ -982,17 +987,24 @@ async function useMiracle(id) {
     await playFx(state.log[state.log.length - 1]);
     renderMats();
     checkOnboard();
+    if (state.winner) endByMiracle();
   }
 }
 
 async function onTileClick(id) {
-  if (targeting !== 'lightning') return;
+  if (targeting !== 'lightning' || phase !== 'speak') return;
   const r = castMiracle(state, 'lightning', id);
   notice = r.ok ? '' : r.text;
   targeting = null;
   render();
   if (r.ok) { meta.saveGame(state, 'speak'); await playFx(state.log[state.log.length - 1]); }
-  if (state.winner) { phase = 'over'; render(); finishGame(); }
+  if (state.winner) endByMiracle();
+}
+
+function endByMiracle() {
+  phase = 'over';
+  render();
+  if (tutorial) { music.setMood('end'); tutorial.on('end', state.round); } else finishGame();
 }
 
 // ---------- 렌더링 ----------
@@ -1062,6 +1074,7 @@ function renderSeason() {
 function seasonChoiceHTML() {
   const other = state.eventChoice.find((id) => id !== state.event.id);
   const ev = EVENTS.find((e) => e.id === other);
+  if (!ev) return '';
   return `<button class="season-swap" type="button" data-ev="${other}" title="${esc(ev.rule)}">지혜의 눈 · 「${esc(ev.name)}」로 바꾸기</button>`;
 }
 
@@ -1326,9 +1339,19 @@ function renderAltar() {
 
 // 계시 원문에서 행동을 부른 낱말에 밑줄
 function markWords(text, words) {
-  let html = esc(text);
-  for (const w of [...new Set(words)].sort((a, b) => b.length - a.length)) html = html.replace(esc(w), `<u class="lw" data-w="${esc(w)}">${esc(w)}</u>`);
-  return html;
+  const list = [...new Set(words)].filter(Boolean).sort((a, b) => b.length - a.length);
+  if (!list.length) return esc(text);
+  const re = new RegExp(list.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g');
+  const done = new Set();
+  let out = '';
+  let last = 0;
+  for (const m of text.matchAll(re)) {
+    out += esc(text.slice(last, m.index));
+    out += done.has(m[0]) ? esc(m[0]) : `<u class="lw" data-w="${esc(m[0])}">${esc(m[0])}</u>`;
+    done.add(m[0]);
+    last = m.index + m[0].length;
+  }
+  return out + esc(text.slice(last));
 }
 
 // 밑줄 친 낱말에서 그 행동의 칸까지 빛줄기 (최대 3개, 차례로)
@@ -1364,7 +1387,7 @@ function bindAltar() {
       pill.classList.toggle('over', cost > state.sides.player.faith);
       scheduleHints();
     };
-    ta.onkeydown = (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); speak(); } };
+    ta.onkeydown = (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !document.querySelector('.choice-modal')) { e.preventDefault(); speak(); } };
     if (!targeting) ta.focus({ preventScroll: true });
   }
   const on = (sel, fn) => { const b = a.querySelector(sel); if (b) b.onclick = fn; };
@@ -1372,7 +1395,7 @@ function bindAltar() {
   on('.silence', silence);
   on('.accept', () => { sfx.click(); accept(); });
   const pbox = a.querySelector('.prophecy-box');
-  if (pbox) pbox.onchange = () => { pending.seal = pbox.checked; sfx.seal?.(); };
+  if (pbox) pbox.onchange = () => { pending.seal = pbox.checked; sfx.seal?.(); pbox.blur(); };
   on('.again', () => { sfx.click(); reinterpret(); });
   on('.skip', () => { fx.motion.skip = true; });
   on('.next', () => { sfx.click(); newRound(); });
@@ -1398,7 +1421,7 @@ function onKey(e) {
   if (!$('mainScreen').hidden || document.querySelector('.endscreen, .npc-dialog.show, .choice-modal')) return;
   const typing = ['TEXTAREA', 'INPUT'].includes(document.activeElement?.tagName);
   const click = (sel) => { const b = $('altar').querySelector(sel); if (b && !b.disabled) { e.preventDefault(); b.click(); return true; } return false; };
-  if (e.altKey && /^[1-3]$/.test(e.key) && phase === 'speak') {
+  if (e.altKey && /^[1-4]$/.test(e.key) && phase === 'speak') {
     const c = $('altar').querySelectorAll('.mcard')[Number(e.key) - 1];
     if (c && !c.disabled) { e.preventDefault(); c.click(); }
     return;

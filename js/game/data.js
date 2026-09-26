@@ -210,7 +210,7 @@ export const ENEMY_LEADERS = {
 // 난이도: 율법파의 추가 행동과 시작 자원
 export const DIFFICULTY = {
   easy:   { name: '쉬움',   enemyBonus: 0, enemyStart: { food: 3, wood: 1, stone: 0, faith: 2, pop: 3 } },
-  normal: { name: '보통',   enemyBonus: 1, enemyStart: { food: 4, wood: 2, stone: 1, faith: 3, pop: 3 } },
+  normal: { name: '보통',   enemyBonus: 1, enemyStart: { food: 5, wood: 3, stone: 1, faith: 3, pop: 4 } },
   hard:   { name: '어려움', enemyBonus: 2, enemyStart: { food: 6, wood: 4, stone: 2, faith: 4, pop: 4 } },
 };
 

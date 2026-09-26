@@ -173,6 +173,7 @@ const TABLET_RULES = [
   { re: /언덕/, match: (a, t) => a.type === 'gather' && t.terrain === 'hill', doctrine: 'wisdom' },
   { re: /사랑|이웃|전하|설득|가르|개종|품어/, match: (a) => a.type === 'preach', doctrine: 'peace' },
   { re: /분노|공격|싸우|싸움|쳐라|정복|불태|벌하|칼/, match: (a) => a.type === 'attack', doctrine: 'war' },
+  { re: /쉬어|쉬라|안식|평화/, match: (a) => a.type === 'pray', doctrine: 'peace' },
   { re: /지켜|지키|방패|성벽|막아|수호/, match: (a) => a.build === 'wall', doctrine: 'war' },
   { re: /배고|굶|먹|곡식|수확|들판/, match: (a) => a.gather === 'food', doctrine: 'abundance' },
   { re: /나무|숲|목재/, match: (a) => a.gather === 'wood', doctrine: 'abundance' },
@@ -181,9 +182,9 @@ const TABLET_RULES = [
   { re: /높은|높이|신전|탑|대성당/, match: (a) => a.build === 'temple' || a.build === 'cathedral', doctrine: 'wisdom' },
   { re: /기도|경배|섬기|바쳐|찬양|믿음/, match: (a) => a.type === 'pray', doctrine: 'wisdom' },
   { re: /찾|보이지|안개|탐험|숨겨|너머/, match: (a) => a.type === 'explore', doctrine: 'wisdom' },
-  { re: /쉬어|쉬라|안식|평화/, match: (a) => a.type === 'pray', doctrine: 'peace' },
 ];
-const NEGATION = /마라|말라|말지|지 ?마|두려워|피하|멀리/;
+// "두려워하지 말고 쳐라"는 금지가 아니다 (두려워는 부정어가 아니다)
+const NEGATION = /마라|말라|말지|지 ?마|피하|멀리/;
 
 export function interpretWithTablet(state, revelation) {
   const legal = legalActions(state, 'player');
@@ -204,7 +205,8 @@ export function interpretWithTablet(state, revelation) {
       const matches = legal.filter((a) => rule.match(a, state.tileAt[a.tile]));
       if (negative) forbidden.push(...matches);
       else {
-        doctrine ??= rule.doctrine;
+        // 가능한 행동이 없는 규칙은 교리를 정하지 않는다 ("평화를 지켜라"가 성벽이 없어 전쟁이 되지 않게)
+        if (matches.length && rule.doctrine) doctrine ??= rule.doctrine;
         for (const a of matches) {
           if (orders.length < limit && !orders.some((o) => o.tile === a.tile)) orders.push(a);
           break;
@@ -219,7 +221,7 @@ export function interpretWithTablet(state, revelation) {
       : '석판의 말씀이 흐릿하도다. 각자 할 일을 하라.',
     orders: orders.filter((a) => !forbidden.some((f) => f.key === a.key)),
     forbidden,
-    doctrine: doctrine ?? (forbidden.length ? 'peace' : 'wisdom'),
+    doctrine: doctrine ?? (forbidden.length ? 'peace' : null),
     source: 'tablet',
   };
 }

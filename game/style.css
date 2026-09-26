@@ -885,3 +885,5 @@ body.reduce-motion .site-mark { animation: none; }
 .task-ribbon { display: flex; align-items: center; gap: 8px; margin: -2px 0 8px; padding: 6px 10px; border-radius: 10px; background: linear-gradient(90deg, rgba(61, 111, 182, .35), rgba(61, 111, 182, .12)); border: 1px solid rgba(156, 192, 255, .35); font: 13px var(--font-body); color: #e3edff; }
 .task-ribbon span { font: 700 11px var(--font-ui); letter-spacing: .08em; color: #9cc0ff; }
 .task-x { margin-left: auto; border: 0; background: transparent; color: #9cc0ff; cursor: pointer; font-size: 12px; }
+
+.list-modal { z-index: 95; }
