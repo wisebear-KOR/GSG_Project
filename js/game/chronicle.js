@@ -1,6 +1,6 @@
 // 판이 끝난 뒤의 이야기: 판 요약(서고), 후대 역사가의 에필로그, 성서(업적), 회고
 // 모두 상태를 읽기만 하는 순수 함수다.
-import { DOCTRINES, DOCTRINE, DIFFICULTY, ENEMY_LEADERS } from './data.js';
+import { DOCTRINES, DOCTRINE, DIFFICULTY, ENEMY_LEADERS, RULESET } from './data.js';
 import { score } from './engine.js';
 import { hashPick } from './lore.js';
 
@@ -126,7 +126,8 @@ export function summarizeGame(state, extra = {}) {
     doctrine: { ...state.sides.player.doctrine }, top: topDoctrine(state), epithet: ep.epithet,
     revelations: state.revelations.map((r) => ({ round: r.round, text: r.text, doctrine: r.doctrine })),
     stats: { ...state.stats }, names: Object.values(state.names ?? {}), god: state.config.god?.name ?? null,
-    saints: state.saints?.length ?? 0, commandments: state.commandments?.length ?? 0, ...extra,
+    saints: state.saints?.length ?? 0, commandments: state.commandments?.length ?? 0,
+    ruleset: RULESET, trial: state.config.trial ?? null, ascension: state.config.ascension ?? 0, ...extra,
   };
 }
 
@@ -153,6 +154,8 @@ export const ACHIEVEMENTS = [
   { id: 'daily', name: '오늘의 계시', desc: '오늘의 계시를 끝까지 치른다', check: (s) => !!s.daily },
   { id: 'all_doctrines', name: '네 갈래 길', desc: '네 교리를 모두 두 칸 이상 쌓는다', check: (s) => DOCTRINES.every((k) => s.doctrine[k] >= 2), progress: (s) => DOCTRINES.filter((k) => s.doctrine[k] >= 2).length / 4 },
   { id: 'tutorial', name: '사관의 제자', desc: '튜토리얼을 마친다', check: (s) => s.tutorial === true },
+  { id: 'trial', name: '시련을 넘은 자', desc: '시련 하나를 이긴다', check: (s) => s.winner === 'player' && !!s.trial },
+  { id: 'ascend', name: '하늘 계단', desc: '승천 1단계 이상에서 이긴다', check: (s) => s.winner === 'player' && s.ascension >= 1 },
   { id: 'sacred', name: '숨은 말', desc: '오늘의 계시에 숨은 말을 찾는다', check: (s) => !!s.stats.sacred },
   { id: 'saint', name: '성인의 시대', desc: '신도 하나가 성인으로 추앙받는다', check: (s) => (s.saints ?? 0) >= 1 },
   { id: 'lawgiver', name: '돌에 새긴 말', desc: '영원한 계명을 새기고 이긴다', check: (s) => s.winner === 'player' && (s.commandments ?? 0) >= 1 },

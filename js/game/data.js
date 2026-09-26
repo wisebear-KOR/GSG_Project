@@ -242,6 +242,32 @@ export const BLESSINGS = {
 };
 export const AWE_TITLES = ['이름 없는 신', '속삭이는 신', '불리는 신', '섬김받는 신', '두려운 신', '영원한 신'];
 
+// 규칙 판: 규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)
+export const RULESET = 4;
+
+// 시련: 고정된 맵과 한 가지 비틀린 규칙. 별 셋 (승리 / 10점 차 / 20점 차 또는 일찍 끝냄)
+export const TRIALS = {
+  storm:   { name: '폭풍의 주', desc: '너는 폭풍의 신이다. 번개가 싸고, 단비는 내릴 수 없다.', size: 5, difficulty: 'normal', seed: 11101,
+    intro: '하늘이 찢어지는 소리가 너의 목소리다. 비는 없다 — 번개뿐.' },
+  earth:   { name: '대지모', desc: '너는 대지의 어머니다. 백성이 쉽게 불어나지만 칼을 들 수 없다.', size: 6, difficulty: 'normal', seed: 22202,
+    intro: '너의 자식들은 칼을 모른다. 말과 빵으로 이겨라.' },
+  sword:   { name: '칼의 해', desc: '철의 대제사장 바락이 성전을 선포했다. 율법 덱에 「성전」이 두 장 더 있다.', size: 5, difficulty: 'normal', seed: 33303,
+    intro: '바락이 칼을 들었다. 올해는 피의 해가 될 것이다.' },
+  cloister:{ name: '침묵의 수도원', desc: '계시는 스무 자까지만 적을 수 있다.', size: 5, difficulty: 'normal', seed: 44404,
+    intro: '말이 적을수록 무겁다. 스무 자 안에 뜻을 담아라.' },
+  last:    { name: '마지막 예언자', desc: '여덟 장, 어려운 율법파가 둘 더 많은 채로 시작하고 분노가 첫 장부터 찬다.', size: 5, difficulty: 'hard', seed: 55505, rounds: 8,
+    intro: '늦었다. 율법은 이미 땅을 덮었다. 여덟 계절 안에 뒤집어라.' },
+};
+
+// 승천: 어려움에서 이기면 한 단계씩 열린다 (누적)
+export const ASCENSION = [
+  '율법파 시작 신도 +1',
+  '율법 석판 한계 -2',
+  '신의 분노가 차는 격차 6 → 8',
+  '3막에 율법파 행동 +1',
+  '은사 없이 시작',
+];
+
 // 신의 상징 (인장에 찍힌다)
 export const SIGILS = { light: 'i-faith', sword: 'd-war', dove: 'd-peace', grain: 'i-food', eye: 'e-prophet', storm: 'm-lightning' };
 

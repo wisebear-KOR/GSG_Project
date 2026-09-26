@@ -10,7 +10,7 @@ import {
   applySilence, markLegends, serializeState, hydrateState, monthOf,
 } from './engine.js';
 import {
-  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, FESTIVALS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
+  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, FESTIVALS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, TRIALS, ASCENSION, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
 } from './data.js';
 import { renderBoard, tileToHost, markerToScreen, tileCenter } from './board.js';
 import { installArt } from './art.js';
@@ -168,6 +168,8 @@ function bindSetup() {
   $('optSigil').innerHTML = Object.entries(SIGILS).map(([k, icon]) => `<button type="button" data-v="${k}" title="${k}">${svgUse(icon)}</button>`).join('');
   $('optSigil').querySelectorAll('button').forEach((b) => { b.onclick = () => { meta.set('gsg.god', { ...godOf(), sigil: b.dataset.v }); sfx.click(); renderSetup(); }; });
   $('startDaily').onclick = () => startFromMain('daily');
+  $('openTrials').onclick = () => { sfx.page(); showTrials(); };
+  $('optAsc').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; setup.ascension = Number(b.dataset.v); saveSetup(); sfx.click(); renderSetup(); };
   $('msLibrary').onclick = () => { sfx.page(); showLibrary(); };
   $('msSettings').onclick = () => { sfx.page(); showSettings(); };
   $('msBible').onclick = () => { sfx.page(); showBible(); };
@@ -201,7 +203,12 @@ function renderSetup() {
   const next = AWE_LEVELS.find((x) => x > awe);
   $('msAwe').hidden = awe === 0;
   $('msAwe').innerHTML = `<b>${AWE_TITLES[lv]}</b> · 경외 ${awe}${next ? ` · 다음 ${Object.values(BLESSINGS).some((b) => b.level === lv + 1) ? '은사' : '칭호'}까지 ${next - awe}` : ''}<i style="width:${next ? Math.round(((awe - (AWE_LEVELS[lv - 1] ?? 0)) / (next - (AWE_LEVELS[lv - 1] ?? 0))) * 100) : 100}%"></i>`;
-  $('diffHint').textContent = DIFF_HINT[setup.difficulty];
+  const ascOpen = meta.ascensionOpen();
+  $('optAsc').hidden = setup.difficulty !== 'hard' || ascOpen === 0;
+  if (setup.difficulty !== 'hard') setup.ascension = 0;
+  setup.ascension = Math.min(setup.ascension ?? 0, ascOpen);
+  $('optAsc').innerHTML = Array.from({ length: ascOpen + 1 }, (_, i) => `<button type="button" data-v="${i}" class="${(setup.ascension ?? 0) === i ? 'on' : ''}">${i ? `승천 ${i}` : '기본'}</button>`).join('');
+  $('diffHint').textContent = setup.ascension ? `승천 ${setup.ascension} — ${ASCENSION.slice(0, setup.ascension).join(' · ')}` : DIFF_HINT[setup.difficulty];
   // 미리보기: 같은 설정으로 맵을 만들어 전부 드러낸다
   const preview = createState({ ...setup, mode: 'standard' });
   for (const t of preview.tiles) t.revealed = true;
@@ -252,7 +259,7 @@ function startFromMain(mode = 'new') {
       setup = loadSetup();
       beginGame({ mode: 'standard', size: ch.size, difficulty: ch.difficulty, seed: ch.seed, veteran: ch.veteran, canon: null, challenge: { target: ch.target } });
     }
-    else beginGame({ ...setup, mode: 'standard', veteran, canon: veteran ? meta.getCanon()[0] ?? null : null, god: godConfig(), legacy: veteran ? legacyFor(setup.seed) : null, blessing: blessingPick() });
+    else beginGame({ ...setup, mode: 'standard', veteran, canon: veteran ? meta.getCanon()[0] ?? null : null, god: godConfig(), legacy: veteran ? legacyFor(setup.seed) : null, blessing: (setup.ascension ?? 0) >= 5 ? null : blessingPick(), ascension: setup.difficulty === 'hard' ? setup.ascension ?? 0 : 0 });
   }, fx.motion.reduced ? 150 : 850);
 }
 
@@ -287,6 +294,7 @@ function beginGame(config) {
 }
 
 function renderSubtitle() {
+  if (state.config.trial) { $('subtitle').textContent = `시련 「${TRIALS[state.config.trial].name}」 · ${state.rows}×${state.cols} · ${state.maxRounds}장`; return; }
   if (state.config.challenge) { $('subtitle').textContent = `도전 · ${state.rows}×${state.cols} ${DIFFICULTY[state.config.difficulty].name} · 시드 ${state.config.seed}${state.config.challenge.target ? ` · 승점 ${state.config.challenge.target}점을 넘어라` : ''}`; return; }
   if (state.config.daily) { $('subtitle').textContent = `오늘의 계시 · ${state.config.daily}${state.leader ? ` · ${ENEMY_LEADERS[state.leader].name}` : ''}`; return; }
   $('subtitle').textContent = state.tutorial ? '튜토리얼 · 첫 계시'
@@ -431,6 +439,7 @@ async function newRound() {
   render();
   meta.saveGame(state, 'speak');
   announce(`제 ${state.round} 장. ${state.event.name}. 계시를 적을 차례다.`);
+  if (!state.tutorial) { meta.markSeen('events', state.event.id); if (state.leader) meta.markSeen('leaders', state.leader); }
   if (state.miracleOffer) setTimeout(showMiracleDraft, fx.motion.reduced ? 300 : 2500);
   const judge = state.judgement !== 'classic' ? ` · 심판의 기준 「${JUDGEMENTS[state.judgement].name}」` : '';
   const fest = state.tutorial ? '' : state.round === state.maxRounds ? `${FESTIVALS.last} · ` : actStart(state) ? `${FESTIVALS[actOf(state)]} · ` : '';
@@ -687,6 +696,16 @@ async function accept() {
   const last = state.history.at(-1);
   if (last) last.text = text;
   resolved = { enemyPlan, playerPlan: plan, logs: state.log.slice(from), shown: [], words: pending };
+  if (!state.tutorial) {
+    meta.markSeen('laws', state.lawCard.id);
+    for (const c of state.commandments) meta.markSeen('commandments', c);
+    for (const t of state.tiles) if (t.site?.found) meta.markSeen('sites', t.site.id);
+    if (pending.miracle && !pending.dropped.has(pending.miracle.key)) meta.markSeen('miracles', pending.miracle.id);
+    if (text) {
+      for (const a of accepted) meta.noteWords(a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type, text);
+      if (pending.tone !== 'command') meta.noteWords(`tone:${pending.tone}`, text);
+    }
+  }
   // 지도자의 반박은 연대기에만 남는다 (재생할 보드 장면이 없다)
   if (text && state.leader) {
     const line = leaderLine(state, 'rebuttal', { doctrine: result.doctrine, word: nouns(text)[0] });
@@ -728,9 +747,11 @@ function finishGame() {
   meta.pushHistory(summary);
   const fresh = meta.unlockAchievements(evaluateAchievements(summary));
   if (state.config.daily) meta.recordDaily(state.config.daily, { winner: state.winner, score: summary.score, rounds: state.round });
+  if (state.config.trial) { summary.stars = trialStars(summary); summary.newStars = meta.recordTrial(state.config.trial, summary.stars); }
+  if (state.winner === 'player' && state.config.difficulty === 'hard' && !state.config.trial && !state.config.daily) meta.openAscension((state.config.ascension ?? 0) + 1);
   const aweGain = summary.score[0] + (state.winner === 'player' ? 10 : 0) + fresh.length * 3;
   summary.awe = meta.addAwe(aweGain, AWE_LEVELS);
-  const standard = !state.tutorial && !state.config.daily && !state.config.challenge && state.config.veteran;
+  const standard = !state.tutorial && !state.config.daily && !state.config.challenge && !state.config.trial && state.config.veteran;
   summary.newBest = standard && state.winner === 'player' && meta.setBest(state.config, summary.score[0]);
   checkOnboard(true);
   showEnd(summary, fresh, had);
@@ -760,6 +781,7 @@ function showEnd(summary, fresh, had) {
       <div class="ep-epithet">${state.config.god?.name ? `${esc(state.config.god.name)}${hasBatchim(state.config.god.name) ? '은' : '는'}` : '이 신은'} 「${esc(ep.epithet)}」${hasBatchim(ep.epithet) ? '으로' : '로'} 기억되었다.</div>
       ${fresh.length ? `<div class="ep-ach">새 구절이 성서에 기록되었다 — ${fresh.map((id) => `「${esc(achName(id))}」`).join(' ')}</div>` : ''}
       ${summary.awe ? `<div class="ep-ach awe">경외 +${summary.awe.gained} (${summary.awe.awe})${summary.awe.level > summary.awe.levelBefore ? ` — 「${AWE_TITLES[summary.awe.level]}」이 되었다.${Object.values(BLESSINGS).find((b) => b.level === summary.awe.level) ? ` 새 은사: ${esc(Object.values(BLESSINGS).find((b) => b.level === summary.awe.level).name)}` : ''}` : ''}</div>` : ''}
+      ${state.config.trial ? `<div class="ep-ach">시련 「${esc(TRIALS[state.config.trial].name)}」 ${'★'.repeat(summary.stars)}${'☆'.repeat(3 - summary.stars)}${summary.newStars ? ' — 새 기록' : ''}</div>` : ''}
       ${summary.newBest ? `<div class="ep-ach best">새 기록 — 이 맵(시드 ${state.config.seed})에서 승점 ${summary.score[0]}</div>` : ''}
     </div>
     <div class="end-page" data-page="record" hidden>
@@ -849,6 +871,9 @@ function renderMetaLinks() {
   $('msLibrary').hidden = n === 0;
   $('msBible').hidden = n === 0 && !Object.keys(meta.getAchievements()).length;
   $('startDaily').hidden = n === 0;
+  $('openTrials').hidden = n === 0;
+  const tr = meta.getTrials();
+  $('trialHint').textContent = `별 ${Object.values(tr).reduce((a, b) => a + b, 0)}/${Object.keys(TRIALS).length * 3} · 이번 주 「${TRIALS[Object.keys(TRIALS)[meta.weeklyIndex(Object.keys(TRIALS).length)]].name}」`;
   const today = meta.dayKey();
   const done = meta.getDaily()[today];
   $('dailyHint').textContent = done ? `오늘 ${done.winner === 'player' ? '승리' : '패배'} · 이번 달 ${meta.dailyDaysThisMonth()}일` : `${Number(today.slice(5, 7))}월 ${Number(today.slice(8))}일 · 이번 달 ${meta.dailyDaysThisMonth()}일`;
@@ -868,6 +893,45 @@ function renderWelcome() {
   el.textContent = `다시 오셨군요. 지난 판 — ${g.size}×${g.size} ${g.winner === 'player' ? '승리' : '패배'}, ${g.rounds}장, 승점 ${g.score[0]} : ${g.score[1]}. 「${g.epithet}」${loadedPhase ? ' · 이어하던 판이 있다.' : ''}`;
   $('msAwe').before(el);
 }
+
+// ---------- 시련 ----------
+function showTrials() {
+  const tr = meta.getTrials();
+  const ids = Object.keys(TRIALS);
+  const weekly = ids[meta.weeklyIndex(ids.length)];
+  const html = `<div class="trials">${ids.map((id) => {
+    const t = TRIALS[id];
+    const stars = tr[id] ?? 0;
+    return `<button type="button" class="trial${id === weekly ? ' weekly' : ''}" data-trial="${id}">
+      <b>${esc(t.name)}${id === weekly ? ' <em>이번 주의 시련</em>' : ''}</b><span>${esc(t.desc)}</span>
+      <i>${'★'.repeat(stars)}${'☆'.repeat(3 - stars)} · ${t.size}×${t.size} · ${t.rounds ?? MAP_SIZES[t.size].rounds}장</i></button>`;
+  }).join('')}</div><p class="set-note">별 하나: 이긴다 · 둘: 10점 차 이상 · 셋: 20점 차 이상이거나 마지막 장 전에 끝낸다</p>`;
+  const o = listModal('시련', html);
+  o.querySelectorAll('[data-trial]').forEach((b) => {
+    b.onclick = () => {
+      const t = TRIALS[b.dataset.trial];
+      o.remove();
+      startTrial(b.dataset.trial, t);
+    };
+  });
+}
+function startTrial(id, t) {
+  const ms = $('mainScreen');
+  unlockAudio();
+  sfx.holy();
+  if (aiMode === 'llm') prepareLLM().catch(() => {});
+  ms.classList.add('leaving');
+  setTimeout(() => {
+    ms.hidden = true; ms.classList.remove('leaving');
+    beginGame({ mode: 'standard', size: t.size, difficulty: t.difficulty, seed: t.seed, veteran: true, trial: id, god: godConfig() });
+    setTimeout(() => leaderSay(`시련 「${t.name}」 — ${t.intro}`), fx.motion.reduced ? 300 : 2600);
+  }, fx.motion.reduced ? 150 : 850);
+}
+const trialStars = (summary) => {
+  if (summary.winner !== 'player') return 0;
+  const gap = summary.score[0] - summary.score[1];
+  return gap >= 20 || summary.rounds < state.maxRounds ? 3 : gap >= 10 ? 2 : 1;
+};
 
 function listModal(title, html) {
   const o = document.createElement('div');
@@ -903,7 +967,27 @@ function showLibrary() {
       <span class="lr-ep">「${esc(g.epithet)}」</span></summary>
       <ol class="book">${g.revelations.map((r) => `<li><span class="bk-r">제 ${r.round} 장</span><span class="bk-t">“${esc(r.text)}”</span></li>`).join('') || '<li>계시 없음</li>'}</ol>
       <div class="lr-foot">시드 ${g.seed}${g.leader ? ` · ${esc(g.leader)}` : ''} · ${esc(g.reason)}</div></details>`).join('');
-  listModal('서고 — 지난 판들', stats + (rows || '<p>아직 기록이 없다.</p>'));
+  listModal('서고 — 지난 판들', stats + codexHTML() + (rows || '<p>아직 기록이 없다.</p>'));
+}
+
+// 도감과 어휘집
+function codexHTML() {
+  const seen = meta.getSeen();
+  const lex = meta.getLexicon();
+  const cat = (label, kind, all, name) => {
+    const got = seen[kind] ?? [];
+    return `<div class="codex-row"><b>${label} ${got.length}/${all.length}</b>${all.map((id) => `<span class="${got.includes(id) ? 'got' : ''}" title="${got.includes(id) ? esc(name(id)) : '아직 보지 못했다'}">${got.includes(id) ? esc(name(id)) : '?'}</span>`).join('')}</div>`;
+  };
+  const LEX = { 'gather:food': '식량 거두기', 'gather:wood': '나무 베기', 'gather:stone': '돌 캐기', 'gather:faith': '성지 묵상', pray: '기도', explore: '탐험', preach: '선교', attack: '공격', 'build:village': '마을 세우기', 'build:wall': '성벽', 'build:temple': '신전 높이기', 'build:cathedral': '대성당', 'tone:blessing': '축복의 말투', 'tone:curse': '저주의 말투', 'tone:metaphor': '비유의 말투' };
+  return `<details class="codex"><summary>도감 · 어휘집</summary>
+    ${cat('계절', 'events', [...EVENTS.map((e) => e.id), ...DILEMMAS.map((e) => e.id), 'mira'], (id) => (EVENTS.find((e) => e.id === id) ?? DILEMMAS.find((e) => e.id === id))?.name ?? '분열의 예언자 미라')}
+    ${cat('율법', 'laws', ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10'], (id) => id)}
+    ${cat('지도자', 'leaders', Object.keys(ENEMY_LEADERS), (id) => ENEMY_LEADERS[id].name)}
+    ${cat('발견', 'sites', Object.keys(SITES), (id) => SITES[id].name)}
+    ${cat('기적', 'miracles', MIRACLES.map((m) => m.id), (id) => MIRACLES.find((m) => m.id === id).name)}
+    ${cat('계명', 'commandments', Object.keys(COMMANDMENTS), (id) => COMMANDMENTS[id].name)}
+    <div class="codex-row lex"><b>어휘집 ${Object.keys(lex).length}/${Object.keys(LEX).length}</b>${Object.entries(LEX).map(([k, n]) => `<span class="${lex[k] ? 'got' : ''}">${esc(n)} — ${lex[k] ? `“${esc(lex[k].first)}” ×${lex[k].n}` : '?'}</span>`).join('')}</div>
+  </details>`;
 }
 
 function showBible() {
@@ -1624,6 +1708,8 @@ function renderLaw(cur) {
 
 const speedHTML = () => `<div class="speed" role="group" aria-label="재생 속도" title="재생 속도">${[['1', '1×'], ['2', '2×'], ['instant', '즉시']].map(([v, l]) => `<button type="button" class="${speed === v ? 'on' : ''}" data-speed="${v}">${l}</button>`).join('')}</div>`;
 
+const revMax = () => (state.config.trial === 'cloister' ? 20 : REVELATION_MAX);
+
 // 점괘 릴: 대사제가 헤아리는 동안 가능한 행동의 아이콘이 돈다 (0.7초 뒤에 나타난다)
 const REEL_ICON = { food: 'i-food', wood: 'i-wood', stone: 'i-stone', faith: 'i-faith', pray: 'i-temple', build: 'i-house', explore: 'e-prophet', preach: 'd-peace', attack: 'd-war' };
 function omenReel() {
@@ -1770,8 +1856,8 @@ function renderAltar() {
     scroll = `<div class="scroll">
       ${petition}${prophecyNote}${sacredNote}${dilemma}<div class="suggest-row" id="suggestRow"></div>
       <div class="scroll-head"><h3>신의 말씀</h3>${ban}<small>제 ${state.round} 장 · 신도 행동 ${actionLimit(state, 'player')}회</small></div>
-      <textarea maxlength="${REVELATION_MAX}" rows="2" placeholder="강물이 너희를 먹이리라…" aria-label="계시">${esc(draft)}</textarea>
-      <div class="ink-meta"><span class="count">${draft.length} / ${REVELATION_MAX}</span>
+      <textarea maxlength="${revMax()}" rows="2" placeholder="강물이 너희를 먹이리라…" aria-label="계시">${esc(draft)}</textarea>
+      <div class="ink-meta"><span class="count">${draft.length} / ${revMax()}</span>
         <span class="cost-pill${cost > p.faith ? ' over' : ''}">${svgUse('i-faith')}<span class="c">신앙 ${cost}</span></span></div>
       ${noticeHTML}</div>`;
     act = `<div class="act"><button class="seal-btn" type="button" title="계시 내리기 (Ctrl+Enter)">${svgUse(SIGILS[state.config.god?.sigil] ?? 'i-faith')}<span>계시</span></button>
@@ -1939,7 +2025,7 @@ function bindAltar() {
     ta.oninput = () => {
       draft = ta.value;
       const cost = draft.trim() ? revelationCostFor(state, draft) : 0;
-      count.textContent = `${draft.length} / ${REVELATION_MAX}`;
+      count.textContent = `${draft.length} / ${revMax()}`;
       pill.querySelector('.c').textContent = `신앙 ${cost}`;
       const banned = state.bannedWords.some((w) => draft.includes(w));
       pill.classList.toggle('banned', banned);

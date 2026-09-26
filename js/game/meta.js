@@ -1,6 +1,7 @@
 // 판 밖에 남는 것들: 이어하기 저장, 판 기록(서고), 업적, 오늘의 계시, 정경, 세라의 과제.
 // 브라우저 저장소(localStorage)만 쓴다. 저장소가 막혀 있어도 게임은 돌아가야 하므로 모든 접근을 감싼다.
 import { serializeState, hydrateState, SAVE_VERSION } from './engine.js';
+import { RULESET } from './data.js';
 
 export function get(key, fallback) {
   try {
@@ -102,7 +103,7 @@ export function importAll(obj) {
 }
 
 // ---------- 시드별 개인 최고 기록 (승리한 판의 승점) ----------
-export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}`;
+export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}${c.ascension ? `-a${c.ascension}` : ''}-r${RULESET}`;
 export const getBest = (c) => get('gsg.best', {})[bestKey(c)] ?? null;
 export function setBest(c, score) {
   const all = get('gsg.best', {});
@@ -122,3 +123,45 @@ export function addAwe(n, levels) {
   set('gsg.awe', { awe });
   return { awe, gained: n, levelBefore: before, level: levels.filter((x) => awe >= x).length };
 }
+
+// ---------- 도감 (본 것들) ----------
+export function markSeen(kind, id) {
+  if (!id) return false;
+  const all = get('gsg.seen', {});
+  const list = (all[kind] ??= []);
+  if (list.includes(id)) return false;
+  list.push(id);
+  set('gsg.seen', all);
+  return true;
+}
+export const getSeen = () => get('gsg.seen', {});
+
+// ---------- 어휘집: 어떤 말이 처음으로 그 일을 불렀나 ----------
+export function noteWords(key, text) {
+  if (!key || !text) return;
+  const all = get('gsg.lexicon', {});
+  const e = (all[key] ??= { first: text.slice(0, 20), n: 0 });
+  e.n += 1;
+  set('gsg.lexicon', all);
+}
+export const getLexicon = () => get('gsg.lexicon', {});
+
+// ---------- 시련과 승천 ----------
+export const getTrials = () => get('gsg.trials', {});
+export function recordTrial(id, stars) {
+  const all = getTrials();
+  if ((all[id] ?? 0) >= stars) return false;
+  all[id] = stars;
+  set('gsg.trials', all);
+  return true;
+}
+export function isoWeek(date = new Date()) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const y = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return `${d.getUTCFullYear()}-W${Math.ceil(((d - y) / 86400000 + 1) / 7)}`;
+}
+export const weeklyIndex = (n, date = new Date()) => hash(`gsg:week:${isoWeek(date)}`) % n;
+export const ascensionOpen = () => get('gsg.ascension', 0);
+export function openAscension(level) { if (level > ascensionOpen()) set('gsg.ascension', Math.min(5, level)); }

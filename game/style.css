@@ -1056,3 +1056,20 @@ body.faith-crisis .vignette { background: radial-gradient(ellipse at center, tra
 /* ---------- 4차 웨이브 C ---------- */
 .tile-name.legend { fill: #7a2016; font-size: 12px; }
 .act .text-btn.swap-reading, .act .text-btn.retract { font: 12.5px var(--font-ui); color: var(--on-table-dim); }
+
+/* ---------- 4차 웨이브 E: 시련·승천·도감 ---------- */
+.trials { display: grid; gap: 8px; }
+.trial { display: grid; gap: 3px; text-align: left; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(124, 89, 27, .35); background: rgba(255, 250, 235, .5); color: var(--ink); cursor: pointer; }
+.trial:hover { background: rgba(244, 196, 74, .2); }
+.trial.weekly { border-color: var(--gold-lo); box-shadow: 0 0 0 2px rgba(244, 196, 74, .4); }
+.trial b { font: 700 16px var(--font-display); } .trial b em { font: 600 11px var(--font-ui); font-style: normal; color: #fff; background: #9a6a10; padding: 1px 6px; border-radius: 999px; margin-left: 6px; }
+.trial span { font: 13.5px/1.5 var(--font-body); color: var(--ink-soft); }
+.trial i { font: 12px var(--font-ui); color: var(--gold-lo); font-style: normal; }
+.seg.asc { margin-top: 6px; }
+.codex { margin: 6px 0 12px; }
+.codex summary { cursor: pointer; font: 700 14px var(--font-display); color: var(--gold-lo); }
+.codex-row { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: baseline; margin: 6px 0; font: 12px var(--font-ui); }
+.codex-row b { flex-basis: 100%; font: 700 12px var(--font-ui); color: var(--ink); }
+.codex-row span { padding: 1px 7px; border-radius: 999px; background: rgba(124, 89, 27, .08); color: var(--ink-faint); }
+.codex-row span.got { background: rgba(201, 162, 74, .25); color: var(--ink); }
+.codex-row.lex span { flex-basis: 100%; border-radius: 6px; }

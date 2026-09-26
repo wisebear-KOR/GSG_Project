@@ -6,7 +6,7 @@ import {
   DOCTRINES, DOCTRINE_MAX, EVENTS, LAW_CARDS, MIRACLES, DIFFICULTY, MAP_SIZES, PLAYER_START, TUTORIAL, ENEMY_LEADERS,
   PRIESTS, PETITIONERS, PROPHECY, FIRST_HAND, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT,
   CATHEDRAL, EDICT_MAX, DESTINIES, DESTINY_POINTS, ACTS, DILEMMAS, FEATURES, COMMANDMENTS, MAX_COMMANDMENTS, SACRED_WORDS,
-  MIRA, MIRA_TWIST, MONTHS,
+  MIRA, MIRA_TWIST, MONTHS, TRIALS,
 } from './data.js';
 import { generateMap, placeSites, placeFeatures, placeLegacy } from './mapgen.js';
 import { frequentNoun, hashPick, citedWords, findLiturgy } from './lore.js';
@@ -69,7 +69,7 @@ export function createState(config = DEFAULT_CONFIG) {
   const state = {
     config: cfg, tutorial, rows: map.length, cols: map[0].length,
     rng: { deck: (tutorial ? TUTORIAL.seed : cfg.seed) ^ 0x5bd1e995, dice: tutorial ? TUTORIAL.seed : cfg.seed }, round: 0,
-    maxRounds: tutorial ? TUTORIAL.rounds : (MAP_SIZES[cfg.size]?.rounds ?? 12),
+    maxRounds: tutorial ? TUTORIAL.rounds : (TRIALS[cfg.trial]?.rounds ?? MAP_SIZES[cfg.size]?.rounds ?? 12),
     enemyBonus: tutorial ? TUTORIAL.enemyBonus : diff.enemyBonus,
     tiles: [], tileAt: {}, sides: {}, eventDeck: [], lawDeck: [],
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
@@ -132,13 +132,14 @@ export function createState(config = DEFAULT_CONFIG) {
     state.lawDeck = TUTORIAL.lawCards.map((id) => LAW_CARDS.find((c) => c.id === id)).reverse();
   } else {
     const leaders = Object.entries(ENEMY_LEADERS).filter(([, l]) => !l.notOn?.includes(cfg.difficulty)).map(([id]) => id);
-    state.leader = hashPick(leaders, 'leader', cfg.seed, cfg.difficulty);
+    state.leader = cfg.trial === 'sword' ? 'iron' : hashPick(leaders, 'leader', cfg.seed, cfg.difficulty);
     // 첫 판은 충직한 사제. 그 뒤로는 판마다 다른 성향
     if (cfg.veteran) state.priest = hashPick(Object.keys(PRIESTS).filter((k) => k !== 'loyal'), 'priest', cfg.seed);
     // 두 번째 판부터 심판의 기준이 판마다 바뀐다
     if (cfg.veteran) state.judgement = hashPick(Object.keys(JUDGEMENTS), 'judgement', cfg.seed);
     // 두 번째 판부터 기적은 판마다 셋을 받는다 (번개·단비 중 하나는 꼭 든다)
-    if (cfg.veteran) {
+    if (cfg.trial === 'storm') state.miracleHand = ['lightning', 'bounty', 'pillar'];
+    else if (cfg.veteran) {
       const rest = MIRACLES.map((m) => m.id).filter((id) => !['lightning', 'rain'].includes(id));
       const a = hashPick(['lightning', 'rain'], 'hand0', cfg.seed);
       const b = hashPick(rest, 'hand1', cfg.seed);
@@ -151,6 +152,9 @@ export function createState(config = DEFAULT_CONFIG) {
     state.eventDeck = dealDeck(state, [...EVENTS, ...dilemmas], state.maxRounds + 2);
     state.lawDeck = dealDeck(state, lawPool(state), state.maxRounds * 2 + 2);
   }
+  if (cfg.trial === 'earth') state.sides.player.doctrine.abundance = 1;
+  if (cfg.trial === 'last') state.sides.enemy.pop += 2;
+  if ((cfg.ascension ?? 0) >= 1) state.sides.enemy.pop += 1;
   // 은사 (오늘의 계시·도전·튜토리얼에선 main이 넘기지 않는다)
   if (cfg.blessing === 'granary') state.sides.player.food += 2;
   // 정경: 지난 판에 봉헌한 구절이 이 부족의 교리를 한 칸 올려 둔다 (오늘의 계시·어려움에선 말씀만 전해진다)
@@ -172,6 +176,7 @@ function lawPool(state) {
   const censor = state.config.veteran && state.config.difficulty !== 'easy';
   const pool = LAW_CARDS.filter((c) => (c.id !== 'L10' || censor) && !leader?.deck.remove.includes(c.id));
   for (const id of leader?.deck.add ?? []) pool.push(LAW_CARDS.find((c) => c.id === id));
+  if (state.config.trial === 'sword') pool.push(LAW_CARDS.find((c) => c.id === 'L5'), LAW_CARDS.find((c) => c.id === 'L5'));
   return pool;
 }
 
@@ -192,7 +197,7 @@ export const ULT_ROUND = 8;
 export const quick = (state) => state.rows <= 4 && !state.tutorial;
 export const ultRound = (state) => (quick(state) ? 6 : ULT_ROUND);
 export const draftRound = (state) => (quick(state) ? 3 : 5);
-export const wrathRound = (state) => (quick(state) ? 3 : 4);
+export const wrathRound = (state) => (state.config?.trial === 'last' ? 1 : quick(state) ? 3 : 4);
 export const hasUlt = (state, side, key) => side === 'player' && state.sides[side].doctrine[key] >= DOCTRINE_MAX && state.round >= ultRound(state);
 export const popCap = (state, side) => 3 + 2 * villageCount(state, side) + (hasUlt(state, side, 'abundance') ? 2 : 0);
 
@@ -209,7 +214,7 @@ export function reach(state, side) {
 // 행동 수 = 2 + 신전 단계 + 신도 4명당 1 (+ 지혜 교리 / 율법파 난이도 보너스), 최대 6, 신도 수를 넘지 않는다
 export function actionLimit(state, side) {
   const s = state.sides[side];
-  const bonus = side === 'enemy' ? state.enemyBonus : (s.doctrine.wisdom >= 4 ? 1 : 0);
+  const bonus = side === 'enemy' ? state.enemyBonus + ((state.config.ascension ?? 0) >= 4 && actOf(state) === 3 ? 1 : 0) : (s.doctrine.wisdom >= 4 ? 1 : 0);
   let limit = Math.min(MAX_ACTIONS, 2 + s.templeLevel + Math.floor(s.pop / RULES.followersPerAction) + bonus);
   if (side === 'player' && isSabbath(state)) limit = Math.max(1, limit - 2);
   return Math.max(0, Math.min(limit, s.pop));
@@ -376,7 +381,7 @@ export function legalActions(state, side) {
     if (!t.owner && !t.building && canPay(s, COST.village) && !cmd.includes('noExpand')) add({ type: 'build', build: 'village', tile: t.id });
     if (t.owner === foe) {
       add({ type: 'preach', tile: t.id });
-      if (!cmd.includes('noSword')) add({ type: 'attack', tile: t.id });
+      if (!cmd.includes('noSword') && !(side === 'player' && state.config.trial === 'earth')) add({ type: 'attack', tile: t.id });
     }
   }
   for (const t of ownedTiles(state, side)) {
@@ -696,7 +701,7 @@ export function enemyIntent(state) {
 }
 
 // 기적 비용: 신의 분노만큼 싸진다 (최소 1). 심판의 날은 공짜
-export const miracleCost = (state, m) => (m.id === DOOM.id ? 0 : Math.max(1, m.cost - (state.wrath ?? 0)));
+export const miracleCost = (state, m) => (m.id === DOOM.id ? 0 : Math.max(1, m.cost - (state.wrath ?? 0) - (state.config.trial === 'storm' && m.id === 'lightning' ? 1 : 0)));
 export const doomReady = (state) => (state.wrath ?? 0) >= 3 && !state.tutorial;
 
 export function castMiracle(state, id, targetTile) {
@@ -859,7 +864,7 @@ function recordHistory(state) {
   // 신의 분노: 4장부터 6점 이상 뒤지면 차오르고, 3점 이내로 좁히면 가라앉는다
   if (state.tutorial || state.winner) return;
   const before = state.wrath;
-  if (state.round >= wrathRound(state) && es - ps >= 6) state.wrath = Math.min(3, state.wrath + 1);
+  if (state.round >= wrathRound(state) && es - ps >= ((state.config.ascension ?? 0) >= 3 ? 8 : 6)) state.wrath = Math.min(3, state.wrath + 1);
   else if (es - ps <= 3) state.wrath = Math.max(0, state.wrath - 1);
   if (state.wrath > before) {
     logEvent(state, 'player', state.wrath >= 3 ? '신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다.' : `신의 분노가 차오른다 (${state.wrath}/3) — 기적이 ${state.wrath}만큼 싸진다.`, null, { kind: 'wrath', tile: capitalOf(state, 'player')?.id });
@@ -869,7 +874,7 @@ function recordHistory(state) {
 // ---------- 율법 석판과 성지 ----------
 export const holyTile = (state) => (state.holyId ? state.tileAt[state.holyId] : null);
 export const holyOwner = (state) => { const t = holyTile(state); return t?.building === 'village' ? t.owner : null; };
-export const edictMax = () => EDICT_MAX;
+export const edictMax = (state) => EDICT_MAX - ((state?.config?.ascension ?? 0) >= 2 ? 2 : 0);
 export function raiseEdict(state, n, why) {
   if (!state.edictOn || n === 0) return;
   const e = state.sides.enemy;
@@ -1194,7 +1199,7 @@ function upkeep(state) {
       logEvent(state, side, `${josa(who, '이', '가')} 굶주려 1명을 잃었다.`, null, { kind: 'loss' });
     } else {
       // 식량에 여유가 있을 때만 늘어난다: 증가 비용 + 신도 절반만큼의 비축
-      const growCost = s.doctrine.abundance >= 4 ? 1 : 2;
+      const growCost = s.doctrine.abundance >= 4 || (side === 'player' && state.config.trial === 'earth') ? 1 : 2;
       if (s.pop < popCap(state, side) && s.food >= growCost + Math.ceil(s.pop / 2)) {
         s.food -= growCost; s.pop += 1;
         logEvent(state, side, `${who}에 새 ${side === 'player' ? '신도가' : '구성원이'} 태어났다.`, null, { kind: 'birth' });
