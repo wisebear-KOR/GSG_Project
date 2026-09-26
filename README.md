@@ -1,10 +1,12 @@
 # GSG Project
 
-Chrome 내장 AI(Prompt API, Gemma 4)로 LLM 사용법을 배우는 스테이지형 학습 게임.
+Chrome 내장 AI(Prompt API, Gemma 4)로 신도들에게 계시를 내리는 보드게임풍 턴제 전략 게임 (개발 중).
 
 ## 현재 상태
 
 - [`check.html`](check.html): 브라우저가 내장 모델을 제어할 수 있는지 점검하는 페이지
+- [`lab/interpret.html`](lab/interpret.html): 계시를 해석해 가능한 행동 목록에서 행동을 고르는 대사제 LLM 실험 페이지
+- [`docs/DESIGN.md`](docs/DESIGN.md): 기획 문서
 
 ## 요구 사항
 

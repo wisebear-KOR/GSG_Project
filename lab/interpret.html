@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>계시 해석기 실험</title>
+<style>
+  :root {
+    --bg: #f4f1ea; --panel: #fffdf8; --text: #2a241b; --muted: #7a6f5f;
+    --line: #e2d9c8; --accent: #8a4b1f; --accent-ink: #fff; --ok: #2f7d4a; --warn: #a8701a; --bad: #b3372b;
+    --code: #efe8da; --chip: #f1e6d2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17140f; --panel: #211d17; --text: #ece4d6; --muted: #a89c88;
+      --line: #3a3328; --accent: #e0a15f; --accent-ink: #1a140c; --ok: #6fcf8f; --warn: #f0b75a; --bad: #ff8a7a;
+      --code: #2b261e; --chip: #332b20;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.55 system-ui, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  p.sub { color: var(--muted); margin: 0 0 16px; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px; margin-bottom: 16px; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; }
+  pre { background: var(--code); padding: 10px; border-radius: 8px; white-space: pre-wrap;
+    word-break: break-word; margin: 8px 0 0; }
+  .ok { color: var(--ok); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+  .muted { color: var(--muted); }
+  label { font-size: 13px; color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .grid > div { display: flex; flex-direction: column; gap: 4px; }
+  select, textarea, input[type=text] { width: 100%; background: var(--bg); color: var(--text);
+    border: 1px solid var(--line); border-radius: 6px; padding: 7px 8px; font: inherit; }
+  textarea { resize: vertical; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  button { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 6px;
+    padding: 8px 14px; font: inherit; cursor: pointer; }
+  button.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  button.small { padding: 3px 9px; font-size: 13px; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { background: var(--chip); color: var(--text); border: 1px solid var(--line);
+    border-radius: 999px; padding: 3px 10px; font-size: 13px; cursor: pointer; }
+  .status { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; }
+  .counter { font-size: 12px; color: var(--muted); text-align: right; }
+  progress { width: 100%; height: 8px; }
+  table.actions { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.actions td { padding: 4px 6px; border-bottom: 1px solid var(--line); }
+  table.actions td:first-child { font-family: ui-monospace, Consolas, monospace; width: 44px; }
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+  .stat { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  .stat b { display: block; font-size: 20px; }
+  .stat span { font-size: 12px; color: var(--muted); }
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin-top: 10px; background: var(--bg); }
+  .card .head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .card .rev { font-weight: 600; }
+  .card .interp { margin: 6px 0; font-style: italic; }
+  .card ul { margin: 6px 0; padding-left: 18px; }
+  .card .meta { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .tag { display: inline-block; font-size: 12px; border-radius: 4px; padding: 0 6px; background: var(--chip); }
+  details summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+  .rate button { background: transparent; border: 1px solid var(--line); color: var(--text); }
+  .rate button.on { border-color: var(--accent); background: var(--chip); }
+</style>
+</head>
+<body>
+<main>
+  <h1>계시 해석기 실험</h1>
+  <p class="sub">대사제 LLM이 계시를 해석해 <b>가능한 행동 목록</b>에서 행동을 고르는지 확인합니다. 응답 속도, 해석이 그럴듯한지, 한국어 품질을 측정합니다.</p>
+
+  <section>
+    <h2>설정</h2>
+    <div class="status" id="status"></div>
+    <div class="grid" style="margin-top:12px">
+      <div>
+        <label for="lang">프롬프트 언어</label>
+        <select id="lang">
+          <option value="ko">한국어</option>
+          <option value="en">영어 (해석문도 영어)</option>
+        </select>
+      </div>
+      <div>
+        <label for="limit">행동 수 제한</label>
+        <select id="limit">
+          <option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option>
+        </select>
+      </div>
+      <div>
+        <label for="event">최근 사건</label>
+        <select id="event"></select>
+      </div>
+      <div>
+        <label for="repeat">같은 계시 반복 횟수</label>
+        <select id="repeat">
+          <option>1</option><option selected>3</option><option>5</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <button id="prepare">모델 준비</button>
+      <label><input type="checkbox" id="mock"> 모의 해석기 사용 (LLM 없이 UI 확인용)</label>
+    </div>
+    <progress id="dl" max="1" value="0" hidden></progress>
+    <details style="margin-top:12px">
+      <summary>시스템 프롬프트 편집</summary>
+      <textarea id="system" rows="9" style="margin-top:8px"></textarea>
+      <div class="row"><button class="ghost small" id="resetSystem">기본값으로</button>
+        <span class="muted" style="font-size:12px">바꾸면 다음 실행 때 세션을 새로 만듭니다.</span></div>
+    </details>
+    <details style="margin-top:8px">
+      <summary>보드 상태와 가능한 행동 보기</summary>
+      <pre id="userPreview"></pre>
+    </details>
+  </section>
+
+  <section>
+    <h2>계시 내리기</h2>
+    <textarea id="revelation" rows="2" maxlength="100" placeholder="예: 이웃을 사랑하라"></textarea>
+    <div class="counter"><span id="count">0</span> / 100자</div>
+    <div class="chips" id="samples"></div>
+    <div class="row">
+      <button id="run">계시 내리기</button>
+      <button class="ghost" id="runAll">샘플 10개 전체 실행</button>
+      <button class="ghost" id="stop" disabled>중지</button>
+      <span class="muted" id="progress"></span>
+    </div>
+  </section>
+
+  <section>
+    <h2>요약</h2>
+    <div class="summary" id="summary"></div>
+    <div class="row">
+      <button class="ghost small" id="copy">결과 JSON 복사</button>
+      <button class="ghost small" id="clear">결과 지우기</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>결과</h2>
+    <div id="results"><p class="muted">아직 결과가 없습니다.</p></div>
+  </section>
+</main>
+
+<script type="module">
+import { hasLanguageModel, availability, createBaseSession, promptJSON } from '../js/llm.js';
+import {
+  ACTIONS, EVENTS, SAMPLES, SYSTEM_PROMPT, DOCTRINE_LABEL,
+  buildUserPrompt, buildSchema, validateOrders, mockInterpret,
+} from './scenario.js';
+
+const $ = (id) => document.getElementById(id);
+const actionById = Object.fromEntries(ACTIONS.map((a) => [a.id, a]));
+
+let base = null;          // 기본 세션
+let baseKey = '';         // 기본 세션을 만든 시스템 프롬프트 + 언어
+let languageFallback = false;
+let controller = null;
+let results = [];
+let avail = { ko: '-', en: '-' };
+
+// ---------- 초기화 ----------
+$('event').append(...EVENTS.map((e) => new Option(e.ko, e.id)));
+$('system').value = SYSTEM_PROMPT.ko;
+$('samples').append(...SAMPLES.map((s) => {
+  const b = document.createElement('button');
+  b.className = 'chip'; b.type = 'button'; b.textContent = s;
+  b.onclick = () => { $('revelation').value = s; updateCount(); };
+  return b;
+}));
+
+function updateCount() { $('count').textContent = $('revelation').value.length; }
+function updatePreview() {
+  $('userPreview').textContent = buildUserPrompt({
+    lang: $('lang').value, revelation: '(계시)', limit: Number($('limit').value), eventId: $('event').value,
+  });
+}
+$('revelation').oninput = updateCount;
+for (const id of ['limit', 'event']) $(id).onchange = updatePreview;
+$('lang').onchange = () => { $('system').value = SYSTEM_PROMPT[$('lang').value]; updatePreview(); };
+$('resetSystem').onclick = () => { $('system').value = SYSTEM_PROMPT[$('lang').value]; };
+
+function renderStatus() {
+  const api = hasLanguageModel();
+  const items = [
+    ['Prompt API', api ? '있음' : '없음', api ? 'ok' : 'bad'],
+    ['한국어', avail.ko, avail.ko === 'available' ? 'ok' : avail.ko === 'unavailable' ? 'bad' : 'warn'],
+    ['영어', avail.en, avail.en === 'available' ? 'ok' : avail.en === 'unavailable' ? 'bad' : 'warn'],
+    ['세션', base ? (languageFallback ? '준비됨 (언어 지정 없이)' : '준비됨') : '없음', base ? (languageFallback ? 'warn' : 'ok') : 'muted'],
+    ['해석기', $('mock').checked ? '모의' : 'LLM', $('mock').checked ? 'warn' : 'ok'],
+  ];
+  $('status').replaceChildren(...items.map(([k, v, cls]) => {
+    const s = document.createElement('span');
+    s.innerHTML = `${k}: <b class="${cls}"></b>`;
+    s.querySelector('b').textContent = v;
+    return s;
+  }));
+}
+$('mock').onchange = renderStatus;
+
+async function init() {
+  if (!hasLanguageModel()) {
+    $('mock').checked = true;
+    $('prepare').disabled = true;
+  } else {
+    avail = { ko: await availability(['ko']), en: await availability(['en']) };
+  }
+  renderStatus();
+  updatePreview();
+  renderSummary();
+}
+
+// ---------- 세션 ----------
+async function ensureBase() {
+  const lang = $('lang').value;
+  const key = `${lang}\n${$('system').value}`;
+  if (base && key === baseKey) return base;
+  base?.destroy();
+  base = null;
+  const created = await createBaseSession({
+    systemPrompt: $('system').value,
+    languages: lang === 'ko' ? ['ko', 'en'] : ['en'],
+    onProgress: (p) => { $('dl').hidden = false; $('dl').value = p; },
+  });
+  base = created.session;
+  languageFallback = created.languageFallback;
+  baseKey = key;
+  renderStatus();
+  return base;
+}
+
+$('prepare').onclick = async () => {
+  $('prepare').disabled = true;
+  $('progress').textContent = '세션 준비 중…';
+  try {
+    await ensureBase();
+    $('progress').textContent = '세션 준비 완료';
+  } catch (e) {
+    $('progress').textContent = `세션 준비 실패: ${e.name} ${e.message}`;
+  } finally {
+    $('prepare').disabled = false;
+  }
+};
+
+// ---------- 실행 ----------
+async function interpret(revelation, signal) {
+  const limit = Number($('limit').value);
+  const lang = $('lang').value;
+  const eventId = $('event').value;
+  let out;
+  if ($('mock').checked) {
+    out = await mockInterpret(revelation, limit);
+  } else {
+    const s = await (await ensureBase()).clone({ signal });
+    try {
+      out = await promptJSON(s, buildUserPrompt({ lang, revelation, limit, eventId }), buildSchema(limit), signal);
+    } finally {
+      s.destroy();
+    }
+  }
+  const check = validateOrders(out.data?.orders, limit);
+  return {
+    revelation, lang, limit, eventId, mock: $('mock').checked,
+    interpretation: out.data?.interpretation ?? '',
+    orders: out.data?.orders ?? [],
+    doctrine: out.data?.doctrine ?? null,
+    accepted: check.accepted,
+    rejected: check.rejected,
+    error: out.error,
+    ms: Math.round(out.ms),
+    ttft: out.ttft == null ? null : Math.round(out.ttft),
+    contextUsage: out.contextUsage,
+    raw: out.raw,
+    rating: null,
+    at: new Date().toISOString(),
+  };
+}
+
+async function runBatch(revelations) {
+  const repeat = Number($('repeat').value);
+  const jobs = revelations.flatMap((r) => Array(repeat).fill(r));
+  controller = new AbortController();
+  setBusy(true);
+  try {
+    for (let i = 0; i < jobs.length; i++) {
+      if (controller.signal.aborted) break;
+      $('progress').textContent = `${i + 1} / ${jobs.length} 실행 중…`;
+      try {
+        results.push(await interpret(jobs[i], controller.signal));
+      } catch (e) {
+        if (e.name === 'AbortError') break;
+        results.push({ revelation: jobs[i], error: `${e.name}: ${e.message}`, orders: [], accepted: [], rejected: [], rating: null });
+      }
+      render();
+    }
+    $('progress').textContent = controller.signal.aborted ? '중지됨' : '완료';
+  } finally {
+    setBusy(false);
+  }
+}
+
+function setBusy(busy) {
+  $('run').disabled = $('runAll').disabled = $('prepare').disabled = busy;
+  $('stop').disabled = !busy;
+}
+
+$('run').onclick = () => {
+  const r = $('revelation').value.trim();
+  if (r) runBatch([r]);
+};
+$('runAll').onclick = () => runBatch(SAMPLES);
+$('stop').onclick = () => controller?.abort();
+
+// ---------- 렌더링 ----------
+const avg = (xs) => xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length) : null;
+
+function consistency() {
+  // 같은 계시를 반복했을 때 가장 흔한 행동 조합이 차지하는 비율의 평균
+  const groups = {};
+  for (const r of results) {
+    if (r.error) continue;
+    const k = `${r.revelation}|${r.lang}|${r.limit}|${r.eventId}`;
+    (groups[k] ??= []).push([...r.accepted].sort().join(','));
+  }
+  const ratios = Object.values(groups).filter((g) => g.length > 1).map((g) => {
+    const counts = {};
+    for (const s of g) counts[s] = (counts[s] ?? 0) + 1;
+    return Math.max(...Object.values(counts)) / g.length;
+  });
+  return ratios.length ? Math.round((ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100) : null;
+}
+
+function renderSummary() {
+  const ok = results.filter((r) => !r.error);
+  const clean = ok.filter((r) => r.rejected.length === 0);
+  const rated = results.filter((r) => r.rating);
+  const good = rated.filter((r) => r.rating === 'up');
+  const stats = [
+    ['실행 횟수', results.length],
+    ['평균 전체 시간', avg(ok.map((r) => r.ms)) != null ? `${avg(ok.map((r) => r.ms))}ms` : '-'],
+    ['평균 첫 토큰', avg(ok.filter((r) => r.ttft != null).map((r) => r.ttft)) != null ? `${avg(ok.filter((r) => r.ttft != null).map((r) => r.ttft))}ms` : '-'],
+    ['JSON 성공률', results.length ? `${Math.round((ok.length / results.length) * 100)}%` : '-'],
+    ['규칙 위반 없음', ok.length ? `${Math.round((clean.length / ok.length) * 100)}%` : '-'],
+    ['반복 일관성', consistency() != null ? `${consistency()}%` : '-'],
+    ['그럴듯함 👍', rated.length ? `${good.length} / ${rated.length}` : '-'],
+  ];
+  $('summary').replaceChildren(...stats.map(([k, v]) => {
+    const d = document.createElement('div');
+    d.className = 'stat';
+    d.innerHTML = '<b></b><span></span>';
+    d.querySelector('b').textContent = v;
+    d.querySelector('span').textContent = k;
+    return d;
+  }));
+}
+
+function el(tag, props = {}, ...children) {
+  const e = Object.assign(document.createElement(tag), props);
+  e.append(...children);
+  return e;
+}
+
+function actionText(id, lang) {
+  const a = actionById[id];
+  return a ? `${id} · ${lang === 'en' ? a.en : a.ko}` : id;
+}
+
+function renderCard(r, index) {
+  const head = el('div', { className: 'head' },
+    el('span', { className: 'rev', textContent: `“${r.revelation}”` }),
+    el('span', { className: 'meta' },
+      r.mock ? el('span', { className: 'tag warn', textContent: '모의' }) : '',
+      r.doctrine ? el('span', { className: 'tag', textContent: DOCTRINE_LABEL[r.doctrine] ?? r.doctrine }) : ''),
+  );
+  const card = el('div', { className: 'card' }, head);
+  if (r.error) {
+    card.append(el('p', { className: 'bad', textContent: r.error }));
+  } else {
+    card.append(el('p', { className: 'interp', textContent: r.interpretation }));
+    card.append(el('ul', {}, ...r.accepted.map((id) => el('li', { textContent: actionText(id, r.lang) }))));
+    if (r.rejected.length) {
+      card.append(el('p', { className: 'warn', textContent:
+        `엔진이 거부: ${r.rejected.map((x) => `${x.id}(${x.reason})`).join(', ')}` }));
+    }
+  }
+  const ev = EVENTS.find((e) => e.id === r.eventId);
+  card.append(el('div', { className: 'meta' },
+    el('span', { textContent: `전체 ${r.ms ?? '-'}ms` }),
+    el('span', { textContent: `첫 토큰 ${r.ttft ?? '-'}ms` }),
+    el('span', { textContent: `컨텍스트 ${r.contextUsage ?? '-'}토큰` }),
+    el('span', { textContent: `행동 제한 ${r.limit ?? '-'}` }),
+    el('span', { textContent: `언어 ${r.lang ?? '-'}` }),
+    el('span', { textContent: `사건: ${ev ? ev.ko : '-'}` }),
+  ));
+  const up = el('button', { className: `small ${r.rating === 'up' ? 'on' : ''}`, textContent: '👍 그럴듯함' });
+  const down = el('button', { className: `small ${r.rating === 'down' ? 'on' : ''}`, textContent: '👎 어색함' });
+  up.onclick = () => { r.rating = r.rating === 'up' ? null : 'up'; render(); };
+  down.onclick = () => { r.rating = r.rating === 'down' ? null : 'down'; render(); };
+  card.append(el('div', { className: 'row rate' }, up, down));
+  card.append(el('details', {}, el('summary', { textContent: '원본 응답' }), el('pre', { textContent: r.raw ?? '' })));
+  card.dataset.index = index;
+  return card;
+}
+
+function render() {
+  renderSummary();
+  if (!results.length) {
+    $('results').replaceChildren(el('p', { className: 'muted', textContent: '아직 결과가 없습니다.' }));
+    return;
+  }
+  $('results').replaceChildren(...results.map(renderCard).reverse());
+}
+
+$('copy').onclick = async () => {
+  const data = results.map(({ raw, ...rest }) => rest);
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    $('progress').textContent = '결과를 클립보드에 복사했습니다';
+  } catch {
+    $('progress').textContent = '복사 실패';
+  }
+};
+$('clear').onclick = () => { results = []; render(); };
+
+init();
+</script>
+</body>
+</html>
