@@ -4,13 +4,13 @@ import {
   recordRevelation, castMiracle, actionLimit, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
 } from './engine.js';
 import {
-  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, revelationCost, RESOURCE_NAME, MAX_ROUNDS, CAPITAL_HP, MAX_TEMPLE,
+  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, revelationCost, RESOURCE_NAME, MAX_ROUNDS, CAPITAL_HP, MAX_TEMPLE, TERRAIN,
 } from './data.js';
-import { renderBoard, tileToHost } from './board.js';
+import { renderBoard, tileToHost, markerToScreen } from './board.js';
 import { installArt } from './art.js';
 import { llmStatus, prepareLLM, interpretWithLLM, interpretWithTablet } from './interpreter.js';
 import * as fx from './fx.js';
-import { sfx, soundOn, setSound, unlockAudio } from './sound.js';
+import { sfx, soundOn, setSound, musicOn, setMusic, music, unlockAudio } from './sound.js';
 
 installArt();
 const $ = (id) => document.getElementById(id);
@@ -38,6 +38,8 @@ let dealSeason = false;
 let flipLaw = false;
 let prevNums = {};
 let prevDoctrine = {};
+let focusId = null;         // 해결 재생 중 카메라가 비추는 칸
+let lastAltarPhase = null;  // 제단 전환 연출용
 
 const V = () => view ?? state;
 const frameEl = () => $('boardFrame');
@@ -79,7 +81,8 @@ function renderMainStatus() {
       : ['warn', '대사제 모델은 첫 계시 때 내려받는다 (수 GB)']
     : ['off', aiUsable ? '석판 해석기로 플레이한다 (헤더에서 LLM으로 전환)' : '이 브라우저에는 내장 AI가 없어 석판(키워드) 해석기로 플레이한다'];
   $('msStatus').innerHTML = `<span class="dot ${cls}"></span><span>${text}</span>`;
-  $('msSound').textContent = soundOn() ? '♫ 소리 켜짐' : '✕ 소리 꺼짐';
+  $('msMusic').textContent = musicOn() ? '♪ 음악 켜짐' : '♪ 음악 꺼짐';
+  $('msSound').textContent = soundOn() ? '효과음 켜짐' : '효과음 꺼짐';
   $('msMotion').textContent = fx.motion.reduced ? '✧ 연출 줄임' : '✦ 연출 화려하게';
 }
 
@@ -100,6 +103,7 @@ function startFromMain() {
 function bindMain() {
   $('startGame').onclick = startFromMain;
   $('msSound').onclick = () => { setSound(!soundOn()); renderMainStatus(); renderTools(); sfx.click(); };
+  $('msMusic').onclick = () => { setMusic(!musicOn()); renderMainStatus(); renderTools(); sfx.click(); };
   $('msMotion').onclick = () => { fx.setReduced(!fx.motion.reduced); renderMainStatus(); renderTools(); sfx.click(); };
   addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !$('mainScreen').hidden) { e.preventDefault(); startFromMain(); }
@@ -107,8 +111,35 @@ function bindMain() {
   });
 }
 
+function bindTileTips() {
+  const tip = $('tileTip');
+  const board = $('board');
+  board.addEventListener('pointermove', (e) => {
+    const g = e.target.closest?.('.tile');
+    if (!g) { tip.classList.remove('show'); return; }
+    const cur = V();
+    const t = cur.tileAt[g.dataset.id];
+    tip.innerHTML = tileTipHTML(cur, t);
+    tip.classList.add('show');
+    const x = Math.min(e.clientX + 18, innerWidth - tip.offsetWidth - 8);
+    const y = Math.min(e.clientY + 18, innerHeight - tip.offsetHeight - 8);
+    tip.style.left = `${x}px`; tip.style.top = `${y}px`;
+  });
+  board.addEventListener('pointerleave', () => tip.classList.remove('show'));
+}
+
+function tileTipHTML(cur, t) {
+  if (!t.revealed) return `<b>안개 지대 · ${t.id}</b><span>아직 아무도 가 보지 않은 땅. 탐험하면 모습이 드러난다.</span>`;
+  const terr = TERRAIN[t.terrain];
+  const owner = t.owner === 'player' ? '우리 부족의 땅' : t.owner === 'enemy' ? '율법파의 땅' : '주인 없는 땅';
+  const bld = t.building === 'capital' ? (t.owner === 'player' ? '신전 — 기도하는 곳' : '율법파의 탑') : t.building === 'village' ? '마을 — 인구 한도 +2, 식량 +1' : '';
+  const gather = t.building === 'capital' ? '' : `${RESOURCE_NAME[terr.gather]} 채집 +${terr.amount}`;
+  return `<b>${esc(tileName(cur, t, 'player'))}</b><span>${[owner, bld, gather, t.wall ? '성벽 — 방어 +2' : ''].filter(Boolean).map(esc).join('<br>')}</span>`;
+}
+
 function bindTools() {
   bindMain();
+  bindTileTips();
   $('home').onclick = () => { sfx.click(); showMain(); };
   $('ai').onclick = () => {
     if (!aiUsable || phase === 'thinking') return;
@@ -117,12 +148,30 @@ function bindTools() {
     renderTools();
   };
   $('sound').onclick = () => { setSound(!soundOn()); renderTools(); sfx.click(); };
+  $('music').onclick = () => { setMusic(!musicOn()); renderTools(); sfx.click(); };
   $('motion').onclick = () => { fx.setReduced(!fx.motion.reduced); renderTools(); sfx.click(); };
   $('openChron').onclick = () => { renderChron(); $('chronicle').classList.add('open'); sfx.page(); };
   $('closeChron').onclick = () => $('chronicle').classList.remove('open');
 }
 
-function newRound() {
+// 장이 끝나면 판 위의 미플이 각자의 매트로 돌아간다
+async function returnMeeples() {
+  const pieces = [...document.querySelectorAll('#board .pieces .meeple')];
+  if (!pieces.length || fx.motion.reduced) return;
+  const items = [];
+  const counts = { player: 0, enemy: 0 };
+  for (const g of pieces) {
+    const side = g.dataset.side;
+    const slot = document.querySelectorAll(`#mat${side === 'player' ? 'Player' : 'Enemy'} .meeples svg`)[counts[side]++];
+    if (!slot) continue;
+    items.push({ from: center(g.querySelector('.meeple-body') ?? g), to: center(slot), side });
+    g.style.opacity = '0';
+  }
+  await fx.flyMeeples(items.slice(0, 10), () => {});
+}
+
+async function newRound() {
+  if (resolved) { lockAltar(); await returnMeeples(); }
   startRound(state);
   phase = 'speak';
   pending = null;
@@ -130,6 +179,10 @@ function newRound() {
   targeting = null;
   notice = '';
   dealSeason = true;
+  focusId = null;
+  fx.unfocus(frameEl());
+  music.start();
+  music.setMood('calm');
   render();
   fx.chapter(frameEl(), `제 ${state.round} 장`, state.event.name);
 }
@@ -180,8 +233,27 @@ async function interpret(text) {
   const { accepted, rejected } = validateOrders(state, 'player', result.orders, forbiddenKeys, result.doctrine);
   const auto = autoFill(state, 'player', accepted, forbiddenKeys);
   pending = { text, result, accepted, rejected, auto, fresh: true };
+  await enterConfirm();
+}
+
+async function enterConfirm() {
+  const placed = [...pending.accepted, ...pending.auto];
+  // 날아가기 전의 매트 미플 자리를 잰다
+  const slots = [...document.querySelectorAll('#matPlayer .meeples svg')];
+  const from = placed.map((_, i) => slots[i] ? center(slots[i]) : null);
+  pending.incoming = true;
   phase = 'confirm';
   render();
+  const board = $('board');
+  const items = placed.map((a, i) => ({ from: from[i] ?? center(board), to: markerToScreen(board, state.tileAt[a.tile], 'player'), side: 'player' }));
+  await fx.flyMeeples(items, (i) => landMeeple(placed[i].tile, 'player'));
+  pending.incoming = false;
+}
+
+const center = (el) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
+function landMeeple(tile, side) {
+  const g = document.querySelector(`#board .meeple.incoming[data-tile="${tile}"][data-side="${side}"]`);
+  if (g) { g.classList.remove('incoming'); g.classList.add('land'); }
 }
 
 function silence() {
@@ -192,8 +264,7 @@ function silence() {
     result: { interpretation: '신께서 침묵하셨다. 신도들은 각자 일터로 향한다.', orders: [], forbidden: [], doctrine: null, source: 'silence' },
     accepted: [], rejected: [], auto, fresh: true,
   };
-  phase = 'confirm';
-  render();
+  enterConfirm();
 }
 
 async function reinterpret() {
@@ -226,37 +297,82 @@ const makeView = (snap) => ({
 });
 
 async function playback(before) {
+  const enemySlots = [...document.querySelectorAll('#matEnemy .meeples svg')];
+  const enemyFrom = resolved.enemyPlan.map((_, i) => enemySlots[i] ? center(enemySlots[i]) : null);
   phase = 'playing';
   view = makeView(before);
   flipLaw = true;
-  resolved.dropEnemy = true;
-  sfx.page();
+  resolved.incomingEnemy = true;
+  music.setMood('tension');
+  sfx.deal();
   render();
-  for (let i = 0; i < resolved.enemyPlan.length; i++) setTimeout(() => sfx.drop(), 150 * i + 250);
-  await fx.wait(1500);
-  resolved.dropEnemy = false;
+  const board = $('board');
+  const visible = resolved.enemyPlan.filter((a) => state.tileAt[a.tile].revealed);
+  await fx.wait(450);
+  await fx.flyMeeples(visible.map((a) => ({
+    from: enemyFrom[resolved.enemyPlan.indexOf(a)] ?? center($('matEnemy')),
+    to: markerToScreen(board, view.tileAt[a.tile], 'enemy'), side: 'enemy',
+  })), (i) => landMeeple(visible[i].tile, 'enemy'));
+  resolved.incomingEnemy = false;
+  await fx.wait(350);
+  let lastHidden = false;
   for (const log of resolved.logs) {
     matView = view;
     view = makeView(log.snap);
     resolved.shown.push(log);
+    const t = log.fx?.tile ? view.tileAt[log.fx.tile] : null;
+    const seen = t && (t.revealed || log.side === 'player');
+    focusId = seen ? t.id : null;
     renderBoardView();
     renderAltar();
-    await playFx(log);
+    if (seen) fx.focusTile(frameEl(), board, t); else fx.unfocus(frameEl());
+    // 안개 속 율법파의 일은 연달아 나오면 한 번만 알리고 빠르게 넘긴다
+    const hidden = t && !seen;
+    const repeatHidden = hidden && lastHidden;
+    lastHidden = hidden;
+    const banner = repeatHidden ? null : bannerFor(log, seen);
+    if (banner && !fx.motion.skip) { fx.actionBanner(frameEl(), banner); await fx.wait(420); }
+    if (repeatHidden) await fx.wait(120); else await playFx(log);
     matView = null;
     renderMats();
     renderTrack();
   }
+  focusId = null;
+  fx.unfocus(frameEl());
+  fx.clearBanner(frameEl());
   view = null;
   fx.motion.skip = false;
   phase = state.winner ? 'over' : 'resolved';
+  if (phase !== 'over') music.setMood('calm');
   render();
   if (phase === 'over') {
+    music.setMood('end');
     const won = state.winner === 'player';
     const title = state.winner === 'draw' ? '무승부' : won ? '승리' : '패배';
     await fx.wait(700);
     const sub = state.winReason.includes('승점') ? state.winReason : `${state.winReason} · 승점 ${score(state, 'player')} : ${score(state, 'enemy')}`;
     fx.endScreen(won, title, sub, restart);
   }
+}
+
+// 해결 단계마다 보드 위에 띄우는 띠
+function bannerFor(log, seen) {
+  const e = log.fx;
+  if (!e) return null;
+  if (log.side !== 'player' && log.side !== 'enemy') return null;
+  const who = log.side === 'player' ? '우리 신도' : '율법파';
+  if (e.tile && !seen) return { side: log.side, icon: 's-tablet', title: `${who} · 안개 속의 움직임`, detail: '무엇을 했는지 보이지 않는다' };
+  const res = e.gain ? Object.keys(e.gain)[0] : null;
+  const isPray = e.kind === 'gain' && res === 'faith' && log.fx.tile && view?.tileAt[log.fx.tile]?.building === 'capital';
+  const map = {
+    gain: [isPray ? 'i-temple' : `i-${res}`, isPray ? '기도' : '채집'],
+    treasure: ['i-faith', '보물 발견'], explore: ['e-prophet', '탐험'], build: ['i-house', '건설'], cathedral: ['i-temple', '대성당'],
+    preach: ['d-peace', '선교'], attack: ['d-war', '공격'], blocked: ['i-shield', '선점당함'], fail: ['i-shield', '헛걸음'],
+    birth: ['i-house', '새 생명'], loss: ['i-shield', '잃음'], lightning: ['m-lightning', '번개'], rain: ['m-rain', '단비'], bounty: ['m-bounty', '풍요'],
+  }[e.kind];
+  if (!map) return null;
+  const [icon, verb] = map;
+  return { side: log.side, icon, title: `${who} · ${verb}`, detail: log.text };
 }
 
 async function playFx(log) {
@@ -322,8 +438,11 @@ async function playFx(log) {
         fx.flash('rgba(200,40,20,.45)', 500);
         fx.ring(svg, tile, '#ff4b3a', true);
         fx.sparks(tileToHost(svg, null, tile), 22, ['#ff6b4a', '#ffb070', '#ffe0b0']);
+      } else if (isAttack) {
+        sfx.shield();
+        fx.floatText(svg, tile, '막혔다', 'bad');
       } else if (!isAttack && log.dice.win) {
-        sfx.holy();
+        sfx.preach();
         fx.sparks(tileToHost(svg, null, tile), 18, ['#ffffff', '#cfe3ff', '#ffe9a8']);
         fx.floatText(svg, tile, '+1 신도', mine ? 'good' : 'bad');
       }
@@ -331,11 +450,11 @@ async function playFx(log) {
     }
     case 'loss':
       if (home) fx.floatText(svg, home, '-1 신도', 'bad');
-      sfx.fail();
+      sfx.loss();
       return fx.wait(750);
     case 'birth':
       if (home) { fx.floatText(svg, home, '+1 신도', 'good'); fx.ring(svg, home, '#9be29b'); }
-      sfx.chime();
+      sfx.birth();
       return fx.wait(750);
     case 'lightning':
       fx.lightning(svg, tile);
@@ -395,14 +514,21 @@ function render() {
   renderAltar();
 }
 
+const iconBtn = (id, on) => `<span class="${on ? '' : 'slash'}"><svg class="u" viewBox="0 0 24 24"><use href="#${id}"/></svg></span>`;
+
 function renderTools() {
   const ai = $('ai');
   ai.querySelector('.dot').className = `dot${aiMode === 'llm' ? '' : ' off'}`;
   ai.querySelector('b').textContent = aiMode === 'llm' ? 'LLM' : '석판';
   ai.title = aiUsable ? `눌러서 LLM / 석판 전환 (모델: ${aiState})` : 'Prompt API를 쓸 수 없어 석판(키워드)으로만 해석한다';
-  $('sound').textContent = soundOn() ? '♫' : '✕';
-  $('sound').title = soundOn() ? '소리 켜짐' : '소리 꺼짐';
-  $('motion').textContent = fx.motion.reduced ? '✧' : '✦';
+  $('music').innerHTML = iconBtn('u-music', musicOn());
+  $('music').classList.toggle('muted', !musicOn());
+  $('music').title = musicOn() ? '배경음악 켜짐' : '배경음악 꺼짐';
+  $('sound').innerHTML = iconBtn('u-speaker', soundOn());
+  $('sound').classList.toggle('muted', !soundOn());
+  $('sound').title = soundOn() ? '효과음 켜짐' : '효과음 꺼짐';
+  $('motion').innerHTML = iconBtn('u-sparkle', !fx.motion.reduced);
+  $('motion').classList.toggle('muted', fx.motion.reduced);
   $('motion').title = fx.motion.reduced ? '연출 줄임 (눌러서 화려하게)' : '연출 화려하게 (눌러서 줄이기)';
 }
 
@@ -430,8 +556,9 @@ function renderSeason() {
         <div class="rule">${esc(ev.rule)}</div>
       </div>
     </div>`;
-  if (dealSeason) setTimeout(() => sfx.page(), 200);
+  if (dealSeason) setTimeout(() => sfx.deal(), 250);
   dealSeason = false;
+  $('season').querySelectorAll('.card').forEach((c) => fx.attachTilt(c, 8));
 }
 
 function renderBoardView() {
@@ -439,16 +566,16 @@ function renderBoardView() {
   const markers = [];
   let highlight = [];
   if (phase === 'confirm' && pending) {
-    pending.accepted.forEach((a, i) => markers.push({ tile: a.tile, side: 'player', label: String(i + 1), drop: pending.fresh, delay: i }));
-    pending.auto.forEach((a, i) => markers.push({ tile: a.tile, side: 'player', dim: true, drop: pending.fresh, delay: pending.accepted.length + i }));
+    pending.accepted.forEach((a, i) => markers.push({ tile: a.tile, side: 'player', label: String(i + 1), incoming: pending.incoming }));
+    pending.auto.forEach((a) => markers.push({ tile: a.tile, side: 'player', dim: true, incoming: pending.incoming }));
     highlight = pending.accepted.map((a) => a.tile);
   }
   if (['playing', 'resolved', 'over'].includes(phase) && resolved) {
     resolved.playerPlan.forEach((a) => markers.push({ tile: a.tile, side: 'player', dim: a.auto }));
-    resolved.enemyPlan.forEach((a, i) => markers.push({ tile: a.tile, side: 'enemy', drop: resolved.dropEnemy, delay: i }));
+    resolved.enemyPlan.forEach((a) => markers.push({ tile: a.tile, side: 'enemy', incoming: resolved.incomingEnemy }));
   }
   const selectable = targeting === 'lightning' ? cur.tiles.filter((t) => t.owner === 'enemy' && t.revealed).map((t) => t.id) : [];
-  renderBoard($('board'), cur, { markers, highlight, selectable, onTileClick, tileTitle: (t) => tileName(cur, t, 'player') });
+  renderBoard($('board'), cur, { markers, highlight, selectable, onTileClick, focus: focusId });
   frameEl().classList.toggle('thinking', phase === 'thinking');
 }
 
@@ -456,8 +583,15 @@ function renderBoardView() {
 function num(key, value) {
   const prev = prevNums[key];
   prevNums[key] = value;
-  const bump = prev != null && prev !== value ? (value > prev ? ' bump-up' : ' bump-down') : '';
-  return `<span class="n${bump}">${value}</span>`;
+  if (prev == null || prev === value) return `<span class="n">${value}</span>`;
+  return `<span class="n ${value > prev ? 'bump-up' : 'bump-down'}" data-from="${prev}" data-to="${value}">${prev}</span>`;
+}
+
+// 떠난 미플 수: 판 위에 나가 있는 미플만큼 매트 자리가 빈다
+function awayCount(side) {
+  if (phase === 'confirm' && pending && side === 'player') return pending.accepted.length + pending.auto.length;
+  if (['playing', 'resolved'].includes(phase) && resolved) return (side === 'player' ? resolved.playerPlan : resolved.enemyPlan).length;
+  return 0;
 }
 
 function renderMats() {
@@ -465,6 +599,7 @@ function renderMats() {
   $('matPlayer').innerHTML = matHTML(cur, 'player');
   $('matEnemy').innerHTML = matHTML(cur, 'enemy');
   renderLaw(cur);
+  document.querySelectorAll('.mat .n[data-from]').forEach((el) => fx.countUp(el, Number(el.dataset.from), Number(el.dataset.to)));
 }
 
 // 율법 카드: 공개 단계에 뒤집힌다
@@ -478,6 +613,7 @@ function renderLaw(cur) {
       <div class="rule">행동 ${actionLimit(cur, 'enemy')}회를 율법 순서대로</div>
     </div></div>` : `<div class="law-back"><div>${svgUse('s-tablet')}율법 카드는 공개 단계에 뒤집힌다</div></div>`;
   if (shown) flipLaw = false;
+  $('law').querySelectorAll('.card').forEach((c) => fx.attachTilt(c, 8));
 }
 
 function matHTML(cur, side) {
@@ -487,7 +623,8 @@ function matHTML(cur, side) {
   const res = RES_KEYS.map((k) => `
     <div class="res"><span class="coin" id="coin-${side}-${k}">${svgUse(`i-${k}`)}</span>
       <div>${num(`${side}.${k}`, s[k])}<div class="l">${RESOURCE_NAME[k]}</div></div></div>`).join('');
-  const meeples = Array.from({ length: Math.max(cap, s.pop) }, (_, i) => meepleSvg(side, i < s.pop ? '' : 'empty')).join('');
+  const away = Math.min(awayCount(side), s.pop);
+  const meeples = Array.from({ length: Math.max(cap, s.pop) }, (_, i) => meepleSvg(side, i < away ? 'away' : i < s.pop ? '' : 'empty')).join('');
   const hearts = Array.from({ length: CAPITAL_HP }, (_, i) => svgUse('i-shield', i < s.capitalHp ? '' : 'lost')).join('');
   const temple = `${s.templeLevel}<small style="font-size:11px;opacity:.6">/${MAX_TEMPLE}</small>`;
   let extra = '';
@@ -596,13 +733,16 @@ function renderAltar() {
   }
 
   altar.innerHTML = `${hand}<div class="scroll-wrap">${scroll}</div>${act}`;
+  const kind = phase === 'resolved' || phase === 'over' ? 'playing' : phase;
+  altar.classList.toggle('phase-in', kind !== lastAltarPhase);
+  lastAltarPhase = kind;
+  altar.querySelectorAll('.mcard').forEach((c) => fx.attachTilt(c, 10));
   bindAltar();
 
   if (phase === 'confirm' && pending.fresh) {
     pending.fresh = false;
     const chips = [...altar.querySelectorAll('.order')];
     chips.forEach((c) => { c.style.visibility = 'hidden'; });
-    pending.accepted.concat(pending.auto).forEach((_, i) => setTimeout(() => sfx.drop(), 150 * i + 100));
     fx.typewriter(altar.querySelector('.quote'), pending.result.interpretation).then(async () => {
       for (const c of chips) { c.style.visibility = ''; c.classList.add('appear'); sfx.click(); await fx.wait(110); }
       const ok = altar.querySelector('.accept');

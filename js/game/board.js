@@ -24,6 +24,16 @@ export function tileToHost(svg, host, tile) {
   return { x: m.a * c.x + m.e - hr.left, y: m.d * c.y + m.f - hr.top };
 }
 
+// 미플이 놓이는 자리 (칸 안에서 진영별로 좌우)
+const markerPos = (t, side) => { const c = center(t); return { x: c.x + (side === 'player' ? -R * 0.46 : R * 0.46), y: c.y - R * 0.3 }; };
+
+// 미플 자리의 화면 좌표 (날아가는 연출의 목적지)
+export function markerToScreen(svg, tile, side) {
+  const p = markerPos(tile, side);
+  const m = svg.getScreenCTM();
+  return { x: m.a * p.x + m.e, y: m.d * p.y + m.f };
+}
+
 function el(tag, attrs = {}, text) {
   const e = document.createElementNS(NS, tag);
   for (const [k, v] of Object.entries(attrs)) if (v != null) e.setAttribute(k, v);
@@ -49,7 +59,7 @@ function frame(svg) {
 }
 
 // markers: [{ tile, side, label, dim, drop, delay }]
-export function renderBoard(svg, state, { markers = [], highlight = [], onTileClick, selectable = [], tileTitle } = {}) {
+export function renderBoard(svg, state, { markers = [], highlight = [], onTileClick, selectable = [], focus = null } = {}) {
   svg.setAttribute('viewBox', `0 0 ${WIDTH.toFixed(0)} ${HEIGHT.toFixed(0)}`);
   svg.replaceChildren();
   frame(svg);
@@ -59,8 +69,7 @@ export function renderBoard(svg, state, { markers = [], highlight = [], onTileCl
     const c = center(t);
     const hidden = !t.revealed;
     const terr = hidden ? 'fog' : t.terrain;
-    const g = el('g', { class: `tile tile-${terr}${selectable.includes(t.id) ? ' selectable' : ''}`, 'data-id': t.id });
-    g.append(el('title', {}, tileTitle ? tileTitle(t) : t.id));
+    const g = el('g', { class: `tile tile-${terr}${selectable.includes(t.id) ? ' selectable' : ''}${focus === t.id ? ' focused' : ''}`, 'data-id': t.id });
     g.append(el('polygon', { points: hexPoints({ x: c.x, y: c.y + 3 }), class: 'hex-base' }));
     g.append(el('polygon', { points: hexPoints(c), fill: `url(#g-${terr})`, class: 'hex' }));
     g.append(el('polygon', { points: hexPoints(c), fill: `url(#p-${terr})` }));
@@ -93,10 +102,8 @@ export function renderBoard(svg, state, { markers = [], highlight = [], onTileCl
   for (const m of markers) {
     const t = state.tileAt[m.tile];
     if (m.side === 'enemy' && !t.revealed) continue; // 안개 속 율법파는 보이지 않는다
-    const c = center(t);
-    const x = c.x + (m.side === 'player' ? -R * 0.46 : R * 0.46);
-    const y = c.y - R * 0.3;
-    const g = el('g', { class: `meeple ${m.side}${m.dim ? ' dim' : ''}${m.drop ? ' drop' : ''}` });
+    const { x, y } = markerPos(t, m.side);
+    const g = el('g', { class: `meeple ${m.side}${m.dim ? ' dim' : ''}${m.drop ? ' drop' : ''}${m.incoming ? ' incoming' : ''}`, 'data-tile': m.tile, 'data-side': m.side });
     if (m.drop) g.style.animationDelay = `${(m.delay ?? 0) * 150}ms`;
     g.append(el('ellipse', { cx: x, cy: y + 13, rx: 10, ry: 3.2, class: 'meeple-shadow' }));
     g.append(use('s-meeple', x, y, 30, { fill: `url(#g-meeple-${m.side})`, class: 'meeple-body' }));

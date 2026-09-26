@@ -195,7 +195,7 @@ export function pulse(el) {
 
 // ---------- 장 제목 ----------
 export async function chapter(host, title, sub) {
-  sfx.page();
+  sfx.chapter();
   if (off()) return;
   const o = div('chapter-overlay', `
     <div class="chapter">
@@ -283,6 +283,7 @@ export async function typewriter(el, text, cps = 38) {
   for (const ch of text) {
     if (motion.skip) break;
     el.textContent += ch;
+    if (ch.trim()) sfx.type();
     await new Promise((r) => setTimeout(r, ch === ',' || ch === '.' || ch === '!' ? 260 : 1000 / cps));
   }
   el.textContent = text;
@@ -398,4 +399,124 @@ export function ambient(canvas) {
     requestAnimationFrame(draw);
   };
   requestAnimationFrame(draw);
+}
+
+// ---------- 미플이 매트에서 칸으로 날아간다 ----------
+// items: [{ from: {x,y}, to: {x,y}, side }] (화면 좌표). onLand(i): 착지할 때마다 호출
+export async function flyMeeples(items, onLand) {
+  if (!items.length) return;
+  if (off()) { items.forEach((_, i) => onLand?.(i)); return; }
+  const DUR = 720;
+  const GAP = 170;
+  items.forEach((it, i) => {
+    const m = div(`fly-meeple ${it.side}`, `<svg viewBox="-14 -16 28 30"><use href="#s-meeple" x="-14" y="-16" width="28" height="30" fill="url(#g-meeple-${it.side})" stroke="rgba(0,0,0,.55)" stroke-width="1.1"/></svg>`);
+    m.style.left = `${it.from.x}px`; m.style.top = `${it.from.y}px`;
+    m.style.opacity = '0';
+    stage().append(m);
+    const dx = it.to.x - it.from.x;
+    const dy = it.to.y - it.from.y;
+    const lift = -110 - Math.abs(dx) * 0.12;
+    later(() => { sfx.lift(); }, i * GAP);
+    m.animate([
+      { transform: 'translate(-50%,-50%) translate(0,0) scale(.8) rotate(0deg)', opacity: 1 },
+      { transform: `translate(-50%,-50%) translate(${dx * 0.18}px, -34px) scale(1.25) rotate(${dx > 0 ? 10 : -10}deg)`, opacity: 1, offset: 0.2 },
+      { transform: `translate(-50%,-50%) translate(${dx * 0.55}px, ${dy * 0.55 + lift}px) scale(1.45) rotate(${dx > 0 ? 18 : -18}deg)`, offset: 0.55 },
+      { transform: `translate(-50%,-50%) translate(${dx}px, ${dy}px) scale(1.05, .9) rotate(0deg)`, offset: 0.92 },
+      { transform: `translate(-50%,-50%) translate(${dx}px, ${dy}px) scale(1) rotate(0deg)`, opacity: 1 },
+    ], { duration: DUR, delay: i * GAP, easing: 'cubic-bezier(.45,.05,.35,1)', fill: 'forwards' });
+    later(() => {
+      m.remove();
+      sfx.drop();
+      puff(it.to);
+      onLand?.(i);
+    }, DUR + i * GAP);
+  });
+  await wait(DUR + (items.length - 1) * GAP + 80);
+}
+
+function puff(at) {
+  if (off()) return;
+  for (let i = 0; i < 8; i++) {
+    const p = div('dust');
+    p.style.left = `${at.x}px`; p.style.top = `${at.y + 12}px`;
+    stage().append(p);
+    const a = Math.PI + (i / 7) * Math.PI;
+    p.animate([{ transform: 'translate(-50%,-50%) scale(.5)', opacity: 0.7 },
+      { transform: `translate(calc(-50% + ${Math.cos(a) * 22}px), calc(-50% + ${Math.sin(a) * 8}px)) scale(1.3)`, opacity: 0 }],
+    { duration: 520, easing: EASE_OUT, fill: 'forwards' });
+    later(() => p.remove(), 600);
+  }
+}
+
+// ---------- 카메라: 칸으로 다가가고 주변을 어둡게 ----------
+export function focusTile(frameEl, svg, tile) {
+  if (!tile || motion.reduced) { unfocus(frameEl); return; }
+  const p = tileToHost(svg, frameEl, tile);
+  const r = frameEl.getBoundingClientRect();
+  // 화면 가장자리 칸도 너무 쏠리지 않게 원점을 가운데 쪽으로 당긴다
+  const ox = r.width / 2 + (p.x - r.width / 2) * 0.85;
+  const oy = r.height / 2 + (p.y - r.height / 2) * 0.85;
+  svg.style.transformOrigin = `${ox}px ${oy}px`;
+  svg.style.transform = 'scale(1.22)';
+  frameEl.classList.add('spot');
+}
+export function unfocus(frameEl) {
+  const svg = frameEl.querySelector('#board');
+  if (svg) svg.style.transform = '';
+  frameEl.classList.remove('spot');
+}
+
+// ---------- 행동 띠 ----------
+export async function actionBanner(frameEl, { side, icon, title, detail }) {
+  if (motion.skip) return;
+  frameEl.querySelector('.action-banner')?.remove();
+  const b = div(`action-banner ${side}`, `
+    <span class="ab-ico"><svg viewBox="0 0 24 24"><use href="#${icon}"/></svg></span>
+    <span class="ab-text"><b></b><small></small></span>`);
+  b.querySelector('b').textContent = title;
+  b.querySelector('small').textContent = detail;
+  frameEl.append(b);
+  b.animate([
+    { transform: 'translate(-50%, -24px) scale(.94)', opacity: 0 },
+    { transform: 'translate(-50%, 0) scale(1)', opacity: 1 },
+  ], { duration: 380, easing: EASE_BACK, fill: 'forwards' });
+}
+export function clearBanner(frameEl) {
+  const b = frameEl.querySelector('.action-banner');
+  if (!b) return;
+  b.animate([{ opacity: 1 }, { opacity: 0, transform: 'translate(-50%, -10px)' }], { duration: 250, fill: 'forwards' });
+  later(() => b.remove(), 260);
+}
+
+// ---------- 숫자가 굴러 올라간다 ----------
+export function countUp(el, from, to, ms = 650) {
+  if (off() || from === to) { el.textContent = to; return; }
+  const t0 = performance.now();
+  const step = (t) => {
+    const k = Math.min(1, (t - t0) / ms);
+    const e = 1 - (1 - k) ** 3;
+    el.textContent = Math.round(from + (to - from) * e);
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// ---------- 카드 기울이기 (커서를 따라 3D로 기운다) ----------
+export function attachTilt(el, max = 12) {
+  if (el.dataset.tilt) return;
+  el.dataset.tilt = '1';
+  el.addEventListener('pointermove', (e) => {
+    if (motion.reduced) return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    el.style.setProperty('--ry', `${(x - 0.5) * max * 2}deg`);
+    el.style.setProperty('--rx', `${(0.5 - y) * max * 2}deg`);
+    el.style.setProperty('--mx', `${x * 100}%`);
+    el.style.setProperty('--my', `${y * 100}%`);
+  });
+  el.addEventListener('pointerleave', () => {
+    el.style.setProperty('--rx', '0deg'); el.style.setProperty('--ry', '0deg');
+  });
+  el.addEventListener('pointerenter', () => sfx.hover());
 }

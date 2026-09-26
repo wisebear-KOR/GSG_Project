@@ -7,7 +7,7 @@
 <meta name="description" content="말로만 세상을 움직이는 신. Chrome 내장 AI가 계시를 해석하는 보드게임풍 전략 게임.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Song+Myung&family=Hahmlet:wght@400;500;600;700;800&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -27,10 +27,11 @@
     <nav class="track" id="track" aria-label="라운드 진행"></nav>
     <div class="tools">
       <button class="chip" id="ai" type="button"><span class="dot"></span><span class="label">대사제</span> <b></b></button>
-      <button class="chip icon-only" id="sound" type="button" title="소리"></button>
+      <button class="chip icon-only" id="music" type="button" title="배경음악"></button>
+      <button class="chip icon-only" id="sound" type="button" title="효과음"></button>
       <button class="chip icon-only" id="motion" type="button" title="연출"></button>
-      <button class="chip" id="openChron" type="button">📜<span class="label"> 연대기</span></button>
-      <button class="chip icon-only" id="home" type="button" title="메인 화면 (Esc)">⌂</button>
+      <button class="chip" id="openChron" type="button"><svg class="u" viewBox="0 0 24 24"><use href="#u-scroll"/></svg><span class="label">연대기</span></button>
+      <button class="chip icon-only" id="home" type="button" title="메인 화면 (Esc)"><svg class="u" viewBox="0 0 24 24"><use href="#u-home"/></svg></button>
     </div>
   </header>
 
@@ -39,6 +40,7 @@
     <section class="board-area">
       <div class="board-frame" id="boardFrame">
         <svg id="board" role="img" aria-label="육각 보드"></svg>
+        <div class="cloud-shadows" aria-hidden="true"><i></i><i></i><i></i></div>
       </div>
     </section>
     <div class="side-col">
@@ -58,6 +60,7 @@
   <div class="chron" id="chronBody"></div>
 </aside>
 <div id="stage" aria-hidden="true"></div>
+<div class="tile-tip" id="tileTip" role="tooltip"></div>
 
 <!-- 메인 화면: 시작 버튼을 누르는 순간 오디오를 열고 제1장으로 들어간다 -->
 <section class="main-screen" id="mainScreen" aria-label="메인 화면">
@@ -76,6 +79,7 @@
     <button class="btn-primary ms-start" id="startGame" type="button">제1권 · 이웃의 불신자 시작 <kbd>Enter</kbd></button>
     <div class="ms-status" id="msStatus"><span class="dot off"></span><span>대사제를 깨우는 중…</span></div>
     <div class="ms-links">
+      <button class="chip" id="msMusic" type="button"></button>
       <button class="chip" id="msSound" type="button"></button>
       <button class="chip" id="msMotion" type="button"></button>
       <a class="chip" href="../check.html">내장 AI 점검</a>

@@ -124,7 +124,7 @@ export const ART = `
       <path d="M-18 14h36v4h-36z" fill="#d9cbb0"/><path d="M-16 11h32v3h-32z" fill="#efe4cd"/>
       <path d="M-13 11V-4h4v15zM-2 11V-4h4v15zM9 11V-4h4v15z" fill="#f8f0de"/>
       <path d="M-17-4h34v-3h-34z" fill="#efe4cd"/><path d="M-19-7 0-19l19 12z" fill="#f8f0de"/>
-      <path d="M0-19v-9" stroke-width="1.4"/><path d="M0-28l9 3-9 3z" fill="#3d6fb6"/>
+      <path d="M0-19v-9" stroke-width="1.4"/><path class="flag" d="M0-28l9 3-9 3z" fill="#3d6fb6"/>
       <circle cx="0" cy="-11" r="2.4" fill="url(#g-gold)"/>
     </g>
   </symbol>
@@ -135,7 +135,7 @@ export const ART = `
       <path d="M-11-12v-6h4v3h3v-3h8v3h3v-3h4v6z" fill="#9c938a"/>
       <rect x="-4.5" y="-5" width="9" height="12" rx="4.5" fill="#2b1f15"/>
       <path d="M-3 -2h6M-3 1h6M-3 4h6" stroke="#d9b36a" stroke-width=".9"/>
-      <path d="M0-18v-10" stroke-width="1.4"/><path d="M0-28l9 3-9 3z" fill="#b3392a"/>
+      <path d="M0-18v-10" stroke-width="1.4"/><path class="flag" d="M0-28l9 3-9 3z" fill="#b3392a"/>
     </g>
   </symbol>
   <symbol id="s-village" viewBox="-30 -30 60 60">
@@ -187,6 +187,14 @@ export const ART = `
 
   <!-- 문장 (게임 로고) -->
   <symbol id="sigil" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="url(#g-gold)" stroke="#5a3b10" stroke-width="1.5"/><circle cx="24" cy="24" r="17.5" fill="#2a1c0f" stroke="#f4dc92" stroke-width="1"/><path d="M27 8 16 26h7l-3 14 12-19h-7l4-13z" fill="url(#g-gold)" stroke="#f7e3a1" stroke-width=".8" stroke-linejoin="round"/></symbol>
+
+  <!-- 헤더 선 아이콘 (currentColor) -->
+  <symbol id="u-music" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5" fill="currentColor"/><circle cx="17.5" cy="16" r="2.5" fill="currentColor"/></g></symbol>
+  <symbol id="u-speaker" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" fill-opacity=".25"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></g></symbol>
+  <symbol id="u-off" viewBox="0 0 24 24"><path d="M4 4l16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="u-sparkle" viewBox="0 0 24 24"><path d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z" fill="currentColor"/></symbol>
+  <symbol id="u-scroll" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h11a2 2 0 0 1 2 2v1h-4M7 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7"/><path d="M9 9h6M9 12h6M9 15h4"/></g></symbol>
+  <symbol id="u-home" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></g></symbol>
 
   <symbol id="d-wisdom" viewBox="0 0 24 24"><g stroke="#3b2410" stroke-width="1.1" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z" fill="#efe2c4"/><path d="M5 17a3 3 0 0 1 3-3h11" fill="none"/><path d="M8 7h8M8 10h6" stroke="#8a6420"/></g></symbol>
 </defs>
