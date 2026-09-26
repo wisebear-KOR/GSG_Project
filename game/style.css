@@ -994,3 +994,6 @@ body.reduce-motion .holy-ring { animation: none; }
 .ms-awe i { position: absolute; left: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-hi)); }
 .seg.blessings button { font-size: 12.5px; }
 .ep-ach.awe { background: rgba(244, 196, 74, .22); }
+
+.omen-reel { animation: reelIn .4s .7s forwards; }
+@keyframes reelIn { to { opacity: 1; } }

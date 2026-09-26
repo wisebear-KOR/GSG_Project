@@ -6,10 +6,10 @@ import {
   grantGrace, petitionAnswered, nameTile, applyTone, sealProphecy, takeMiracle, resolveSite,
   scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
-  canCarve, carveCommandment, updateLiturgy, findSacred, distance, previewGains, ultRound,
+  canCarve, carveCommandment, updateLiturgy, findSacred, distance, previewGains, ultRound, draftRound,
 } from './engine.js';
 import {
-  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
+  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
 } from './data.js';
 import { renderBoard, tileToHost, markerToScreen } from './board.js';
 import { installArt } from './art.js';
@@ -195,7 +195,7 @@ function renderSetup() {
   const awe = meta.getAwe().awe;
   const next = AWE_LEVELS.find((x) => x > awe);
   $('msAwe').hidden = awe === 0;
-  $('msAwe').innerHTML = `<b>${AWE_TITLES[lv]}</b> · 경외 ${awe}${next ? ` · 다음 은사까지 ${next - awe}` : ''}<i style="width:${next ? Math.round(((awe - (AWE_LEVELS[lv - 1] ?? 0)) / (next - (AWE_LEVELS[lv - 1] ?? 0))) * 100) : 100}%"></i>`;
+  $('msAwe').innerHTML = `<b>${AWE_TITLES[lv]}</b> · 경외 ${awe}${next ? ` · 다음 ${Object.values(BLESSINGS).some((b) => b.level === lv + 1) ? '은사' : '칭호'}까지 ${next - awe}` : ''}<i style="width:${next ? Math.round(((awe - (AWE_LEVELS[lv - 1] ?? 0)) / (next - (AWE_LEVELS[lv - 1] ?? 0))) * 100) : 100}%"></i>`;
   $('diffHint').textContent = DIFF_HINT[setup.difficulty];
   // 미리보기: 같은 설정으로 맵을 만들어 전부 드러낸다
   const preview = createState({ ...setup, mode: 'standard' });
@@ -569,15 +569,27 @@ async function accept() {
   const before = snapshot(state);
   const enemyPlan = planEnemy(state);
   const from = state.log.length;
+  // 말한 기적을 먼저 (말투·갈림길 비용에 밀려 실패하지 않게)
+  if (pending.miracle && !pending.dropped.has(pending.miracle.key)) {
+    const r = castMiracle(state, pending.miracle.id, pending.miracle.target);
+    if (!r.ok) state.log.push({ round: state.round, side: 'player', text: `기적이 내리지 않았다 — ${r.text}` });
+  }
   applyTone(state, text ? pending.tone : null);
   if (!text) state.streak = null;
-  if (state.event.choice) resolveDilemma(state, pending.dilemma ?? state.dilemmaPick ?? state.event.choice[0].id);
-  if (pending.miracle && !pending.dropped.has(pending.miracle.key)) castMiracle(state, pending.miracle.id, pending.miracle.target);
-  if (pending.command && pending.carve) carveCommandment(state, pending.command);
+  // 갈림길은 해결 뒤에 (다만 치료사의 보호는 이번 장부터)
+  const pick = state.event.choice ? pending.dilemma ?? state.dilemmaPick ?? state.event.choice[0].id : null;
+  if (pick && state.event.choice.find((o) => o.id === pick)?.ark) state.roundMods.ark = true;
+  let plan = [...accepted, ...auto];
+  if (pending.command && pending.carve && carveCommandment(state, pending.command)) {
+    // 새긴 계명은 이번 장부터 지킨다
+    const banned = { noSword: 'attack', noExpand: 'village' }[pending.command];
+    plan = plan.filter((a) => a.type !== banned && a.build !== banned);
+  }
   if (text) findSacred(state, text);
   if (pending.seal && pending.prophecy) sealProphecy(state, pending.prophecy);
-  resolveRound(state, [...accepted, ...auto], enemyPlan);
-  if (!state.winner && text) keepVows(state, result.forbidden, [...accepted, ...auto]);
+  resolveRound(state, plan, enemyPlan);
+  if (pick && !state.winner) resolveDilemma(state, pick);
+  if (!state.winner && text) keepVows(state, result.forbidden, plan);
   if (!state.winner) wordsAfter(pending);
   // 교리는 해결이 끝난 뒤에 오른다: 확인 화면에 보인 수치 그대로 해결되도록
   if (text) { recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0); updateLiturgy(state); }
@@ -587,7 +599,7 @@ async function accept() {
   if (lesson) { state.lessons.push(lesson); if (state.lessons.length > 3) state.lessons.shift(); pendingLesson = lesson; }
   const last = state.history.at(-1);
   if (last) last.text = text;
-  resolved = { enemyPlan, playerPlan: [...accepted, ...auto], logs: state.log.slice(from), shown: [], words: pending };
+  resolved = { enemyPlan, playerPlan: plan, logs: state.log.slice(from), shown: [], words: pending };
   // 지도자의 반박은 연대기에만 남는다 (재생할 보드 장면이 없다)
   if (text && state.leader) {
     const line = leaderLine(state, 'rebuttal', { doctrine: result.doctrine, word: nouns(text)[0] });
@@ -660,7 +672,7 @@ function showEnd(summary, fresh, had) {
       ${ep.quote ? `<p class="ep-quote">${esc(ep.quote)}</p>` : ''}
       <div class="ep-epithet">${state.config.god?.name ? `${esc(state.config.god.name)}${hasBatchim(state.config.god.name) ? '은' : '는'}` : '이 신은'} 「${esc(ep.epithet)}」${hasBatchim(ep.epithet) ? '으로' : '로'} 기억되었다.</div>
       ${fresh.length ? `<div class="ep-ach">새 구절이 성서에 기록되었다 — ${fresh.map((id) => `「${esc(achName(id))}」`).join(' ')}</div>` : ''}
-      ${summary.awe ? `<div class="ep-ach awe">경외 +${summary.awe.gained} (${summary.awe.awe})${summary.awe.level > summary.awe.levelBefore ? ` — 「${AWE_TITLES[summary.awe.level]}」이 되었다. 새 은사: ${esc(Object.values(BLESSINGS).find((b) => b.level === summary.awe.level)?.name ?? '')}` : ''}</div>` : ''}
+      ${summary.awe ? `<div class="ep-ach awe">경외 +${summary.awe.gained} (${summary.awe.awe})${summary.awe.level > summary.awe.levelBefore ? ` — 「${AWE_TITLES[summary.awe.level]}」이 되었다.${Object.values(BLESSINGS).find((b) => b.level === summary.awe.level) ? ` 새 은사: ${esc(Object.values(BLESSINGS).find((b) => b.level === summary.awe.level).name)}` : ''}` : ''}</div>` : ''}
       ${summary.newBest ? `<div class="ep-ach best">새 기록 — 이 맵(시드 ${state.config.seed})에서 승점 ${summary.score[0]}</div>` : ''}
     </div>
     <div class="end-page" data-page="record" hidden>
@@ -851,7 +863,7 @@ async function showDestinyChoice() {
 async function showMiracleDraft() {
   if (!state.miracleOffer || phase !== 'speak') return;
   const id = await choiceModal({
-    kind: '제 5 장 · 새 기적', title: '하늘이 새 기적을 내민다 — 하나를 받으라', text: '받은 기적은 이 판이 끝날 때까지 손에 남는다.',
+    kind: `제 ${draftRound(state)} 장 · 새 기적`, title: '하늘이 새 기적을 내민다 — 하나를 받으라', text: '받은 기적은 이 판이 끝날 때까지 손에 남는다.',
     options: state.miracleOffer.map((mid) => { const m = MIRACLES.find((x) => x.id === mid); return { id: mid, label: m.name, text: m.text, cost: miracleCost(state, m), art: MIRACLE_ART[mid] }; }),
   });
   takeMiracle(state, id);
@@ -991,14 +1003,14 @@ function revealPerk(before) {
     for (const lv of [6, 4, 2]) {
       if (b[k] < lv && d[k] >= lv) {
         const early = lv === 6 && state.round < ultRound(state);
-        setTimeout(() => fx.perkReveal(frameEl(), { title: `${DOCTRINE[k].name} ${lv}칸 · ${early ? '잠든 궁극' : lv === 6 ? '궁극' : '특전 해금'}`, text: early ? `${ultRound(state)}장에 깨어난다 — ${DOCTRINE[k].perks[lv].replace(/^궁극\(8장부터\) — /, '')}` : DOCTRINE[k].perks[lv].replace(/^궁극\(8장부터\) — /, ''), icon: `d-${k}` }), 900);
+        setTimeout(() => fx.perkReveal(frameEl(), { title: `${DOCTRINE[k].name} ${lv}칸 · ${early ? '잠든 궁극' : lv === 6 ? '궁극' : '특전 해금'}`, text: early ? `${ultRound(state)}장에 깨어난다 — ${DOCTRINE[k].perks[lv].replace(/^궁극 — /, '')}` : DOCTRINE[k].perks[lv].replace(/^궁극 — /, ''), icon: `d-${k}` }), 900);
         return;
       }
     }
   }
   if (state.round === ultRound(state) - 1) {
     const k = DOCTRINES.find((x) => d[x] >= DOCTRINE_MAX);
-    if (k) setTimeout(() => fx.perkReveal(frameEl(), { title: `${DOCTRINE[k].name} · 궁극이 깨어난다`, text: `다음 장부터 — ${DOCTRINE[k].perks[6].replace(/^궁극\(8장부터\) — /, '')}`, icon: `d-${k}` }), 900);
+    if (k) setTimeout(() => fx.perkReveal(frameEl(), { title: `${DOCTRINE[k].name} · 궁극이 깨어난다`, text: `다음 장부터 — ${DOCTRINE[k].perks[6].replace(/^궁극 — /, '')}`, icon: `d-${k}` }), 900);
   }
 }
 
@@ -1299,12 +1311,12 @@ function renderSeason() {
     <div class="card card-parch${dealSeason ? ' deal' : ''}">
       <div class="face">
         <div class="kind">이번 계절</div>
-        <div class="title">${svgUse(`e-${ev.id}`)}${esc(ev.name)}</div>
+        <div class="title">${svgUse(ev.choice ? 'e-prophet' : `e-${ev.id}`)}${esc(ev.name)}</div>
         <div class="body">${esc(ev.text)}</div>
         <div class="rule">${esc(ev.rule)}</div>
         ${state.eventChoice && phase === 'speak' ? seasonChoiceHTML() : ''}
       </div>
-    </div>${nextEvent(state) && state.round < state.maxRounds ? `<div class="next-season" title="${esc(nextEvent(state).rule)}">다음 장 · ${svgUse(`e-${nextEvent(state).id}`)}${esc(nextEvent(state).name)}</div>` : ''}${destinyHTML()}`;
+    </div>${nextEvent(state) && state.round < state.maxRounds ? `<div class="next-season" title="${esc(nextEvent(state).rule)}">다음 장 · ${svgUse(nextEvent(state).choice ? 'e-prophet' : `e-${nextEvent(state).id}`)}${esc(nextEvent(state).name)}</div>` : ''}${destinyHTML()}`;
   if (dealSeason) setTimeout(() => sfx.deal(), 250);
   dealSeason = false;
   $('season').querySelectorAll('.card').forEach((c) => fx.attachTilt(c, 8));
@@ -1325,7 +1337,7 @@ function destinyHTML() {
 
 function seasonChoiceHTML() {
   const other = state.eventChoice.find((id) => id !== state.event.id);
-  const ev = EVENTS.find((e) => e.id === other);
+  const ev = EVENTS.find((e) => e.id === other) ?? DILEMMAS.find((e) => e.id === other);
   if (!ev) return '';
   return `<button class="season-swap" type="button" data-ev="${other}" title="${esc(ev.rule)}">지혜의 눈 · 「${esc(ev.name)}」로 바꾸기</button>`;
 }
@@ -1390,6 +1402,8 @@ function renderLaw(cur) {
   $('law').querySelectorAll('.card').forEach((c) => fx.attachTilt(c, 8));
 }
 
+const speedHTML = () => `<div class="speed" role="group" aria-label="재생 속도" title="재생 속도">${[['1', '1×'], ['2', '2×'], ['instant', '즉시']].map(([v, l]) => `<button type="button" class="${speed === v ? 'on' : ''}" data-speed="${v}">${l}</button>`).join('')}</div>`;
+
 // 점괘 릴: 대사제가 헤아리는 동안 가능한 행동의 아이콘이 돈다 (0.7초 뒤에 나타난다)
 const REEL_ICON = { food: 'i-food', wood: 'i-wood', stone: 'i-stone', faith: 'i-faith', pray: 'i-temple', build: 'i-house', explore: 'e-prophet', preach: 'd-peace', attack: 'd-war' };
 function omenReel() {
@@ -1446,6 +1460,9 @@ function matSay(host, who, text, cls = '') {
   setTimeout(() => b.remove(), 4400);
 }
 
+// 궁극 특전은 판 크기에 따라 깨어나는 장이 다르다
+const perkText = (t) => t.replace(/^궁극 — /, `궁극(${ultRound(state)}장부터) — `);
+
 function matHTML(cur, side) {
   const s = cur.sides[side];
   const mine = side === 'player';
@@ -1475,11 +1492,11 @@ function matHTML(cur, side) {
       const info = DOCTRINE[k];
       const before = prevDoctrine[k] ?? d[k];
       const gems = Array.from({ length: DOCTRINE_MAX }, (_, i) =>
-        `<span class="gem${i < d[k] ? ' on' : ''}${i >= before && i < d[k] ? ' new' : ''}${info.perks[i + 1] ? ' perk' : ''}${i + 1 === DOCTRINE_MAX ? ' ult' : ''}" title="${esc(info.perks[i + 1] ?? '')}"></span>`).join('');
+        `<span class="gem${i < d[k] ? ' on' : ''}${i >= before && i < d[k] ? ' new' : ''}${info.perks[i + 1] ? ' perk' : ''}${i + 1 === DOCTRINE_MAX ? ' ult' : ''}" title="${esc(perkText(info.perks[i + 1] ?? ''))}"></span>`).join('');
       prevDoctrine[k] = d[k];
       const next = Object.entries(info.perks).find(([lv]) => d[k] < Number(lv));
       const got = Object.entries(info.perks).filter(([lv]) => d[k] >= Number(lv)).map(([, t]) => t);
-      const perk = got.length ? `<b>✓ ${esc(got.join(', '))}</b>${next ? ` · ${next[0]}칸: ${esc(next[1])}` : ''}` : next ? `${next[0]}칸: ${esc(next[1])}` : '';
+      const perk = got.length ? `<b>✓ ${esc(got.map(perkText).join(', '))}</b>${next ? ` · ${next[0]}칸: ${esc(perkText(next[1]))}` : ''}` : next ? `${next[0]}칸: ${esc(perkText(next[1]))}` : '';
       const streak = cur.streak?.doctrine === k ? `<span class="streak" title="같은 교리 세 장 연속이면 기적">${'●'.repeat(cur.streak.n)}${'○'.repeat(3 - cur.streak.n)}</span>` : '';
       return `<div class="dtrack"><span class="medal">${svgUse(`d-${k}`)}</span><div class="row"><span class="nm">${info.name}</span>${gems}${streak}</div><div class="perk-text">${perk}</div></div>`;
     }).join('')}</div>`;
@@ -1557,6 +1574,20 @@ function renderAltar() {
     const short = (a) => esc(a.text.replace(/ \(.*\)$/, ''));
     const links = pending.links ?? {};
     const prev = previewGains(state, [...accepted, ...auto]);
+    {
+      const extra = { food: 0, wood: 0, stone: 0, faith: 0 };
+      if (text && pending.tone === 'blessing' && [...accepted, ...auto].some((a) => a.type === 'gather')) extra[[...accepted, ...auto].find((a) => a.type === 'gather').gather] += 1;
+      if (text && pending.tone === 'curse') extra.faith -= 1;
+      const mi = pending.miracle && !pending.dropped.has(pending.miracle.key) ? pending.miracle : null;
+      if (mi) {
+        extra.faith -= mi.cost;
+        const g = { rain: { food: 3 }, manna: { food: 4 }, bounty: { wood: 2, stone: 2 } }[mi.id] ?? {};
+        for (const [k, v] of Object.entries(g)) extra[k] += v;
+      }
+      const dl = state.event.choice?.find((o) => o.id === (pending.dilemma ?? state.dilemmaPick ?? state.event.choice[0].id));
+      for (const [k, v] of Object.entries(dl?.gain ?? {})) extra[k] += v;
+      for (const k of Object.keys(extra)) prev.after[k] = Math.max(0, prev.after[k] + extra[k]);
+    }
     const chips = [
       ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${esc(a.text)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}${oddsTag(a)}${firstNote(a.tile)}</span>`),
       ...auto.map((a) => `<span class="order auto">${meepleSvg('player')}<span class="t">${short(a)}</span>${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}<span class="why" style="background:rgba(124,89,27,.12)">알아서</span></span>`),
@@ -1613,10 +1644,10 @@ function renderAltar() {
       ${v ? `<div class="verdict v-${v.grade}"><span class="v-stamp">${v.stamp}</span><span class="v-text">${esc(v.text)}</span></div>` : ''}
       ${phase === 'playing' ? '' : ledgerHTML(resolved.ledger)}</div>`;
     act = phase === 'playing'
-      ? `<div class="act"><div class="speed" role="group" aria-label="재생 속도">${[['1', '1×'], ['2', '2×'], ['instant', '즉시']].map(([v, l]) => `<button type="button" class="${speed === v ? 'on' : ''}" data-speed="${v}">${l}</button>`).join('')}</div><button class="btn-ghost skip" type="button">⏩ 빨리 감기 <kbd>Space</kbd></button></div>`
+      ? `<div class="act">${speedHTML()}<button class="btn-ghost skip" type="button">⏩ 빨리 감기 <kbd>Space</kbd></button></div>`
       : phase === 'over'
         ? `<div class="act"><button class="btn-primary big again-game" type="button">다시 하기</button><div style="text-align:center;font:13px var(--font-body);color:var(--on-table-dim)">${esc(state.winReason)}</div></div>`
-        : '<div class="act"><button class="btn-primary big next" type="button">다음 장으로 ▶ <kbd>Enter</kbd></button></div>';
+        : `<div class="act">${speedHTML()}<button class="btn-primary big next" type="button">다음 장으로 ▶ <kbd>Enter</kbd></button></div>`;
   }
 
   altar.innerHTML = `${hand}<div class="scroll-wrap">${scroll}</div>${act}`;
@@ -1706,7 +1737,7 @@ function bindAltar() {
   on('.silence', silence);
   on('.accept', () => { sfx.click(); accept(); });
   a.querySelectorAll('.dl-opt').forEach((b) => {
-    b.onclick = () => { if (phase !== 'speak') return; state.dilemmaPick = b.dataset.opt; sfx.click(); a.querySelectorAll('.dl-opt').forEach((x) => x.classList.toggle('on', x === b)); };
+    b.onclick = () => { if (phase !== 'speak') return; state.dilemmaPick = b.dataset.opt; meta.saveGame(state, 'speak'); sfx.click(); a.querySelectorAll('.dl-opt').forEach((x) => x.classList.toggle('on', x === b)); };
   });
   // 확인 칩을 눌러 그 행동을 빼거나 되살린다 (장당 두 개까지, 빈 자리는 신도들이 알아서)
   if (phase === 'confirm' && pending) {
