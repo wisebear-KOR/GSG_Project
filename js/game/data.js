@@ -104,6 +104,17 @@ export const MIRACLES = [
   { id: 'revive',    name: '부활', cost: 5, text: '쓰러진 신도 1명이 돌아온다 (인구 한도 안에서).' },
 ];
 export const FIRST_HAND = ['lightning', 'rain', 'bounty'];
+// 신의 분노가 가득 차면 손에 들어오는 숨은 기적 (드래프트에 나오지 않는다)
+export const DOOM = { id: 'doom', name: '심판의 날', cost: 0, hidden: true, text: '율법파의 탑이 흔들리고(수도 -1) 한 사람이 쓰러진다. 분노가 가라앉는다.' };
+
+// 심판의 기준: 마지막 장의 승점 공식 (두 번째 판부터 판마다 하나). 합계가 기본과 비슷하도록 맞췄다
+export const JUDGEMENTS = {
+  classic:   { name: '기본', text: '신도 2 · 마을 3 · 신전 2 · 수도 1', w: { pop: 2, village: 3, temple: 2, hp: 1 } },
+  wide:      { name: '넓은 자', text: '마을 하나가 5점, 신도는 1점', w: { pop: 1, village: 5, temple: 2, hp: 1 } },
+  fertile:   { name: '번성한 자', text: '신도 하나가 3점, 마을은 2점', w: { pop: 3, village: 2, temple: 1, hp: 1 } },
+  pious:     { name: '경건한 자', text: '신전 단계가 3점, 신앙 3마다 1점', w: { pop: 2, village: 2, temple: 3, hp: 1, faith: 3 } },
+  steadfast: { name: '굳센 자', text: '수도 내구도가 3점, 성벽마다 1점', w: { pop: 2, village: 2, temple: 2, hp: 3, wall: 1 } },
+};
 
 // 안개 속 발견지: 처음 드러날 때 한 번 일어난다
 export const SITES = {

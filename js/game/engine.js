@@ -4,7 +4,7 @@
 import {
   TERRAIN, RESOURCE_NAME, GATHER_VERB, COST, MAX_TEMPLE, CAPITAL_HP, MAX_ACTIONS, RULES,
   DOCTRINES, DOCTRINE_MAX, EVENTS, LAW_CARDS, MIRACLES, DIFFICULTY, MAP_SIZES, PLAYER_START, TUTORIAL, ENEMY_LEADERS,
-  PRIESTS, PETITIONERS, PROPHECY, FIRST_HAND, SITES,
+  PRIESTS, PETITIONERS, PROPHECY, FIRST_HAND, SITES, DOOM, JUDGEMENTS,
 } from './data.js';
 import { generateMap, placeSites } from './mapgen.js';
 import { frequentNoun, hashPick } from './lore.js';
@@ -72,7 +72,8 @@ export function createState(config = DEFAULT_CONFIG) {
     tiles: [], tileAt: {}, sides: {}, eventDeck: [], lawDeck: [],
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
     priest: 'loyal', names: {}, lessons: [], petition: null, petitionIgnored: 0, prophecy: null,
-    grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
+    grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
+    judgement: 'classic', wrath: 0, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
     miracleUsed: false, reinterpretUsed: false,
     log: [], revelations: [], history: [], winner: null, winReason: '',
   };
@@ -104,6 +105,8 @@ export function createState(config = DEFAULT_CONFIG) {
     state.leader = hashPick(leaders, 'leader', cfg.seed, cfg.difficulty);
     // 첫 판은 충직한 사제. 그 뒤로는 판마다 다른 성향
     if (cfg.veteran) state.priest = hashPick(Object.keys(PRIESTS).filter((k) => k !== 'loyal'), 'priest', cfg.seed);
+    // 두 번째 판부터 심판의 기준이 판마다 바뀐다
+    if (cfg.veteran) state.judgement = hashPick(Object.keys(JUDGEMENTS), 'judgement', cfg.seed);
     // 두 번째 판부터 기적은 판마다 셋을 받는다 (번개·단비 중 하나는 꼭 든다)
     if (cfg.veteran) {
       const rest = MIRACLES.map((m) => m.id).filter((id) => !['lightning', 'rain'].includes(id));
@@ -536,14 +539,19 @@ export function enemyIntent(state) {
   return plan.map((a) => ({ ...a, shown: shown(a) && state.tileAt[a.tile].revealed }));
 }
 
+// 기적 비용: 신의 분노만큼 싸진다 (최소 1). 심판의 날은 공짜
+export const miracleCost = (state, m) => (m.id === DOOM.id ? 0 : Math.max(1, m.cost - (state.wrath ?? 0)));
+export const doomReady = (state) => (state.wrath ?? 0) >= 3 && !state.tutorial;
+
 export function castMiracle(state, id, targetTile) {
-  const m = MIRACLES.find((x) => x.id === id);
+  const m = id === DOOM.id ? DOOM : MIRACLES.find((x) => x.id === id);
   const s = state.sides.player;
-  if (!state.miracleHand.includes(id)) return { ok: false, text: '손에 없는 기적이다.' };
-  if (state.miracleUsed || s.faith < m.cost) return { ok: false, text: '신앙이 부족하거나 이미 기적을 썼다.' };
+  if (id === DOOM.id ? !doomReady(state) : !state.miracleHand.includes(id)) return { ok: false, text: '손에 없는 기적이다.' };
+  const cost = miracleCost(state, m);
+  if (state.miracleUsed || s.faith < cost) return { ok: false, text: '신앙이 부족하거나 이미 기적을 썼다.' };
   const home = capitalOf(state, 'player')?.id;
   if (MIRACLE_FX[id]) {
-    s.faith -= m.cost;
+    s.faith -= cost;
     MIRACLE_FX[id](state, s, home);
     state.miracleUsed = true;
     state.stats.miracles += 1;
@@ -553,14 +561,14 @@ export function castMiracle(state, id, targetTile) {
   if (m.id === 'lightning') {
     const t = state.tileAt[targetTile];
     if (!t || t.owner !== 'enemy' || !t.revealed) return { ok: false, text: '보이는 율법파 칸을 골라야 한다.' };
-    s.faith -= m.cost;
+    s.faith -= cost;
     if (t.wall) { t.wall = false; logEvent(state, 'player', `⚡ 번개가 ${tileName(state, t)}의 성벽을 무너뜨렸다.`, null, { tile: t.id, kind: 'lightning' }); }
     else { state.sides.enemy.pop = Math.max(0, state.sides.enemy.pop - 1); logEvent(state, 'player', `⚡ 번개가 ${tileName(state, t)}에 떨어져 율법파 1명이 쓰러졌다.`, null, { tile: t.id, kind: 'lightning' }); }
   } else if (m.id === 'rain') {
-    s.faith -= m.cost; s.food += 3; state.rainActive = true;
+    s.faith -= cost; s.food += 3; state.rainActive = true;
     logEvent(state, 'player', '🌧️ 단비가 내렸다. 식량 +3.', null, { kind: 'rain', gain: { food: 3 } });
   } else {
-    s.faith -= m.cost; s.wood += 2; s.stone += 2;
+    s.faith -= cost; s.wood += 2; s.stone += 2;
     logEvent(state, 'player', '🎁 풍요의 기적. 목재 +2, 돌 +2.', null, { kind: 'bounty', gain: { wood: 2, stone: 2 } });
   }
   state.miracleUsed = true;
@@ -571,6 +579,15 @@ export function castMiracle(state, id, targetTile) {
 
 // 새 기적들 (번개·단비·풍요는 castMiracle 안에 있다)
 const MIRACLE_FX = {
+  doom: (state, s, home) => {
+    const e = state.sides.enemy;
+    const cap = capitalOf(state, 'enemy');
+    e.capitalHp = Math.max(0, e.capitalHp - 1);
+    e.pop = Math.max(0, e.pop - 1);
+    state.wrath = 0;
+    logEvent(state, 'player', `심판의 날 — 하늘이 갈라져 율법파의 탑이 흔들리고(수도 내구도 ${e.capitalHp}) 한 사람이 쓰러졌다. 신의 분노가 가라앉는다.`, null, { kind: 'lightning', tile: cap?.id });
+    if (e.capitalHp <= 0) { state.winner = 'player'; state.winReason = '적 수도 점령 (심판의 날)'; }
+  },
   manna: (state, s, home) => { s.food += 4; logEvent(state, 'player', '만나가 내렸다. 식량 +4.', null, { kind: 'rain', gain: { food: 4 }, tile: home }); },
   ark: (state, s, home) => { state.roundMods.ark = true; logEvent(state, 'player', '방주의 기적 — 이번 장에는 아무도 잃지 않으리라.', null, { kind: 'bless', tile: home, label: '방주' }); },
   tongues: (state, s, home) => { state.roundMods.tongues = 1; logEvent(state, 'player', '방언의 은사 — 이번 장 선교에 힘이 실린다.', null, { kind: 'bless', tile: home, label: '방언' }); },
@@ -666,11 +683,24 @@ export function resolveRound(state, playerPlan, enemyPlan) {
 // 장마다 두 진영의 승점과 살림을 남긴다 (결산·그래프·회고용)
 function recordHistory(state) {
   const p = state.sides.player;
+  const ps = score(state, 'player');
+  const es = score(state, 'enemy');
   state.history.push({
-    round: state.round, ps: score(state, 'player'), es: score(state, 'enemy'),
+    round: state.round, ps, es,
     res: { food: p.food, wood: p.wood, stone: p.stone, faith: p.faith, pop: p.pop }, text: null,
   });
+  // 신의 분노: 4장부터 6점 이상 뒤지면 차오르고, 3점 이내로 좁히면 가라앉는다
+  if (state.tutorial || state.winner) return;
+  const before = state.wrath;
+  if (state.round >= 4 && es - ps >= 6) state.wrath = Math.min(3, state.wrath + 1);
+  else if (es - ps <= 3) state.wrath = Math.max(0, state.wrath - 1);
+  if (state.wrath > before) {
+    logEvent(state, 'player', state.wrath >= 3 ? '신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다.' : `신의 분노가 차오른다 (${state.wrath}/3) — 기적이 ${state.wrath}만큼 싸진다.`, null, { kind: 'wrath', tile: capitalOf(state, 'player')?.id });
+  }
 }
+
+// 다음 장의 계절 (덱의 다음 카드)
+export const nextEvent = (state) => state.eventDeck.at(-1) ?? null;
 
 // ---------- 저장과 불러오기 ----------
 export const SAVE_VERSION = 1;
@@ -697,6 +727,7 @@ export function hydrateState(obj) {
   state.tileAt = Object.fromEntries(state.tiles.map((t) => [t.id, t]));
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
   state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.petitionIgnored ??= 0; state.prophecy ??= null;
+  state.judgement ??= 'classic'; state.wrath ??= 0;
   state.grace ??= { round: 0, used: 0 }; state.roundMods ??= {}; state.miracleHand ??= [...FIRST_HAND]; state.miracleOffer ??= null; state.pendingSite ??= null; state.stats ??= { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 };
   return state;
 }
@@ -879,10 +910,22 @@ function upkeep(state) {
   checkVictory(state);
 }
 
-export function score(state, side) {
+// 승점 항목 (심판의 기준 가중치를 따른다)
+export function scoreBreakdown(state, side) {
   const s = state.sides[side];
-  return s.pop * 2 + villageCount(state, side) * 3 + s.templeLevel * 2 + s.capitalHp;
+  const w = JUDGEMENTS[state.judgement ?? 'classic']?.w ?? JUDGEMENTS.classic.w;
+  const walls = state.tiles.filter((t) => t.owner === side && t.wall).length;
+  const parts = [
+    { key: 'pop', label: '신도', n: s.pop, w: w.pop },
+    { key: 'village', label: '마을', n: villageCount(state, side), w: w.village },
+    { key: 'temple', label: '신전', n: s.templeLevel, w: w.temple },
+    { key: 'hp', label: '수도', n: s.capitalHp, w: w.hp },
+  ];
+  if (w.wall) parts.push({ key: 'wall', label: '성벽', n: walls, w: w.wall });
+  if (w.faith) parts.push({ key: 'faith', label: '신앙', n: Math.floor(s.faith / w.faith), w: 1, note: `신앙 ${w.faith}마다` });
+  return { parts, total: parts.reduce((a, p) => a + p.n * p.w, 0) };
 }
+export function score(state, side) { return scoreBreakdown(state, side).total; }
 
 // final: 마지막 장의 승점 판정까지 할지 (기적처럼 장 중간에 부를 때는 false)
 export function checkVictory(state, final = true) {

@@ -5,7 +5,7 @@
 import { hasLanguageModel, createBaseSession, promptJSON } from '../llm.js';
 import { DOCTRINES, DOCTRINE, PRIESTS, TERRAIN } from './data.js';
 import { nouns } from './lore.js';
-import { legalActions, actionLimit, tileName, villageCount, enemyIntent, josa } from './engine.js';
+import { legalActions, actionLimit, tileName, villageCount, enemyIntent, josa, nextEvent } from './engine.js';
 
 // 실험 v5 프롬프트를 게임에 맞게 옮긴 것 (docs/EXPERIMENTS.md).
 // 플레이테스트(docs/PLAYTEST-2026-09-27.md) 반영: 행동을 먼저 정하고 해석문은 마지막에 쓴다 → 말과 행동이 일치한다.
@@ -65,7 +65,7 @@ export function buildPrompt(state, revelation) {
 ${lines.join('\n')}
 
 [최근 사건]
-${state.event.text}
+${state.event.text}${nextEvent(state) && state.round < state.maxRounds ? `\n다음 장: ${nextEvent(state).name} 예고` : ''}
 
 [신의 계시]
 "${revelation}"
