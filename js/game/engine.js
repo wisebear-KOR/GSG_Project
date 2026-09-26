@@ -6,6 +6,7 @@ import {
   DOCTRINES, DOCTRINE_MAX, EVENTS, LAW_CARDS, MIRACLES, DIFFICULTY, MAP_SIZES, PLAYER_START, TUTORIAL, ENEMY_LEADERS,
   PRIESTS, PETITIONERS, PROPHECY, FIRST_HAND, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT,
   CATHEDRAL, EDICT_MAX, DESTINIES, DESTINY_POINTS, ACTS, DILEMMAS, FEATURES, COMMANDMENTS, MAX_COMMANDMENTS, SACRED_WORDS,
+  MIRA, MIRA_TWIST, MONTHS,
 } from './data.js';
 import { generateMap, placeSites, placeFeatures, placeLegacy } from './mapgen.js';
 import { frequentNoun, hashPick, citedWords, findLiturgy } from './lore.js';
@@ -77,6 +78,7 @@ export function createState(config = DEFAULT_CONFIG) {
     judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, oddUsed: false,
     edictOn: !!cfg.veteran && !tutorial, destiny: null, destinyOffer: null, holyId: null,
     commandments: [], liturgy: null, saints: [], deeds: {}, fallen: [], silentRun: 0, legends: {},
+    miraDone: false, miraQuote: null, bloodKills: 0,
     sacred: cfg.daily ? hashPick(SACRED_WORDS, 'sacred', cfg.daily) : null, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
     miracleUsed: false, reinterpretUsed: false,
     log: [], revelations: [], history: [], winner: null, winReason: '',
@@ -512,6 +514,17 @@ export function startRound(state) {
   }
   if (!state.eventDeck.length) state.eventDeck = dealDeck(state, state.config.veteran && actOf(state) === 3 ? EVENTS.filter((e) => e.id !== 'calm') : EVENTS, 6);
   state.event = state.eventDeck.pop();
+  // 분열의 예언자: 두 번째 판·2막부터 한 번. 대립 교리가 둘 다 3 이상이거나 신앙 바닥으로 한 장을 버텼을 때
+  const d0 = state.sides.player.doctrine;
+  const split = (d0.peace >= 3 && d0.war >= 3) || (d0.abundance >= 3 && d0.wisdom >= 3);
+  if (state.config.veteran && !state.tutorial && !state.miraDone && actOf(state) >= 2 && (split || state.sides.player.faithless >= 1)) {
+    state.eventDeck.push(state.event);
+    state.event = MIRA;
+    state.miraDone = true;
+    const past = state.revelations.filter((r) => r.doctrine);
+    const q = past.length ? past[past.length - 1] : null;
+    state.miraQuote = q ? `신께서 “${q.text}”라 하셨으니, 곧 ${MIRA_TWIST[q.doctrine]}는 뜻이다!` : '신은 이미 우리를 떠났다!';
+  }
   // 지혜 궁극: 다가올 계절 두 장 중 하나를 고른다 (고르지 않으면 첫 장)
   state.eventChoice = hasUlt(state, 'player', 'wisdom') && state.eventDeck.length && state.eventDeck.at(-1).id !== state.event.id
     ? [state.event.id, state.eventDeck.at(-1).id] : null;
@@ -995,9 +1008,14 @@ export function resolveDilemma(state, pick) {
     if (d[top] < DOCTRINE_MAX) d[top] += 1;
   }
   if (o.provoke) state.vowNext = 'attack';
+  if (o.edict) raiseEdict(state, o.edict, '미라의 소문이 율법파에 닿았다');
+  if (o.calm) { state.sides.player.faithless = 0; state.silentRun = 0; }
   if (o.ark) state.roundMods.ark = true;
   logEvent(state, 'player', `${ev.name} — ${o.label}. ${o.text}.${note}`, null, { kind: 'dilemma', tile: capitalOf(state, 'player')?.id });
 }
+
+// 달 이름: 판 길이에 맞춰 한 해를 나눈다
+export const monthOf = (state, round = state.round) => MONTHS[Math.min(11, Math.floor(((round - 1) * 12) / state.maxRounds))];
 
 // 다음 장의 계절 (덱의 다음 카드)
 export const nextEvent = (state) => state.eventDeck.at(-1) ?? null;
@@ -1015,7 +1033,7 @@ export function serializeState(state) {
   };
 }
 export function hydrateState(obj) {
-  const ev = (id) => EVENTS.find((e) => e.id === id) ?? DILEMMAS.find((e) => e.id === id);
+  const ev = (id) => EVENTS.find((e) => e.id === id) ?? DILEMMAS.find((e) => e.id === id) ?? (id === 'mira' ? MIRA : undefined);
   const law = (id) => LAW_CARDS.find((c) => c.id === id);
   const state = {
     ...obj,
@@ -1029,7 +1047,7 @@ export function hydrateState(obj) {
   state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.petitionIgnored ??= 0; state.prophecy ??= null;
   state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null; state.oddUsed ??= false;
   state.edictOn ??= false; state.dilemmaPick ??= null;
-  state.silentRun ??= 0; state.legends ??= {};
+  state.silentRun ??= 0; state.legends ??= {}; state.miraDone ??= false; state.miraQuote ??= null; state.bloodKills ??= 0;
   state.commandments ??= []; state.liturgy ??= null; state.saints ??= []; state.deeds ??= {}; state.fallen ??= []; state.sacred ??= null; state.destiny ??= null; state.destinyOffer ??= null; state.holyId ??= null;
   for (const sd of Object.values(state.sides)) { sd.cathedral ??= 0; sd.edict ??= 0; }
   state.grace ??= { round: 0, used: 0 }; state.roundMods ??= {}; state.miracleHand ??= [...FIRST_HAND]; state.miracleOffer ??= null; state.pendingSite ??= null; state.stats ??= { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 };
@@ -1138,6 +1156,10 @@ function resolveAction(state, a) {
         return logEvent(state, side, `${poss(side)} 공격이 ${place}에서 막혔다. 공격자 1명이 쓰러졌다.`, dice, { tile: t.id, kind: 'attack' });
       }
       if (!(foe === 'player' && state.roundMods.ark)) f.pop = Math.max(0, f.pop - 1);
+      if (side === 'player') {
+        state.bloodKills = (state.bloodKills ?? 0) + 1;
+        if (state.bloodKills % 3 === 0) raiseEdict(state, 1, '쓰러진 자의 피가 율법을 굳힌다');
+      }
       if (t.building === 'capital') {
         f.capitalHp -= 1;
         if (foe === 'player' && (f.cathedral ?? 0) >= 2) { f.cathedral -= 1; logEvent(state, side, `대성당의 ${CATHEDRAL[f.cathedral].name}이 무너졌다 (${f.cathedral}/3).`, null, { tile: t.id, kind: 'loss' }); }

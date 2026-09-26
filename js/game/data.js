@@ -184,6 +184,17 @@ export const DILEMMAS = [
     { id: 'refuse', label: '거절한다', text: '아무 일도 없다', tags: '거절|돌려|보내', gain: {} }] },
 ];
 
+// 분열의 예언자 미라: 교리가 둘로 갈라지거나 신앙이 바닥났을 때 한 번 나타나는 갈림길 (덱에는 없다)
+export const MIRA = { id: 'mira', name: '분열의 예언자 미라', text: '이단 예언자 미라가 신의 옛 말씀을 비틀어 외치며 신도들을 모은다.', rule: '갈림길 — 버튼이나 계시로 답한다', special: true, choice: [
+  { id: 'punish', label: '벌한다', text: '신도 -1, 신앙 +2', tags: '벌하|쫓아|내쫓|이단|거짓', gain: { faith: 2 }, pop: -1 },
+  { id: 'embrace', label: '품는다', text: '신앙 +1, 율법 석판 +1 (소문이 퍼진다)', tags: '품어|받아|들어|안아', gain: { faith: 1 }, edict: 1 },
+  { id: 'reconcile', label: '화해시킨다', text: '신앙 -2, 흔들림이 가라앉는다', tags: '화해|하나|용서|함께', gain: { faith: -2 }, calm: true }] };
+export const MIRA_TWIST = { war: '칼을 버리라', peace: '칼을 들라', abundance: '곳간을 불태우라', wisdom: '눈을 감으라' };
+
+// 달 이름 (판 길이에 맞춰 한 해를 나눈다)과 막이 바뀔 때의 절기
+export const MONTHS = ['첫봄', '한봄', '늦봄', '첫여름', '한여름', '늦여름', '첫가을', '한가을', '늦가을', '첫겨울', '한겨울', '늦겨울'];
+export const FESTIVALS = { 2: '하지제', 3: '추수제', last: '동지의 밤' };
+
 // 안개 속 발견지: 처음 드러날 때 한 번 일어난다
 export const SITES = {
   nomads: { name: '떠도는 유목민', text: '안개 속에서 떠도는 유목민 무리를 만났다.', choice: [

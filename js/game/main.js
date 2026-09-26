@@ -7,10 +7,10 @@ import {
   scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
   canCarve, carveCommandment, updateLiturgy, findSacred, distance, previewGains, ultRound, draftRound,
-  applySilence, markLegends, serializeState, hydrateState,
+  applySilence, markLegends, serializeState, hydrateState, monthOf,
 } from './engine.js';
 import {
-  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
+  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, FESTIVALS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
 } from './data.js';
 import { renderBoard, tileToHost, markerToScreen, tileCenter } from './board.js';
 import { installArt } from './art.js';
@@ -433,8 +433,10 @@ async function newRound() {
   announce(`제 ${state.round} 장. ${state.event.name}. 계시를 적을 차례다.`);
   if (state.miracleOffer) setTimeout(showMiracleDraft, fx.motion.reduced ? 300 : 2500);
   const judge = state.judgement !== 'classic' ? ` · 심판의 기준 「${JUDGEMENTS[state.judgement].name}」` : '';
+  const fest = state.tutorial ? '' : state.round === state.maxRounds ? `${FESTIVALS.last} · ` : actStart(state) ? `${FESTIVALS[actOf(state)]} · ` : '';
   const act = state.tutorial ? '' : state.round === state.maxRounds ? '최후의 계절 · ' : state.round === 1 || actStart(state) ? `${ACTS[actOf(state) - 1].name} · ` : '';
-  fx.chapter(frameEl(), `제 ${state.round} 장`, state.round === 1 ? `${act}${state.event.name}${judge}` : `${act}${state.event.name}`);
+  fx.chapter(frameEl(), `제 ${state.round} 장${state.tutorial ? '' : ` · ${monthOf(state)}`}`, state.round === 1 ? `${act}${state.event.name}${judge}` : `${fest}${act}${state.event.name}`);
+  if (state.event.id === 'mira') setTimeout(() => leaderSay(`미라: “${state.miraQuote}”`), fx.motion.reduced ? 300 : 2500);
   if (actStart(state) && state.config.veteran && ACTS[actOf(state) - 1].text) setTimeout(() => leaderSay(ACTS[actOf(state) - 1].text), fx.motion.reduced ? 300 : 2600);
   if (state.round === 1 && state.destinyOffer) setTimeout(showDestinyChoice, fx.motion.reduced ? 400 : 2600);
   if (state.round === 1 && state.leader) setTimeout(() => leaderSay(leaderLine(state, 'intro')), fx.motion.reduced ? 300 : 2400);
@@ -1508,7 +1510,7 @@ function renderTrack() {
   for (let i = 1; i <= state.maxRounds; i++) {
     const cls = i < state.round ? 'done' : i === state.round ? 'now' : '';
     if (i > 1) nodes.push('<span class="link"></span>');
-    nodes.push(`<span class="node ${cls}" title="제 ${i} 장">${i}</span>`);
+    nodes.push(`<span class="node ${cls}" title="제 ${i} 장${state.tutorial ? '' : ` · ${monthOf(state, i)}`}">${i}</span>`);
   }
   nodes.push(`<span class="first" id="firstMark">선 · ${state.first === 'player' ? '우리 부족' : '율법파'}</span>`);
   $('track').innerHTML = nodes.join('');
@@ -1523,7 +1525,7 @@ function renderSeason() {
       <div class="face">
         <div class="kind">이번 계절</div>
         <div class="title">${svgUse(ev.choice ? 'e-prophet' : `e-${ev.id}`)}${esc(ev.name)}</div>
-        <div class="body">${esc(ev.text)}</div>
+        <div class="body">${esc(ev.text)}${ev.id === 'mira' && state.miraQuote ? `<br><i>“${esc(state.miraQuote)}”</i>` : ''}</div>
         <div class="rule">${esc(ev.rule)}</div>
         ${state.eventChoice && phase === 'speak' ? seasonChoiceHTML() : ''}
       </div>
@@ -1728,7 +1730,7 @@ function matHTML(cur, side) {
     ${mine && (cur.commandments?.length || cur.saints?.length) ? `<div class="vows-row">${(cur.commandments ?? []).map((c) => `<span class="cmd" title="${esc(COMMANDMENTS[c].text)}">「${esc(COMMANDMENTS[c].name)}」</span>`).join('')}${(cur.saints ?? []).map((x) => `<span class="saint" title="${x.kind === 'preacher' ? '설교자 성인 — 선교 +1' : '수호자 성인 — 수도 방어 +1'}">✦ ${esc(x.name)}</span>`).join('')}</div>` : ''}
     ${mine && currentTask() ? `<div class="task-ribbon"><span>세라의 과제</span>${esc(currentTask().text)}<button class="task-x" type="button" title="과제 끄기">✕</button></div>` : ''}
     <div class="res-grid${mine ? '' : ' compact'}">${res}</div>${warnLine}
-    ${!mine && cur.edictOn ? `<div class="edict-bar${s.edict >= edictMax(cur) - 2 ? ' danger' : ''}" title="율법 석판이 ${edictMax(cur)}에 이르면 율법파가 이긴다. 오름: 율법파가 성지를 쥠(2막부터)·탑을 높임·신앙 10을 바침 / 내림: 우리가 성지를 쥠·번개로 탑을 침"><span>율법 석판</span><i><em style="width:${(s.edict / edictMax(cur)) * 100}%"></em></i><b>${s.edict}/${edictMax(cur)}</b></div>` : ''}
+    ${!mine && cur.edictOn ? `<div class="edict-bar${s.edict >= edictMax(cur) - 2 ? ' danger' : ''}" title="피의 율법 ${(cur.bloodKills ?? 0) % 3}/3 — 우리가 칼로 셋을 쓰러뜨릴 때마다 석판 +1. 율법 석판이 ${edictMax(cur)}에 이르면 율법파가 이긴다. 오름: 율법파가 성지를 쥠(2막부터)·탑을 높임·신앙 10을 바침 / 내림: 우리가 성지를 쥠·번개로 탑을 침"><span>율법 석판</span><i><em style="width:${(s.edict / edictMax(cur)) * 100}%"></em></i><b>${s.edict}/${edictMax(cur)}</b></div>` : ''}
     <div class="section-label"><span>신도</span><span>${s.pop} / ${cap}</span></div>
     <div class="meeples">${meeples}</div>
     <div class="section-label"><span>세력</span></div>
