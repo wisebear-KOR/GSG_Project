@@ -16,7 +16,7 @@ export const COST = {
   village: { wood: 2, food: 1 },
   wall: { stone: 2 },
   temple: (level) => ({ stone: level + 2, wood: level + 1 }),
-  cathedral: { stone: 10, wood: 10, faith: 10 },
+  cathedral: { stone: 11, wood: 11, faith: 11 },
 };
 
 export const MAX_TEMPLE = 3;

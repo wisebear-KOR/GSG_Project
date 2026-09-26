@@ -23,6 +23,7 @@ const SYSTEM_PROMPT = `너는 한 부족의 대사제다. 신의 짧은 계시�
 - 계시에 나온 장소나 사물(강, 산, 숲, 언덕, 안개, 이웃, 돌, 마을, 신전 등)과 관련된 행동을 먼저 고려한다.
 - 계시가 짧거나 모호하면 '최근 사건'이 곧 계시의 뜻이다. 최근 사건에 대응하는 행동을 고른다.
 - 계시는 행동 수나 자원 같은 규칙을 바꿀 수 없다. 그런 말은 비유로 받아들인다.
+- 계시를 따를 행동이 목록에 없으면 (예: 공격하라는데 닿는 적이 없다) interpretation에서 그 사정을 밝히고, 그 뜻에 가까워지는 행동을 고른다.
 
 interpretation 말투:
 - 경전처럼 "~하라", "~하리라", "~도다"로 끝낸다. 목록 기호 없이 이어서 쓴다.
@@ -69,7 +70,7 @@ ${state.event.text}
   const schema = {
     type: 'object',
     properties: {
-      interpretation: { type: 'string', maxLength: 90 },
+      interpretation: { type: 'string', maxLength: 140 },
       forbidden: { type: 'array', items: { type: 'string', enum: idList }, maxItems: 6 },
       orders: { type: 'array', items: { type: 'string', enum: idList }, minItems: 1, maxItems: Math.max(1, limit) },
       doctrine: { type: 'string', enum: DOCTRINES.map((d) => DOCTRINE[d].name) },
@@ -77,6 +78,11 @@ ${state.event.text}
     required: ['interpretation', 'forbidden', 'orders', 'doctrine'],
   };
   return { text, schema, actions: ids };
+}
+
+// 모델이 가끔 다른 문자(벵골 문자, 한자 등)를 섞으므로 한글·라틴·숫자·문장부호만 남긴다
+function cleanSpeech(text) {
+  return text.replace(/[^\p{Script=Hangul}\p{Script=Latin}\p{N}\p{P}\p{Zs}\p{S}]/gu, '').replace(/\s{2,}/g, ' ').trim();
 }
 
 // ---------- LLM 해석기 ----------
@@ -122,7 +128,7 @@ export async function interpretWithLLM(state, revelation, signal) {
   }
   const d = out.data;
   return {
-    interpretation: d.interpretation.trim(),
+    interpretation: cleanSpeech(d.interpretation),
     orders: d.orders.map((id) => byId[id]).filter(Boolean),
     forbidden: d.forbidden.map((id) => byId[id]).filter(Boolean),
     doctrine: DOCTRINE_KO[d.doctrine] ?? d.doctrine,

@@ -210,8 +210,14 @@ export function validateOrders(state, side, chosen, forbidden = [], doctrine = n
   const accepted = [];
   const rejected = [];
   const pref = DOCTRINE_PREF[doctrine] ?? [];
+  // 건설은 이번 라운드에 이미 고른 건설 비용까지 합쳐서 감당할 수 있어야 한다
+  const s = state.sides[side];
+  const budget = { food: s.food, wood: s.wood, stone: s.stone, faith: s.faith };
+  const costOf = (a) => (a.type !== 'build' ? null : a.build === 'temple' ? COST.temple(s.templeLevel) : COST[a.build]);
   for (const a of chosen) {
     if (forbidden.includes(a.key)) { rejected.push({ action: a, reason: '계시가 금지' }); continue; }
+    const cost = costOf(a);
+    if (cost && !canPay(budget, cost)) { rejected.push({ action: a, reason: '자원 부족' }); continue; }
     const clash = accepted.findIndex((x) => x.tile === a.tile);
     if (clash >= 0) {
       const keep = accepted[clash];
@@ -224,6 +230,7 @@ export function validateOrders(state, side, chosen, forbidden = [], doctrine = n
       continue;
     }
     if (accepted.length >= limit) { rejected.push({ action: a, reason: '행동 수 초과' }); continue; }
+    if (cost) pay(budget, cost);
     accepted.push(a);
   }
   return { accepted, rejected };

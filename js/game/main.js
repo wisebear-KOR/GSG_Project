@@ -1,6 +1,6 @@
 // 게임 진행: 사건 → 계시 → 해석 확인 → 동시 공개·해결 → 다음 라운드
 import {
-  createState, startRound, validateOrders, autoFill, planEnemy, resolveRound,
+  createState, startRound, legalActions, validateOrders, autoFill, planEnemy, resolveRound,
   recordRevelation, castMiracle, actionLimit, popCap, villageCount, score, tileName,
 } from './engine.js';
 import {
@@ -298,6 +298,13 @@ function renderPhase() {
       ...auto.map((a) => actionItem(a, 'auto', ' — 알아서 (자동)')),
       ...rejected.map((r) => actionItem(r.action, 'bad', ` — ${r.reason}`)),
     ];
+    // 계시의 뜻을 따를 행동이 아예 없으면 알려 준다 (작은 모델은 이 사정을 잘 말하지 못한다)
+    const legal = legalActions(state, 'player');
+    const hint = result.doctrine === 'war' && !legal.some((a) => a.type === 'attack')
+      ? '⚠️ 아직 신도들이 닿는 곳에 율법파가 없다. 마을을 세워 영토를 넓혀야 칠 수 있다.'
+      : result.doctrine === 'peace' && !legal.some((a) => a.type === 'preach') && /이웃|율법|전하|설득/.test(text ?? '')
+        ? '⚠️ 아직 말씀을 전할 율법파가 닿는 곳에 없다. 영토를 넓혀야 한다.' : null;
+    const hintEl = hint ? h('p', { className: 'small', textContent: hint }) : null;
     const forb = result.forbidden.length
       ? h('p', { className: 'small muted', textContent: `금지된 행동: ${result.forbidden.map((a) => a.text.replace(/ \(.*\)$/, '')).join(', ')}` }) : null;
     const ok = h('button', { textContent: '수락하고 공개' });
@@ -309,7 +316,7 @@ function renderPhase() {
       text ? h('p', { className: 'small muted', textContent: `계시: “${text}”` }) : null,
       h('blockquote', { textContent: result.interpretation }),
       h('ul', { className: 'plan' }, ...items),
-      forb, noticeEl,
+      hintEl, forb, noticeEl,
       h('div', { className: 'row' }, h('span', { className: 'spacer' }), again, ok),
     );
     return;
