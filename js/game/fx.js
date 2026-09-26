@@ -290,56 +290,276 @@ export async function typewriter(el, text, cps = 38) {
   el.classList.remove('typing');
 }
 
-// 계시: 밀랍 인장이 찍히고, 글이 빛이 되어 떠올라 보드에 빛기둥으로 내린다
+// 계시: 두루마리에 밀랍 인장을 쾅 찍고 → 글자가 빛이 되어 떠오르고 → 하늘에서 빛기둥이 보드에 내린다
 export async function castRevelation(scrollEl, sealEl, boardEl, text) {
   if (off()) { sfx.seal(); return; }
-  const sr = scrollEl.getBoundingClientRect();
-  // 1) 인장
-  const seal = div('seal-stamp', '<svg viewBox="0 0 24 24"><use href="#i-faith"/></svg>');
-  const sc = centerOf(sealEl);
-  seal.style.left = `${sc.x}px`; seal.style.top = `${sc.y}px`;
+  await stampSeal(scrollEl, sealEl);
+  ascendWords(scrollEl, boardEl, text);
+  await wait(650);
+  await heavenlyBeam(boardEl);
+}
+
+// ---------- 도장 ----------
+// 두루마리 위에서 인장이 들렸다가(예비 동작) 쾅 내려찍힌다. 인주 자국이 두루마리에 남는다.
+export async function stampSeal(scrollEl, sealEl) {
+  sealEl?.animate([{ transform: 'scale(1)' }, { transform: 'scale(.9)' }, { transform: 'scale(1)' }], { duration: 260 });
+  const r = scrollEl.getBoundingClientRect();
+  const at = { x: r.left + r.width * 0.72, y: r.top + r.height * 0.55 };
+  const rot = -14 + Math.random() * 10;
+  const seal = div('stamp', '<div class="stamp-face"><svg viewBox="0 0 24 24"><use href="#i-faith"/></svg></div><div class="stamp-shadow"></div>');
+  seal.style.left = `${at.x}px`; seal.style.top = `${at.y}px`;
   stage().append(seal);
-  const target = { x: sr.right - 60, y: sr.bottom - 36 };
-  // 애니메이션의 finished는 탭이 가려지면 멈추므로 타이머로 기다린다
-  seal.animate([
-    { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
-    { transform: `translate(calc(-50% + ${(target.x - sc.x) / 2}px), calc(-50% + ${(target.y - sc.y) / 2 - 60}px)) scale(2.4)`, offset: 0.55 },
-    { transform: `translate(calc(-50% + ${target.x - sc.x}px), calc(-50% + ${target.y - sc.y}px)) scale(1)` },
-  ], { duration: 520, easing: 'cubic-bezier(.5,0,.75,0)', fill: 'forwards' });
-  await wait(520);
+  const face = seal.querySelector('.stamp-face');
+  const shadow = seal.querySelector('.stamp-shadow');
+  // 1) 위에서 나타나 높이 들린다
+  face.animate([
+    { transform: `translate(-50%, calc(-50% - 170px)) scale(1.9) rotate(${rot - 18}deg)`, opacity: 0 },
+    { transform: `translate(-50%, calc(-50% - 120px)) scale(1.75) rotate(${rot - 6}deg)`, opacity: 1, offset: 0.55 },
+    { transform: `translate(-50%, calc(-50% - 132px)) scale(1.8) rotate(${rot - 8}deg)`, opacity: 1 },
+  ], { duration: 420, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'forwards' });
+  shadow.animate([{ transform: 'translate(-50%,-50%) scale(.35)', opacity: 0 }, { transform: 'translate(-50%,-50%) scale(.55)', opacity: 0.35 }],
+    { duration: 420, fill: 'forwards' });
+  sfx.lift();
+  await wait(470);
+  // 2) 쾅: 짧고 빠르게 내려찍는다
+  face.animate([
+    { transform: `translate(-50%, calc(-50% - 132px)) scale(1.8) rotate(${rot - 8}deg)` },
+    { transform: `translate(-50%, -50%) scale(.94, .9) rotate(${rot}deg)`, offset: 0.78 },
+    { transform: `translate(-50%, -50%) scale(1.04, .98) rotate(${rot}deg)` },
+  ], { duration: 150, easing: 'cubic-bezier(.7,0,1,.6)', fill: 'forwards' });
+  shadow.animate([{ transform: 'translate(-50%,-50%) scale(.55)', opacity: 0.35 }, { transform: 'translate(-50%,-50%) scale(1.05)', opacity: 0.6 }],
+    { duration: 150, easing: 'ease-in', fill: 'forwards' });
+  await wait(140);
   sfx.seal();
-  shake(scrollEl.closest('.altar') ?? scrollEl, 5);
-  sparks(target, 14, ['#ff6b4a', '#c0392b', '#ffd0a0']);
-  // 2) 글자가 빛으로 떠오른다
-  const words = div('cast-words');
-  words.textContent = text.length > 30 ? `${text.slice(0, 30)}…` : text;
-  words.style.left = `${sr.left + sr.width / 2}px`;
-  words.style.top = `${sr.top + sr.height / 2}px`;
-  stage().append(words);
+  // 충격: 두루마리가 눌리고, 제단이 흔들리고, 먼지와 인주가 튄다
+  scrollEl.animate([{ transform: 'scaleY(1)' }, { transform: 'scaleY(.955) translateY(3px)' }, { transform: 'scaleY(1.01)' }, { transform: 'none' }],
+    { duration: 380, easing: 'cubic-bezier(.3,1.6,.5,1)' });
+  shake(scrollEl.closest('.altar') ?? scrollEl, 7);
+  shake(document.querySelector('.board-frame'), 3);
+  impactRing(at);
+  dust(at);
+  sparks(at, 16, ['#c0392b', '#e05a44', '#ffd0a0', '#8a1c10']);
+  // 인주 자국을 두루마리에 남긴다
+  const mark = document.createElement('div');
+  mark.className = 'stamp-mark';
+  mark.innerHTML = '<svg viewBox="0 0 24 24"><use href="#i-faith"/></svg><span>계시</span>';
+  mark.style.left = `${at.x - r.left}px`; mark.style.top = `${at.y - r.top}px`;
+  mark.style.setProperty('--rot', `${rot}deg`);
+  scrollEl.append(mark);
+  await wait(260);
+  // 3) 인장을 들어 올리며 사라진다
+  face.animate([
+    { transform: `translate(-50%, -50%) scale(1.04, .98) rotate(${rot}deg)`, opacity: 1 },
+    { transform: `translate(-50%, calc(-50% - 70px)) scale(1.3) rotate(${rot + 6}deg)`, opacity: 0 },
+  ], { duration: 380, easing: 'cubic-bezier(.3,0,.2,1)', fill: 'forwards' });
+  shadow.animate([{ opacity: 0.6 }, { opacity: 0 }], { duration: 300, fill: 'forwards' });
+  later(() => seal.remove(), 420);
+  await wait(200);
+}
+
+function impactRing(at) {
+  for (let i = 0; i < 2; i++) {
+    const ring = div('impact-ring');
+    ring.style.left = `${at.x}px`; ring.style.top = `${at.y}px`;
+    stage().append(ring);
+    ring.animate([{ transform: 'translate(-50%,-50%) scale(.3)', opacity: 0.9 }, { transform: 'translate(-50%,-50%) scale(2.4)', opacity: 0 }],
+      { duration: 520, delay: i * 90, easing: EASE_OUT, fill: 'forwards' });
+    later(() => ring.remove(), 700);
+  }
+}
+
+// 두루마리의 글자가 한 자씩 금빛으로 흩어져 떠오른다
+function ascendWords(scrollEl, boardEl, text) {
+  const r = scrollEl.getBoundingClientRect();
   const br = boardEl.getBoundingClientRect();
+  const chars = [...(text.length > 36 ? `${text.slice(0, 36)}…` : text)];
+  const line = div('ascend-line');
+  line.style.left = `${r.left + r.width / 2}px`;
+  line.style.top = `${r.top + r.height * 0.42}px`;
+  line.innerHTML = chars.map((c) => `<span>${c === ' ' ? '&nbsp;' : c.replace(/[<>&]/g, '')}</span>`).join('');
+  stage().append(line);
+  const spans = [...line.children];
+  const tx = br.left + br.width / 2 - (r.left + r.width / 2);
+  const ty = br.top + br.height * 0.2 - (r.top + r.height * 0.42);
+  spans.forEach((s, i) => {
+    const d = i * 28;
+    const drift = (Math.random() - 0.5) * 60;
+    s.animate([
+      { transform: 'translateY(0) scale(1)', opacity: 0, filter: 'blur(0)' },
+      { transform: 'translateY(-14px) scale(1.15)', opacity: 1, filter: 'blur(0)', offset: 0.2 },
+      { transform: `translate(${tx * 0.5 + drift}px, ${ty * 0.55 - 40}px) scale(.9)`, opacity: 0.9, filter: 'blur(1px)', offset: 0.6 },
+      { transform: `translate(${tx}px, ${ty}px) scale(.3)`, opacity: 0, filter: 'blur(4px)' },
+    ], { duration: 1100, delay: d, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'forwards' });
+  });
   sfx.whoosh();
-  words.animate([
-    { transform: 'translate(-50%,-50%) scale(1)', opacity: 0, filter: 'blur(2px)' },
-    { transform: 'translate(-50%,-50%) translateY(-20px) scale(1.1)', opacity: 1, filter: 'blur(0)', offset: 0.25 },
-    { transform: `translate(-50%,-50%) translate(${br.left + br.width / 2 - (sr.left + sr.width / 2)}px, ${br.top + br.height * 0.1 - (sr.top + sr.height / 2)}px) scale(.5)`, opacity: 0, filter: 'blur(3px)' },
-  ], { duration: 1000, easing: 'cubic-bezier(.5,0,.2,1)', fill: 'forwards' });
-  later(() => { words.remove(); seal.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' }); later(() => seal.remove(), 450); }, 1000);
-  await wait(750);
-  // 3) 빛기둥
-  const beam = div('beam');
-  beam.style.left = `${br.left + br.width / 2}px`;
-  beam.style.top = `${br.top - 40}px`;
-  beam.style.height = `${br.height + 60}px`;
-  stage().append(beam);
-  sfx.holy();
-  beam.animate([
-    { transform: 'translateX(-50%) scaleX(.1)', opacity: 0 },
-    { transform: 'translateX(-50%) scaleX(1)', opacity: 1, offset: 0.3 },
-    { transform: 'translateX(-50%) scaleX(1.6)', opacity: 0 },
-  ], { duration: 1200, easing: EASE_OUT, fill: 'forwards' });
-  later(() => beam.remove(), 1250);
-  sparks({ x: br.left + br.width / 2, y: br.top + br.height / 2 }, 30);
-  await wait(700);
+  later(() => line.remove(), 1200 + spans.length * 28);
+}
+
+// ---------- 하늘에서 내려오는 빛기둥 (캔버스, 가산 합성) ----------
+export function heavenlyBeam(boardEl) {
+  return new Promise((resolve) => {
+    const br = boardEl.getBoundingClientRect();
+    const cx = br.left + br.width / 2;
+    const cy = br.top + br.height / 2;
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const cv = document.createElement('canvas');
+    cv.className = 'beam-canvas';
+    cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+    stage().append(cv);
+    const g = cv.getContext('2d');
+    g.scale(dpr, dpr);
+    const veil = div('beam-veil');
+    stage().prepend(veil);
+    veil.animate([{ opacity: 0 }, { opacity: 1, offset: 0.2 }, { opacity: 1, offset: 0.7 }, { opacity: 0 }], { duration: 2600, fill: 'forwards' });
+
+    const topY = -40;
+    const RAYS = 16;
+    const rays = Array.from({ length: RAYS }, (_, i) => ({ a: (i / (RAYS - 1) - 0.5) * 0.9 + (Math.random() - 0.5) * 0.05, w: 0.018 + Math.random() * 0.03, p: Math.random() * 6.28, len: 0.8 + Math.random() * 0.4 }));
+    const motes = [];
+    const spawn = (n, fromTop = true) => {
+      for (let i = 0; i < n; i++) {
+        motes.push(fromTop
+          ? { x: cx + (Math.random() - 0.5) * 220, y: topY + Math.random() * 60, vx: 0, vy: 3 + Math.random() * 5, r: 0.8 + Math.random() * 2.2, life: 1, spin: (Math.random() - 0.5) * 0.08, down: true }
+          : { x: cx + (Math.random() - 0.5) * 30, y: cy, vx: (Math.random() - 0.5) * 7, vy: -2 - Math.random() * 6, r: 1 + Math.random() * 2.5, life: 1, spin: 0, down: false });
+      }
+    };
+    const T = 2400;
+    const HIT = 700;
+    let hit = false;
+    const t0 = performance.now();
+    sfx.holy();
+
+    const frame = (now) => {
+      const t = now - t0;
+      const k = Math.min(1, t / T);
+      g.clearRect(0, 0, innerWidth, innerHeight);
+      g.globalCompositeOperation = 'lighter';
+      // 전체 세기: 빠르게 차오르고 천천히 걷힌다
+      const inten = t < HIT ? (t / HIT) ** 1.5 : Math.max(0, 1 - (t - HIT) / (T - HIT)) ** 0.8;
+
+      // 1) 부채꼴 광선 다발
+      for (const ray of rays) {
+        const sway = Math.sin(t / 700 + ray.p) * 0.03;
+        const ang = ray.a + sway;
+        const len = innerHeight * 1.3 * ray.len;
+        const half = ray.w * len;
+        const ex = cx + Math.sin(ang) * len;
+        const ey = topY + Math.cos(ang) * len;
+        const grad = g.createLinearGradient(cx, topY, ex, ey);
+        const a = 0.14 * inten * (0.6 + 0.4 * Math.sin(t / 300 + ray.p));
+        grad.addColorStop(0, `rgba(255,248,220,${a * 1.6})`);
+        grad.addColorStop(0.5, `rgba(255,215,130,${a})`);
+        grad.addColorStop(1, 'rgba(255,190,90,0)');
+        g.fillStyle = grad;
+        g.beginPath();
+        g.moveTo(cx - 6, topY);
+        g.lineTo(ex - Math.cos(ang) * half, ey + Math.sin(ang) * half);
+        g.lineTo(ex + Math.cos(ang) * half, ey - Math.sin(ang) * half);
+        g.lineTo(cx + 6, topY);
+        g.closePath();
+        g.fill();
+      }
+
+      // 2) 중심 빛기둥: 내려오며 굵어진다
+      const reach = t < HIT ? topY + (cy - topY) * EASE(t / HIT) : cy;
+      const width = 40 + 150 * inten;
+      for (const [wMul, color] of [[1.8, `rgba(255,190,90,${0.12 * inten})`], [1, `rgba(255,225,150,${0.28 * inten})`], [0.45, `rgba(255,250,235,${0.65 * inten})`], [0.15, `rgba(255,255,255,${0.9 * inten})`]]) {
+        const w = width * wMul;
+        const grad = g.createLinearGradient(cx - w / 2, 0, cx + w / 2, 0);
+        grad.addColorStop(0, 'rgba(0,0,0,0)');
+        grad.addColorStop(0.5, color);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        g.fillStyle = grad;
+        g.fillRect(cx - w / 2, topY, w, reach - topY);
+      }
+      // 기둥 속에서 흘러내리는 빛줄기
+      for (let i = 0; i < 9; i++) {
+        const sx = cx + Math.sin(i * 12.9) * width * 0.35;
+        const sy = ((t * 0.9 + i * 137) % (cy - topY + 200)) + topY - 100;
+        const grad = g.createLinearGradient(0, sy, 0, sy + 120);
+        grad.addColorStop(0, 'rgba(255,255,255,0)');
+        grad.addColorStop(0.5, `rgba(255,250,230,${0.35 * inten})`);
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        g.fillStyle = grad;
+        g.fillRect(sx - 1.5, sy, 3, Math.min(120, Math.max(0, reach - sy)));
+      }
+
+      // 3) 입자: 위에서 나선을 그리며 내려오고, 닿으면 튀어 오른다
+      if (t < HIT + 600 && Math.random() < 0.9) spawn(6);
+      for (const m of motes) {
+        if (m.down) {
+          const dx = cx - m.x;
+          m.vx += dx * 0.0025 + Math.sin(m.y / 40) * 0.15;
+          m.vy += 0.08;
+          if (m.y > cy) { m.life -= 0.2; }
+        } else {
+          m.vy += 0.12; m.vx *= 0.98; m.life -= 0.012;
+        }
+        m.x += m.vx; m.y += m.vy;
+        m.life -= 0.004;
+        if (m.life <= 0) continue;
+        const rr = m.r * (1 + (1 - m.life));
+        const grad = g.createRadialGradient(m.x, m.y, 0, m.x, m.y, rr * 4);
+        grad.addColorStop(0, `rgba(255,250,220,${m.life})`);
+        grad.addColorStop(0.35, `rgba(255,210,110,${m.life * 0.6})`);
+        grad.addColorStop(1, 'rgba(255,180,60,0)');
+        g.fillStyle = grad;
+        g.fillRect(m.x - rr * 4, m.y - rr * 4, rr * 8, rr * 8);
+      }
+
+      // 4) 착지: 충격파와 섬광, 타일 축복 물결
+      if (!hit && t >= HIT) {
+        hit = true;
+        spawn(80, false);
+        sfx.impact();
+        blessTiles(boardEl);
+      }
+      if (t >= HIT) {
+        const u = (t - HIT) / 1100;
+        if (u < 1) {
+          for (const [delay, thick] of [[0, 10], [0.12, 4]]) {
+            const v = Math.max(0, u - delay) / (1 - delay);
+            if (v <= 0 || v >= 1) continue;
+            const rx = 30 + v * br.width * 0.75;
+            g.strokeStyle = `rgba(255,236,170,${(1 - v) * 0.8})`;
+            g.lineWidth = thick * (1 - v) + 1;
+            g.beginPath();
+            g.ellipse(cx, cy + 10, rx, rx * 0.42, 0, 0, Math.PI * 2);
+            g.stroke();
+          }
+          const bloom = g.createRadialGradient(cx, cy, 0, cx, cy, br.width * 0.6);
+          bloom.addColorStop(0, `rgba(255,245,210,${0.55 * (1 - u)})`);
+          bloom.addColorStop(0.4, `rgba(255,200,110,${0.2 * (1 - u)})`);
+          bloom.addColorStop(1, 'rgba(255,180,80,0)');
+          g.fillStyle = bloom;
+          g.fillRect(cx - br.width, cy - br.width, br.width * 2, br.width * 2);
+        }
+      }
+      g.globalCompositeOperation = 'source-over';
+
+      if (t < T && !motion.skip) requestAnimationFrame(frame);
+      else { cv.remove(); veil.remove(); }
+    };
+    requestAnimationFrame(frame);
+    // 착지 시점까지만 기다리고 게임은 진행한다 (나머지 여운은 겹쳐 흐른다)
+    later(resolve, motion.skip ? 0 : HIT + 500);
+  });
+}
+const EASE = (x) => 1 - (1 - x) ** 3;
+
+// 보드 타일이 중심에서 바깥으로 차례로 빛난다
+function blessTiles(boardEl) {
+  const tiles = [...boardEl.querySelectorAll('.tile')];
+  const fr = boardEl.getBoundingClientRect();
+  const cx = fr.left + fr.width / 2;
+  const cy = fr.top + fr.height / 2;
+  for (const t of tiles) {
+    const r = t.getBoundingClientRect();
+    const d = Math.hypot(r.left + r.width / 2 - cx, r.top + r.height / 2 - cy);
+    t.style.animationDelay = `${Math.round(d * 1.6)}ms`;
+    t.classList.add('bless');
+    later(() => { t.classList.remove('bless'); t.style.animationDelay = ''; }, 1400 + d * 1.6);
+  }
 }
 
 // ---------- 승패 ----------

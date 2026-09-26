@@ -604,3 +604,30 @@ body.reduce-motion .flag, body.reduce-motion .pieces .meeple .meeple-body, body.
 .law-back { height: 72px; }
 .law-back svg { width: 28px; height: 28px; margin-bottom: 3px; }
 @media (max-width: 720px) { .act { margin-top: 8px; } }
+
+/* ---------- 계시: 도장과 빛기둥 ---------- */
+.stamp { position: fixed; z-index: 72; pointer-events: none; }
+.stamp-face { position: absolute; left: 0; top: 0; width: 74px; height: 74px; border-radius: 47% 53% 50% 50% / 52% 48% 52% 48%; display: grid; place-items: center;
+  background: radial-gradient(circle at 36% 30%, #ec7a62, #b3301f 50%, #6a150c); transform: translate(-50%, -50%);
+  box-shadow: inset 0 0 0 5px rgba(0, 0, 0, .12), inset 0 0 0 8px rgba(255, 190, 160, .25), inset 0 -10px 16px rgba(0, 0, 0, .35), 0 14px 22px rgba(0, 0, 0, .5); }
+.stamp-face svg { width: 36px; height: 36px; filter: sepia(1) saturate(.4) brightness(1.5) drop-shadow(0 1px 0 rgba(0, 0, 0, .5)); }
+.stamp-shadow { position: absolute; left: 0; top: 0; width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle, rgba(40, 20, 5, .7), transparent 70%);
+  transform: translate(-50%, -50%) scale(.35); opacity: 0; }
+.stamp-mark { position: absolute; z-index: 2; width: 66px; height: 66px; margin: -33px 0 0 -33px; border-radius: 50%; pointer-events: none;
+  display: grid; place-items: center; transform: rotate(var(--rot, -10deg)); color: #9b2618;
+  border: 3px double rgba(155, 38, 24, .85); background: radial-gradient(circle, rgba(192, 57, 43, .18), rgba(192, 57, 43, .05) 70%);
+  mix-blend-mode: multiply; animation: markIn .35s ease-out both; }
+.stamp-mark svg { width: 26px; height: 26px; filter: grayscale(1) sepia(1) saturate(6) hue-rotate(-35deg) brightness(.7); opacity: .85; }
+.stamp-mark span { position: absolute; bottom: 7px; font: 400 11px var(--font-title); letter-spacing: .2em; padding-left: .2em; }
+@keyframes markIn { from { opacity: 0; transform: rotate(var(--rot)) scale(1.25); } to { opacity: .92; transform: rotate(var(--rot)) scale(1); } }
+.stamp-mark.static { right: 22px; bottom: 16px; left: auto; top: auto; margin: 0; animation: none; opacity: .8; }
+.impact-ring { position: fixed; z-index: 71; width: 90px; height: 90px; border-radius: 50%; border: 3px solid rgba(255, 220, 170, .8); pointer-events: none; }
+.ascend-line { position: fixed; z-index: 70; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none;
+  font: 400 30px var(--font-title); color: #fff6d6; text-shadow: 0 0 8px #ffd46a, 0 0 22px #ffa31a, 0 0 44px #ff7a00; }
+.ascend-line span { display: inline-block; }
+.beam-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 66; pointer-events: none; }
+.beam-veil { position: fixed; inset: 0; z-index: 64; pointer-events: none; background: radial-gradient(ellipse 60% 70% at 50% 40%, rgba(10, 5, 0, .15), rgba(5, 2, 0, .6)); }
+.tile.bless .hex { animation: bless 1.1s ease-out both; animation-delay: inherit; }
+.tile.bless .glyph { animation: blessGlyph 1.1s ease-out both; animation-delay: inherit; }
+@keyframes bless { 0% { filter: brightness(1); } 25% { filter: brightness(1.75) saturate(1.3) sepia(.35); } 100% { filter: brightness(1); } }
+@keyframes blessGlyph { 25% { filter: brightness(1.4) drop-shadow(0 0 6px rgba(255, 230, 150, .9)); } }

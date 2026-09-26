@@ -238,6 +238,13 @@ export const sfx = {
     [86, 90, 93, 98].forEach((n, i) => bell(NOTE(n), t + 0.12 + i * 0.09, { dest: S(), gain: 0.05, dur: 2.4 }));
     noise({ dest: S(), t, dur: 1.4, gain: 0.05, freq: 7000, sweep: 12000, q: 1, type: 'highpass', attack: 0.4, send: 0.8 });
   },
+  // 빛기둥이 보드에 닿는 순간: 깊은 울림 + 높은 종소리 무리 + 반짝임
+  impact: () => {
+    if (!ready()) return; const t = now();
+    thud(t, { dest: S(), freq: 80, end: 30, gain: 0.9, dur: 1.4, send: 0.8 });
+    noise({ dest: S(), t, dur: 1.6, gain: 0.12, freq: 6000, sweep: 11000, q: 0.8, type: 'highpass', attack: 0.02, send: 0.9 });
+    [93, 98, 100, 105].forEach((n, i) => bell(NOTE(n), t + 0.03 * i, { dest: S(), gain: 0.05, dur: 2.8, send: 0.7 }));
+  },
   chime: () => { if (!ready()) return; const t = now(); [81, 86, 88].forEach((n, i) => bell(NOTE(n), t + i * 0.08, { dest: S(), gain: 0.08, dur: 2 })); },
   coin: (i = 0) => {
     if (!ready()) return; const t = now();

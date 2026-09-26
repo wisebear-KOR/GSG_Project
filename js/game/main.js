@@ -687,7 +687,7 @@ function renderAltar() {
       <button class="text-btn silence" type="button">침묵하기 — 신도들이 알아서 일한다</button></div>`;
   } else if (phase === 'thinking') {
     const pct = progress != null ? ` · 모델 내려받는 중 ${(progress * 100).toFixed(0)}%` : '';
-    scroll = `<div class="scroll"><div class="thinking-box">
+    scroll = `<div class="scroll"><div class="stamp-mark static">${svgUse('i-faith')}<span>계시</span></div><div class="thinking-box">
       <svg class="flame-svg" viewBox="0 0 40 60"><rect x="15" y="34" width="10" height="24" rx="2" fill="#efe4cd" stroke="#8a6a3e"/>
         <g class="fl"><path d="M20 6c4 7 8 11 8 18a8 8 0 0 1-16 0c0-7 4-11 8-18z" fill="#ffb347"/><path d="M20 16c2 4 4 6 4 9a4 4 0 0 1-8 0c0-3 2-5 4-9z" fill="#fff3c4"/></g></svg>
       <div><div class="t">대사제가 제단 앞에 엎드렸다</div><div class="dots" style="font:15px var(--font-body);color:var(--ink-soft)">말씀의 뜻을 헤아리는 중${pct}</div></div>
@@ -809,6 +809,7 @@ function renderChron() {
 // ?debug 이면 콘솔에서 상태를 만질 수 있게 한다 (연출 시험용)
 if (new URLSearchParams(location.search).has('debug')) {
   import('./sound.js').then((snd) => { window.__gsg.levels = snd.levels; window.__gsg.music = snd.music; });
+  import('./engine.js').then((eng) => { window.__gsg.engine = eng; });
   window.__gsg = { get state() { return state; }, render: () => render() };
 }
 
