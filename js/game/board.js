@@ -57,7 +57,7 @@ function frame(svg, WIDTH, HEIGHT) {
 }
 
 // markers: [{ tile, side, label, dim, drop, delay }]
-export function renderBoard(svg, state, { markers = [], highlight = [], onTileClick, selectable = [], focus = null } = {}) {
+export function renderBoard(svg, state, { markers = [], highlight = [], hints = [], onTileClick, selectable = [], focus = null } = {}) {
   const { width, height } = sizeOf(state.rows ?? 5, state.cols ?? 5);
   svg.setAttribute('viewBox', `0 0 ${width.toFixed(0)} ${height.toFixed(0)}`);
   svg.replaceChildren();
@@ -90,6 +90,7 @@ export function renderBoard(svg, state, { markers = [], highlight = [], onTileCl
       g.append(use(`s-${t.terrain}`, c.x, c.y - 2, 60, { class: 'glyph' }));
     }
     g.append(el('text', { x: c.x, y: c.y + R * 0.74, class: 'coord' }, t.id));
+    if (hints.includes(t.id)) g.append(el('polygon', { points: hexPoints(c, R - 3), class: 'hint-ring' }));
     if (highlight.includes(t.id)) g.append(el('polygon', { points: hexPoints(c, R - 2), class: 'hl-ring' }));
     if (selectable.includes(t.id)) g.append(el('polygon', { points: hexPoints(c, R - 2), class: 'sel-ring' }));
     if (onTileClick) g.addEventListener('click', () => onTileClick(t.id));

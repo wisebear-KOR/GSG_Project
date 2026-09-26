@@ -10,6 +10,7 @@ import {
 import { renderBoard, tileToHost, markerToScreen } from './board.js';
 import { installArt } from './art.js';
 import { Tutorial } from './tutorial.js';
+import * as meta from './meta.js';
 import { llmStatus, prepareLLM, interpretWithLLM, interpretWithTablet } from './interpreter.js';
 import * as fx from './fx.js';
 import { sfx, soundOn, setSound, musicOn, setMusic, music, unlockAudio } from './sound.js';
@@ -43,6 +44,10 @@ let prevDoctrine = {};
 let focusId = null;         // 해결 재생 중 카메라가 비추는 칸
 let tutorial = null;        // 튜토리얼 진행 중이면 안내자
 let setup = loadSetup();    // 메인 화면에서 고른 새 게임 설정
+let loadedPhase = null;     // 저장에서 불러온 판이면 그 판의 단계 ('speak' | 'resolved')
+let hintTiles = [];         // 계시를 쓰는 동안 말씀이 닿을 것 같은 칸 (석판 해석 예감)
+let hintTimer = null;
+let acceptLock = 0;         // Enter 연타 방지
 
 function loadSetup() {
   try {
@@ -61,7 +66,9 @@ const frameEl = () => $('boardFrame');
 // ---------- 시작 ----------
 async function init() {
   fx.ambient($('ambient'));
-  state = createState(setup);
+  const saved = meta.loadGame();
+  if (saved) { state = saved.state; loadedPhase = saved.uiPhase; }
+  else state = createState(setup);
   bindTools();
   bindSetup();
   renderSetup();
@@ -75,7 +82,8 @@ async function init() {
   renderBoardView();
   renderMats();
   // ?play 이면 메인 화면을 건너뛴다 (시험용)
-  if (new URLSearchParams(location.search).has('play')) { $('mainScreen').hidden = true; newRound(); }
+  if (new URLSearchParams(location.search).has('play')) { $('mainScreen').hidden = true; if (loadedPhase) resumeLoaded(); else newRound(); }
+  else showMain();
 }
 
 // ---------- 메인 화면 ----------
@@ -95,7 +103,7 @@ function showMain() {
       resume.onclick = () => startFromMain('resume');
       $('startGame').before(resume);
     }
-    resume.innerHTML = `제 ${state.round} 장으로 돌아가기 <kbd>Enter</kbd>`;
+    resume.innerHTML = `제 ${state.round + (loadedPhase === 'resolved' ? 1 : 0)} 장으로 돌아가기 <small>${state.rows}×${state.cols} · ${DIFFICULTY[state.config.difficulty].name}</small> <kbd>Enter</kbd>`;
     $('startGame').className = 'btn-ghost ms-start';
     $('startGame').innerHTML = '새 게임 시작';
   } else {
@@ -168,12 +176,32 @@ function startFromMain(mode = 'new') {
   setTimeout(() => {
     ms.hidden = true;
     ms.classList.remove('leaving');
-    if (mode === 'resume' && inProgress()) { tutorial?.on('speak', state.round); return; }
+    if (mode === 'resume' && inProgress()) {
+      if (loadedPhase) resumeLoaded(); else tutorial?.on('speak', state.round);
+      return;
+    }
     beginGame(mode === 'tutorial' ? { mode: 'tutorial' } : { ...setup, mode: 'standard' });
   }, fx.motion.reduced ? 150 : 850);
 }
 
+// 저장에서 불러온 판을 이어 간다
+function resumeLoaded() {
+  const at = loadedPhase;
+  loadedPhase = null;
+  resolved = null;
+  renderSubtitle();
+  music.start();
+  if (at === 'resolved') { newRound(); return; }
+  phase = 'speak';
+  pending = null;
+  dealSeason = true;
+  music.setMood('calm');
+  render();
+  fx.chapter(frameEl(), `제 ${state.round} 장`, '다시 이어서');
+}
+
 function beginGame(config) {
+  loadedPhase = null;
   tutorial?.destroy();
   tutorial = config.mode === 'tutorial' ? new Tutorial({ onSuggest: suggestRevelation, onEnd: endTutorial }) : null;
   state = createState(config);
@@ -215,6 +243,7 @@ function bindMain() {
     }
     if (e.key === 'Escape' && $('mainScreen').hidden && phase !== 'thinking' && phase !== 'playing') showMain();
   });
+  addEventListener('keydown', onKey);
 }
 
 function bindTileTips() {
@@ -290,6 +319,7 @@ async function newRound() {
   music.start();
   music.setMood('calm');
   render();
+  meta.saveGame(state, 'speak');
   fx.chapter(frameEl(), `제 ${state.round} 장`, state.event.name);
   if (tutorial) {
     const round = state.round;
@@ -315,6 +345,7 @@ async function speak() {
   if (p.faith < cost) { notice = `신앙이 모자라다 (필요 ${cost}, 보유 ${p.faith}). 계시를 줄이거나 침묵하라.`; sfx.fail(); renderAltar(); return; }
   p.faith -= cost;
   draft = '';
+  hintTiles = [];
   lockAltar();
   tutorial?.hide();
   // 인장·빛기둥 연출이 도는 동안 대사제가 먼저 해석을 시작한다
@@ -376,6 +407,7 @@ function landMeeple(tile, side) {
 
 function silence() {
   sfx.page();
+  hintTiles = [];
   const auto = autoFill(state, 'player', []);
   pending = {
     text: null,
@@ -407,6 +439,8 @@ async function accept() {
   resolveRound(state, [...accepted, ...auto], enemyPlan);
   // 교리는 해결이 끝난 뒤에 오른다: 확인 화면에 보인 수치 그대로 해결되도록
   if (text) recordRevelation(state, text, result.doctrine);
+  const last = state.history.at(-1);
+  if (last) last.text = text;
   resolved = { enemyPlan, playerPlan: [...accepted, ...auto], logs: state.log.slice(from), shown: [] };
   await playback(before);
 }
@@ -464,7 +498,10 @@ async function playback(before) {
   fx.motion.skip = false;
   phase = state.winner ? 'over' : 'resolved';
   if (phase !== 'over') music.setMood('calm');
+  resolved.ledger = ledgerOf(before);
   render();
+  playLedger();
+  if (phase === 'over') meta.clearSave(); else meta.saveGame(state, 'resolved');
   if (tutorial) {
     if (phase === 'over') { music.setMood('end'); tutorial.on('end', state.round); return; }
     tutorial.on('resolved', state.round);
@@ -477,6 +514,36 @@ async function playback(before) {
     const sub = state.winReason.includes('승점') ? state.winReason : `${state.winReason} · 승점 ${score(state, 'player')} : ${score(state, 'enemy')}`;
     fx.endScreen(won, title, sub, restart);
   }
+}
+
+// ---------- 장 결산: 이번 장에 무엇이 늘고 줄었나 ----------
+function ledgerOf(before) {
+  const b = before.sides.player;
+  const a = state.sides.player;
+  const bv = makeView(before);
+  const rows = [];
+  for (const k of RES_KEYS) if (a[k] !== b[k]) rows.push({ key: k, label: RESOURCE_NAME[k], d: a[k] - b[k] });
+  if (a.pop !== b.pop) rows.push({ key: 'pop', label: '신도', d: a.pop - b.pop });
+  const vd = villageCount(state, 'player') - villageCount(bv, 'player');
+  if (vd) rows.push({ key: 'village', label: '마을', d: vd });
+  return { rows, score: score(state, 'player') - score(bv, 'player'), enemyScore: score(state, 'enemy') - score(bv, 'enemy') };
+}
+
+function ledgerHTML(l) {
+  if (!l) return '';
+  const sign = (d) => (d > 0 ? `+${d}` : `${d}`);
+  const items = l.rows.map((r, i) => `<span class="lg-item ${r.d > 0 ? 'up' : 'down'}" style="--i:${i}">${esc(r.label)} <b>${sign(r.d)}</b></span>`).join('');
+  return `<div class="ledger"><span class="lg-head">이번 장</span>${items || '<span class="lg-item" style="--i:0">변화 없음</span>'}
+    <span class="lg-score ${l.score >= 0 ? 'up' : 'down'}" style="--i:${l.rows.length}">승점 <b>${sign(l.score)}</b></span>
+    <span class="lg-enemy">율법파 ${sign(l.enemyScore)}</span></div>`;
+}
+
+// 항목이 하나씩 쌓이며 음이 오른다
+function playLedger() {
+  const l = resolved?.ledger;
+  if (!l || fx.motion.reduced) return;
+  l.rows.forEach((r, i) => setTimeout(() => sfx.coin(i), 120 + i * 130));
+  setTimeout(() => { if (l.score > 0) sfx.chime(); }, 160 + l.rows.length * 130);
 }
 
 // 해결 단계마다 보드 위에 띄우는 띠
@@ -617,6 +684,7 @@ async function useMiracle(id) {
   render();
   if (r.ok) {
     matView = null;
+    meta.saveGame(state, 'speak');
     await playFx(state.log[state.log.length - 1]);
     renderMats();
   }
@@ -628,7 +696,7 @@ async function onTileClick(id) {
   notice = r.ok ? '' : r.text;
   targeting = null;
   render();
-  if (r.ok) await playFx(state.log[state.log.length - 1]);
+  if (r.ok) { meta.saveGame(state, 'speak'); await playFx(state.log[state.log.length - 1]); }
   if (state.winner) { phase = 'over'; render(); fx.endScreen(true, '승리', state.winReason, restart); }
 }
 
@@ -703,7 +771,8 @@ function renderBoardView() {
     resolved.enemyPlan.forEach((a) => markers.push({ tile: a.tile, side: 'enemy', incoming: resolved.incomingEnemy }));
   }
   const selectable = targeting === 'lightning' ? cur.tiles.filter((t) => t.owner === 'enemy' && t.revealed).map((t) => t.id) : [];
-  renderBoard($('board'), cur, { markers, highlight, selectable, onTileClick, focus: focusId });
+  const hints = phase === 'speak' && !targeting ? hintTiles : [];
+  renderBoard($('board'), cur, { markers, highlight, hints, selectable, onTileClick, focus: focusId });
   frameEl().classList.toggle('thinking', phase === 'thinking');
 }
 
@@ -855,20 +924,21 @@ function renderAltar() {
       <div class="orders">${chips}</div>
       ${hint ? `<div class="hint">⚠ ${hint}</div>` : ''}${noticeHTML}</div>`;
     act = `<div class="act">
-      <button class="btn-primary big accept" type="button" ${fresh ? 'disabled' : ''}>수락하고 공개</button>
-      <button class="btn-ghost again" type="button" ${!text || state.reinterpretUsed || p.faith < 1 ? 'disabled' : ''}>다시 해석 · 신앙 1</button></div>`;
+      <button class="btn-primary big accept" type="button" ${fresh ? 'disabled' : ''}>수락하고 공개 <kbd>Enter</kbd></button>
+      <button class="btn-ghost again" type="button" ${!text || state.reinterpretUsed || p.faith < 1 ? 'disabled' : ''}>다시 해석 · 신앙 1 <kbd>R</kbd></button></div>`;
   } else {
     const shown = phase === 'playing' ? resolved.shown : resolved.logs;
     const plan = resolved.enemyPlan.map(enemyLabel).join(' · ') || '없음';
     scroll = `<div class="scroll">
       <div class="scroll-head"><h3>공개와 해결</h3><small>율법 「${esc(state.lawCard.name)}」</small></div>
       <div class="law-line">율법파 배치 — ${esc(plan)}</div>
-      <div class="chron">${shown.map((l, i) => logLine(l, phase === 'playing' && i === shown.length - 1)).join('')}</div></div>`;
+      <div class="chron">${shown.map((l, i) => logLine(l, phase === 'playing' && i === shown.length - 1)).join('')}</div>
+      ${phase === 'playing' ? '' : ledgerHTML(resolved.ledger)}</div>`;
     act = phase === 'playing'
-      ? '<div class="act"><button class="btn-ghost skip" type="button">⏩ 빨리 감기</button></div>'
+      ? '<div class="act"><button class="btn-ghost skip" type="button">⏩ 빨리 감기 <kbd>Space</kbd></button></div>'
       : phase === 'over'
         ? `<div class="act"><button class="btn-primary big again-game" type="button">다시 하기</button><div style="text-align:center;font:13px var(--font-body);color:var(--on-table-dim)">${esc(state.winReason)}</div></div>`
-        : '<div class="act"><button class="btn-primary big next" type="button">다음 장으로 ▶</button></div>';
+        : '<div class="act"><button class="btn-primary big next" type="button">다음 장으로 ▶ <kbd>Enter</kbd></button></div>';
   }
 
   altar.innerHTML = `${hand}<div class="scroll-wrap">${scroll}</div>${act}`;
@@ -906,6 +976,7 @@ function bindAltar() {
       count.textContent = `${draft.length} / ${REVELATION_MAX}`;
       pill.querySelector('.c').textContent = `신앙 ${cost}`;
       pill.classList.toggle('over', cost > state.sides.player.faith);
+      scheduleHints();
     };
     ta.onkeydown = (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); speak(); } };
     if (!targeting) ta.focus({ preventScroll: true });
@@ -918,6 +989,43 @@ function bindAltar() {
   on('.skip', () => { fx.motion.skip = true; });
   on('.next', () => { sfx.click(); newRound(); });
   on('.again-game', restart);
+}
+
+// 계시를 쓰는 동안 석판 해석으로 말씀이 닿을 칸을 미리 흐리게 비춘다 (LLM의 결정과는 다를 수 있는 '예감')
+function scheduleHints() {
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(() => {
+    if (phase !== 'speak') return;
+    const text = draft.trim();
+    const next = text ? [...new Set(interpretWithTablet(state, text).orders.map((a) => a.tile))].slice(0, 6) : [];
+    if (next.join() === hintTiles.join()) return;
+    if (next.some((t) => !hintTiles.includes(t))) sfx.hover();
+    hintTiles = next;
+    renderBoardView();
+  }, 250);
+}
+
+// ---------- 단축키 ----------
+function onKey(e) {
+  if (!$('mainScreen').hidden || document.querySelector('.endscreen, .npc-dialog.show')) return;
+  const typing = ['TEXTAREA', 'INPUT'].includes(document.activeElement?.tagName);
+  const click = (sel) => { const b = $('altar').querySelector(sel); if (b && !b.disabled) { e.preventDefault(); b.click(); return true; } return false; };
+  if (e.altKey && /^[1-3]$/.test(e.key) && phase === 'speak') {
+    const c = $('altar').querySelectorAll('.mcard')[Number(e.key) - 1];
+    if (c && !c.disabled) { e.preventDefault(); c.click(); }
+    return;
+  }
+  if (typing) return;
+  if (phase === 'confirm') {
+    if (e.key === 'Enter' && Date.now() > acceptLock) { acceptLock = Date.now() + 300; click('.accept'); }
+    else if (e.key === 'r' || e.key === 'R' || e.key === 'ㄱ') click('.again');
+  } else if (phase === 'playing') {
+    if (e.key === ' ') { e.preventDefault(); fx.motion.skip = true; }
+  } else if (phase === 'resolved') {
+    if (e.key === 'Enter' || e.key === ' ') click('.next');
+  } else if (phase === 'speak' && (e.key === 'l' || e.key === 'L')) {
+    $('openChron').click();
+  }
 }
 
 // 율법파 행동을 플레이어 시점으로 적는다 (안개 속 지형은 드러내지 않는다)

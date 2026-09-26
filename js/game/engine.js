@@ -12,8 +12,10 @@ export const other = (side) => (side === 'player' ? 'enemy' : 'player');
 const ROWS = 'ABCDEFGHI';
 
 // ---------- 난수 (시드 고정으로 재현 가능) ----------
-export function rand(state) {
-  let t = (state.seed = (state.seed + 0x6d2b79f5) | 0);
+// 흐름을 둘로 나눈다: deck(사건·율법 카드 순서)과 dice(주사위·탐험).
+// 덱은 판 시작에 미리 나눠 두므로, 플레이어가 무엇을 하든 같은 시드면 같은 계절·율법이 나온다.
+export function rand(state, stream = 'dice') {
+  let t = (state.rng[stream] = (state.rng[stream] + 0x6d2b79f5) | 0);
   t = Math.imul(t ^ (t >>> 15), t | 1);
   t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
@@ -22,7 +24,7 @@ export const d6 = (state) => 1 + Math.floor(rand(state) * 6);
 function shuffle(state, list) {
   const a = [...list];
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rand(state) * (i + 1));
+    const j = Math.floor(rand(state, 'deck') * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
@@ -61,13 +63,13 @@ export function createState(config = DEFAULT_CONFIG) {
   const map = tutorial ? TUTORIAL.map : generateMap({ rows: cfg.size, cols: cfg.size, seed: cfg.seed });
   const state = {
     config: cfg, tutorial, rows: map.length, cols: map[0].length,
-    seed: tutorial ? TUTORIAL.seed : cfg.seed, round: 0,
+    rng: { deck: (tutorial ? TUTORIAL.seed : cfg.seed) ^ 0x5bd1e995, dice: tutorial ? TUTORIAL.seed : cfg.seed }, round: 0,
     maxRounds: tutorial ? TUTORIAL.rounds : (MAP_SIZES[cfg.size]?.rounds ?? 12),
     enemyBonus: tutorial ? TUTORIAL.enemyBonus : diff.enemyBonus,
     tiles: [], tileAt: {}, sides: {}, eventDeck: [], lawDeck: [],
     event: null, lawCard: null, rainActive: false,
     miracleUsed: false, reinterpretUsed: false,
-    log: [], revelations: [], winner: null, winReason: '',
+    log: [], revelations: [], history: [], winner: null, winReason: '',
   };
   map.forEach((row, r) => row.forEach((cell, c) => {
     const capital = cell === 'P' ? 'player' : cell === 'E' ? 'enemy' : null;
@@ -91,10 +93,22 @@ export function createState(config = DEFAULT_CONFIG) {
     // 튜토리얼은 사건과 율법 카드 순서가 정해져 있다 (뒤에서부터 뽑으므로 거꾸로 넣는다)
     state.eventDeck = TUTORIAL.events.map((id) => EVENTS.find((e) => e.id === id)).reverse();
     state.lawDeck = TUTORIAL.lawCards.map((id) => LAW_CARDS.find((c) => c.id === id)).reverse();
+  } else {
+    // 판 전체에 쓸 카드를 미리 나눠 둔다 (어려움은 장마다 두 장을 보므로 두 배)
+    state.eventDeck = dealDeck(state, EVENTS, state.maxRounds + 2);
+    state.lawDeck = dealDeck(state, lawPool(state), state.maxRounds * 2 + 2);
   }
   updateVision(state);
   return state;
 }
+
+// 섞은 묶음을 이어 붙여 n장 이상의 덱을 만든다 (뒤에서부터 뽑는다)
+function dealDeck(state, pool, n) {
+  const deck = [];
+  while (deck.length < n) deck.unshift(...shuffle(state, pool));
+  return deck;
+}
+const lawPool = (state) => (state.tutorial ? LAW_CARDS.filter((c) => !['L5', 'L7'].includes(c.id)) : LAW_CARDS);
 
 // 우리 신도가 닿는 곳(수도 2칸, 마을 1칸)은 항상 보인다
 export function updateVision(state) {
@@ -335,16 +349,14 @@ export function startRound(state) {
   state.miracleUsed = false;
   state.reinterpretUsed = false;
   state.rainActive = false;
-  if (!state.eventDeck.length) state.eventDeck = shuffle(state, EVENTS);
-  if (!state.lawDeck.length) state.lawDeck = shuffle(state, state.tutorial ? LAW_CARDS.filter((c) => !['L5', 'L7'].includes(c.id)) : LAW_CARDS);
+  if (!state.eventDeck.length) state.eventDeck = dealDeck(state, EVENTS, 6);
+  if (state.lawDeck.length < 2) state.lawDeck.unshift(...dealDeck(state, lawPool(state), 9));
   state.event = state.eventDeck.pop();
   state.lawCard = state.lawDeck.pop();
-  // 어려움: 율법 카드를 두 장 보고 지금 더 위협적인 쪽을 쓴다 (다른 한 장은 덱 맨 아래로)
+  // 어려움: 율법 카드를 두 장 보고 지금 더 위협적인 쪽을 쓴다 (다른 한 장은 버린다)
   if (state.config.difficulty === 'hard' && !state.tutorial) {
-    if (!state.lawDeck.length) state.lawDeck = shuffle(state, LAW_CARDS);
-    let alt = state.lawDeck.pop();
-    if (lawThreat(state, alt) > lawThreat(state, state.lawCard)) [state.lawCard, alt] = [alt, state.lawCard];
-    state.lawDeck.unshift(alt);
+    const alt = state.lawDeck.pop();
+    if (lawThreat(state, alt) > lawThreat(state, state.lawCard)) state.lawCard = alt;
   }
   state.first = state.round % 2 === 1 ? 'player' : 'enemy';
 }
@@ -387,8 +399,10 @@ export function snapshot(state) {
 }
 
 // fx: 연출 정보 { tile, kind, gain, icon, ... }. snap: 이 일이 일어난 직후의 보드
+// 지금 해결 중인 행동의 키 (로그를 행동과 잇는다: 판결문·단어 연결용)
+let currentAct = null;
 function logEvent(state, side, text, dice = null, fx = null) {
-  state.log.push({ round: state.round, side, text, dice, fx, snap: snapshot(state) });
+  state.log.push({ round: state.round, side, text, dice, fx, act: currentAct, snap: snapshot(state) });
 }
 
 const PHASE_ORDER = ['gather', 'build', 'pray', 'explore', 'preach', 'attack'];
@@ -410,11 +424,49 @@ export function resolveRound(state, playerPlan, enemyPlan) {
     for (const side of [first, other(first)]) {
       for (const a of plans[side]) {
         if (a.type !== phase || blocked.has(a) || state.winner) continue;
+        currentAct = a.key;
         resolveAction(state, a);
+        currentAct = null;
       }
     }
   }
   if (!state.winner) upkeep(state);
+  recordHistory(state);
+}
+
+// 장마다 두 진영의 승점과 살림을 남긴다 (결산·그래프·회고용)
+function recordHistory(state) {
+  const p = state.sides.player;
+  state.history.push({
+    round: state.round, ps: score(state, 'player'), es: score(state, 'enemy'),
+    res: { food: p.food, wood: p.wood, stone: p.stone, faith: p.faith, pop: p.pop }, text: null,
+  });
+}
+
+// ---------- 저장과 불러오기 ----------
+export const SAVE_VERSION = 1;
+// 로그의 보드 스냅숏은 크고 재생에만 쓰므로 버린다. 카드는 id로 줄인다
+export function serializeState(state) {
+  const { tileAt, ...rest } = state;
+  return {
+    ...rest,
+    log: state.log.map(({ snap, ...l }) => l),
+    event: state.event?.id ?? null, lawCard: state.lawCard?.id ?? null,
+    eventDeck: state.eventDeck.map((c) => c.id), lawDeck: state.lawDeck.map((c) => c.id),
+  };
+}
+export function hydrateState(obj) {
+  const ev = (id) => EVENTS.find((e) => e.id === id);
+  const law = (id) => LAW_CARDS.find((c) => c.id === id);
+  const state = {
+    ...obj,
+    log: obj.log.map((l) => ({ ...l, snap: null })),
+    event: obj.event ? ev(obj.event) : null, lawCard: obj.lawCard ? law(obj.lawCard) : null,
+    eventDeck: obj.eventDeck.map(ev), lawDeck: obj.lawDeck.map(law),
+  };
+  if ([state.event, state.lawCard, ...state.eventDeck, ...state.lawDeck].some((c) => c === undefined)) throw new Error('알 수 없는 카드');
+  state.tileAt = Object.fromEntries(state.tiles.map((t) => [t.id, t]));
+  return state;
 }
 
 function resolveAction(state, a) {
