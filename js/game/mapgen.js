@@ -123,6 +123,26 @@ export function generateMap({ rows, cols, seed }) {
   return out;
 }
 
+// 발견지 자리: 점대칭 쌍, 수도에서 2칸 넘게, 가운데 성지 제외. 지형 난수와 따로 굴려 기존 맵이 바뀌지 않게 한다
+export function placeSites({ rows, cols, seed, map }) {
+  const rnd = mulberry32(seed ^ 0x2f6b1a3d);
+  const caps = capitalsFor(rows, cols);
+  const mid = { r: Math.floor(rows / 2), c: Math.floor(cols / 2) };
+  const mirror = (p) => ({ r: rows - 1 - p.r, c: cols - 1 - p.c });
+  const ok = (p) => [p, mirror(p)].every((q) => dist(q, caps.player) > 2 && dist(q, caps.enemy) > 1 && !(q.r === mid.r && q.c === mid.c) && !['P', 'E'].includes(map[q.r][q.c]));
+  const cands = [];
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (ok({ r, c }) && (r < rows - 1 - r || (r === rows - 1 - r && c < cols - 1 - c))) cands.push({ r, c });
+  const kinds = ['nomads', 'altar', 'spring', 'bones'];
+  const pairs = rows * cols >= 36 ? 2 : 1;
+  const out = [];
+  for (let i = 0; i < pairs && cands.length; i++) {
+    const p = cands.splice(Math.floor(rnd() * cands.length), 1)[0];
+    const kind = kinds.splice(Math.floor(rnd() * kinds.length), 1)[0];
+    out.push({ ...p, kind }, { ...mirror(p), kind });
+  }
+  return out;
+}
+
 export const tileLabel = (r, c) => `${ROWS[r]}${c + 1}`;
 
 // 맵 통계 (밸런스 확인용)

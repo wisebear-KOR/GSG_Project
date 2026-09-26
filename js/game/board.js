@@ -82,6 +82,7 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
 
     if (hidden) {
       g.append(use('s-fog', c.x, c.y, 58, { class: 'glyph fog-glyph' }));
+      if (t.site && !t.site.found) g.append(el('text', { x: c.x, y: c.y + 8, class: 'site-mark' }, '?'));
     } else if (t.building === 'capital') {
       g.append(use(`s-${t.terrain}`, c.x, c.y + 14, 34, { opacity: 0.35 }));
       g.append(use(t.owner === 'player' ? 's-temple' : 's-tower', c.x, c.y - 2, 64, { class: 'glyph building' }));

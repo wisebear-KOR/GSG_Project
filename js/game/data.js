@@ -92,12 +92,29 @@ export const EVENTS = [
   { id: 'prophet', name: '떠돌이 예언자', text: '떠돌이 예언자가 안개 속에 보물이 있다고 말했다.',   rule: '탐험하면 반드시 보물 (신앙 +3)' },
 ];
 
-// 기적: 계시 전에 장마다 하나 쓸 수 있다
+// 기적: 계시 전에 장마다 하나 쓸 수 있다. 첫 판은 앞의 셋, 그 뒤로는 판마다 셋을 받고 5장에 하나를 더 고른다
 export const MIRACLES = [
   { id: 'lightning', name: '번개', cost: 4, text: '율법파의 칸 하나에 번개. 성벽이 있으면 무너뜨리고, 없으면 신도 1명이 쓰러진다.', target: 'enemy' },
   { id: 'rain',      name: '단비', cost: 3, text: '식량 +3. 이번 장의 가뭄을 없앤다.' },
   { id: 'bounty',    name: '풍요', cost: 5, text: '목재 +2, 돌 +2.' },
+  { id: 'manna',     name: '만나', cost: 3, text: '하늘에서 양식이 내린다. 식량 +4.' },
+  { id: 'ark',       name: '방주', cost: 3, text: '이번 장에는 굶주림·역병·전투로 신도를 잃지 않는다.' },
+  { id: 'tongues',   name: '방언', cost: 3, text: '이번 장 선교 주사위 +1.' },
+  { id: 'pillar',    name: '불기둥', cost: 3, text: '이번 장 공격 주사위 +1. 우리 땅 둘레 3칸의 안개가 걷힌다.' },
+  { id: 'revive',    name: '부활', cost: 5, text: '쓰러진 신도 1명이 돌아온다 (인구 한도 안에서).' },
 ];
+export const FIRST_HAND = ['lightning', 'rain', 'bounty'];
+
+// 안개 속 발견지: 처음 드러날 때 한 번 일어난다
+export const SITES = {
+  nomads: { name: '떠도는 유목민', text: '안개 속에서 떠도는 유목민 무리를 만났다.', choice: [
+    { id: 'take', label: '받아들인다', text: '신도 +1 (한도가 차 있으면 식량 +2)' },
+    { id: 'send', label: '축복해 보낸다', text: '신앙 +2' },
+  ] },
+  altar:  { name: '잊힌 제단', text: '이름 모를 신의 제단이 이끼에 덮여 있다.', gain: { faith: 3 } },
+  spring: { name: '말하는 샘', text: '샘물이 속삭이며 길을 알려 준다.', gain: { wood: 2, stone: 1 } },
+  bones:  { name: '거인의 뼈', text: '거대한 뼈가 땅에 박혀 있다. 좋은 돌감이다.', gain: { stone: 3 } },
+};
 
 // 율법 카드: 율법파(오토마)는 매 장 한 장을 뽑아 위에서부터 행동한다.
 // 규칙 항목: { type, gather?, build? }. 조건에 맞는 행동이 없으면 다음 항목으로 넘어간다.

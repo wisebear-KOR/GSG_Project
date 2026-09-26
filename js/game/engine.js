@@ -4,9 +4,9 @@
 import {
   TERRAIN, RESOURCE_NAME, GATHER_VERB, COST, MAX_TEMPLE, CAPITAL_HP, MAX_ACTIONS, RULES,
   DOCTRINES, DOCTRINE_MAX, EVENTS, LAW_CARDS, MIRACLES, DIFFICULTY, MAP_SIZES, PLAYER_START, TUTORIAL, ENEMY_LEADERS,
-  PRIESTS, PETITIONERS, PROPHECY,
+  PRIESTS, PETITIONERS, PROPHECY, FIRST_HAND, SITES,
 } from './data.js';
-import { generateMap } from './mapgen.js';
+import { generateMap, placeSites } from './mapgen.js';
 import { frequentNoun, hashPick } from './lore.js';
 
 export const SIDES = ['player', 'enemy'];
@@ -72,7 +72,7 @@ export function createState(config = DEFAULT_CONFIG) {
     tiles: [], tileAt: {}, sides: {}, eventDeck: [], lawDeck: [],
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
     priest: 'loyal', names: {}, lessons: [], petition: null, petitionIgnored: 0, prophecy: null,
-    grace: { round: 0, used: 0 }, roundMods: {}, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
+    grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
     miracleUsed: false, reinterpretUsed: false,
     log: [], revelations: [], history: [], winner: null, winReason: '',
   };
@@ -87,6 +87,7 @@ export function createState(config = DEFAULT_CONFIG) {
     state.tiles.push(tile);
     state.tileAt[tile.id] = tile;
   }));
+  if (!tutorial) for (const p of placeSites({ rows: state.rows, cols: state.cols, seed: cfg.seed, map })) state.tileAt[tileId(p.r, p.c)].site = { id: p.kind, found: false };
   const start = tutorial ? TUTORIAL.start : { player: PLAYER_START, enemy: diff.enemyStart };
   for (const side of SIDES) {
     state.sides[side] = {
@@ -103,6 +104,14 @@ export function createState(config = DEFAULT_CONFIG) {
     state.leader = hashPick(leaders, 'leader', cfg.seed, cfg.difficulty);
     // 첫 판은 충직한 사제. 그 뒤로는 판마다 다른 성향
     if (cfg.veteran) state.priest = hashPick(Object.keys(PRIESTS).filter((k) => k !== 'loyal'), 'priest', cfg.seed);
+    // 두 번째 판부터 기적은 판마다 셋을 받는다 (번개·단비 중 하나는 꼭 든다)
+    if (cfg.veteran) {
+      const rest = MIRACLES.map((m) => m.id).filter((id) => !['lightning', 'rain'].includes(id));
+      const a = hashPick(['lightning', 'rain'], 'hand0', cfg.seed);
+      const b = hashPick(rest, 'hand1', cfg.seed);
+      const c = hashPick(rest.filter((x) => x !== b), 'hand2', cfg.seed);
+      state.miracleHand = [a, b, c];
+    }
     // 판 전체에 쓸 카드를 미리 나눠 둔다 (어려움은 장마다 두 장을 보므로 두 배)
     state.eventDeck = dealDeck(state, EVENTS, state.maxRounds + 2);
     state.lawDeck = dealDeck(state, lawPool(state), state.maxRounds * 2 + 2);
@@ -389,6 +398,12 @@ export function startRound(state) {
   state.first = state.round % 2 === 1 ? 'player' : 'enemy';
   state.roundMods = {};
   state.petition = makePetition(state);
+  if (state.round === 5 && state.config.veteran && !state.tutorial) {
+    const pool = MIRACLES.map((m) => m.id).filter((id) => !state.miracleHand.includes(id));
+    const offer = [];
+    for (let i = 0; i < 3 && pool.length; i++) offer.push(pool.splice(Math.floor(rand(state, 'deck') * pool.length), 1)[0]);
+    state.miracleOffer = offer;
+  }
 }
 
 // ---------- 말의 층: 청원, 은총, 말투, 이름, 예언 ----------
@@ -448,7 +463,7 @@ export function nameTile(state, naming) {
 
 // 해결 전: 말투 효과 (축복 = 첫 채집 +1, 저주 = 공격 +1과 신앙 -1)
 export function applyTone(state, tone) {
-  state.roundMods = {};
+  delete state.roundMods.gatherBonus; delete state.roundMods.attackBonus;
   if (tone === 'blessing') state.roundMods.gatherBonus = 1;
   if (tone === 'curse') { state.roundMods.attackBonus = 1; state.sides.player.faith = Math.max(0, state.sides.player.faith - 1); }
 }
@@ -518,7 +533,17 @@ export function enemyIntent(state) {
 export function castMiracle(state, id, targetTile) {
   const m = MIRACLES.find((x) => x.id === id);
   const s = state.sides.player;
+  if (!state.miracleHand.includes(id)) return { ok: false, text: '손에 없는 기적이다.' };
   if (state.miracleUsed || s.faith < m.cost) return { ok: false, text: '신앙이 부족하거나 이미 기적을 썼다.' };
+  const home = capitalOf(state, 'player')?.id;
+  if (MIRACLE_FX[id]) {
+    s.faith -= m.cost;
+    MIRACLE_FX[id](state, s, home);
+    state.miracleUsed = true;
+    state.stats.miracles += 1;
+    checkVictory(state);
+    return { ok: true };
+  }
   if (m.id === 'lightning') {
     const t = state.tileAt[targetTile];
     if (!t || t.owner !== 'enemy' || !t.revealed) return { ok: false, text: '보이는 율법파 칸을 골라야 한다.' };
@@ -536,6 +561,55 @@ export function castMiracle(state, id, targetTile) {
   state.stats.miracles += 1;
   checkVictory(state);
   return { ok: true };
+}
+
+// 새 기적들 (번개·단비·풍요는 castMiracle 안에 있다)
+const MIRACLE_FX = {
+  manna: (state, s, home) => { s.food += 4; logEvent(state, 'player', '만나가 내렸다. 식량 +4.', null, { kind: 'rain', gain: { food: 4 }, tile: home }); },
+  ark: (state, s, home) => { state.roundMods.ark = true; logEvent(state, 'player', '방주의 기적 — 이번 장에는 아무도 잃지 않으리라.', null, { kind: 'bless', tile: home, label: '방주' }); },
+  tongues: (state, s, home) => { state.roundMods.tongues = 1; logEvent(state, 'player', '방언의 은사 — 이번 장 선교에 힘이 실린다.', null, { kind: 'bless', tile: home, label: '방언' }); },
+  pillar: (state, s, home) => {
+    state.roundMods.pillar = 1;
+    const mine = ownedTiles(state, 'player');
+    for (const t of state.tiles) if (mine.some((m) => distance(m, t) <= 3)) t.revealed = true;
+    logEvent(state, 'player', '불기둥이 앞서간다 — 안개가 걷히고 이번 장 공격에 힘이 실린다.', null, { kind: 'bless', tile: home, label: '불기둥' });
+  },
+  revive: (state, s, home) => {
+    if (s.pop < popCap(state, 'player')) { s.pop += 1; logEvent(state, 'player', '쓰러진 자가 일어났다. 신도 +1.', null, { kind: 'birth', tile: home }); }
+    else { s.faith += 2; logEvent(state, 'player', '부활의 기적 — 그러나 자리가 없어 빛만 남았다. 신앙 +2.', null, { kind: 'bless', tile: home, label: '부활' }); }
+  },
+};
+
+// 5장: 새 기적 하나를 고른다
+export function takeMiracle(state, id) {
+  if (!state.miracleOffer?.includes(id)) return false;
+  state.miracleHand.push(id);
+  state.miracleOffer = null;
+  return true;
+}
+
+// 발견지: 새로 드러난 칸에 있으면 한 번 일어난다 (유목민은 선택이 필요해 pendingSite로 남긴다)
+export function discoverSites(state) {
+  for (const t of state.tiles) {
+    if (!t.site || t.site.found || !t.revealed) continue;
+    t.site.found = true;
+    const site = SITES[t.site.id];
+    if (site.choice) { state.pendingSite = t.id; logEvent(state, 'player', `${tileName(state, t)}에서 ${site.name}을(를) 만났다.`, null, { kind: 'site', tile: t.id }); continue; }
+    const s = state.sides.player;
+    for (const [k, v] of Object.entries(site.gain)) s[k] += v;
+    logEvent(state, 'player', `${site.name} — ${site.text} ${Object.entries(site.gain).map(([k, v]) => `${RESOURCE_NAME[k]} +${v}`).join(', ')}.`, null, { kind: 'treasure', tile: t.id, gain: site.gain });
+  }
+}
+export function resolveSite(state, choice) {
+  const t = state.tileAt[state.pendingSite];
+  state.pendingSite = null;
+  if (!t) return null;
+  const s = state.sides.player;
+  if (choice === 'take') {
+    if (s.pop < popCap(state, 'player')) { s.pop += 1; return '유목민이 신도가 되었다. 신도 +1.'; }
+    s.food += 2; return '자리가 없어 유목민은 양식을 두고 떠났다. 식량 +2.';
+  }
+  s.faith += 2; return '유목민이 축복을 받고 떠났다. 신앙 +2.';
 }
 
 // 보드에 보이는 상태만 복사한다 (연출 재생용)
@@ -616,7 +690,7 @@ export function hydrateState(obj) {
   state.tileAt = Object.fromEntries(state.tiles.map((t) => [t.id, t]));
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
   state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.petitionIgnored ??= 0; state.prophecy ??= null;
-  state.grace ??= { round: 0, used: 0 }; state.roundMods ??= {}; state.stats ??= { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 };
+  state.grace ??= { round: 0, used: 0 }; state.roundMods ??= {}; state.miracleHand ??= [...FIRST_HAND]; state.miracleOffer ??= null; state.pendingSite ??= null; state.stats ??= { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 };
   return state;
 }
 
@@ -673,7 +747,7 @@ function resolveAction(state, a) {
     case 'preach': {
       if (t.owner !== foe || f.pop <= 0) return logEvent(state, side, `${place}에는 설교할 상대가 없었다.`, null, { tile: t.id, kind: 'fail' });
       // 율법에 매인 자들은 설득하기 어렵다: 기본 방어 +1, 수도·성벽 안이면 +1씩
-      const bonus = (s.doctrine.peace >= 2 ? 1 : 0) + (s.doctrine.peace >= 4 ? 1 : 0);
+      const bonus = (s.doctrine.peace >= 2 ? 1 : 0) + (s.doctrine.peace >= 4 ? 1 : 0) + (side === 'player' ? state.roundMods.tongues ?? 0 : 0);
       const defBonus = (side === 'player' ? 1 : 0) + (t.building === 'capital' ? 1 : 0) + (t.wall ? 1 : 0);
       const ra = d6(state); const rd = d6(state);
       const win = ra + bonus > rd + defBonus;
@@ -698,7 +772,7 @@ function resolveAction(state, a) {
     case 'attack': {
       if (t.owner !== foe) return logEvent(state, side, `${J(place, '은', '는')} 이미 적의 땅이 아니었다.`, null, { tile: t.id, kind: 'fail' });
       const bonus = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0) + superiority(s, f)
-        + (side === 'enemy' && state.event?.id === 'threat' ? 1 : 0) + (side === 'player' ? state.roundMods.attackBonus ?? 0 : 0);
+        + (side === 'enemy' && state.event?.id === 'threat' ? 1 : 0) + (side === 'player' ? (state.roundMods.attackBonus ?? 0) + (state.roundMods.pillar ?? 0) : 0);
       const defBonus = (t.wall ? 2 : 0) + (t.building === 'capital' ? 1 : 0) + superiority(f, s);
       const ra = d6(state); const rd = d6(state);
       const win = ra + bonus > rd + defBonus;
@@ -708,10 +782,11 @@ function resolveAction(state, a) {
           s.faith -= 2;
           return logEvent(state, side, `${poss(side)} 공격이 ${place}에서 막혔다. 전쟁의 가호가 신앙 2를 태워 쓰러질 자를 살렸다.`, dice, { tile: t.id, kind: 'attack' });
         }
+        if (side === 'player' && state.roundMods.ark) return logEvent(state, side, `${poss(side)} 공격이 ${place}에서 막혔다. 방주의 가호로 아무도 쓰러지지 않았다.`, dice, { tile: t.id, kind: 'attack' });
         s.pop = Math.max(0, s.pop - 1);
         return logEvent(state, side, `${poss(side)} 공격이 ${place}에서 막혔다. 공격자 1명이 쓰러졌다.`, dice, { tile: t.id, kind: 'attack' });
       }
-      f.pop = Math.max(0, f.pop - 1);
+      if (!(foe === 'player' && state.roundMods.ark)) f.pop = Math.max(0, f.pop - 1);
       if (t.building === 'capital') {
         f.capitalHp -= 1;
         logEvent(state, side, `${subj(side)} ${J(place, '을', '를')} 쳤다! 수도 내구도 ${f.capitalHp}.`, dice, { tile: t.id, kind: 'attack', capital: true });
@@ -734,7 +809,9 @@ function upkeep(state) {
     // 수도는 식량 2, 마을은 식량 1을 스스로 생산한다. 신도 1명당 식량 1을 먹는다
     s.food += 2 + villageCount(state, side);
     s.food -= s.pop;
-    if (s.food < 0) {
+    if (s.food < 0 && side === 'player' && state.roundMods.ark) {
+      s.food = 0;
+    } else if (s.food < 0) {
       s.food = 0; s.pop = Math.max(0, s.pop - 1);
       logEvent(state, side, `${josa(who, '이', '가')} 굶주려 1명을 잃었다.`, null, { kind: 'loss' });
     } else {
@@ -746,7 +823,7 @@ function upkeep(state) {
       }
     }
     s.faith += faithIncome(state, side);
-    if (state.event?.id === 'plague' && s.pop > 1) { s.pop -= 1; logEvent(state, side, `역병으로 ${who} 1명을 잃었다.`, null, { kind: 'loss' }); }
+    if (state.event?.id === 'plague' && s.pop > 1 && !(side === 'player' && state.roundMods.ark)) { s.pop -= 1; logEvent(state, side, `역병으로 ${who} 1명을 잃었다.`, null, { kind: 'loss' }); }
   }
   // 믿음의 표식은 두 장 동안 이어지지 않으면 하나 사라진다
   for (const t of state.tiles) {
@@ -788,6 +865,7 @@ function upkeep(state) {
   }
   checkProphecy(state);
   updateVision(state);
+  discoverSites(state);
   checkVictory(state);
 }
 

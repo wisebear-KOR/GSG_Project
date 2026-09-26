@@ -807,3 +807,26 @@ svg.link-layer { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer
 
 .tile-name { font: 700 13px var(--font-title); fill: #3a2410; text-anchor: middle; paint-order: stroke; stroke: rgba(255, 244, 214, .9); stroke-width: 3.5px; letter-spacing: .06em; pointer-events: none; }
 .verdict { margin: 10px 0 0; }
+
+/* ---------- 4묶음: 선택 카드·발견지 ---------- */
+.choice-modal { position: fixed; inset: 0; z-index: 85; display: grid; place-items: center; padding: 20px; background: rgba(10, 6, 2, .72); backdrop-filter: blur(4px); animation: fadeIn .35s ease both; }
+.choice-modal.out { opacity: 0; transition: opacity .3s; }
+.choice-box { max-width: 760px; width: 100%; text-align: center; color: var(--on-table); }
+.choice-box .kind { font: 700 12px var(--font-ui); letter-spacing: .2em; color: var(--gold); }
+.choice-box h3 { margin: 6px 0 4px; font: 400 clamp(24px, 4vw, 34px) var(--font-title); color: var(--gold-hi); }
+.choice-box p { margin: 0 0 18px; font: 15px/1.6 var(--font-body); color: var(--on-table-dim); }
+.choice-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.choice-card { width: 190px; min-height: 200px; display: grid; justify-items: center; align-content: start; gap: 8px; padding: 18px 14px; border-radius: 16px; cursor: pointer;
+  background: linear-gradient(175deg, var(--parchment), var(--parchment-2)); border: 2px solid var(--parchment-edge); color: var(--ink); box-shadow: var(--shadow-lg);
+  animation: dealIn .5s cubic-bezier(.34, 1.56, .64, 1) both; transition: box-shadow .2s; }
+.choice-card:nth-child(2) { animation-delay: .1s; } .choice-card:nth-child(3) { animation-delay: .2s; }
+.choice-card:hover { box-shadow: 0 0 0 3px var(--gold-hi), var(--shadow-lg); }
+.choice-card svg.art { width: 64px; height: 64px; }
+.choice-card b { font: 800 18px var(--font-display); }
+.choice-card span { font: 13.5px/1.5 var(--font-body); color: var(--ink-soft); }
+.choice-card i { font: 600 12px var(--font-ui); font-style: normal; color: var(--gold-lo); }
+@keyframes dealIn { from { opacity: 0; transform: translateY(30px) rotate(-4deg) scale(.9); } }
+@keyframes fadeIn { from { opacity: 0; } }
+.site-mark { font: 800 22px var(--font-display); fill: rgba(90, 64, 30, .55); text-anchor: middle; pointer-events: none; animation: sitePulse 2.2s ease-in-out infinite; }
+@keyframes sitePulse { 50% { fill: rgba(160, 110, 40, .85); } }
+body.reduce-motion .site-mark { animation: none; }

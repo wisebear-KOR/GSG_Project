@@ -3,10 +3,10 @@ import {
   createState, startRound, legalActions, validateOrders, autoFill, planEnemy, resolveRound,
   recordRevelation, castMiracle, actionLimit, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
   faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent,
-  grantGrace, petitionAnswered, nameTile, applyTone, sealProphecy,
+  grantGrace, petitionAnswered, nameTile, applyTone, sealProphecy, takeMiracle, resolveSite,
 } from './engine.js';
 import {
-  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
+  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
 } from './data.js';
 import { renderBoard, tileToHost, markerToScreen } from './board.js';
 import { installArt } from './art.js';
@@ -24,7 +24,7 @@ const svgUse = (id, cls = '', vb = '0 0 24 24') => `<svg class="${cls}" viewBox=
 // 미플 심볼은 원점이 (0,0)이 아니므로 위치와 크기를 명시해야 잘리지 않는다
 const meepleSvg = (side, cls = '') => `<svg class="${cls}" viewBox="-14 -16 28 30" aria-hidden="true"><use href="#s-meeple" x="-14" y="-16" width="28" height="30" fill="url(#g-meeple-${side})" stroke="rgba(0,0,0,.55)" stroke-width="1.1"/></svg>`;
 const RES_KEYS = ['food', 'wood', 'stone', 'faith'];
-const MIRACLE_ART = { lightning: 'm-lightning', rain: 'm-rain', bounty: 'm-bounty' };
+const MIRACLE_ART = { lightning: 'm-lightning', rain: 'm-rain', bounty: 'm-bounty', manna: 'm-manna', ark: 'm-ark', tongues: 'm-tongues', pillar: 'm-pillar', revive: 'm-revive' };
 
 let state;
 let phase = 'speak';        // speak | thinking | confirm | playing | resolved | over
@@ -327,6 +327,7 @@ async function newRound() {
   music.setMood('calm');
   render();
   meta.saveGame(state, 'speak');
+  if (state.miracleOffer) setTimeout(showMiracleDraft, fx.motion.reduced ? 300 : 2500);
   fx.chapter(frameEl(), `제 ${state.round} 장`, state.round === 1 && state.leader ? `${state.event.name} · 맞설 자 ${ENEMY_LEADERS[state.leader].name}` : state.event.name);
   if (state.round === 1 && state.leader) setTimeout(() => leaderSay(leaderLine(state, 'intro')), fx.motion.reduced ? 300 : 2400);
   if (tutorial) {
@@ -488,6 +489,44 @@ function wordsAfter(pd) {
 const hasBatchim = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c <= 11171 && c % 28 !== 0; };
 const TERRAIN_NAME = (id) => TERRAIN[state.tileAt[id].terrain]?.name ?? '땅';
 
+// ---------- 선택 카드 (기적 드래프트, 발견지) ----------
+function choiceModal({ kind, title, text, options }) {
+  return new Promise((resolve) => {
+    const o = document.createElement('div');
+    o.className = 'choice-modal';
+    o.innerHTML = `<div class="choice-box"><div class="kind">${esc(kind)}</div><h3>${esc(title)}</h3>${text ? `<p>${esc(text)}</p>` : ''}
+      <div class="choice-row">${options.map((op, i) => `<button type="button" class="choice-card" data-i="${i}">${op.art ? svgUse(op.art, 'art', '0 0 48 48') : ''}<b>${esc(op.label)}</b><span>${esc(op.text)}</span>${op.cost != null ? `<i>신앙 ${op.cost}</i>` : ''}</button>`).join('')}</div></div>`;
+    document.body.append(o);
+    sfx.deal();
+    o.querySelectorAll('.choice-card').forEach((b) => fx.attachTilt(b, 8));
+    o.querySelectorAll('.choice-card').forEach((b) => {
+      b.onclick = () => { sfx.holy(); o.classList.add('out'); setTimeout(() => o.remove(), 350); resolve(options[Number(b.dataset.i)].id); };
+    });
+  });
+}
+
+async function showMiracleDraft() {
+  if (!state.miracleOffer || phase !== 'speak') return;
+  const id = await choiceModal({
+    kind: '제 5 장 · 새 기적', title: '하늘이 새 기적을 내민다 — 하나를 받으라', text: '받은 기적은 이 판이 끝날 때까지 손에 남는다.',
+    options: state.miracleOffer.map((mid) => { const m = MIRACLES.find((x) => x.id === mid); return { id: mid, label: m.name, text: m.text, cost: m.cost, art: MIRACLE_ART[mid] }; }),
+  });
+  takeMiracle(state, id);
+  meta.saveGame(state, 'speak');
+  renderAltar();
+}
+
+async function showSiteChoice() {
+  const t = state.tileAt[state.pendingSite];
+  const site = SITES[t.site.id];
+  const id = await choiceModal({ kind: `발견 · ${tileName(state, t)}`, title: site.name, text: site.text, options: site.choice.map((c) => ({ id: c.id, label: c.label, text: c.text })) });
+  const msg = resolveSite(state, id);
+  state.log.push({ round: state.round, side: 'player', text: msg });
+  fx.floatText($('board'), t, msg.split('.')[0], 'good');
+  renderMats();
+  renderAltar();
+}
+
 // 판결문: 명령한 행동이 얼마나 이루어졌나
 function verdictOf(pd, logs) {
   if (!pd?.text || !pd.accepted.length) return null;
@@ -576,6 +615,7 @@ async function playback(before) {
   playLedger();
   if (resolved.verdict) setTimeout(() => (resolved.verdict.grade === 'miss' ? sfx.fail() : sfx.seal?.()), 200);
   if (pendingLesson) { const l = pendingLesson; pendingLesson = null; setTimeout(() => priestSay(`깨달았나이다. 신께서 '${l.word}'라 하시면 ${describeLesson(l)}을 뜻하시는군요.`), 900); }
+  if (state.pendingSite && phase !== 'over') await showSiteChoice();
   if (phase === 'over') meta.clearSave(); else meta.saveGame(state, 'resolved');
   if (tutorial) {
     if (phase === 'over') { music.setMood('end'); tutorial.on('end', state.round); return; }
@@ -634,7 +674,7 @@ function bannerFor(log, seen) {
     gain: [isPray ? 'i-temple' : `i-${res}`, isPray ? '기도' : '채집'],
     treasure: ['i-faith', '보물 발견'], explore: ['e-prophet', '탐험'], build: ['i-house', '건설'], cathedral: ['i-temple', '대성당'],
     preach: ['d-peace', '선교'], attack: ['d-war', '공격'], blocked: ['i-shield', '선점당함'], fail: ['i-shield', '헛걸음'],
-    birth: ['i-house', '새 생명'], loss: ['i-shield', '잃음'], warn: ['i-faith', '신앙의 흔들림'], ban: ['s-tablet', '검열'], grace: ['i-faith', '은총'], prophecy: ['i-faith', '예언 성취'], lightning: ['m-lightning', '번개'], rain: ['m-rain', '단비'], bounty: ['m-bounty', '풍요'],
+    birth: ['i-house', '새 생명'], loss: ['i-shield', '잃음'], warn: ['i-faith', '신앙의 흔들림'], ban: ['s-tablet', '검열'], grace: ['i-faith', '은총'], prophecy: ['i-faith', '예언 성취'], bless: ['i-faith', '기적'], site: ['e-prophet', '발견'], lightning: ['m-lightning', '번개'], rain: ['m-rain', '단비'], bounty: ['m-bounty', '풍요'],
   }[e.kind];
   if (!map) return null;
   const [icon, verb] = map;
@@ -715,6 +755,14 @@ async function playFx(log) {
       }
       return fx.wait(600);
     }
+    case 'bless':
+      sfx.holy();
+      if (tile) { fx.ring(svg, tile, '#ffe28a', true); fx.sparks(tileToHost(svg, null, tile), 24, ['#fff6d0', '#ffd98a']); fx.floatText(svg, tile, e.label ?? '기적', 'good'); }
+      return fx.wait(800);
+    case 'site':
+      sfx.chime();
+      if (tile) { fx.ring(svg, tile, '#f4efe4', true); fx.floatText(svg, tile, '무언가를 만났다', 'info'); }
+      return fx.wait(700);
     case 'grace':
     case 'prophecy':
       sfx.chime();
@@ -1000,7 +1048,7 @@ function renderAltar() {
   const altar = $('altar');
   const p = state.sides.player;
   const canMiracle = phase === 'speak';
-  const hand = `<div class="hand">${MIRACLES.map((m) => `
+  const hand = `<div class="hand">${state.miracleHand.map((id) => MIRACLES.find((m) => m.id === id)).map((m) => `
     <button class="mcard${targeting === m.id ? ' on' : ''}" data-m="${m.id}" type="button" ${!canMiracle || state.miracleUsed || p.faith < m.cost ? 'disabled' : ''}>
       <span class="cost">${m.cost}</span>${svgUse(MIRACLE_ART[m.id], 'art', '0 0 48 48')}<div class="nm">${m.name}</div>
       <span class="tip"><b>${m.name}</b> · 신앙 ${m.cost}<br>${esc(m.text)}${state.miracleUsed ? '<br><i>이번 장에는 이미 기적을 썼다.</i>' : ''}</span>
@@ -1179,7 +1227,7 @@ function scheduleHints() {
 
 // ---------- 단축키 ----------
 function onKey(e) {
-  if (!$('mainScreen').hidden || document.querySelector('.endscreen, .npc-dialog.show')) return;
+  if (!$('mainScreen').hidden || document.querySelector('.endscreen, .npc-dialog.show, .choice-modal')) return;
   const typing = ['TEXTAREA', 'INPUT'].includes(document.activeElement?.tagName);
   const click = (sel) => { const b = $('altar').querySelector(sel); if (b && !b.disabled) { e.preventDefault(); b.click(); return true; } return false; };
   if (e.altKey && /^[1-3]$/.test(e.key) && phase === 'speak') {
@@ -1232,7 +1280,7 @@ function renderChron() {
 if (new URLSearchParams(location.search).has('debug')) {
   import('./sound.js').then((snd) => { window.__gsg.levels = snd.levels; window.__gsg.music = snd.music; });
   import('./engine.js').then((eng) => { window.__gsg.engine = eng; });
-  window.__gsg = { get state() { return state; }, render: () => render() };
+  window.__gsg = { get state() { return state; }, render: () => render(), showMiracleDraft: () => showMiracleDraft(), showSiteChoice: () => showSiteChoice() };
 }
 
 init();
