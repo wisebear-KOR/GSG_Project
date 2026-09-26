@@ -40,6 +40,42 @@ export function citedWords(state, text) {
   return [...new Set(nouns(text))].filter((w) => past.has(w) && !CITE_STOP.has(w) && !state.bannedWords?.includes(w));
 }
 
+// 말한 대로 내리는 기적: 계시 속 말이 손에 든 기적을 부른다
+const MIRACLE_WORDS = {
+  lightning: /번개|벼락|불을 내려|불벼락/, rain: /단비|비를 내려|비가 내리|비를 부어/, bounty: /풍요를 내려|넘치게 하/,
+  manna: /만나|양식을 내려/, ark: /방주/, tongues: /방언|혀를 풀/, pillar: /불기둥/, revive: /부활|되살아|일어나라|일으켜/,
+};
+export function parseMiracle(text, hand) {
+  for (const id of hand) if (MIRACLE_WORDS[id]?.test(text)) return id;
+  return null;
+}
+
+// 영원한 계명: "영원히"가 있어야 한다
+export function parseCommandment(text, table) {
+  if (!/영원히|영원토록/.test(text)) return null;
+  for (const [id, c] of Object.entries(table)) if (new RegExp(c.re).test(text)) return id;
+  return null;
+}
+
+// 성언: 세 번 되풀이한 구절 (띄어쓰기 단위 한두 낱말, 글자 4~8자)
+export function findLiturgy(texts) {
+  const count = new Map();
+  for (const t of texts) {
+    const words = t.replace(/[^가-힣\s]/g, ' ').split(/\s+/).filter(Boolean);
+    const seen = new Set();
+    for (let i = 0; i < words.length; i++) {
+      for (const k of [1, 2]) {
+        const phrase = words.slice(i, i + k).join(' ');
+        const len = phrase.replace(/\s/g, '').length;
+        if (i + k <= words.length && len >= 4 && len <= 8 && !seen.has(phrase)) { seen.add(phrase); count.set(phrase, (count.get(phrase) ?? 0) + 1); }
+      }
+    }
+  }
+  let best = null;
+  for (const [p, n] of count) if (n >= 3 && (!best || p.length > best.length)) best = p;
+  return best;
+}
+
 // 말투: 저주 > 축복 > 비유 > 명령
 export function detectTone(text) {
   if (/저주|멸하|망하리|벌하리|재앙/.test(text)) return 'curse';

@@ -5,10 +5,10 @@ import {
   TERRAIN, RESOURCE_NAME, GATHER_VERB, COST, MAX_TEMPLE, CAPITAL_HP, MAX_ACTIONS, RULES,
   DOCTRINES, DOCTRINE_MAX, EVENTS, LAW_CARDS, MIRACLES, DIFFICULTY, MAP_SIZES, PLAYER_START, TUTORIAL, ENEMY_LEADERS,
   PRIESTS, PETITIONERS, PROPHECY, FIRST_HAND, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT,
-  CATHEDRAL, EDICT_MAX, DESTINIES, DESTINY_POINTS, ACTS, DILEMMAS, FEATURES,
+  CATHEDRAL, EDICT_MAX, DESTINIES, DESTINY_POINTS, ACTS, DILEMMAS, FEATURES, COMMANDMENTS, MAX_COMMANDMENTS, SACRED_WORDS,
 } from './data.js';
 import { generateMap, placeSites, placeFeatures, placeLegacy } from './mapgen.js';
-import { frequentNoun, hashPick, citedWords } from './lore.js';
+import { frequentNoun, hashPick, citedWords, findLiturgy } from './lore.js';
 
 export const SIDES = ['player', 'enemy'];
 export const other = (side) => (side === 'player' ? 'enemy' : 'player');
@@ -75,7 +75,9 @@ export function createState(config = DEFAULT_CONFIG) {
     priest: 'loyal', names: {}, lessons: [], petition: null, petitionIgnored: 0, prophecy: null,
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
     judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, oddUsed: false,
-    edictOn: !!cfg.veteran && !tutorial, destiny: null, destinyOffer: null, holyId: null, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
+    edictOn: !!cfg.veteran && !tutorial, destiny: null, destinyOffer: null, holyId: null,
+    commandments: [], liturgy: null, saints: [], deeds: {}, fallen: [],
+    sacred: cfg.daily ? hashPick(SACRED_WORDS, 'sacred', cfg.daily) : null, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
     miracleUsed: false, reinterpretUsed: false,
     log: [], revelations: [], history: [], winner: null, winReason: '',
   };
@@ -189,15 +191,47 @@ export function reach(state, side) {
 export function actionLimit(state, side) {
   const s = state.sides[side];
   const bonus = side === 'enemy' ? state.enemyBonus : (s.doctrine.wisdom >= 4 ? 1 : 0);
-  const limit = Math.min(MAX_ACTIONS, 2 + s.templeLevel + Math.floor(s.pop / RULES.followersPerAction) + bonus);
+  let limit = Math.min(MAX_ACTIONS, 2 + s.templeLevel + Math.floor(s.pop / RULES.followersPerAction) + bonus);
+  if (side === 'player' && isSabbath(state)) limit = Math.max(1, limit - 2);
   return Math.max(0, Math.min(limit, s.pop));
 }
+
+export const prayValue = (state, side) => (2 + (state.sides[side].doctrine.wisdom >= 2 ? 1 : 0)) * (side === 'player' && isSabbath(state) ? 2 : 1);
+export const isSabbath = (state) => state.commandments?.includes('sabbath') && state.round % 4 === 0;
 
 // 매 장 들어오는 신앙: 기본 1 + 신도 3명당 1 + (신전 단계 - 1)
 export const faithIncome = (state, side) => {
   const s = state.sides[side];
   return RULES.baseFaithIncome + Math.floor(s.pop / RULES.followersPerFaith) + (s.templeLevel - 1);
 };
+
+// ---------- 이름 있는 신도와 성인 ----------
+export const followerName = (state, key) => hashPick(PETITIONERS, state.config.seed, key);
+function deed(state, key, kind) {
+  const name = followerName(state, key);
+  const d = (state.deeds[name] ??= { preach: 0, guard: 0 });
+  d[kind] += 1;
+  if (state.saints.length >= 2 || state.saints.some((x) => x.name === name)) return;
+  const saint = kind === 'preach' && d.preach >= 3 ? 'preacher' : kind === 'guard' && d.guard >= 1 ? 'guardian' : null;
+  if (!saint || state.saints.some((x) => x.kind === saint)) return;
+  state.saints.push({ name, kind: saint });
+  logEvent(state, 'player', `${name}${batchim(name) ? '이' : '가'} 성인으로 추앙받는다 — ${saint === 'preacher' ? '설교자 성인 (선교 +1)' : '수호자 성인 (수도 방어 +1)'}.`, null, { kind: 'saint', tile: capitalOf(state, 'player')?.id });
+}
+function fallen(state, key) {
+  const name = followerName(state, key);
+  if (!state.fallen.includes(name)) state.fallen.push(name);
+  const i = state.saints.findIndex((x) => x.name === name);
+  if (i >= 0) { state.saints.splice(i, 1); logEvent(state, 'player', `성인 ${name}${batchim(name) ? '이' : '가'} 쓰러져 순교했다.`, null, { kind: 'loss', tile: capitalOf(state, 'player')?.id }); }
+}
+
+// 선교 보너스: 평화 교리 + 방언 + 계명(칼을 들지 말라) + 성인 설교자 (교리·성인·계명 합은 최대 +2)
+export function preachBonus(state, side) {
+  const s = state.sides[side];
+  if (side !== 'player') return (s.doctrine.peace >= 2 ? 1 : 0) + (s.doctrine.peace >= 4 ? 1 : 0);
+  const base = (s.doctrine.peace >= 2 ? 1 : 0) + (s.doctrine.peace >= 4 ? 1 : 0)
+    + (state.commandments?.includes('noSword') ? 1 : 0) + (state.saints?.some((x) => x.kind === 'preacher') ? 1 : 0);
+  return Math.min(2, base) + (state.roundMods.tongues ?? 0);
+}
 
 // 선교·공격의 보너스와 승률 (확인 화면 표시용 — resolveAction과 같은 계산)
 export function actionOdds(state, a, { curse = false } = {}) {
@@ -209,7 +243,7 @@ export function actionOdds(state, a, { curse = false } = {}) {
     atk = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0) + superiority(s, f) + (side === 'player' ? (state.roundMods.attackBonus ?? (curse ? 1 : 0)) + (state.roundMods.pillar ?? 0) : 0);
     def = (t.wall ? 2 : 0) + (t.building === 'capital' ? 1 : 0) + superiority(f, s);
   } else if (a.type === 'preach') {
-    atk = (s.doctrine.peace >= 2 ? 1 : 0) + (s.doctrine.peace >= 4 ? 1 : 0) + (side === 'player' ? state.roundMods.tongues ?? 0 : 0);
+    atk = preachBonus(state, side);
     def = (t.building === 'capital' ? 1 : 0) + (t.wall ? 1 : 0);
   } else return null;
   let w = 0;
@@ -252,7 +286,10 @@ const canPay = (s, cost) => Object.entries(cost).every(([k, v]) => s[k] >= v);
 // 건설 비용 (신전은 단계, 대성당은 공사 단계에 따라)
 export function buildCost(state, side, build) {
   const s = state.sides[side];
-  if (build === 'temple') return COST.temple(s.templeLevel);
+  if (build === 'temple') {
+    const c = COST.temple(s.templeLevel);
+    return side === 'player' && state.commandments?.includes('noExpand') ? { ...c, stone: Math.max(0, c.stone - 1) } : c;
+  }
   if (build === 'cathedral') return CATHEDRAL[Math.min(2, s.cathedral ?? 0)].cost;
   return COST[build];
 }
@@ -283,7 +320,7 @@ function describe(state, side, a) {
   const s = state.sides[side];
   switch (a.type) {
     case 'gather': return `${place}에서 ${t.terrain === 'river' ? '물고기를 잡는다' : GATHER_VERB[a.gather]} (${RESOURCE_NAME[a.gather]} +${gatherAmount(state, side, t)})`;
-    case 'pray': return `신전에서 기도한다 (신앙 +${2 + (s.doctrine.wisdom >= 2 ? 1 : 0)})`;
+    case 'pray': return `신전에서 기도한다 (신앙 +${prayValue(state, side)})`;
     case 'build':
       if (a.build === 'village') return `${place}에 마을을 세운다 (${costText(COST.village)}, 영토 확장)`;
       if (a.build === 'wall') return `${place}에 성벽을 쌓는다 (${costText(COST.wall)}, 방어 +2)`;
@@ -310,10 +347,11 @@ export function legalActions(state, side) {
     if (!visible(t)) continue;
     const terr = yieldOf(t);
     if (terr.gather && t.owner !== foe && t.building !== 'capital') add({ type: 'gather', tile: t.id, gather: terr.gather });
-    if (!t.owner && !t.building && canPay(s, COST.village)) add({ type: 'build', build: 'village', tile: t.id });
+    const cmd = side === 'player' ? state.commandments ?? [] : [];
+    if (!t.owner && !t.building && canPay(s, COST.village) && !cmd.includes('noExpand')) add({ type: 'build', build: 'village', tile: t.id });
     if (t.owner === foe) {
       add({ type: 'preach', tile: t.id });
-      add({ type: 'attack', tile: t.id });
+      if (!cmd.includes('noSword')) add({ type: 'attack', tile: t.id });
     }
   }
   for (const t of ownedTiles(state, side)) {
@@ -606,7 +644,7 @@ export function chooseEvent(state, id) {
 // 계시 비용: 기본(30자 이하 1, 넘으면 2) + 봉인된 말을 쓰면 +1
 export function revelationCostFor(state, text) {
   // 지난 계시를 인용하면 길어도 1 (성구 인용 사슬)
-  const base = text.trim().length > 30 && !citedWords(state, text).length ? 2 : 1;
+  const base = text.trim().length > 30 && !citedWords(state, text).length && !(state.liturgy && text.includes(state.liturgy)) ? 2 : 1;
   return base + (state.bannedWords.some((w) => text.includes(w)) ? 1 : 0);
 }
 
@@ -836,6 +874,30 @@ export function actOf(state) {
 export const actStart = (state) => state.round > 1 && actOf(state) !== actOfRound(state, state.round - 1);
 const actOfRound = (state, r) => actOf({ ...state, round: r });
 
+// ---------- 영원한 계명, 성언, 숨은 말 ----------
+export const canCarve = (state) => state.config.veteran && !state.tutorial && state.round >= 3 && state.commandments.length < MAX_COMMANDMENTS;
+export function carveCommandment(state, id) {
+  if (!canCarve(state) || !COMMANDMENTS[id] || state.commandments.includes(id)) return false;
+  state.commandments.push(id);
+  logEvent(state, 'player', `영원한 계명을 새겼다 — 「${COMMANDMENTS[id].name}」. ${COMMANDMENTS[id].text}.`, null, { kind: 'commandment', tile: capitalOf(state, 'player')?.id });
+  return true;
+}
+// 성언은 계시가 쌓일 때 찾는다 (두 번째 판부터, 판당 하나)
+export function updateLiturgy(state) {
+  if (state.liturgy || !state.config.veteran || state.tutorial) return null;
+  const p = findLiturgy(state.revelations.map((r) => r.text));
+  if (!p) return null;
+  state.liturgy = p;
+  logEvent(state, 'player', `성언이 생겼다 — 「${p}」. 이 구절은 이제 신앙 1로 전해진다.`, null, { kind: 'saint', tile: capitalOf(state, 'player')?.id });
+  return p;
+}
+export function findSacred(state, text) {
+  if (!state.sacred || state.stats.sacred || !text?.includes(state.sacred.word)) return false;
+  state.stats.sacred = 1;
+  logEvent(state, 'player', `숨은 말 「${state.sacred.word}」을 찾았다! 성서에 새겨진다.`, null, { kind: 'prophecy', tile: capitalOf(state, 'player')?.id });
+  return true;
+}
+
 // ---------- 두 갈래 사건 ----------
 export function dilemmaByText(state, text) {
   const opts = state.event?.choice;
@@ -890,7 +952,8 @@ export function hydrateState(obj) {
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
   state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.petitionIgnored ??= 0; state.prophecy ??= null;
   state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null; state.oddUsed ??= false;
-  state.edictOn ??= false; state.dilemmaPick ??= null; state.destiny ??= null; state.destinyOffer ??= null; state.holyId ??= null;
+  state.edictOn ??= false; state.dilemmaPick ??= null;
+  state.commandments ??= []; state.liturgy ??= null; state.saints ??= []; state.deeds ??= {}; state.fallen ??= []; state.sacred ??= null; state.destiny ??= null; state.destinyOffer ??= null; state.holyId ??= null;
   for (const sd of Object.values(state.sides)) { sd.cathedral ??= 0; sd.edict ??= 0; }
   state.grace ??= { round: 0, used: 0 }; state.roundMods ??= {}; state.miracleHand ??= [...FIRST_HAND]; state.miracleOffer ??= null; state.pendingSite ??= null; state.stats ??= { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 };
   return state;
@@ -913,7 +976,7 @@ function resolveAction(state, a) {
       return logEvent(state, side, `${subj(side)} ${place}에서 ${josa(RESOURCE_NAME[a.gather], '을', '를')} ${n} 얻었다.`, null, { tile: t.id, kind: 'gain', gain: { [a.gather]: n } });
     }
     case 'pray': {
-      const n = 2 + (s.doctrine.wisdom >= 2 ? 1 : 0);
+      const n = prayValue(state, side);
       s.faith += n;
       return logEvent(state, side, `${subj(side)} 기도해 신앙을 ${n} 얻었다.`, null, { tile: t.id, kind: 'gain', gain: { faith: n } });
     }
@@ -954,7 +1017,7 @@ function resolveAction(state, a) {
     case 'preach': {
       if (t.owner !== foe || f.pop <= 0) return logEvent(state, side, `${place}에는 설교할 상대가 없었다.`, null, { tile: t.id, kind: 'fail' });
       // 수도·성벽 안이면 설득하기 어렵다 (+1씩)
-      const bonus = (s.doctrine.peace >= 2 ? 1 : 0) + (s.doctrine.peace >= 4 ? 1 : 0) + (side === 'player' ? state.roundMods.tongues ?? 0 : 0);
+      const bonus = preachBonus(state, side);
       const defBonus = (t.building === 'capital' ? 1 : 0) + (t.wall ? 1 : 0);
       const ra = d6(state); const rd = d6(state);
       const win = ra + bonus > rd + defBonus;
@@ -962,7 +1025,7 @@ function resolveAction(state, a) {
       if (win) {
         f.pop -= 1; s.pop += 1;
         // 마을에 믿음의 표식이 두 번 쌓이면 그 마을이 넘어온다 (수도는 제외, 성벽은 남는다)
-        if (side === 'player') state.stats.converted += 1;
+        if (side === 'player') { state.stats.converted += 1; deed(state, a.key, 'preach'); }
         if (t.building === 'village') {
           t.faithMarks = t.faithMarks?.side === side ? { side, n: t.faithMarks.n + 1, round: state.round } : { side, n: 1, round: state.round };
           if (t.faithMarks.n >= 2) {
@@ -981,11 +1044,14 @@ function resolveAction(state, a) {
       if (t.owner !== foe) return logEvent(state, side, `${J(place, '은', '는')} 이미 적의 땅이 아니었다.`, null, { tile: t.id, kind: 'fail' });
       const bonus = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0) + superiority(s, f)
         + (side === 'enemy' && state.event?.id === 'threat' ? 1 : 0) + (side === 'player' ? (state.roundMods.attackBonus ?? 0) + (state.roundMods.pillar ?? 0) : 0);
-      const defBonus = (t.wall ? 2 : 0) + (t.building === 'capital' ? 1 : 0) + superiority(f, s);
+      const guardian = foe === 'player' && t.building === 'capital' && state.saints?.some((x) => x.kind === 'guardian') ? 1 : 0;
+      const defBonus = (t.wall ? 2 : 0) + (t.building === 'capital' ? 1 : 0) + superiority(f, s) + guardian;
       const ra = d6(state); const rd = d6(state);
       const win = ra + bonus > rd + defBonus;
       const dice = { attacker: ra, attackerBonus: bonus, defender: rd, defenderBonus: defBonus, win };
       if (!win) {
+        if (foe === 'player' && t.building === 'capital') deed(state, `guard:${state.round}`, 'guard');
+        if (side === 'player' && !state.roundMods.ark) fallen(state, a.key);
         if (hasUlt(state, side, 'war') && s.faith >= 2) {
           s.faith -= 2;
           return logEvent(state, side, `${poss(side)} 공격이 ${place}에서 막혔다. 전쟁의 가호가 신앙 2를 태워 쓰러질 자를 살렸다.`, dice, { tile: t.id, kind: 'attack' });
@@ -1020,7 +1086,8 @@ function upkeep(state) {
     // 수도는 식량 2, 마을은 식량 1을 스스로 생산한다. 신도 1명당 식량 1을 먹는다
     s.food += 2 + villageCount(state, side);
     s.food -= s.pop;
-    if (s.food < 0 && side === 'player' && state.roundMods.ark) {
+    if (side === 'player' && state.commandments?.includes('noFamine')) s.food -= 1; // 굶기지 말라: 늘 한 줌씩 더 나눈다
+    if (s.food < 0 && side === 'player' && (state.roundMods.ark || state.commandments?.includes('noFamine'))) {
       s.food = 0;
     } else if (s.food < 0) {
       s.food = 0; s.pop = Math.max(0, s.pop - 1);

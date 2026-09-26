@@ -201,6 +201,26 @@ export const FEATURES = {
   quarry: { name: '채석장', on: 'mountain', gather: 'stone', amount: 3 },
 };
 
+// 영원한 계명: "영원히 …"로 새긴다. 두 번째 판·3장부터, 판당 둘까지. 엔진이 끝까지 지킨다
+export const COMMANDMENTS = {
+  noSword:  { name: '칼을 들지 말라', text: '공격할 수 없다. 대신 선교 주사위 +1', re: '(칼|싸우|공격|치지|쳐)[^.!?]*(말라|마라|않)' },
+  noExpand: { name: '땅을 넓히지 말라', text: '마을을 세울 수 없다. 대신 신전 돌 비용 -1', re: '(땅|마을|넓히)[^.!?]*(말라|마라|않)' },
+  sabbath:  { name: '안식하라', text: '4장마다 행동 -2, 그 장의 기도는 두 배', re: '(안식|쉬어|쉬라|쉬리라)' },
+  noFamine: { name: '굶기지 말라', text: '굶주려 죽는 자가 없다. 대신 매 장 식량 -1', re: '(굶기지|굶주리지|굶지|배곯지)' },
+};
+export const MAX_COMMANDMENTS = 2;
+
+// 오늘의 계시에 숨은 말 (단서를 보고 계시에 그 말을 쓰면 성서에 새겨진다)
+export const SACRED_WORDS = [
+  { word: '무지개', clue: '비 뒤에 걸리는 일곱 빛의 다리' },
+  { word: '등불', clue: '어둠 속에서 길을 비추는 작은 불' },
+  { word: '씨앗', clue: '땅에 묻혀야 비로소 사는 것' },
+  { word: '샘물', clue: '땅이 몰래 흘리는 맑은 눈물' },
+  { word: '새벽', clue: '밤이 끝나는 자리' },
+  { word: '소금', clue: '바다가 남기고 간 흰 것' },
+  { word: '날개', clue: '새가 하늘을 붙잡는 손' },
+];
+
 // 신의 상징 (인장에 찍힌다)
 export const SIGILS = { light: 'i-faith', sword: 'd-war', dove: 'd-peace', grain: 'i-food', eye: 'e-prophet', storm: 'm-lightning' };
 

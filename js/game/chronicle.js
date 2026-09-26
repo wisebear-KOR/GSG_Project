@@ -125,7 +125,8 @@ export function summarizeGame(state, extra = {}) {
     score: [score(state, 'player'), score(state, 'enemy')], rounds: state.round,
     doctrine: { ...state.sides.player.doctrine }, top: topDoctrine(state), epithet: ep.epithet,
     revelations: state.revelations.map((r) => ({ round: r.round, text: r.text, doctrine: r.doctrine })),
-    stats: { ...state.stats }, names: Object.values(state.names ?? {}), god: state.config.god?.name ?? null, ...extra,
+    stats: { ...state.stats }, names: Object.values(state.names ?? {}), god: state.config.god?.name ?? null,
+    saints: state.saints?.length ?? 0, commandments: state.commandments?.length ?? 0, ...extra,
   };
 }
 
@@ -152,6 +153,9 @@ export const ACHIEVEMENTS = [
   { id: 'daily', name: '오늘의 계시', desc: '오늘의 계시를 끝까지 치른다', check: (s) => !!s.daily },
   { id: 'all_doctrines', name: '네 갈래 길', desc: '네 교리를 모두 두 칸 이상 쌓는다', check: (s) => DOCTRINES.every((k) => s.doctrine[k] >= 2), progress: (s) => DOCTRINES.filter((k) => s.doctrine[k] >= 2).length / 4 },
   { id: 'tutorial', name: '사관의 제자', desc: '튜토리얼을 마친다', check: (s) => s.tutorial === true },
+  { id: 'sacred', name: '숨은 말', desc: '오늘의 계시에 숨은 말을 찾는다', check: (s) => !!s.stats.sacred },
+  { id: 'saint', name: '성인의 시대', desc: '신도 하나가 성인으로 추앙받는다', check: (s) => (s.saints ?? 0) >= 1 },
+  { id: 'lawgiver', name: '돌에 새긴 말', desc: '영원한 계명을 새기고 이긴다', check: (s) => s.winner === 'player' && (s.commandments ?? 0) >= 1 },
 ];
 export function evaluateAchievements(summary) {
   return ACHIEVEMENTS.filter((a) => { try { return a.check(summary); } catch { return false; } }).map((a) => a.id);
