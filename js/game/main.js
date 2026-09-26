@@ -808,6 +808,7 @@ function renderChron() {
 
 // ?debug 이면 콘솔에서 상태를 만질 수 있게 한다 (연출 시험용)
 if (new URLSearchParams(location.search).has('debug')) {
+  import('./sound.js').then((snd) => { window.__gsg.levels = snd.levels; window.__gsg.music = snd.music; });
   window.__gsg = { get state() { return state; }, render: () => render() };
 }
 

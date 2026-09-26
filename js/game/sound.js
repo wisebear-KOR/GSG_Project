@@ -12,6 +12,14 @@ let musicOnFlag = store.get('gsg.music', 'on') !== 'off';
 let unlocked = false;
 let ctx = null;
 let bus = null;
+let meters = null;
+
+// 버스별 RMS 레벨(dBFS). 소리가 실제로 나는지 숫자로 확인할 때 쓴다
+export function levels() {
+  if (!meters) return null;
+  const rms = (a) => { const d = new Float32Array(a.fftSize); a.getFloatTimeDomainData(d); let x = 0; for (const v of d) x += v * v; const r = Math.sqrt(x / d.length); return r > 0 ? Math.round(20 * Math.log10(r)) : -Infinity; };
+  return { state: ctx.state, music: rms(meters.music), sfx: rms(meters.sfx), musicGain: bus.music.gain.value };
+}
 
 export const soundOn = () => sfxOn;
 export const musicOn = () => musicOnFlag;
@@ -23,7 +31,7 @@ export function setMusic(on) {
   if (on) music.start(); else music.stop();
 }
 
-const MUSIC_LEVEL = 0.32;
+const MUSIC_LEVEL = 0.8; // 측정 결과 -35dBFS로 너무 작아서 올렸다 (목표: 효과음보다 조금 작은 -20dBFS 안팎)
 const ramp = (param, v, secs) => { const t = ctx.currentTime; param.cancelScheduledValues(t); param.setValueAtTime(param.value, t); param.linearRampToValueAtTime(v, t + secs); };
 
 function impulse(seconds = 3.2, decay = 2.6) {
@@ -48,6 +56,10 @@ function build() {
   const sfx = ctx.createGain(); sfx.gain.value = sfxOn ? 0.9 : 0;
   const musicG = ctx.createGain(); musicG.gain.value = 0;
   sfx.connect(master); musicG.connect(master);
+  // 레벨 측정용 (디버그): 음악/효과음 버스의 실제 출력 크기
+  const meterMusic = ctx.createAnalyser(); meterMusic.fftSize = 2048; musicG.connect(meterMusic);
+  const meterSfx = ctx.createAnalyser(); meterSfx.fftSize = 2048; sfx.connect(meterSfx);
+  meters = { music: meterMusic, sfx: meterSfx };
   reverb.connect(wet).connect(master);
   master.connect(comp).connect(ctx.destination);
   bus = { master, reverb, sfx, music: musicG };
@@ -304,15 +316,16 @@ export const music = (() => {
     const [bass, chord] = PROG[bar % PROG.length];
     intensity += (target - intensity) * 0.5;
     // 저음 지속음과 패드
-    pad([NOTE(bass - 12), NOTE(bass - 5)], t, { dest: M(), gain: 0.05, dur: BAR, attack: 0.9, cutoff: 420, send: 0.3 });
-    pad(chord.map(NOTE), t, { dest: M(), gain: 0.028 + intensity * 0.01, dur: BAR, attack: 1.1, cutoff: 1100 + intensity * 600, send: 0.6 });
+    // 저음은 노트북 스피커에서도 들리도록 D2~D3 대역에 둔다
+    pad([NOTE(bass - 12), NOTE(bass), NOTE(bass + 7)], t, { dest: M(), gain: 0.07, dur: BAR, attack: 0.9, cutoff: 700, send: 0.3 });
+    pad(chord.map(NOTE), t, { dest: M(), gain: 0.06 + intensity * 0.02, dur: BAR, attack: 1.1, cutoff: 1500 + intensity * 700, send: 0.6 });
     // 하프 아르페지오
     const tones = [...chord, chord[0] + 12, chord[1] + 12];
     const steps = intensity > 0.5 ? 12 : 6;
     for (let i = 0; i < steps; i++) {
       if (Math.random() < (intensity > 0.5 ? 0.12 : 0.22)) continue;
       const n = tones[(i * (intensity > 0.5 ? 3 : 2) + bar) % tones.length];
-      pluck(NOTE(n + (i % 3 === 2 ? 12 : 0)), t + i * (BAR / steps), { dest: M(), gain: 0.05 + Math.random() * 0.02, dur: 1.8, bright: 2600, send: 0.45 });
+      pluck(NOTE(n + (i % 3 === 2 ? 12 : 0)), t + i * (BAR / steps), { dest: M(), gain: 0.12 + Math.random() * 0.04, dur: 1.8, bright: 3200, send: 0.45 });
     }
     // 피리 선율: 두 마디마다, 도리안 음계에서 짧은 동기
     if (bar % 2 === 1 && Math.random() < 0.75) {
@@ -321,13 +334,16 @@ export const music = (() => {
       for (let i = 0; i < notes; i++) {
         deg = Math.max(0, Math.min(DORIAN.length - 1, deg + [-1, 1, 2, -2][Math.floor(Math.random() * 4)]));
         const len = BEAT * (i === notes - 1 ? 2 : 1);
-        flute(NOTE(DORIAN[deg] + 12), t + i * BEAT, { dest: M(), gain: 0.035, dur: len * 0.95 });
+        flute(NOTE(DORIAN[deg] + 12), t + i * BEAT, { dest: M(), gain: 0.09, dur: len * 0.95 });
       }
     }
     // 긴장: 북과 낮은 맥박
     if (intensity > 0.3) {
-      [0, BEAT * 1.5, BEAT * 2].forEach((d, i) => thud(t + d, { dest: M(), freq: i ? 95 : 120, end: 50, gain: (i ? 0.12 : 0.22) * intensity, dur: 0.35, send: 0.3 }));
-      for (let i = 0; i < 6; i++) pluck(NOTE(bass - 12), t + i * (BAR / 6), { dest: M(), gain: 0.05 * intensity, dur: 0.35, bright: 500, send: 0.1 });
+      [0, BEAT * 1.5, BEAT * 2].forEach((d, i) => {
+        thud(t + d, { dest: M(), freq: i ? 110 : 140, end: 60, gain: (i ? 0.25 : 0.42) * intensity, dur: 0.35, send: 0.3 });
+        noise({ dest: M(), t: t + d, dur: 0.08, gain: 0.08 * intensity, freq: 1800, q: 1.5 }); // 북 가죽 소리
+      });
+      for (let i = 0; i < 6; i++) pluck(NOTE(bass), t + i * (BAR / 6), { dest: M(), gain: 0.1 * intensity, dur: 0.35, bright: 900, send: 0.1 });
     }
     bar += 1;
   }
