@@ -124,6 +124,7 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
     const cath = t.building === 'capital' && t.owner === 'player' ? state.sides?.player?.cathedral ?? 0 : 0;
     if (cath) for (let i = 0; i < 3; i++) g.append(el('circle', { cx: c.x - 12 + i * 12, cy: c.y + R * 0.5, r: 4, class: `cath-pip${i < cath ? ' on' : ''}` }));
     if (state.names?.[t.id] && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name' }, state.names[t.id]));
+    else if (state.legends?.[t.id] && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name legend' }, state.legends[t.id].name));
     else if (t.feature && !hidden && !t.building) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name feat' }, t.feature === 'oasis' ? '오아시스' : '채석장'));
     if (t.faithMarks && !hidden) {
       // 믿음의 표식: 테두리의 절반(1/2)만큼 상대 색으로 물든다

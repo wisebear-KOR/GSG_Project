@@ -7,6 +7,7 @@ import {
   scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
   canCarve, carveCommandment, updateLiturgy, findSacred, distance, previewGains, ultRound, draftRound,
+  applySilence, markLegends, serializeState, hydrateState,
 } from './engine.js';
 import {
   DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
@@ -70,6 +71,7 @@ let acceptLock = 0;         // Enter 연타 방지
 let speed = meta.get('gsg.speed', '1'); // 재생 속도 '1' | '2' | 'instant'
 fx.motion.speed = speed === '2' ? 2 : 1;
 let resolved_rebuttal = null; // 이번 장 지도자의 반박 (율법 카드가 뒤집힌 뒤 말한다)
+let speakSnap = null;       // 계시를 내리기 직전의 판 (말을 거두기용)
 let pendingLesson = null;   // 이번 장 대사제가 새로 배운 말버릇 (재생이 끝나면 알린다)
 
 function loadSetup() {
@@ -316,6 +318,7 @@ function bindMain() {
       e.preventDefault();
       startFromMain($('resumeGame') ? 'resume' : 'new');
     }
+    if (e.key === 'Escape' && phase === 'confirm' && document.querySelector('#altar .retract')) { e.preventDefault(); retract(); return; }
     if (e.key === 'Escape' && $('mainScreen').hidden && phase !== 'thinking' && phase !== 'playing' && !document.querySelector('.choice-modal:not(.list-modal)')) showMain();
   });
   addEventListener('keydown', onKey);
@@ -368,12 +371,13 @@ function tileTipHTML(cur, t) {
   const bld = t.building === 'capital' ? (t.owner === 'player' ? '신전 — 기도하는 곳' : '율법파의 탑') : t.building === 'village' ? '마을 — 인구 한도 +2, 식량 +1' : '';
   const y = yieldOf(t);
   const gather = t.building === 'capital' ? '' : y.gather ? `${t.feature ? `${FEATURES[t.feature].name} — ` : ''}${RESOURCE_NAME[y.gather]} 채집 +${y.amount}` : '메마른 땅 — 아무것도 얻을 수 없다';
+  const legend = cur.legends?.[t.id] ? `「${cur.legends[t.id].name}」 — “${cur.legends[t.id].quote}” (${cur.legends[t.id].round}장)` : '';
   const holy = t.id === state.holyId ? `성지 — 여기에 마을을 둔 쪽이 승점 +2${state.edictOn ? ', 율법 석판을 올리고 내린다' : ''}` : '';
   const marks = t.faithMarks ? `믿음의 표식 ${t.faithMarks.n}/2 — ${t.faithMarks.side === 'player' ? '한 번 더 전하면 우리 땅' : '율법파가 한 번 더 가르치면 넘어간다'}` : '';
   const intent = ['speak', 'thinking', 'confirm'].includes(phase) ? enemyIntent(state).find((a) => a.shown && a.tile === t.id) : null;
   const threat = intent ? `율법파가 이번 장에 이곳을 노린다: ${enemyLabel(intent).replace(/\(.*\)$/, '')} — ${state.first === 'player' ? '선공이니 먼저 움직이면 막는다' : '율법파가 선공이라 먼저 가져간다'}` : '';
   const cath = t.building === 'capital' && t.owner === 'player' && cur.sides.player.cathedral ? `대성당 ${cur.sides.player.cathedral}/3단계 — 율법파가 수도를 노린다` : '';
-  return `<b>${esc(tileName(cur, t, 'player'))}</b><span>${[owner, bld, gather, t.wall ? '성벽 — 방어 +2' : '', holy, cath, marks, threat].filter(Boolean).map(esc).join('<br>')}</span>`;
+  return `<b>${esc(tileName(cur, t, 'player'))}</b><span>${[legend, owner, bld, gather, t.wall ? '성벽 — 방어 +2' : '', holy, cath, marks, threat].filter(Boolean).map(esc).join('<br>')}</span>`;
 }
 
 function bindTools() {
@@ -413,6 +417,7 @@ async function returnMeeples() {
 async function newRound() {
   if (resolved) { lockAltar(); await returnMeeples(); }
   startRound(state);
+  speakSnap = null;
   phase = 'speak';
   pending = null;
   resolved = null;
@@ -453,9 +458,12 @@ async function speak() {
   const ta = document.querySelector('.scroll textarea');
   const text = (ta?.value ?? '').trim();
   if (!text) { ta?.focus(); return; }
+  // 말줄임만 있는 계시는 침묵이다 (대사제를 부르지 않는다)
+  if (!/[가-힣A-Za-z0-9]/.test(text)) { silence(); return; }
   const cost = revelationCostFor(state, text);
   const p = state.sides.player;
   if (p.faith < cost) { notice = `신앙이 모자라다 (필요 ${cost}, 보유 ${p.faith}). 계시를 줄이거나 침묵하라.`; sfx.fail(); renderAltar(); rejectFx(); return; }
+  speakSnap = { state: JSON.stringify(serializeState(state)), text, cost };
   p.faith -= cost;
   draft = '';
   hintTiles = [];
@@ -578,10 +586,13 @@ function silence() {
   sfx.page();
   hintTiles = [];
   targeting = null;
-  const auto = autoFill(state, 'player', []);
+  draft = '';
+  // 고요 속에 신도들은 먼저 기도한다
+  const pray = legalActions(state, 'player').find((a) => a.type === 'pray');
+  const auto = pray ? [{ ...pray, auto: true }, ...autoFill(state, 'player', [pray])] : autoFill(state, 'player', []);
   pending = {
     text: null,
-    result: { interpretation: '신께서 침묵하셨다. 신도들은 각자 일터로 향한다.', orders: [], forbidden: [], doctrine: null, source: 'silence' },
+    result: { interpretation: state.silentRun >= 1 ? '신께서 또 침묵하셨다. 신도들이 불안해하며 기도한다.' : '신께서 침묵하셨다. 고요 속에 신도들이 먼저 기도하고 일터로 향한다.', orders: [], forbidden: [], doctrine: null, source: 'silence' },
     accepted: [], rejected: [], auto, fresh: true, dropped: new Set(), cited: [], links: {},
   };
   enterConfirm();
@@ -592,7 +603,42 @@ async function reinterpret() {
   if (state.reinterpretUsed || p.faith < 1 || !pending?.text) return;
   p.faith -= 1;
   state.reinterpretUsed = true;
+  const before = pending;
   await interpret(pending.text);
+  // 두 갈래: 이전 해석도 남겨 두고 고를 수 있게
+  before.prev = null;
+  pending.prev = before;
+  renderAltar();
+}
+
+// 이전 해석과 지금 해석을 바꾼다
+function swapReading() {
+  if (!pending?.prev || pending.incoming) return;
+  const other = pending.prev;
+  pending.prev = null;
+  other.prev = pending;
+  other.fresh = false;
+  pending = other;
+  sfx.page();
+  renderBoardView();
+  renderAltar();
+}
+
+// 말을 거두기: 계시 전으로 돌아가 원문을 고친다. 다시 해석과 같은 장당 한 번, 순비용 신앙 1 (첫 판은 무료)
+function retract() {
+  if (phase !== 'confirm' || !speakSnap || state.reinterpretUsed || pending?.incoming) return;
+  const snap = speakSnap;
+  speakSnap = null;
+  const text = snap.text;
+  state = hydrateState(JSON.parse(snap.state));
+  state.reinterpretUsed = true;
+  if (state.config.veteran) state.sides.player.faith = Math.max(0, state.sides.player.faith - 1);
+  pending = null;
+  phase = 'speak';
+  draft = text;
+  notice = state.config.veteran ? '말을 거두었다 (신앙 1). 다시 적어 인장을 누르라.' : '말을 거두었다. 다시 적어 인장을 누르라.';
+  sfx.page();
+  render();
 }
 
 async function accept() {
@@ -626,6 +672,8 @@ async function accept() {
   if (pending.seal && pending.prophecy) sealProphecy(state, pending.prophecy);
   resolveRound(state, plan, enemyPlan);
   if (pick && !state.winner) resolveDilemma(state, pick);
+  if (!state.winner) applySilence(state, !!text);
+  if (!state.winner && text) markLegends(state, text, result.doctrine, accepted, state.log.slice(from));
   if (!state.winner && text) keepVows(state, result.forbidden, plan);
   if (!state.winner) wordsAfter(pending);
   // 교리는 해결이 끝난 뒤에 오른다: 확인 화면에 보인 수치 그대로 해결되도록
@@ -721,6 +769,7 @@ function showEnd(summary, fresh, had) {
     </div>
     <div class="end-page" data-page="book" hidden>
       ${canCanon ? '<p class="book-help">한 구절을 정경으로 봉헌하면 다음 판에 그 교리가 한 칸 올라 시작한다.</p>' : '<p class="book-help">두 번째 판부터는 이 경전의 한 구절을 정경으로 봉헌할 수 있다.</p>'}
+      ${Object.keys(state.legends ?? {}).length ? `<p class="book-help">전설이 된 땅 — ${Object.values(state.legends).map((l) => `「${esc(l.name)}」`).join(' ')}</p>` : ''}
       ${state.fallen?.length ? `<p class="book-help">쓰러진 이름 — ${state.fallen.map(esc).join(', ')}</p>` : ''}
       <ol class="book">${state.revelations.map((r) => `<li><span class="bk-r">제 ${r.round} 장</span><span class="bk-t">“${esc(r.text)}”</span><span class="bk-d">${esc(doctrineName(r.doctrine))}</span>
         ${canCanon ? `<button class="text-btn canon" data-text="${esc(r.text)}" data-doc="${r.doctrine ?? 'wisdom'}" type="button">${canon.some((c) => c.text === r.text) ? '봉헌됨' : '봉헌'}</button>` : ''}</li>`).join('') || '<li>이 판에는 계시가 없었다.</li>'}</ol>
@@ -1221,7 +1270,7 @@ function bannerFor(log, seen) {
     gain: [isPray ? 'i-temple' : `i-${res}`, isPray ? '기도' : '채집'],
     treasure: ['i-faith', '보물 발견'], explore: ['e-prophet', '탐험'], build: ['i-house', '건설'], cathedral: ['i-temple', '대성당'],
     preach: ['d-peace', '선교'], attack: ['d-war', '공격'], blocked: ['i-shield', '선점당함'], fail: ['i-shield', '헛걸음'],
-    birth: ['i-house', '새 생명'], loss: ['i-shield', '잃음'], warn: ['i-faith', '신앙의 흔들림'], ban: ['s-tablet', '검열'], grace: ['i-faith', '은총'], prophecy: ['i-faith', '예언 성취'], bless: ['i-faith', '기적'], wrath: ['d-war', '신의 분노'], streak: ['i-faith', '말씀이 이어졌다'], edict: ['s-tablet', '율법 석판'], dilemma: ['e-prophet', '갈림길'], saint: ['i-faith', '성인'], commandment: ['s-tablet', '영원한 계명'], site: ['e-prophet', '발견'], lightning: ['m-lightning', '번개'], rain: ['m-rain', '단비'], bounty: ['m-bounty', '풍요'],
+    birth: ['i-house', '새 생명'], loss: ['i-shield', '잃음'], warn: ['i-faith', '신앙의 흔들림'], ban: ['s-tablet', '검열'], grace: ['i-faith', '은총'], prophecy: ['i-faith', '예언 성취'], bless: ['i-faith', '기적'], wrath: ['d-war', '신의 분노'], streak: ['i-faith', '말씀이 이어졌다'], edict: ['s-tablet', '율법 석판'], dilemma: ['e-prophet', '갈림길'], saint: ['i-faith', '성인'], legend: ['i-faith', '전설이 된 땅'], commandment: ['s-tablet', '영원한 계명'], site: ['e-prophet', '발견'], lightning: ['m-lightning', '번개'], rain: ['m-rain', '단비'], bounty: ['m-bounty', '풍요'],
   }[e.kind];
   if (!map) return null;
   const [icon, verb] = map;
@@ -1318,6 +1367,10 @@ async function playFx(log) {
       (up ? sfx.fail : sfx.chime)();
       return fx.wait(600);
     }
+    case 'legend':
+      sfx.chime();
+      if (tile) { fx.ring(svg, tile, '#ffe28a', true); fx.floatText(svg, tile, state.legends[tile.id]?.name ?? '전설', 'good'); }
+      return fx.wait(800);
     case 'saint':
     case 'commandment':
       sfx.holy();
@@ -1797,7 +1850,9 @@ function renderAltar() {
       ${hint ? `<div class="hint">⚠ ${hint}</div>` : ''}${noticeHTML}</div>`;
     act = `<div class="act">
       <button class="btn-primary big accept" type="button" ${fresh ? 'disabled' : ''}>수락하고 공개 <kbd>Enter</kbd></button>
-      <button class="btn-ghost again" type="button" ${!text || state.reinterpretUsed || p.faith < 1 ? 'disabled' : ''}>다시 해석 · 신앙 1 <kbd>R</kbd></button></div>`;
+      <button class="btn-ghost again" type="button" ${!text || state.reinterpretUsed || p.faith < 1 ? 'disabled' : ''}>다시 해석 · 신앙 1 <kbd>R</kbd></button>
+      ${pending.prev ? '<button class="text-btn swap-reading" type="button">↔ 이전 해석과 바꾸기</button>' : ''}
+      ${text && speakSnap && !state.reinterpretUsed ? '<button class="text-btn retract" type="button">말을 거두기 <kbd>Esc</kbd></button>' : ''}</div>`;
   } else {
     const shown = phase === 'playing' ? resolved.shown : resolved.logs;
     const plan = resolved.enemyPlan.map(enemyLabel).join(' · ') || '없음';
@@ -1927,6 +1982,8 @@ function bindAltar() {
   const pbox = a.querySelector('.prophecy-box');
   if (pbox) pbox.onchange = () => { pending.seal = pbox.checked; sfx.seal?.(); pbox.blur(); };
   on('.again', () => { sfx.click(); reinterpret(); });
+  on('.swap-reading', swapReading);
+  on('.retract', retract);
   on('.skip', () => { fx.motion.skip = true; });
   a.querySelectorAll('[data-speed]').forEach((b) => {
     b.onclick = () => {

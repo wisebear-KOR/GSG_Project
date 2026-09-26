@@ -76,7 +76,7 @@ export function createState(config = DEFAULT_CONFIG) {
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
     judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, oddUsed: false,
     edictOn: !!cfg.veteran && !tutorial, destiny: null, destinyOffer: null, holyId: null,
-    commandments: [], liturgy: null, saints: [], deeds: {}, fallen: [],
+    commandments: [], liturgy: null, saints: [], deeds: {}, fallen: [], silentRun: 0, legends: {},
     sacred: cfg.daily ? hashPick(SACRED_WORDS, 'sacred', cfg.daily) : null, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
     miracleUsed: false, reinterpretUsed: false,
     log: [], revelations: [], history: [], winner: null, winReason: '',
@@ -917,6 +917,39 @@ export function previewGains(state, plan) {
   return { delta: d, after, per };
 }
 
+// ---------- 침묵도 계시다 ----------
+// 연속 침묵: 한 번은 모두 기도하고, 두 번째는 신앙이 흔들리고(-1), 세 번째부터는 신이 떠났다며 한 사람씩 떠난다 (두 번째 판부터)
+export function applySilence(state, spoke) {
+  if (spoke) { state.silentRun = 0; return; }
+  state.silentRun += 1;
+  const n = state.silentRun;
+  const p = state.sides.player;
+  const home = capitalOf(state, 'player')?.id;
+  if (n === 1) return;
+  if (!state.config.veteran || state.tutorial) { logEvent(state, 'player', '신의 침묵이 길어진다. 신도들이 하늘을 올려다본다.', null, { kind: 'warn', tile: home }); return; }
+  if (n === 2) { p.faith = Math.max(0, p.faith - 1); logEvent(state, 'player', '신의 침묵이 길어진다. 믿음이 흔들린다 (신앙 -1).', null, { kind: 'warn', tile: home }); return; }
+  if (p.pop > 1) { p.pop -= 1; state.sides.enemy.pop += 1; logEvent(state, 'player', '신이 떠났다고 수군댄다. 한 사람이 율법파로 갔다.', null, { kind: 'loss', tile: home }); }
+}
+
+// ---------- 전설이 된 땅: 계시로 명한 일이 큰 결과를 낸 칸에 별칭이 붙는다 ----------
+const LEGEND_ADJ = { war: '분노의', peace: '빛의', abundance: '넘치는', wisdom: '별의' };
+export function markLegends(state, text, doctrine, orders, logs) {
+  if (!text) return [];
+  const made = [];
+  for (const a of orders) {
+    if (Object.keys(state.legends).length >= 3) break;
+    const hit = logs.find((l) => l.act === a.key && (l.fx?.capture || l.fx?.convert || l.fx?.kind === 'cathedral'));
+    const t = state.tileAt[a.tile];
+    if (!hit || state.legends[t.id] || state.names[t.id] || t.id === state.holyId) continue;
+    const base = t.building === 'capital' ? '신전' : t.building === 'village' ? '마을' : TERRAIN[t.terrain]?.name ?? '땅';
+    const name = `${LEGEND_ADJ[doctrine] ?? `${state.round}장의`} ${base}`;
+    state.legends[t.id] = { name, quote: text.slice(0, 24), round: state.round };
+    made.push(name);
+    logEvent(state, 'player', `이 땅은 이제 「${name}」이라 불린다 — “${text.slice(0, 24)}”.`, null, { kind: 'legend', tile: t.id });
+  }
+  return made;
+}
+
 // ---------- 영원한 계명, 성언, 숨은 말 ----------
 export const canCarve = (state) => state.config.veteran && !state.tutorial && state.round >= 3 && state.commandments.length < MAX_COMMANDMENTS;
 export function carveCommandment(state, id) {
@@ -996,6 +1029,7 @@ export function hydrateState(obj) {
   state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.petitionIgnored ??= 0; state.prophecy ??= null;
   state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null; state.oddUsed ??= false;
   state.edictOn ??= false; state.dilemmaPick ??= null;
+  state.silentRun ??= 0; state.legends ??= {};
   state.commandments ??= []; state.liturgy ??= null; state.saints ??= []; state.deeds ??= {}; state.fallen ??= []; state.sacred ??= null; state.destiny ??= null; state.destinyOffer ??= null; state.holyId ??= null;
   for (const sd of Object.values(state.sides)) { sd.cathedral ??= 0; sd.edict ??= 0; }
   state.grace ??= { round: 0, used: 0 }; state.roundMods ??= {}; state.miracleHand ??= [...FIRST_HAND]; state.miracleOffer ??= null; state.pendingSite ??= null; state.stats ??= { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 };
