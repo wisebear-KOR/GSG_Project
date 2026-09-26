@@ -7,6 +7,7 @@ Chrome 내장 AI(Prompt API, Gemma 4)로 신도들에게 계시를 내리는 보
 - [`check.html`](check.html): 브라우저가 내장 모델을 제어할 수 있는지 점검하는 페이지
 - [`lab/interpret.html`](lab/interpret.html): 계시를 해석해 가능한 행동 목록에서 행동을 고르는 대사제 LLM 실험 페이지
 - [`docs/DESIGN.md`](docs/DESIGN.md): 기획 문서
+- [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md): 해석기 프롬프트 실험 기록
 
 ## 요구 사항
 

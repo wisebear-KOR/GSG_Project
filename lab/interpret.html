@@ -106,7 +106,8 @@
           <option value="v1">v1 (처음 버전)</option>
           <option value="v2">v2 (개선판)</option>
           <option value="v3">v3 (심화 대응)</option>
-          <option value="v4" selected>v4 (금지 행동 분리)</option>
+          <option value="v4">v4 (금지 행동 분리)</option>
+          <option value="v5" selected>v5 (실측 반영)</option>
         </select>
       </div>
       <div>
@@ -279,11 +280,10 @@ $('prepare').onclick = async () => {
 // ---------- 실행 ----------
 // Chrome이 스키마를 거부(NotSupportedError)하면 기능을 하나씩 빼 가며 다시 시도한다.
 // 통한 형식은 버전·언어별로 기억해 다음 호출부터 바로 쓴다.
+// uniqueItems는 Chrome 154에서 NotSupportedError로 확인돼 쓰지 않는다
 const SCHEMA_VARIANTS = [
-  { name: '전체', unique: true, koDoctrine: true },
-  { name: 'uniqueItems 제거', unique: false, koDoctrine: true },
-  { name: '영어 교리값', unique: true, koDoctrine: false },
-  { name: '둘 다 제거', unique: false, koDoctrine: false },
+  { name: '기본', unique: false, koDoctrine: true },
+  { name: '영어 교리값', unique: false, koDoctrine: false },
 ];
 const workingVariant = {};
 
@@ -474,7 +474,7 @@ function renderCard(r, index) {
       el('span', { className: 'tag', textContent: r.version ?? 'v1' }),
       r.observe ? el('span', { className: 'tag warn', textContent: '관찰' }) : '',
       r.retried ? el('span', { className: 'tag warn', textContent: '재시도' }) : '',
-      r.schemaVariant && r.schemaVariant !== '전체'
+      r.schemaVariant && r.schemaVariant !== '기본'
         ? el('span', { className: 'tag warn', textContent: `스키마: ${r.schemaVariant}` }) : '',
       r.score ? el('span', { className: `tag ${r.score.intent ? 'ok' : 'bad'}`, textContent: r.score.intent ? '의도 ✓' : '의도 ✗' }) : '',
       r.doctrine ? el('span', {
