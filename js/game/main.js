@@ -10,7 +10,7 @@ import {
   applySilence, markLegends, serializeState, hydrateState, monthOf,
 } from './engine.js';
 import {
-  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, FESTIVALS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, TRIALS, ASCENSION, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
+  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, FESTIVALS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, TRIALS, ASCENSION, RULESET, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
 } from './data.js';
 import { renderBoard, tileToHost, markerToScreen, tileCenter } from './board.js';
 import { installArt } from './art.js';
@@ -172,6 +172,7 @@ function bindSetup() {
   $('optAsc').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; setup.ascension = Number(b.dataset.v); saveSetup(); sfx.click(); renderSetup(); };
   $('msLibrary').onclick = () => { sfx.page(); showLibrary(); };
   $('msSettings').onclick = () => { sfx.page(); showSettings(); };
+  $('msRules').onclick = () => { sfx.page(); showRules(); };
   $('msBible').onclick = () => { sfx.page(); showBible(); };
 }
 
@@ -283,6 +284,7 @@ function resumeLoaded() {
 
 function beginGame(config) {
   loadedPhase = null;
+  setTimeout(() => showUnlockNote(), 400);
   tutorial?.destroy();
   tutorial = config.mode === 'tutorial' ? new Tutorial({ onSuggest: suggestRevelation, onEnd: endTutorial }) : null;
   state = createState(config);
@@ -392,6 +394,7 @@ function bindTools() {
   bindMain();
   bindTileTips();
   $('settings').onclick = () => { sfx.click(); showSettings(); };
+  $('rules').onclick = () => { sfx.page(); showRules(); };
   $('home').onclick = () => { if (document.querySelector('.choice-modal:not(.list-modal)')) return; sfx.click(); showMain(); };
   $('ai').onclick = () => {
     if (!aiUsable || phase === 'thinking') return;
@@ -1024,6 +1027,9 @@ function settingsHTML() {
     <section><h4>대사제</h4>
       <p class="set-note">${aiUsable ? `이 브라우저의 내장 AI 상태: ${esc(aiState)} · 지금 ${aiMode === 'llm' ? 'LLM으로 해석한다' : '석판(키워드)으로 해석한다'}` : '이 브라우저에는 내장 AI가 없어 석판(키워드) 해석기로 플레이한다. 데스크톱 Chrome에서 Gemini Nano를 켜면 대사제가 말을 알아듣는다.'}</p>
     </section>
+    <section><h4>이 게임</h4>
+      <p class="set-note">계시록: 말씀의 전쟁 · 규칙 판 ${RULESET} · MIT License · Chrome 내장 AI(Prompt API)로 동작한다. <a href="https://github.com/wisebear-KOR/GSG_Project" target="_blank" rel="noopener">GitHub</a></p>
+    </section>
     <section><h4>기록</h4>
       <div class="set-row"><button type="button" class="btn-ghost" data-act="export">기록 내보내기</button><button type="button" class="btn-ghost" data-act="import">기록 가져오기</button><button type="button" class="btn-ghost danger" data-act="reset">기록 지우기</button></div>
       <p class="set-note">서고·성서·경외·정경·설정이 이 브라우저에만 저장된다. 다른 기기로 옮기려면 내보내고 가져온다.</p>
@@ -1079,6 +1085,70 @@ function bindSettings(o) {
     for (const k of Object.keys(meta.exportAll())) { try { localStorage.removeItem(k); } catch { /* 무시 */ } }
     location.reload();
   };
+}
+
+// ---------- 규칙서 ----------
+function showRules() {
+  const sec = (title, items) => `<details class="rule-sec"${title === '한 장의 흐름' ? ' open' : ''}><summary>${title}</summary><ul>${items.map((x) => `<li>${x}</li>`).join('')}</ul></details>`;
+  const vet = '<em>두 번째 판부터</em>';
+  const html = `<div class="rules">
+    ${sec('한 장의 흐름', [
+      '두루마리에 <b>계시</b>를 한 줄 적고 인장을 누른다 (30자 이하 신앙 1, 더 길면 2). 대사제가 뜻을 헤아려 신도들의 일을 정한다.',
+      '확인 화면에서 칩을 눌러 일을 빼거나, 신앙 1로 <b>다시 해석</b>하거나, <b>말을 거둘</b> 수 있다 (장당 한 번).',
+      '수락하면 율법파와 동시에 공개되어 채집 → 건설 → 기도 → 탐험 → 선교 → 공격 순으로 풀린다. 같은 칸은 선공이 차지한다.',
+      '장이 끝나면 식량을 먹고, 신앙 수입이 들어오고, 여유가 있으면 신도가 늘어난다.',
+    ])}
+    ${sec('이기는 길', [
+      '<b>점령</b>: 율법파 수도의 내구도를 0으로.',
+      '<b>신앙</b>: 인구의 3/4이 우리 신도 (인구 합 8 이상, 6장부터).',
+      '<b>대성당</b>: 신전 3단계에서 기초·벽·첨탑을 올린다. 공사가 시작되면 율법파가 수도를 노린다.',
+      '<b>승점</b>: 마지막 장이 끝났을 때 더 높은 쪽. 판마다 <b>심판의 기준</b>이 다를 수 있다 ' + vet + '.',
+      '<b>율법 석판</b>: 율법파가 석판을 채우면 진다 ' + vet + '. 성지를 쥐거나 번개로 탑을 치면 막는다.',
+    ])}
+    ${sec('신도와 신앙', [
+      `신도 ${RULES.followersPerAction}명마다 행동 +1, ${RULES.followersPerFaith}명마다 신앙 수입 +1. 신도가 3명 더 많으면 공격 주사위 +1.`,
+      '신앙이 바닥난 채 한 장을 버티면 경고, 그다음 장부터 신도가 율법파로 떠난다.',
+      '침묵도 계시다: 한 번은 모두 기도하지만, 길어지면 믿음이 흔들린다.',
+    ])}
+    ${sec('교리', [
+      '계시의 성격(평화·전쟁·풍요·지혜)이 교리 칸을 올린다. 2·4칸에 특전, 6칸에 궁극(늦은 장에 깨어난다).',
+      '평화↔전쟁, 풍요↔지혜는 서로 흔든다 ' + vet + '. 같은 교리를 세 장 이어 말하면 작은 기적.',
+    ])}
+    ${sec('말의 힘', [
+      '<b>말투</b>: 축복(첫 채집 +1), 저주(공격 +1, 신앙 -1), 비유(교리 +1).',
+      '<b>이름 붙이기</b>: "이 강을 요단이라 부르라" — 지도에 새겨지고 이후 그 이름이 통한다.',
+      '<b>청원</b>에 답하고, <b>서원</b>을 지키면 은총(장당 신앙 +1까지).',
+      '<b>예언</b>: "~하리라"를 확인 화면에서 봉인하면 기한 안에 이뤄질 때 신앙.',
+      '<b>인용</b>: 최근 계시의 말을 다시 쓰면 긴 계시도 신앙 1. 세 번 쓴 구절은 <b>성언</b> ' + vet + '.',
+      '<b>영원한 계명</b>: "영원히 …"로 새기면 엔진이 끝까지 지킨다 ' + vet + '.',
+      '<b>말한 기적</b>: 계시에 "번개", "단비" 같은 말이 있으면 손에 든 기적이 내린다.',
+    ])}
+    ${sec('율법파', [
+      '판마다 지도자가 다르고, 율법 카드 순서대로 움직인다. 이번 장의 뜻은 보드의 붉은 표식으로 미리 보인다(난이도만큼).',
+      '율법파는 지난 장의 말씀을 듣고 맞서는 카드를 고른다. 칼로 셋을 쓰러뜨릴 때마다 석판이 오른다 ' + vet + '.',
+    ])}
+    ${sec('기적과 분노', [
+      '기적은 장당 하나. 5장에 새 기적을 고른다 ' + vet + '.',
+      '승점이 6점 넘게 뒤지면 <b>신의 분노</b>가 차올라 기적이 싸지고, 가득 차면 「심판의 날」.',
+    ])}
+    ${sec('단축키', [
+      'Ctrl+Enter 계시 · Enter 수락/다음 장 · R 다시 해석 · Esc 말을 거두기/메인 화면 · Space 빨리 감기 · Alt+1~5 기적 · L 연대기',
+    ])}
+  </div>`;
+  listModal('규칙서', html);
+}
+
+// 두 번째 판을 시작할 때 한 번: 새로 열린 것
+function showUnlockNote() {
+  if (meta.get('gsg.unlockNote', false) || meta.getHistory().length !== 1 || state.tutorial) return;
+  meta.set('gsg.unlockNote', true);
+  listModal('두 번째 판부터 열리는 것', `<ul class="unlock-list">
+    <li><b>율법 석판</b> — 율법파가 채우면 진다. 가운데 성지를 쥐어 막아라.</li>
+    <li><b>심판의 기준</b>과 <b>소명</b> — 판마다 승점 공식과 이룰 목표가 달라진다.</li>
+    <li><b>대사제의 성향</b>, <b>기적 드래프트</b>, <b>두 갈래 사건</b>, <b>세 막</b>.</li>
+    <li><b>교리 대립</b>, <b>영원한 계명</b>, <b>성언</b>, 율법파의 <b>검열</b>.</li>
+    <li>종료 화면의 <b>정경 봉헌</b>, 메인 화면의 <b>오늘의 계시</b>·<b>시련</b>.</li>
+  </ul><p class="set-note">자세한 규칙은 언제든 <b>?</b> 규칙서에서.</p>`);
 }
 
 // ---------- 음성 해설 (화면 읽기 프로그램) ----------

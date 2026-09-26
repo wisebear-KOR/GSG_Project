@@ -1073,3 +1073,9 @@ body.faith-crisis .vignette { background: radial-gradient(ellipse at center, tra
 .codex-row span { padding: 1px 7px; border-radius: 999px; background: rgba(124, 89, 27, .08); color: var(--ink-faint); }
 .codex-row span.got { background: rgba(201, 162, 74, .25); color: var(--ink); }
 .codex-row.lex span { flex-basis: 100%; border-radius: 6px; }
+
+/* ---------- 마감: 규칙서 ---------- */
+.rules { display: grid; gap: 8px; }
+.rule-sec summary { cursor: pointer; font: 400 18px var(--font-title); color: var(--gold-lo); }
+.rule-sec ul, .unlock-list { margin: 6px 0 4px; padding-left: 18px; display: grid; gap: 6px; font: 14px/1.6 var(--font-body); color: var(--ink); }
+.rule-sec em { font-style: normal; font: 600 11px var(--font-ui); color: #7a2016; background: rgba(163, 55, 42, .1); padding: 0 6px; border-radius: 999px; }
