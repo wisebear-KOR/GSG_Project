@@ -3,9 +3,10 @@
 
 import {
   TERRAIN, RESOURCE_NAME, GATHER_VERB, COST, MAX_TEMPLE, CAPITAL_HP, MAX_ACTIONS, RULES,
-  DOCTRINES, DOCTRINE_MAX, EVENTS, LAW_CARDS, MIRACLES, DIFFICULTY, MAP_SIZES, PLAYER_START, TUTORIAL,
+  DOCTRINES, DOCTRINE_MAX, EVENTS, LAW_CARDS, MIRACLES, DIFFICULTY, MAP_SIZES, PLAYER_START, TUTORIAL, ENEMY_LEADERS,
 } from './data.js';
 import { generateMap } from './mapgen.js';
+import { frequentNoun, hashPick } from './lore.js';
 
 export const SIDES = ['player', 'enemy'];
 export const other = (side) => (side === 'player' ? 'enemy' : 'player');
@@ -53,7 +54,8 @@ export function distance(a, b) {
 }
 
 // ---------- 상태 ----------
-// config: { mode: 'standard' | 'tutorial', size: 5|6|7, difficulty: 'easy'|'normal'|'hard', seed }
+// config: { mode: 'standard' | 'tutorial', size: 5|6|7, difficulty: 'easy'|'normal'|'hard', seed, veteran }
+// veteran: 한 판이라도 끝낸 적이 있으면 true (검열 카드 등 두 번째 판부터 나오는 것들)
 export const DEFAULT_CONFIG = { mode: 'standard', size: 5, difficulty: 'normal', seed: 2026 };
 
 export function createState(config = DEFAULT_CONFIG) {
@@ -67,7 +69,7 @@ export function createState(config = DEFAULT_CONFIG) {
     maxRounds: tutorial ? TUTORIAL.rounds : (MAP_SIZES[cfg.size]?.rounds ?? 12),
     enemyBonus: tutorial ? TUTORIAL.enemyBonus : diff.enemyBonus,
     tiles: [], tileAt: {}, sides: {}, eventDeck: [], lawDeck: [],
-    event: null, lawCard: null, rainActive: false,
+    event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
     miracleUsed: false, reinterpretUsed: false,
     log: [], revelations: [], history: [], winner: null, winReason: '',
   };
@@ -94,6 +96,8 @@ export function createState(config = DEFAULT_CONFIG) {
     state.eventDeck = TUTORIAL.events.map((id) => EVENTS.find((e) => e.id === id)).reverse();
     state.lawDeck = TUTORIAL.lawCards.map((id) => LAW_CARDS.find((c) => c.id === id)).reverse();
   } else {
+    const leaders = Object.entries(ENEMY_LEADERS).filter(([, l]) => !l.notOn?.includes(cfg.difficulty)).map(([id]) => id);
+    state.leader = hashPick(leaders, 'leader', cfg.seed, cfg.difficulty);
     // 판 전체에 쓸 카드를 미리 나눠 둔다 (어려움은 장마다 두 장을 보므로 두 배)
     state.eventDeck = dealDeck(state, EVENTS, state.maxRounds + 2);
     state.lawDeck = dealDeck(state, lawPool(state), state.maxRounds * 2 + 2);
@@ -108,7 +112,15 @@ function dealDeck(state, pool, n) {
   while (deck.length < n) deck.unshift(...shuffle(state, pool));
   return deck;
 }
-const lawPool = (state) => (state.tutorial ? LAW_CARDS.filter((c) => !['L5', 'L7'].includes(c.id)) : LAW_CARDS);
+// 율법 덱: 튜토리얼은 온순한 카드만. 지도자가 카드를 더하거나 뺀다. 검열은 두 번째 판부터, 보통 이상
+function lawPool(state) {
+  if (state.tutorial) return LAW_CARDS.filter((c) => !['L5', 'L7', 'L10'].includes(c.id));
+  const leader = ENEMY_LEADERS[state.leader];
+  const censor = state.config.veteran && state.config.difficulty !== 'easy';
+  const pool = LAW_CARDS.filter((c) => (c.id !== 'L10' || censor) && !leader?.deck.remove.includes(c.id));
+  for (const id of leader?.deck.add ?? []) pool.push(LAW_CARDS.find((c) => c.id === id));
+  return pool;
+}
 
 // 우리 신도가 닿는 곳(수도 2칸, 마을 1칸)은 항상 보인다
 export function updateVision(state) {
@@ -120,7 +132,10 @@ export function updateVision(state) {
 export const capitalOf = (state, side) => state.tiles.find((t) => t.owner === side && t.building === 'capital');
 export const ownedTiles = (state, side) => state.tiles.filter((t) => t.owner === side);
 export const villageCount = (state, side) => state.tiles.filter((t) => t.owner === side && t.building === 'village').length;
-export const popCap = (state, side) => 3 + 2 * villageCount(state, side);
+// 교리 궁극(6칸)은 8장부터 깨어난다 (한 교리만 외쳐 6장 만에 게임을 끝내지 못하게)
+export const ULT_ROUND = 8;
+export const hasUlt = (state, side, key) => side === 'player' && state.sides[side].doctrine[key] >= DOCTRINE_MAX && state.round >= ULT_ROUND;
+export const popCap = (state, side) => 3 + 2 * villageCount(state, side) + (hasUlt(state, side, 'abundance') ? 2 : 0);
 
 // 신도가 닿을 수 있는 범위: 수도에서 2칸, 마을에서 1칸
 export function reach(state, side) {
@@ -352,6 +367,11 @@ export function startRound(state) {
   if (!state.eventDeck.length) state.eventDeck = dealDeck(state, EVENTS, 6);
   if (state.lawDeck.length < 2) state.lawDeck.unshift(...dealDeck(state, lawPool(state), 9));
   state.event = state.eventDeck.pop();
+  // 지혜 궁극: 다가올 계절 두 장 중 하나를 고른다 (고르지 않으면 첫 장)
+  state.eventChoice = hasUlt(state, 'player', 'wisdom') && state.eventDeck.length ? [state.event.id, state.eventDeck.at(-1).id] : null;
+  // 지난 장 검열 카드가 봉인한 말은 이번 장에만 효력이 있다
+  state.bannedWords = state.bannedNext ? [state.bannedNext] : [];
+  state.bannedNext = null;
   state.lawCard = state.lawDeck.pop();
   // 어려움: 율법 카드를 두 장 보고 지금 더 위협적인 쪽을 쓴다 (다른 한 장은 버린다)
   if (state.config.difficulty === 'hard' && !state.tutorial) {
@@ -366,6 +386,30 @@ function lawThreat(state, card) {
   const pool = legalActions(state, 'enemy');
   const weight = { attack: 3, preach: 2, build: 2, pray: 1, gather: 1 };
   return card.rules.reduce((sum, r) => sum + (pool.some((a) => a.type === r.type && (!r.build || a.build === r.build) && (!r.gather || a.gather === r.gather)) ? weight[r.type] : 0), 0);
+}
+
+// 지혜 궁극: 다음 카드와 바꿔 쓴다 (안 고른 카드는 덱 맨 위로 돌아간다)
+export function chooseEvent(state, id) {
+  if (!state.eventChoice?.includes(id) || state.event.id === id) return;
+  const next = state.eventDeck.pop();
+  state.eventDeck.push(state.event);
+  state.event = next;
+}
+
+// 계시 비용: 기본(30자 이하 1, 넘으면 2) + 봉인된 말을 쓰면 +1
+export function revelationCostFor(state, text) {
+  const base = text.trim().length > 30 ? 2 : 1;
+  return base + (state.bannedWords.some((w) => text.includes(w)) ? 1 : 0);
+}
+
+// 율법파가 이번 장에 할 일 (예고용). 공개하는 범위는 난이도에 따라 다르다
+export function enemyIntent(state) {
+  const plan = planEnemy(state);
+  const diff = state.tutorial ? 'easy' : state.config.difficulty;
+  const shown = diff === 'easy' ? () => true
+    : diff === 'normal' ? (a) => ['attack', 'preach', 'build'].includes(a.type)
+      : (a) => a.type === 'attack';
+  return plan.map((a) => ({ ...a, shown: shown(a) && state.tileAt[a.tile].revealed }));
 }
 
 export function castMiracle(state, id, targetTile) {
@@ -466,6 +510,7 @@ export function hydrateState(obj) {
   };
   if ([state.event, state.lawCard, ...state.eventDeck, ...state.lawDeck].some((c) => c === undefined)) throw new Error('알 수 없는 카드');
   state.tileAt = Object.fromEntries(state.tiles.map((t) => [t.id, t]));
+  state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
   return state;
 }
 
@@ -528,6 +573,16 @@ function resolveAction(state, a) {
       const dice = { attacker: ra, attackerBonus: bonus, defender: rd, defenderBonus: defBonus, win };
       if (win) {
         f.pop -= 1; s.pop += 1;
+        // 마을에 믿음의 표식이 두 번 쌓이면 그 마을이 넘어온다 (수도는 제외, 성벽은 남는다)
+        if (t.building === 'village') {
+          t.faithMarks = t.faithMarks?.side === side ? { side, n: t.faithMarks.n + 1, round: state.round } : { side, n: 1, round: state.round };
+          if (t.faithMarks.n >= 2) {
+            t.owner = side; t.faithMarks = null;
+            if (side === 'player') t.revealed = true;
+            return logEvent(state, side, `${poss(side)} 설교가 통했다! ${place} 전체가 ${side === 'player' ? '말씀' : '율법'}에 물들어 넘어왔다.`, dice, { tile: t.id, kind: 'preach', convert: true });
+          }
+          return logEvent(state, side, `${poss(side)} 설교가 통했다! ${place}에서 1명이 개종했다. 믿음의 표식 1/2.`, dice, { tile: t.id, kind: 'preach' });
+        }
         return logEvent(state, side, `${poss(side)} 설교가 통했다! ${place}에서 1명이 개종했다.`, dice, { tile: t.id, kind: 'preach' });
       }
       return logEvent(state, side, `${poss(side)} 설교가 ${place}에서 외면당했다.`, dice, { tile: t.id, kind: 'preach' });
@@ -541,6 +596,10 @@ function resolveAction(state, a) {
       const win = ra + bonus > rd + defBonus;
       const dice = { attacker: ra, attackerBonus: bonus, defender: rd, defenderBonus: defBonus, win };
       if (!win) {
+        if (hasUlt(state, side, 'war') && s.faith >= 2) {
+          s.faith -= 2;
+          return logEvent(state, side, `${poss(side)} 공격이 ${place}에서 막혔다. 전쟁의 가호가 신앙 2를 태워 쓰러질 자를 살렸다.`, dice, { tile: t.id, kind: 'attack' });
+        }
         s.pop = Math.max(0, s.pop - 1);
         return logEvent(state, side, `${poss(side)} 공격이 ${place}에서 막혔다. 공격자 1명이 쓰러졌다.`, dice, { tile: t.id, kind: 'attack' });
       }
@@ -551,7 +610,7 @@ function resolveAction(state, a) {
         if (f.capitalHp <= 0) { state.winner = side; state.winReason = '적 수도 점령'; }
         return;
       }
-      t.owner = side; t.wall = false;
+      t.owner = side; t.wall = false; t.faithMarks = null;
       return logEvent(state, side, `${subj(side)} ${J(place, '을', '를')} 빼앗았다!`, dice, { tile: t.id, kind: 'attack', capture: true });
     }
     default:
@@ -579,6 +638,31 @@ function upkeep(state) {
     }
     s.faith += faithIncome(state, side);
     if (state.event?.id === 'plague' && s.pop > 1) { s.pop -= 1; logEvent(state, side, `역병으로 ${who} 1명을 잃었다.`, null, { kind: 'loss' }); }
+  }
+  // 믿음의 표식은 두 장 동안 이어지지 않으면 하나 사라진다
+  for (const t of state.tiles) {
+    if (t.faithMarks && state.round - t.faithMarks.round >= 2) {
+      t.faithMarks.n -= 1; t.faithMarks.round = state.round;
+      if (t.faithMarks.n <= 0) t.faithMarks = null;
+    }
+  }
+  // 평화 궁극: 우리 땅에 닿은 율법파 마을 하나에 말씀이 스며든다 (표식은 남기지 않는다)
+  const pp = state.sides.player;
+  if (hasUlt(state, 'player', 'peace') && state.sides.enemy.pop > 0 && pp.pop > 0) {
+    const mine = ownedTiles(state, 'player');
+    const target = state.tiles.find((t) => t.owner === 'enemy' && t.building === 'village' && mine.some((m) => distance(m, t) === 1));
+    if (target) {
+      const ra = d6(state); const rd = d6(state);
+      const win = ra > rd + 1;
+      if (win) { state.sides.enemy.pop -= 1; pp.pop += 1; }
+      logEvent(state, 'player', win ? `평화의 말씀이 ${tileName(state, target)}에 스며들어 1명이 개종했다.` : `평화의 말씀이 ${tileName(state, target)}에 닿았으나 스며들지 못했다.`,
+        { attacker: ra, attackerBonus: 0, defender: rd, defenderBonus: 1, win }, { tile: target.id, kind: 'preach' });
+    }
+  }
+  // 검열 카드: 다음 장에 플레이어가 가장 자주 쓴 말을 봉인한다
+  if (state.lawCard?.ban) {
+    state.bannedNext = frequentNoun(state.revelations) ?? hashPick(['분노', '사랑', '번개', '전쟁', '풍요'], state.config.seed, state.round);
+    logEvent(state, 'enemy', `율법파가 검열을 선포했다. 다음 장에는 '${state.bannedNext}'라는 말을 쓰지 못한다.`, null, { kind: 'ban' });
   }
   // 신앙이 바닥난 채로 한 장을 버티면 경고, 그다음 장부터 신도가 율법파로 떠난다
   const p = state.sides.player;

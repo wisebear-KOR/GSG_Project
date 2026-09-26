@@ -57,7 +57,9 @@ function frame(svg, WIDTH, HEIGHT) {
 }
 
 // markers: [{ tile, side, label, dim, drop, delay }]
-export function renderBoard(svg, state, { markers = [], highlight = [], hints = [], onTileClick, selectable = [], focus = null } = {}) {
+const INTENT_ICON = { attack: 'd-war', preach: 'd-peace', build: 'i-house', gather: 'i-food', pray: 'i-temple' };
+
+export function renderBoard(svg, state, { markers = [], highlight = [], hints = [], intents = [], onTileClick, selectable = [], focus = null } = {}) {
   const { width, height } = sizeOf(state.rows ?? 5, state.cols ?? 5);
   svg.setAttribute('viewBox', `0 0 ${width.toFixed(0)} ${height.toFixed(0)}`);
   svg.replaceChildren();
@@ -90,6 +92,18 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
       g.append(use(`s-${t.terrain}`, c.x, c.y - 2, 60, { class: 'glyph' }));
     }
     g.append(el('text', { x: c.x, y: c.y + R * 0.74, class: 'coord' }, t.id));
+    if (t.faithMarks && !hidden) {
+      // 믿음의 표식: 테두리의 절반(1/2)만큼 상대 색으로 물든다
+      g.append(el('polygon', { points: hexPoints(c, R - 5), class: `faith-mark fm-${t.faithMarks.side}`, pathLength: 12, 'stroke-dasharray': `${6 * t.faithMarks.n} 12` }));
+    }
+    const intent = intents.find((i) => i.tile === t.id);
+    if (intent) {
+      g.append(el('polygon', { points: hexPoints(c, R - 4), class: `intent-ring it-${intent.type}` }));
+      const b = el('g', { class: `intent-badge it-${intent.type}` });
+      b.append(el('circle', { cx: c.x - R * 0.5, cy: c.y - R * 0.55, r: 11 }));
+      b.append(use(INTENT_ICON[intent.type] ?? 'd-war', c.x - R * 0.5, c.y - R * 0.55, 15));
+      g.append(b);
+    }
     if (hints.includes(t.id)) g.append(el('polygon', { points: hexPoints(c, R - 3), class: 'hint-ring' }));
     if (highlight.includes(t.id)) g.append(el('polygon', { points: hexPoints(c, R - 2), class: 'hl-ring' }));
     if (selectable.includes(t.id)) g.append(el('polygon', { points: hexPoints(c, R - 2), class: 'sel-ring' }));

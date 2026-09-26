@@ -730,3 +730,42 @@ body.reduce-motion .hint-ring { animation: none; }
 .lg-enemy { font-size: 11.5px; color: var(--ink-faint); }
 @keyframes lgIn { from { opacity: 0; transform: translateY(8px) scale(.8); } to { opacity: 1; transform: none; } }
 body.reduce-motion .lg-item, body.reduce-motion .lg-score { animation: none; opacity: 1; }
+
+/* ---------- 1차 웨이브 2묶음: 의도·지도자·표식·검열 ---------- */
+.intent-ring { fill: none; stroke: rgba(220, 60, 40, .85); stroke-width: 2.4; stroke-dasharray: 7 5; animation: march 1.2s linear infinite; pointer-events: none; }
+.intent-ring.it-build { stroke: rgba(220, 140, 40, .8); }
+.intent-badge circle { fill: #7d1f14; stroke: #ffb0a0; stroke-width: 1.5; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .6)); }
+.intent-badge.it-build circle { fill: #7a4a12; stroke: #ffd29a; }
+.intent-badge use { color: #fff; fill: #ffe6de; }
+.intent-badge { animation: intentBob 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; pointer-events: none; }
+@keyframes intentBob { 50% { transform: translateY(-2px); } }
+body.reduce-motion .intent-badge, body.reduce-motion .intent-ring { animation: none; }
+.faith-mark { fill: none; stroke-width: 4; stroke-linecap: round; pointer-events: none; }
+.fm-player { stroke: var(--player-hi); filter: drop-shadow(0 0 4px rgba(156, 192, 255, .9)); }
+.fm-enemy { stroke: var(--enemy-hi); filter: drop-shadow(0 0 4px rgba(255, 159, 142, .9)); }
+.law-back.intent { display: block; text-align: left; padding: 12px 14px; }
+.law-back.intent .kind { font: 700 11px var(--font-ui); letter-spacing: .16em; color: #ffb0a0; margin-bottom: 6px; }
+.law-back.intent ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.law-back.intent li { font: 13px/1.4 var(--font-body); color: var(--on-table); padding-left: 16px; position: relative; }
+.law-back.intent li::before { content: ''; position: absolute; left: 2px; top: .55em; width: 7px; height: 7px; border-radius: 50%; background: #c9a24a; }
+.law-back.intent li.it-attack::before { background: #e0503c; box-shadow: 0 0 6px #e0503c; }
+.law-back.intent li.it-preach::before { background: #d9d0ff; }
+.law-back.intent li.it-none { color: var(--on-table-dim); padding-left: 0; }
+.law-back.intent li.it-none::before { display: none; }
+.law-back.intent .more { margin-top: 6px; font: 11.5px var(--font-ui); color: var(--on-table-dim); }
+.leader-say { position: absolute; z-index: 30; right: 12px; top: -8px; transform: translateY(-100%); max-width: 280px; padding: 10px 14px; border-radius: 14px 14px 4px 14px;
+  background: linear-gradient(175deg, #3b2a22, #22160f); border: 1px solid rgba(255, 159, 142, .45); box-shadow: var(--shadow-md); font: 14px/1.55 var(--font-body); color: #ffe3d8;
+  animation: saysIn .45s cubic-bezier(.34, 1.56, .64, 1) both; pointer-events: none; }
+.leader-say b { display: block; font: 700 11.5px var(--font-ui); letter-spacing: .08em; color: #ff9f8e; margin-bottom: 2px; }
+.leader-say.out { opacity: 0; transform: translateY(calc(-100% - 6px)); transition: opacity .5s, transform .5s; }
+@keyframes saysIn { from { opacity: 0; transform: translateY(calc(-100% + 10px)) scale(.9); } }
+.mat-enemy { position: relative; }
+.chron p.leader, .drawer .chron p.leader { color: #9a3526; font-style: italic; }
+.ban-chip { margin-left: 8px; padding: 2px 8px; border-radius: 999px; font: 600 11.5px var(--font-ui); color: #fff1ea; background: #8a2a1c; border: 1px solid #c6503c; }
+.ban-chip.hit { animation: banHit .5s ease; box-shadow: 0 0 0 3px rgba(220, 70, 50, .35); }
+@keyframes banHit { 30% { transform: scale(1.15); } }
+.cost-pill.banned { background: #8a2a1c; color: #fff; }
+.gem.ult { border-color: var(--gold-hi) !important; box-shadow: 0 0 0 1px rgba(255, 220, 140, .5); }
+.gem.ult.on { background: radial-gradient(circle at 35% 30%, #fff6d0, #f4c24a 60%, #a8741a); box-shadow: 0 0 10px rgba(255, 210, 110, .9); }
+.season-swap { margin-top: 8px; width: 100%; padding: 6px 8px; border-radius: 10px; border: 1px dashed rgba(124, 89, 27, .6); background: rgba(124, 89, 27, .1); color: var(--ink); font: 600 12px var(--font-ui); cursor: pointer; }
+.season-swap:hover { background: rgba(124, 89, 27, .2); }

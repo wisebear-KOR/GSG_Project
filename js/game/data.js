@@ -41,10 +41,10 @@ export const RULES = {
 
 export const DOCTRINES = ['peace', 'war', 'abundance', 'wisdom'];
 export const DOCTRINE = {
-  peace:     { name: '평화', perks: { 2: '선교 주사위 +1', 4: '선교 주사위 +1 (누적)' } },
-  war:       { name: '전쟁', perks: { 2: '공격 주사위 +1', 4: '공격 주사위 +1 (누적)' } },
-  abundance: { name: '풍요', perks: { 2: '식량 채집 +1', 4: '인구 증가 비용 -1' } },
-  wisdom:    { name: '지혜', perks: { 2: '기도 신앙 +1', 4: '행동 수 +1' } },
+  peace:     { name: '평화', perks: { 2: '선교 주사위 +1', 4: '선교 주사위 +1 (누적)', 6: '궁극(8장부터) — 장이 끝날 때마다 이웃 율법파에게 말씀이 스며든다' } },
+  war:       { name: '전쟁', perks: { 2: '공격 주사위 +1', 4: '공격 주사위 +1 (누적)', 6: '궁극(8장부터) — 공격에 지면 신도 대신 신앙 2가 탄다' } },
+  abundance: { name: '풍요', perks: { 2: '식량 채집 +1', 4: '인구 증가 비용 -1', 6: '궁극(8장부터) — 인구 한도 +2' } },
+  wisdom:    { name: '지혜', perks: { 2: '기도 신앙 +1', 4: '행동 수 +1', 6: '궁극(8장부터) — 매 장 다가올 계절 두 장 중 하나를 고른다' } },
 };
 export const DOCTRINE_MAX = 6;
 
@@ -86,7 +86,75 @@ export const LAW_CARDS = [
     rules: [{ type: 'gather', gather: 'food' }, { type: 'build', build: 'temple' }, { type: 'build', build: 'village' }] },
   { id: 'L9', name: '개척', text: '새 땅에 마을을 세운다',
     rules: [{ type: 'build', build: 'village' }, { type: 'build', build: 'village' }, { type: 'gather', gather: 'wood' }] },
+  // 검열: 다음 장에 플레이어가 가장 자주 쓴 말을 봉인한다 (쓰면 계시 비용 +1). 두 번째 판부터, 보통 이상
+  { id: 'L10', name: '검열', text: '신의 말 한마디를 봉인하고, 먹을 것을 모은다', ban: true,
+    rules: [{ type: 'gather', gather: 'food' }, { type: 'gather', gather: 'wood' }, { type: 'pray' }] },
 ];
+
+// 율법파 지도자: 판마다 한 명. 덱 구성만 바꾼다 (수치 보너스는 없다)
+export const ENEMY_LEADERS = {
+  elder: {
+    name: '장로 하르쿤', title: '율법의 문지기', desc: '율법을 고르게 지킨다',
+    deck: { add: [], remove: [] },
+    lines: {
+      intro: ['율법은 이미 새겨졌다. 신 따위의 말은 필요 없다.', '우리는 돌에 새긴 것만 믿는다.'],
+      card: { any: ['율법이 명하니 따른다.', '새겨진 대로 할 뿐이다.', '돌판은 굽지 않는다.'] },
+      rebuttal: {
+        war: ["'{word}'라니. 칼을 부르는 신은 칼로 망한다.", '분노하는 신이라… 율법은 흔들리지 않는다.'],
+        peace: ["'{word}'? 달콤한 말로 율법을 녹일 수는 없다.", '사랑을 말하는 자가 가장 먼저 배신한다.'],
+        abundance: ["'{word}'를 바라는구나. 배부른 자는 율법을 잊는다.", '곡식 창고가 신을 대신하지는 못한다.'],
+        wisdom: ["'{word}'라니, 율법은 그런 것을 모른다.", '안개 속을 헤매는 신이로군.'],
+        any: ["'{word}'… 율법은 그런 말을 모른다."],
+      },
+      villageLost: ['마을 하나쯤이야. 율법은 사람보다 오래 간다.', '빼앗긴 땅은 다시 새기면 된다.'],
+      capitalLow: ['탑이 흔들린다… 그래도 율법은 무너지지 않는다!', '돌판을 지켜라! 마지막 한 사람까지!'],
+    },
+  },
+  iron: {
+    name: '철의 대제사장 바락', title: '칼로 율법을 지키는 자', desc: '「성전」 카드를 한 장 더 든다 — 자주 쳐들어온다',
+    deck: { add: ['L5'], remove: [] }, notOn: ['easy'],
+    lines: {
+      intro: ['칼이 곧 율법이다. 신도들을 지켜 보아라.', '말로 싸우는 신이라, 우습구나.'],
+      card: { L5: ['쳐라. 율법을 모르는 자들을.', '칼끝이 곧 판결이다.'], any: ['칼을 갈며 기다린다.', '지금은 쉬되, 곧 친다.'] },
+      rebuttal: {
+        war: ["'{word}'? 좋다, 칼로 답해 주마.", '싸움을 원하는구나. 우리가 먼저 간다.'],
+        peace: ["'{word}'라니, 약한 자의 기도다.", '평화는 이긴 자가 정한다.'],
+        any: ["'{word}'… 칼 앞에서도 그 말을 하겠느냐."],
+      },
+      villageLost: ['피로 갚으리라.', '빼앗은 땅은 곧 무덤이 되리라.'],
+      capitalLow: ['물러서지 마라! 탑이 무너지면 율법도 끝이다!'],
+    },
+  },
+  preacher: {
+    name: '설교자 아모스', title: '율법을 가르치는 자', desc: '「교화」 카드를 한 장 더 든다 — 너의 신도를 빼앗으려 한다',
+    deck: { add: ['L7'], remove: ['L2'] },
+    lines: {
+      intro: ['너의 신도들도 결국 율법을 배우게 되리라.', '말에는 말로 답하겠다.'],
+      card: { L7: ['이웃이여, 돌판의 말을 들으라.', '신 없는 평안을 가르쳐 주마.'], any: ['율법을 외며 때를 기다린다.'] },
+      rebuttal: {
+        peace: ["'{word}'라… 그 말, 우리 율법에도 있다.", '너의 사랑은 조건이 붙어 있지.'],
+        war: ["'{word}'를 외치는 신이라니, 신도들이 두려워하겠구나."],
+        any: ["'{word}'… 그 말을 돌판에 새길 수 있겠느냐?"],
+      },
+      villageLost: ['그 마을 사람들도 언젠가 돌아오리라.'],
+      capitalLow: ['탑이 흔들려도 가르침은 남는다.'],
+    },
+  },
+  builder: {
+    name: '건축가 네훔', title: '돌판을 쌓는 자', desc: '「개척」과 「경건」을 더 들고 「성전」은 없다 — 땅과 탑을 넓힌다',
+    deck: { add: ['L9', 'L6'], remove: ['L5'] },
+    lines: {
+      intro: ['땅은 먼저 새긴 자의 것이다.', '말은 흩어지지만 돌은 남는다.'],
+      card: { L9: ['저 너머에도 돌판을 세워라.'], L6: ['탑을 한 층 더 올려라.'], any: ['돌을 나르고 또 나른다.'] },
+      rebuttal: {
+        abundance: ["'{word}'? 우리 곳간이 더 크다."],
+        any: ["'{word}'라… 그 말로 벽 하나라도 쌓겠느냐."],
+      },
+      villageLost: ['다시 지으면 된다. 더 높이.'],
+      capitalLow: ['탑의 돌 하나하나가 율법이다. 지켜라!'],
+    },
+  },
+};
 
 // 난이도: 율법파의 추가 행동과 시작 자원
 export const DIFFICULTY = {

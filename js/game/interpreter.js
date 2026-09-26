@@ -4,7 +4,7 @@
 
 import { hasLanguageModel, createBaseSession, promptJSON } from '../llm.js';
 import { DOCTRINES, DOCTRINE } from './data.js';
-import { legalActions, actionLimit, tileName, villageCount } from './engine.js';
+import { legalActions, actionLimit, tileName, villageCount, enemyIntent, josa } from './engine.js';
 
 // 실험 v5 프롬프트를 게임에 맞게 옮긴 것 (docs/EXPERIMENTS.md).
 // 플레이테스트(docs/PLAYTEST-2026-09-27.md) 반영: 행동을 먼저 정하고 해석문은 마지막에 쓴다 → 말과 행동이 일치한다.
@@ -51,10 +51,13 @@ export function buildPrompt(state, revelation) {
   const e = state.sides.enemy;
   const limit = actionLimit(state, 'player');
   const recent = state.revelations.slice(-2).map((r) => `"${r.text}"`).join(', ') || '없음';
+  const verb = { attack: '공격하려', preach: '개종시키려', build: '지으려', gather: '채집하려', pray: '기도하려' };
+  const threat = enemyIntent(state).filter((a) => a.shown && ['attack', 'preach'].includes(a.type))
+    .map((a) => `${josa(tileName(state, state.tileAt[a.tile], 'player'), '을', '를')} ${verb[a.type]} 한다`).join(', ');
   const text = `[부족 상황]
 자원: 식량 ${p.food}, 목재 ${p.wood}, 돌 ${p.stone}, 신앙 ${p.faith}
 신도: ${p.pop}명 (이번 라운드 행동 가능 ${limit}회), 신전 ${p.templeLevel}단계, 마을 ${villageCount(state, 'player')}개
-율법파: 신도 ${e.pop}명, 마을 ${villageCount(state, 'enemy')}개, 수도 내구도 ${e.capitalHp}
+율법파: 신도 ${e.pop}명, 마을 ${villageCount(state, 'enemy')}개, 수도 내구도 ${e.capitalHp}${threat ? `\n율법파의 의도: ${threat}` : ''}
 지난 계시: ${recent}
 
 [가능한 행동]
