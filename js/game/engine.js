@@ -116,6 +116,8 @@ export function createState(config = DEFAULT_CONFIG) {
     state.eventDeck = dealDeck(state, EVENTS, state.maxRounds + 2);
     state.lawDeck = dealDeck(state, lawPool(state), state.maxRounds * 2 + 2);
   }
+  // 정경: 지난 판에 봉헌한 구절이 이 부족의 교리를 한 칸 올려 둔다 (오늘의 계시·어려움에선 말씀만 전해진다)
+  if (cfg.canon && !cfg.daily && cfg.difficulty !== 'hard' && !tutorial) state.sides.player.doctrine[cfg.canon.doctrine] += 1;
   updateVision(state);
   return state;
 }
@@ -760,6 +762,7 @@ function resolveAction(state, a) {
           t.faithMarks = t.faithMarks?.side === side ? { side, n: t.faithMarks.n + 1, round: state.round } : { side, n: 1, round: state.round };
           if (t.faithMarks.n >= 2) {
             t.owner = side; t.faithMarks = null;
+            if (side === 'player') state.stats.turned = (state.stats.turned ?? 0) + 1;
             if (side === 'player') t.revealed = true;
             return logEvent(state, side, `${poss(side)} 설교가 통했다! ${place} 전체가 ${side === 'player' ? '말씀' : '율법'}에 물들어 넘어왔다.`, dice, { tile: t.id, kind: 'preach', convert: true });
           }

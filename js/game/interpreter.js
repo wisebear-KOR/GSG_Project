@@ -59,7 +59,7 @@ export function buildPrompt(state, revelation) {
 자원: 식량 ${p.food}, 목재 ${p.wood}, 돌 ${p.stone}, 신앙 ${p.faith}
 신도: ${p.pop}명 (이번 라운드 행동 가능 ${limit}회), 신전 ${p.templeLevel}단계, 마을 ${villageCount(state, 'player')}개
 율법파: 신도 ${e.pop}명, 마을 ${villageCount(state, 'enemy')}개, 수도 내구도 ${e.capitalHp}${threat ? `\n율법파의 의도: ${threat}` : ''}
-지난 계시: ${recent}${lessonLine(state)}${PRIESTS[state.priest]?.prompt ? `\n${PRIESTS[state.priest].prompt}` : ''}
+지난 계시: ${recent}${lessonLine(state)}${state.config.canon ? `\n이 부족의 경전: "${state.config.canon.text}"` : ''}${PRIESTS[state.priest]?.prompt ? `\n${PRIESTS[state.priest].prompt}` : ''}
 
 [가능한 행동]
 ${lines.join('\n')}

@@ -563,14 +563,16 @@ function blessTiles(boardEl) {
 }
 
 // ---------- 승패 ----------
-export function endScreen(won, title, sub, onAgain, { againLabel = '다시 하기', closeLabel = '보드 보기' } = {}) {
+// opts.bodyHTML: 제목 아래 본문(종료 양피지), opts.buttons: [{ label, cls, onClick }]로 기본 버튼을 바꾼다
+export function endScreen(won, title, sub, onAgain, { againLabel = '다시 하기', closeLabel = '보드 보기', bodyHTML = '', buttons = null } = {}) {
   (won ? sfx.win : sfx.lose)();
-  const o = div(`endscreen ${won ? 'win' : 'lose'}`, `
+  const o = div(`endscreen ${won ? 'win' : 'lose'}${bodyHTML ? ' rich' : ''}`, `
     ${won ? '<div class="rays"></div>' : ''}
     <div class="end-box">
       <div class="end-orn">${won ? '✦' : '✝'}</div>
       <div class="end-title"></div>
       <div class="end-sub"></div>
+      ${bodyHTML}
       <div class="end-actions"><button class="btn-primary again"></button><button class="btn-ghost close"></button></div>
     </div>`);
   o.querySelector('.end-title').textContent = title;
@@ -579,6 +581,16 @@ export function endScreen(won, title, sub, onAgain, { againLabel = '다시 하�
   o.querySelector('.close').textContent = closeLabel;
   o.querySelector('.again').onclick = () => { o.remove(); onAgain(); };
   o.querySelector('.close').onclick = () => o.remove();
+  if (buttons) {
+    const row = o.querySelector('.end-actions');
+    row.innerHTML = '';
+    for (const b of buttons) {
+      const el = document.createElement('button');
+      el.type = 'button'; el.className = b.cls ?? 'btn-ghost'; el.textContent = b.label;
+      el.onclick = () => { if (!b.keep) o.remove(); b.onClick?.(); };
+      row.append(el);
+    }
+  }
   document.body.append(o);
   o.animate([{ opacity: 0 }, { opacity: 1 }], { duration: won ? 700 : 1600, fill: 'forwards' });
   o.querySelector('.end-title').animate([{ transform: 'scale(.4)', opacity: 0, letterSpacing: '.6em' }, { transform: 'scale(1)', opacity: 1, letterSpacing: '.12em' }],

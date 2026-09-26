@@ -9,24 +9,25 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Song+Myung&family=Hahmlet:wght@400;500;600;700;800&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="style.css?v=202609270344">
+<link rel="stylesheet" href="style.css?v=202609270349">
 <!-- 배포 후 브라우저가 옛 모듈을 쓰지 않도록 버전을 붙인다 (올릴 때 v를 바꾼다) -->
 <script type="importmap">
 {
   "imports": {
-    "../js/game/art.js": "../js/game/art.js?v=202609270344",
-    "../js/game/board.js": "../js/game/board.js?v=202609270344",
-    "../js/game/data.js": "../js/game/data.js?v=202609270344",
-    "../js/game/engine.js": "../js/game/engine.js?v=202609270344",
-    "../js/game/fx.js": "../js/game/fx.js?v=202609270344",
-    "../js/game/interpreter.js": "../js/game/interpreter.js?v=202609270344",
-    "../js/game/lore.js": "../js/game/lore.js?v=202609270344",
-    "../js/game/main.js": "../js/game/main.js?v=202609270344",
-    "../js/game/mapgen.js": "../js/game/mapgen.js?v=202609270344",
-    "../js/game/meta.js": "../js/game/meta.js?v=202609270344",
-    "../js/game/sound.js": "../js/game/sound.js?v=202609270344",
-    "../js/game/tutorial.js": "../js/game/tutorial.js?v=202609270344",
-    "../js/llm.js": "../js/llm.js?v=202609270344"
+    "../js/game/art.js": "../js/game/art.js?v=202609270349",
+    "../js/game/board.js": "../js/game/board.js?v=202609270349",
+    "../js/game/chronicle.js": "../js/game/chronicle.js?v=202609270349",
+    "../js/game/data.js": "../js/game/data.js?v=202609270349",
+    "../js/game/engine.js": "../js/game/engine.js?v=202609270349",
+    "../js/game/fx.js": "../js/game/fx.js?v=202609270349",
+    "../js/game/interpreter.js": "../js/game/interpreter.js?v=202609270349",
+    "../js/game/lore.js": "../js/game/lore.js?v=202609270349",
+    "../js/game/main.js": "../js/game/main.js?v=202609270349",
+    "../js/game/mapgen.js": "../js/game/mapgen.js?v=202609270349",
+    "../js/game/meta.js": "../js/game/meta.js?v=202609270349",
+    "../js/game/sound.js": "../js/game/sound.js?v=202609270349",
+    "../js/game/tutorial.js": "../js/game/tutorial.js?v=202609270349",
+    "../js/llm.js": "../js/llm.js?v=202609270349"
   }
 }
 </script>
@@ -125,12 +126,15 @@
     <div class="ms-buttons">
       <button class="btn-primary ms-start" id="startGame" type="button">새 게임 시작 <kbd>Enter</kbd></button>
       <button class="btn-ghost ms-tutorial" id="startTutorial" type="button">튜토리얼 <small>3×3 · 5장</small></button>
+      <button class="btn-ghost ms-daily" id="startDaily" type="button" hidden>오늘의 계시 <small id="dailyHint"></small></button>
     </div>
     <div class="ms-status" id="msStatus"><span class="dot off"></span><span>대사제를 깨우는 중…</span></div>
     <div class="ms-links">
       <button class="chip" id="msMusic" type="button"></button>
       <button class="chip" id="msSound" type="button"></button>
       <button class="chip" id="msMotion" type="button"></button>
+      <button class="chip" id="msLibrary" type="button" hidden>서고</button>
+      <button class="chip" id="msBible" type="button" hidden>성서</button>
       <a class="chip" href="../check.html">내장 AI 점검</a>
       <a class="chip" href="../lab/interpret.html">해석기 실험실</a>
       <a class="chip" href="https://github.com/wisebear-KOR/GSG_Project">GitHub</a>
@@ -139,6 +143,6 @@
   </div>
 </section>
 
-<script type="module" src="../js/game/main.js?v=202609270344"></script>
+<script type="module" src="../js/game/main.js?v=202609270349"></script>
 </body>
 </html>

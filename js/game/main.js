@@ -13,6 +13,9 @@ import { installArt } from './art.js';
 import { Tutorial } from './tutorial.js';
 import * as meta from './meta.js';
 import { leaderLine, nouns, detectTone, parseNaming, parseProphecy } from './lore.js';
+import {
+  summarizeGame, epilogue, topRevelations, decisiveScene, diceLuck, evaluateAchievements, closestAchievement, ACHIEVEMENTS, difficultyName, doctrineName,
+} from './chronicle.js';
 import { llmStatus, prepareLLM, interpretWithLLM, interpretWithTablet, linkWords, extractLesson, describeLesson } from './interpreter.js';
 import * as fx from './fx.js';
 import { sfx, soundOn, setSound, musicOn, setMusic, music, unlockAudio } from './sound.js';
@@ -117,6 +120,7 @@ function showMain() {
   }
   renderMainStatus();
   renderSetup();
+  renderMetaLinks();
   ($('resumeGame') ?? $('startGame')).focus({ preventScroll: true });
 }
 
@@ -139,6 +143,9 @@ function bindSetup() {
   };
   $('reseed').onclick = () => { setup.seed = randomSeed(); saveSetup(); sfx.dice(); renderSetup(); };
   $('startTutorial').onclick = () => startFromMain('tutorial');
+  $('startDaily').onclick = () => startFromMain('daily');
+  $('msLibrary').onclick = () => { sfx.page(); showLibrary(); };
+  $('msBible').onclick = () => { sfx.page(); showBible(); };
 }
 
 function renderSetup() {
@@ -184,7 +191,10 @@ function startFromMain(mode = 'new') {
       if (loadedPhase) resumeLoaded(); else tutorial?.on('speak', state.round);
       return;
     }
-    beginGame(mode === 'tutorial' ? { mode: 'tutorial' } : { ...setup, mode: 'standard', veteran: meta.getHistory().length > 0 });
+    const veteran = meta.getHistory().length > 0;
+    if (mode === 'tutorial') beginGame({ mode: 'tutorial' });
+    else if (mode === 'daily') beginGame({ ...meta.dailyConfig(), veteran: true });
+    else beginGame({ ...setup, mode: 'standard', veteran, canon: veteran ? meta.getCanon()[0] ?? null : null });
   }, fx.motion.reduced ? 150 : 850);
 }
 
@@ -217,6 +227,7 @@ function beginGame(config) {
 }
 
 function renderSubtitle() {
+  if (state.config.daily) { $('subtitle').textContent = `오늘의 계시 · ${state.config.daily}${state.leader ? ` · ${ENEMY_LEADERS[state.leader].name}` : ''}`; return; }
   $('subtitle').textContent = state.tutorial ? '튜토리얼 · 첫 계시'
     : `${state.rows}×${state.cols} · 율법파 ${DIFFICULTY[state.config.difficulty].name} · 시드 ${state.config.seed}${state.leader ? ` · ${ENEMY_LEADERS[state.leader].name}` : ''}`;
 }
@@ -230,6 +241,7 @@ function suggestRevelation(text) {
 }
 
 function endTutorial({ skipped }) {
+  if (!skipped) meta.unlockAchievements(['tutorial']);
   const title = skipped ? '튜토리얼을 마쳤다' : '튜토리얼 완료';
   const sub = skipped ? '언제든 메인 화면에서 다시 볼 수 있다.' : state.winReason;
   fx.endScreen(true, title, sub, () => showMain(), { againLabel: '본 게임으로', closeLabel: '보드 보기' });
@@ -489,6 +501,161 @@ function wordsAfter(pd) {
 const hasBatchim = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c <= 11171 && c % 28 !== 0; };
 const TERRAIN_NAME = (id) => TERRAIN[state.tileAt[id].terrain]?.name ?? '땅';
 
+// ---------- 판의 끝: 서고에 남기고, 성서를 채우고, 종료 양피지를 편다 ----------
+function finishGame() {
+  meta.clearSave();
+  const h = state.history;
+  const summary = summarizeGame(state, {
+    comeback: state.winner === 'player' && h.some((x) => x.es - x.ps >= 6),
+    capitalFull: state.sides.player.capitalHp === CAPITAL_HP,
+  });
+  const had = meta.getAchievements();
+  meta.pushHistory(summary);
+  const fresh = meta.unlockAchievements(evaluateAchievements(summary));
+  if (state.config.daily) meta.recordDaily(state.config.daily, { winner: state.winner, score: summary.score, rounds: state.round });
+  checkOnboard(true);
+  showEnd(summary, fresh, had);
+}
+
+function showEnd(summary, fresh, had) {
+  const won = state.winner === 'player';
+  const title = state.winner === 'draw' ? '무승부' : won ? '승리' : '패배';
+  const sub = `${state.winReason.replace(/ — 승점.*/, '')} · 승점 ${summary.score[0]} : ${summary.score[1]}`;
+  const ep = epilogue(state);
+  const scene = decisiveScene(state);
+  const luck = diceLuck(state);
+  const top = topRevelations(state);
+  const near = closestAchievement(summary, { ...had, ...Object.fromEntries(fresh.map((id) => [id, 1])) });
+  const achName = (id) => ACHIEVEMENTS.find((a) => a.id === id)?.name ?? id;
+  const graph = scoreGraph(state.history);
+  const canCanon = state.config.veteran && !state.tutorial;
+  const canon = meta.getCanon();
+  const body = `
+    <div class="end-tabs" role="tablist"><button class="on" data-tab="story">역사가</button><button data-tab="record">기록</button><button data-tab="book">경전</button></div>
+    <div class="end-page" data-page="story">
+      <div class="ep-title">${esc(ep.title)}</div>
+      <p class="ep-body">${esc(ep.body)}</p>
+      ${ep.quote ? `<p class="ep-quote">${esc(ep.quote)}</p>` : ''}
+      <div class="ep-epithet">이 신은 「${esc(ep.epithet)}」${hasBatchim(ep.epithet) ? '으로' : '로'} 기억되었다.</div>
+      ${fresh.length ? `<div class="ep-ach">새 구절이 성서에 기록되었다 — ${fresh.map((id) => `「${esc(achName(id))}」`).join(' ')}</div>` : ''}
+    </div>
+    <div class="end-page" data-page="record" hidden>
+      ${graph}
+      ${scene ? `<p class="rec-line"><b>결정적 장면</b> 제 ${scene.round} 장${scene.revelation ? ` — “${esc(scene.revelation)}”` : ''} → ${esc(scene.text)}</p>` : ''}
+      ${top.length ? `<div class="rec-top"><b>가장 강한 말씀</b>${top.map((t) => `<span>제 ${t.round} 장 “${esc(t.text)}” <i>${t.gain >= 0 ? '+' : ''}${t.gain}</i></span>`).join('')}</div>` : ''}
+      <p class="rec-line"><b>주사위 운</b> ${luck.n ? `${luck.n}번 굴려 기대보다 ${luck.luck >= 0 ? '+' : ''}${luck.luck.toFixed(1)}승` : '굴린 적 없음'}</p>
+      ${near ? `<p class="rec-line"><b>다음 구절까지</b> 「${esc(near.a.name)}」 — ${esc(near.a.desc)} (${Math.round(near.p * 100)}%)</p>` : ''}
+    </div>
+    <div class="end-page" data-page="book" hidden>
+      ${canCanon ? '<p class="book-help">한 구절을 정경으로 봉헌하면 다음 판에 그 교리가 한 칸 올라 시작한다.</p>' : '<p class="book-help">두 번째 판부터는 이 경전의 한 구절을 정경으로 봉헌할 수 있다.</p>'}
+      <ol class="book">${state.revelations.map((r) => `<li><span class="bk-r">제 ${r.round} 장</span><span class="bk-t">“${esc(r.text)}”</span><span class="bk-d">${esc(doctrineName(r.doctrine))}</span>
+        ${canCanon ? `<button class="text-btn canon" data-text="${esc(r.text)}" data-doc="${r.doctrine ?? 'wisdom'}" type="button">${canon.some((c) => c.text === r.text) ? '봉헌됨' : '봉헌'}</button>` : ''}</li>`).join('') || '<li>이 판에는 계시가 없었다.</li>'}</ol>
+    </div>`;
+  const o = fx.endScreen(won, title, sub, restart, {
+    bodyHTML: body,
+    buttons: [
+      { label: '같은 맵 다시', cls: 'btn-primary', onClick: restart },
+      { label: '새 맵', onClick: () => { setup.seed = randomSeed(); saveSetup(); beginGame({ ...setup, mode: 'standard', veteran: true, canon: meta.getCanon()[0] ?? null }); } },
+      { label: '메인 화면', onClick: () => showMain() },
+      { label: '보드 보기' },
+    ],
+  });
+  const host = document.querySelector('.endscreen.rich');
+  host?.querySelectorAll('.end-tabs button').forEach((b) => {
+    b.onclick = () => {
+      sfx.page();
+      host.querySelectorAll('.end-tabs button').forEach((x) => x.classList.toggle('on', x === b));
+      host.querySelectorAll('.end-page').forEach((p) => { p.hidden = p.dataset.page !== b.dataset.tab; });
+    };
+  });
+  host?.querySelectorAll('.canon').forEach((b) => {
+    b.onclick = () => { meta.addCanon({ text: b.dataset.text, doctrine: b.dataset.doc }); sfx.seal(); host.querySelectorAll('.canon').forEach((x) => { x.textContent = meta.getCanon().some((c) => c.text === x.dataset.text) ? '봉헌됨' : '봉헌'; }); };
+  });
+  return o;
+}
+
+// 장별 승점 곡선 (SVG)
+function scoreGraph(h) {
+  if (h.length < 2) return '';
+  const W = 520; const H = 150; const P = 26;
+  const max = Math.max(...h.flatMap((x) => [x.ps, x.es]), 10);
+  const x = (i) => P + (i * (W - P * 2)) / (h.length - 1);
+  const y = (v) => H - P - (v / max) * (H - P * 2);
+  const line = (k) => h.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p[k]).toFixed(1)}`).join('');
+  const marks = h.map((p, i) => (p.verdict === 'full' ? `<circle cx="${x(i)}" cy="${y(p.ps)}" r="4" class="g-full"/>` : '')).join('');
+  return `<svg class="score-graph" viewBox="0 0 ${W} ${H}"><path d="M${P},${H - P}H${W - P}" class="g-axis"/>
+    <path d="${line('es')}" class="g-enemy"/><path d="${line('ps')}" class="g-player"/>${marks}
+    <text x="${W - P}" y="${y(h.at(-1).ps) - 8}" class="g-lbl p">우리 ${h.at(-1).ps}</text><text x="${W - P}" y="${y(h.at(-1).es) + 16}" class="g-lbl e">율법파 ${h.at(-1).es}</text></svg>`;
+}
+
+// ---------- 메인 화면: 서고·성서·오늘의 계시 ----------
+function renderMetaLinks() {
+  const n = meta.getHistory().length;
+  $('msLibrary').hidden = n === 0;
+  $('msBible').hidden = n === 0 && !Object.keys(meta.getAchievements()).length;
+  $('startDaily').hidden = n === 0;
+  const today = meta.dayKey();
+  const done = meta.getDaily()[today];
+  $('dailyHint').textContent = done ? `오늘 ${done.winner === 'player' ? '승리' : '패배'} · 이번 달 ${meta.dailyDaysThisMonth()}일` : `${Number(today.slice(5, 7))}월 ${Number(today.slice(8))}일 · 이번 달 ${meta.dailyDaysThisMonth()}일`;
+  $('msLibrary').textContent = `서고 · ${n}판`;
+  $('msBible').textContent = `성서 · ${Object.keys(meta.getAchievements()).length}/${ACHIEVEMENTS.length}`;
+}
+
+function listModal(title, html) {
+  const o = document.createElement('div');
+  o.className = 'choice-modal list-modal';
+  o.innerHTML = `<div class="list-box"><div class="list-head"><h3>${esc(title)}</h3><button class="btn-ghost list-close" type="button">닫기</button></div><div class="list-body">${html}</div></div>`;
+  document.body.append(o);
+  const close = () => { o.classList.add('out'); setTimeout(() => o.remove(), 300); };
+  o.querySelector('.list-close').onclick = close;
+  o.onclick = (e) => { if (e.target === o) close(); };
+  return o;
+}
+
+function showLibrary() {
+  const hist = meta.getHistory();
+  const wins = hist.filter((g) => g.winner === 'player').length;
+  const kinds = {};
+  for (const g of hist) if (g.winner === 'player') kinds[g.kind] = (kinds[g.kind] ?? 0) + 1;
+  const kindName = { conquest: '점령', faith: '개종', cathedral: '대성당', score: '승점' };
+  const stats = `<div class="lib-stats"><span><b>${hist.length}</b>판</span><span><b>${wins}</b>승</span><span>승률 <b>${hist.length ? Math.round((wins / hist.length) * 100) : 0}%</b></span>
+    ${Object.entries(kinds).map(([k, v]) => `<span>${kindName[k] ?? k} <b>${v}</b></span>`).join('')}</div>`;
+  const rows = hist.map((g, i) => `<details class="lib-row"><summary><span class="lr-date">${esc(g.date.slice(5, 10).replace('-', '/'))}</span>
+      <span class="lr-res ${g.winner === 'player' ? 'win' : 'lose'}">${g.winner === 'player' ? '승리' : g.winner === 'draw' ? '무승부' : '패배'}</span>
+      <span class="lr-meta">${g.size}×${g.size} · ${esc(difficultyName(g.difficulty))}${g.daily ? ' · 오늘의 계시' : ''} · ${g.rounds}장 · ${g.score[0]}:${g.score[1]}</span>
+      <span class="lr-ep">「${esc(g.epithet)}」</span></summary>
+      <ol class="book">${g.revelations.map((r) => `<li><span class="bk-r">제 ${r.round} 장</span><span class="bk-t">“${esc(r.text)}”</span></li>`).join('') || '<li>계시 없음</li>'}</ol>
+      <div class="lr-foot">시드 ${g.seed}${g.leader ? ` · ${esc(g.leader)}` : ''} · ${esc(g.reason)}</div></details>`).join('');
+  listModal('서고 — 지난 판들', stats + (rows || '<p>아직 기록이 없다.</p>'));
+}
+
+function showBible() {
+  const have = meta.getAchievements();
+  const html = `<div class="bible">${ACHIEVEMENTS.map((a) => `<div class="verse ${have[a.id] ? 'got' : ''}"><b>${esc(a.name)}</b><span>${esc(a.desc)}</span>${have[a.id] ? `<i>${esc(have[a.id])}</i>` : ''}</div>`).join('')}</div>`;
+  listModal(`성서 — ${Object.keys(have).length} / ${ACHIEVEMENTS.length} 구절`, html);
+}
+
+// ---------- 사관 세라의 과제 (튜토리얼 뒤 첫 판들) ----------
+const TASKS = [
+  { text: '마을 하나를 세우소서', done: () => villageCount(state, 'player') >= 1 },
+  { text: '기적을 한 번 내리소서', done: () => state.stats.miracles >= 1 },
+  { text: '교리 하나를 두 칸까지 쌓으소서', done: () => DOCTRINES.some((k) => state.sides.player.doctrine[k] >= 2) },
+  { text: '한 판을 이기소서', done: (end) => end && state.winner === 'player' },
+];
+const CHEER = ['잘하셨습니다. 땅이 넓어지면 신도도 늘지요. 다음은 기적입니다.', '하늘이 움직였군요! 이제 한 가지 뜻을 꾸준히 말해 교리를 쌓아 보시지요.', '교리가 문명이 되어 갑니다. 이제 이기실 차례입니다.', '훌륭하십니다. 이제 저는 기록만 하겠습니다. 신의 뜻대로 하소서.'];
+function currentTask() {
+  if (state.tutorial) return null;
+  const ob = meta.getOnboard();
+  return ob.off || ob.step >= TASKS.length ? null : { ...TASKS[ob.step], step: ob.step };
+}
+function checkOnboard(end = false) {
+  const t = currentTask();
+  if (!t || !t.done(end)) return;
+  meta.setOnboard({ ...meta.getOnboard(), step: t.step + 1 });
+  if (!end) matSay('matPlayer', '사관 세라', CHEER[t.step], 'priest');
+  renderMats();
+}
+
 // ---------- 선택 카드 (기적 드래프트, 발견지) ----------
 function choiceModal({ kind, title, text, options }) {
   return new Promise((resolve) => {
@@ -623,12 +790,9 @@ async function playback(before) {
   }
   if (phase === 'over') {
     music.setMood('end');
-    const won = state.winner === 'player';
-    const title = state.winner === 'draw' ? '무승부' : won ? '승리' : '패배';
     await fx.wait(700);
-    const sub = state.winReason.includes('승점') ? state.winReason : `${state.winReason} · 승점 ${score(state, 'player')} : ${score(state, 'enemy')}`;
-    fx.endScreen(won, title, sub, restart);
-  }
+    finishGame();
+  } else checkOnboard();
 }
 
 // ---------- 장 결산: 이번 장에 무엇이 늘고 줄었나 ----------
@@ -817,6 +981,7 @@ async function useMiracle(id) {
     meta.saveGame(state, 'speak');
     await playFx(state.log[state.log.length - 1]);
     renderMats();
+    checkOnboard();
   }
 }
 
@@ -827,7 +992,7 @@ async function onTileClick(id) {
   targeting = null;
   render();
   if (r.ok) { meta.saveGame(state, 'speak'); await playFx(state.log[state.log.length - 1]); }
-  if (state.winner) { phase = 'over'; render(); fx.endScreen(true, '승리', state.winReason, restart); }
+  if (state.winner) { phase = 'over'; render(); finishGame(); }
 }
 
 // ---------- 렌더링 ----------
@@ -940,6 +1105,8 @@ function renderMats() {
   const cur = matView ?? V();
   $('matPlayer').innerHTML = matHTML(cur, 'player');
   $('matEnemy').innerHTML = matHTML(cur, 'enemy');
+  const x = $('matPlayer').querySelector('.task-x');
+  if (x) x.onclick = () => { meta.setOnboard({ ...meta.getOnboard(), off: true }); sfx.click(); renderMats(); };
   renderLaw(cur);
   document.querySelectorAll('.mat .n[data-from]').forEach((el) => fx.countUp(el, Number(el.dataset.from), Number(el.dataset.to)));
 }
@@ -1030,6 +1197,7 @@ function matHTML(cur, side) {
       <div><h2>${mine ? '우리 부족' : '율법파'}</h2><small${!mine && state.leader ? ` title="${esc(ENEMY_LEADERS[state.leader].desc)}"` : ''}>${mine ? '말씀을 따르는 자들' : state.leader ? `${esc(ENEMY_LEADERS[state.leader].name)} · ${esc(ENEMY_LEADERS[state.leader].title)}` : '새겨진 율법대로 움직인다'}</small></div>
       <div class="score">${num(`${side}.score`, score(cur, side))}<small><br>승점</small></div>
     </div>
+    ${mine && currentTask() ? `<div class="task-ribbon"><span>세라의 과제</span>${esc(currentTask().text)}<button class="task-x" type="button" title="과제 끄기">✕</button></div>` : ''}
     <div class="res-grid${mine ? '' : ' compact'}">${res}</div>${warnLine}
     <div class="section-label"><span>신도</span><span>${s.pop} / ${cap}</span></div>
     <div class="meeples">${meeples}</div>
@@ -1280,7 +1448,7 @@ function renderChron() {
 if (new URLSearchParams(location.search).has('debug')) {
   import('./sound.js').then((snd) => { window.__gsg.levels = snd.levels; window.__gsg.music = snd.music; });
   import('./engine.js').then((eng) => { window.__gsg.engine = eng; });
-  window.__gsg = { get state() { return state; }, render: () => render(), showMiracleDraft: () => showMiracleDraft(), showSiteChoice: () => showSiteChoice() };
+  window.__gsg = { get state() { return state; }, render: () => render(), showMiracleDraft: () => showMiracleDraft(), showSiteChoice: () => showSiteChoice(), finishGame: () => finishGame() };
 }
 
 init();
