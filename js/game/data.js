@@ -18,7 +18,7 @@ export const COST = {
   village: { wood: 2, food: 1 },
   wall: { stone: 2 },
   temple: (level) => ({ stone: level * 2, wood: level + 1 }),
-  cathedral: { stone: 11, wood: 11, faith: 11 },
+  cathedral: { stone: 11, wood: 11, faith: 13 },
 };
 
 export const MAX_TEMPLE = 3;
@@ -37,7 +37,41 @@ export const RULES = {
   heresyGrace: 1,            // 신앙 0으로 버틸 수 있는 장 수 (그다음 장부터 이탈)
   superiority: 3,            // 신도가 이만큼 많으면 선교·공격 주사위 +1
   lowFaith: 2,               // 이하이면 경고하고 자동 노동이 기도를 우선한다
+  gracePerRound: 1,          // 청원·말투·이름 붙이기로 받는 신앙(은총)은 장당 이만큼까지
+  graceDoctrineBelow: 3,     // 비유·첫 이름의 교리 보너스는 그 교리가 이 값보다 낮을 때만
+  maxNames: 3,               // 판당 붙일 수 있는 이름
 };
+
+// 말투: 계시의 문체가 효과가 된다 (정규식 판정 — 석판·LLM 공통)
+export const TONES = {
+  command:  { name: '명령', text: '' },
+  blessing: { name: '축복', text: '첫 채집 +1' },
+  curse:    { name: '저주', text: '이번 장 공격 +1, 신앙 -1' },
+  metaphor: { name: '비유', text: '교리가 한 칸 더 오른다 (3칸 미만일 때)' },
+};
+
+// 예언: 확인 화면에서 봉인하면 기한 안에 이루어졌는지 본다. 짧을수록 보상이 크다
+export const PROPHECY = {
+  reward: { 1: 4, 2: 3, 3: 2 }, penalty: 2,
+  kinds: {
+    fall:    { name: '율법파의 마을이 무너지리라', short: '적 마을 함락' },
+    capital: { name: '율법파의 탑이 흔들리리라', short: '적 수도 타격' },
+    pop:     { name: '신도가 불어나리라', short: '신도 +2' },
+    convert: { name: '이웃이 말씀으로 돌아오리라', short: '개종 1명' },
+  },
+};
+
+// 대사제: 첫 판은 충직한 사제, 그 뒤로는 판마다 다른 성향 (수치 효과 없음, 해석 말투와 기울기만)
+export const PRIESTS = {
+  loyal:    { name: '충직한 사제 엘리', trait: '말씀을 곧이곧대로 받든다', prompt: '' },
+  literal:  { name: '문자주의자 오르', trait: '말한 그대로만 한다', prompt: '대사제의 성향: 비유를 싫어하고 계시에 나온 낱말 그대로의 행동을 고른다.' },
+  dreamer:  { name: '몽상가 이펜', trait: '말씀의 숨은 뜻을 찾는다', prompt: '대사제의 성향: 계시를 비유로 읽기를 좋아하고, 숨은 뜻에 맞는 행동을 고른다.' },
+  zealot:   { name: '열혈 사제 테사', trait: '싸움과 선교에 앞장선다', prompt: '대사제의 성향: 뜻이 모호하면 율법파와 맞서는 행동(공격, 선교)을 먼저 떠올린다.' },
+  cautious: { name: '신중한 사제 무트', trait: '부족을 먼저 지킨다', prompt: '대사제의 성향: 뜻이 모호하면 부족을 지키고 먹이는 행동(채집, 성벽, 기도)을 먼저 떠올린다.' },
+};
+
+// 청원자 이름 (직업 + 이름)
+export const PETITIONERS = ['농부 엘리', '어부 도랑', '목수 하닌', '석공 브엘', '과부 나오미', '양치기 아벨', '대장장이 무트', '산파 시브라', '늙은 사관 갈렙', '소년 사무', '방직공 레아', '파수꾼 요압'];
 
 export const DOCTRINES = ['peace', 'war', 'abundance', 'wisdom'];
 export const DOCTRINE = {

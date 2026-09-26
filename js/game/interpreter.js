@@ -3,7 +3,8 @@
 // orders/forbidden은 엔진의 행동 객체 목록이다.
 
 import { hasLanguageModel, createBaseSession, promptJSON } from '../llm.js';
-import { DOCTRINES, DOCTRINE } from './data.js';
+import { DOCTRINES, DOCTRINE, PRIESTS, TERRAIN } from './data.js';
+import { nouns } from './lore.js';
 import { legalActions, actionLimit, tileName, villageCount, enemyIntent, josa } from './engine.js';
 
 // 실험 v5 프롬프트를 게임에 맞게 옮긴 것 (docs/EXPERIMENTS.md).
@@ -58,7 +59,7 @@ export function buildPrompt(state, revelation) {
 자원: 식량 ${p.food}, 목재 ${p.wood}, 돌 ${p.stone}, 신앙 ${p.faith}
 신도: ${p.pop}명 (이번 라운드 행동 가능 ${limit}회), 신전 ${p.templeLevel}단계, 마을 ${villageCount(state, 'player')}개
 율법파: 신도 ${e.pop}명, 마을 ${villageCount(state, 'enemy')}개, 수도 내구도 ${e.capitalHp}${threat ? `\n율법파의 의도: ${threat}` : ''}
-지난 계시: ${recent}
+지난 계시: ${recent}${lessonLine(state)}${PRIESTS[state.priest]?.prompt ? `\n${PRIESTS[state.priest].prompt}` : ''}
 
 [가능한 행동]
 ${lines.join('\n')}
@@ -84,6 +85,14 @@ ${state.event.text}
   };
   return { text, schema, actions: ids };
 }
+
+const TYPE_KO = { gather: '채집', pray: '기도', build: '건설', preach: '선교', attack: '공격', explore: '탐험' };
+const lessonName = (l) => (l.gather ? `${TYPE_KO.gather}(${{ food: '식량', wood: '목재', stone: '돌', faith: '신앙' }[l.gather]})` : l.build ? { village: '마을 건설', wall: '성벽', temple: '신전', cathedral: '대성당' }[l.build] : TYPE_KO[l.type]);
+function lessonLine(state) {
+  if (!state.lessons?.length) return '';
+  return `\n대사제가 깨달은 신의 말버릇: ${state.lessons.map((l) => `'${l.word}'=${lessonName(l)}`).join(', ')}`;
+}
+export const describeLesson = lessonName;
 
 // 해석문 다듬기 (플레이테스트에서 34건 중 10건이 어색한 "도다"로 끝났다)
 // - 다른 문자(벵골 문자, 한자 등) 제거
@@ -183,9 +192,14 @@ export function interpretWithTablet(state, revelation) {
   const forbidden = [];
   let doctrine = null;
   // 절 단위로 나눠서 부정어가 있는 절의 행동은 금지로 본다
+  const learned = (state.lessons ?? []).map((l) => ({
+    re: new RegExp(l.word), doctrine: null,
+    match: (a) => a.type === l.type && (!l.gather || a.gather === l.gather) && (!l.build || a.build === l.build),
+  }));
+  const named = Object.entries(state.names ?? {}).map(([id, name]) => ({ re: new RegExp(name), doctrine: null, match: (a) => a.tile === id }));
   for (const clause of revelation.split(/[.,!?。]|그리고|하되|그러나/)) {
     const negative = NEGATION.test(clause);
-    for (const rule of TABLET_RULES) {
+    for (const rule of [...named, ...learned, ...TABLET_RULES]) {
       if (!rule.re.test(clause)) continue;
       const matches = legal.filter((a) => rule.match(a, state.tileAt[a.tile]));
       if (negative) forbidden.push(...matches);
@@ -208,4 +222,40 @@ export function interpretWithTablet(state, revelation) {
     doctrine: doctrine ?? (forbidden.length ? 'peace' : 'wisdom'),
     source: 'tablet',
   };
+}
+
+// ---------- 말과 행동 잇기 ----------
+// 행동마다 계시 속 어떤 낱말이 그 행동을 불렀는지 찾는다: 이름 → 신학 노트 → 석판 규칙 → 지형 이름
+export function linkWords(state, revelation, orders) {
+  const out = {};
+  if (!revelation) return out;
+  for (const a of orders) {
+    const t = state.tileAt[a.tile];
+    let word = null;
+    const name = state.names?.[a.tile];
+    if (name && revelation.includes(name)) word = name;
+    for (const l of state.lessons ?? []) if (!word && revelation.includes(l.word) && a.type === l.type && (!l.gather || a.gather === l.gather)) word = l.word;
+    for (const rule of TABLET_RULES) {
+      if (word) break;
+      const m = revelation.match(rule.re);
+      if (m && rule.match(a, t)) word = m[0];
+    }
+    const terr = TERRAIN[t?.terrain]?.name;
+    if (!word && terr && revelation.includes(terr)) word = terr;
+    if (word) out[a.key] = word;
+  }
+  return out;
+}
+
+// 신학 노트: 석판 규칙에 없는 낱말이 명령한 행동을 불렀다면 그 말버릇을 배운다
+const LESSON_STOP = new Set(['신도', '말씀', '백성', '부족', '율법파', '율법', '계절', '이번', '신이', '신께서', '나의', '모든']);
+const BASIC = new RegExp(TABLET_RULES.map((r) => r.re.source).join('|'));
+export function extractLesson(state, revelation, orders) {
+  if (!revelation || !orders.length) return null;
+  const words = nouns(revelation).filter((w) => !BASIC.test(w) && !LESSON_STOP.has(w) && !Object.values(state.names ?? {}).includes(w));
+  if (!words.length) return null;
+  const a = orders[0];
+  const known = (state.lessons ?? []).find((l) => l.word === words[0]);
+  if (known) return null;
+  return { word: words[0], type: a.type, gather: a.gather ?? null, build: a.build ?? null };
 }

@@ -742,3 +742,28 @@ export function attachTilt(el, max = 12) {
   });
   el.addEventListener('pointerenter', () => sfx.hover());
 }
+
+// ---------- 말씀이 가리킨 곳: 계시 속 낱말에서 칸까지 빛줄기 ----------
+export function linkCurve(from, to, delay = 0) {
+  if (motion.reduced) return;
+  let host = document.querySelector('svg.link-layer');
+  if (!host) {
+    host = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    host.setAttribute('class', 'link-layer');
+    document.body.append(host);
+  }
+  host.setAttribute('viewBox', `0 0 ${innerWidth} ${innerHeight}`);
+  const mx = (from.x + to.x) / 2;
+  const my = Math.min(from.y, to.y) - Math.abs(from.x - to.x) * 0.25 - 60;
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', `M${from.x},${from.y} Q${mx},${my} ${to.x},${to.y}`);
+  path.setAttribute('class', 'link-path');
+  path.style.animationDelay = `${delay}ms`;
+  host.append(path);
+  const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  dot.setAttribute('cx', to.x); dot.setAttribute('cy', to.y); dot.setAttribute('r', 9);
+  dot.setAttribute('class', 'link-dot');
+  dot.style.animationDelay = `${delay + 520}ms`;
+  host.append(dot);
+  later(() => { path.remove(); dot.remove(); }, 2800 + delay);
+}

@@ -92,6 +92,7 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
       g.append(use(`s-${t.terrain}`, c.x, c.y - 2, 60, { class: 'glyph' }));
     }
     g.append(el('text', { x: c.x, y: c.y + R * 0.74, class: 'coord' }, t.id));
+    if (state.names?.[t.id] && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name' }, state.names[t.id]));
     if (t.faithMarks && !hidden) {
       // 믿음의 표식: 테두리의 절반(1/2)만큼 상대 색으로 물든다
       g.append(el('polygon', { points: hexPoints(c, R - 5), class: `faith-mark fm-${t.faithMarks.side}`, pathLength: 12, 'stroke-dasharray': `${6 * t.faithMarks.n} 12` }));

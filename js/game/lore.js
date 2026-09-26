@@ -33,6 +33,37 @@ export function frequentNoun(revelations) {
   return best?.[0] ?? null;
 }
 
+// 말투: 저주 > 축복 > 비유 > 명령
+export function detectTone(text) {
+  if (/저주|멸하|망하리|벌하리|재앙/.test(text)) return 'curse';
+  if (/축복|복을|복되|복이|번성하라|은혜/.test(text)) return 'blessing';
+  if (/처럼|같이|듯|마냥/.test(text)) return 'metaphor';
+  return 'command';
+}
+
+// 이름 붙이기: "이 강을 요단이라 부르라", "저 숲을 검은 숲이라 하라"
+const NAMEABLE = { 강: 'river', 강물: 'river', 숲: 'forest', 산: 'mountain', 평원: 'plain', 들판: 'plain', 들: 'plain', 언덕: 'hill', 사막: 'desert', 마을: 'village', 신전: 'capital' };
+export function parseNaming(text) {
+  const m = text.match(/(강물|강|숲|산|평원|들판|들|언덕|사막|마을|신전)(?:을|를)\s*['"“‘]?([가-힣]{1,6}(?:\s[가-힣]{1,4})?)['"”’]?\s*(?:이)?라\s*(?:부르|칭하|하라|이름)/);
+  if (!m) return null;
+  const name = m[2].replace(/(이)$/, '').trim();
+  if (name.length < 1 || name.length > 8) return null;
+  return { kind: NAMEABLE[m[1]], name };
+}
+
+// 예언: "~하리라"만으로는 걸지 않는다. 유형이 잡히는 문장만 확인 화면에서 봉인할 수 있다
+export function parseProphecy(text) {
+  let kind = null;
+  if (/(탑|수도|성채).*(무너|흔들|부서|쓰러)/.test(text)) kind = 'capital';
+  else if (/(마을|땅|성벽).*(무너|함락|빼앗|불타|부서)|(무너|함락).*(마을|땅)/.test(text)) kind = 'fall';
+  else if (/(개종|돌아오|돌아서|품으|말씀을 받)/.test(text)) kind = 'convert';
+  else if (/(불어나|번성|늘어나|자손|태어나)/.test(text)) kind = 'pop';
+  if (!kind || !/리라|리니|것이다|되리|지리/.test(text)) return null;
+  const n = text.match(/(한|두|세|1|2|3)\s*(장|계절|번)/);
+  const rounds = n ? ({ 한: 1, 두: 2, 세: 3 }[n[1]] ?? Number(n[1])) : 2;
+  return { kind, rounds: Math.min(3, Math.max(1, rounds)) };
+}
+
 // 율법파 지도자의 대사. kind: intro | card | rebuttal | villageLost | capitalLow | win | lose
 export function leaderLine(state, kind, ctx = {}) {
   const leader = ENEMY_LEADERS[state.leader] ?? ENEMY_LEADERS.elder;

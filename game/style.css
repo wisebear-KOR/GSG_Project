@@ -769,3 +769,41 @@ body.reduce-motion .intent-badge, body.reduce-motion .intent-ring { animation: n
 .gem.ult.on { background: radial-gradient(circle at 35% 30%, #fff6d0, #f4c24a 60%, #a8741a); box-shadow: 0 0 10px rgba(255, 210, 110, .9); }
 .season-swap { margin-top: 8px; width: 100%; padding: 6px 8px; border-radius: 10px; border: 1px dashed rgba(124, 89, 27, .6); background: rgba(124, 89, 27, .1); color: var(--ink); font: 600 12px var(--font-ui); cursor: pointer; }
 .season-swap:hover { background: rgba(124, 89, 27, .2); }
+
+/* ---------- 1차 웨이브 3묶음: 말의 층 ---------- */
+.petition { margin: -2px 0 8px; padding: 7px 12px; border-radius: 10px; background: rgba(124, 89, 27, .1); border-left: 3px solid var(--gold); font: 14px/1.5 var(--font-body); color: var(--ink-soft); display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.petition b { font: 700 12px var(--font-ui); color: var(--gold-lo); }
+.petition span { margin-left: auto; font: 11px var(--font-ui); color: var(--ink-faint); }
+.petition.prophecy { border-left-color: #7a5bd0; background: rgba(122, 91, 208, .08); }
+.rev-line { font: 15px/1.6 var(--font-body); color: var(--ink); margin: 2px 0 6px; }
+.rev-line u.lw { text-decoration: none; background: linear-gradient(transparent 62%, rgba(244, 196, 74, .55) 62%); padding: 0 1px; font-weight: 700; }
+.wtags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.wtag { font: 600 11.5px var(--font-ui); padding: 2px 8px; border-radius: 999px; background: rgba(124, 89, 27, .14); color: var(--ink-soft); border: 1px solid rgba(124, 89, 27, .3); }
+.wtag.tone-blessing { background: rgba(90, 164, 104, .16); border-color: rgba(90, 164, 104, .5); color: #245a31; }
+.wtag.tone-curse { background: rgba(180, 50, 40, .14); border-color: rgba(180, 50, 40, .45); color: #7a2016; }
+.wtag.tone-metaphor { background: rgba(122, 91, 208, .12); border-color: rgba(122, 91, 208, .4); color: #46318a; }
+.wtag.ok { background: rgba(201, 162, 74, .25); color: var(--ink); }
+.wtag.name { background: rgba(61, 111, 182, .14); border-color: rgba(61, 111, 182, .4); color: #1f3f73; }
+.order .word { font: 600 11.5px var(--font-ui); color: #8a5a00; margin-left: 4px; }
+.seal-prophecy { display: flex; gap: 8px; align-items: center; margin-top: 8px; padding: 6px 10px; border-radius: 10px; background: rgba(122, 91, 208, .08); border: 1px dashed rgba(122, 91, 208, .45); font: 13px var(--font-ui); color: #3a2a6e; cursor: pointer; }
+.seal-prophecy input { width: 16px; height: 16px; accent-color: #7a5bd0; }
+.verdict { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; padding: 8px 12px; border-radius: 12px; background: rgba(124, 89, 27, .1); animation: verdictIn .6s cubic-bezier(.34, 1.56, .64, 1) both; }
+.v-stamp { flex: none; font: 400 17px var(--font-title); padding: 4px 10px; border: 2.5px solid currentColor; border-radius: 8px; transform: rotate(-8deg); color: #a3261a; letter-spacing: .1em; animation: stampIn .5s .15s cubic-bezier(.2, 1.6, .4, 1) both; }
+.v-full .v-stamp { color: #a3261a; } .v-half .v-stamp { color: #9a6a10; } .v-miss .v-stamp { color: #6b645c; }
+.v-text { font: 15px/1.55 var(--font-body); color: var(--ink); }
+@keyframes verdictIn { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes stampIn { from { transform: rotate(-8deg) scale(2.2); opacity: 0; } }
+.leader-say.priest { right: auto; left: 12px; border-radius: 14px 14px 14px 4px; background: linear-gradient(175deg, #22314a, #141c2b); border-color: rgba(156, 192, 255, .45); color: #e3edff; }
+.leader-say.priest b { color: #9cc0ff; }
+.mat-player { position: relative; }
+.chron p.note { color: #1f3f73; }
+.chron .forget { font-size: 11px; margin-left: 6px; }
+svg.link-layer { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 60; }
+.link-path { fill: none; stroke: #ffd98a; stroke-width: 3; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(255, 210, 110, .9)); stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: linkDraw .8s cubic-bezier(.6, 0, .2, 1) forwards, linkFade .6s 2s forwards; }
+.link-dot { fill: rgba(255, 230, 150, .35); stroke: #fff2c0; stroke-width: 2; opacity: 0; animation: linkDot .6s forwards, linkFade .6s 2s forwards; transform-box: fill-box; transform-origin: center; }
+@keyframes linkDraw { to { stroke-dashoffset: 0; } }
+@keyframes linkDot { from { opacity: 0; transform: scale(.2); } to { opacity: 1; transform: scale(1); } }
+@keyframes linkFade { to { opacity: 0; } }
+
+.tile-name { font: 700 13px var(--font-title); fill: #3a2410; text-anchor: middle; paint-order: stroke; stroke: rgba(255, 244, 214, .9); stroke-width: 3.5px; letter-spacing: .06em; pointer-events: none; }
+.verdict { margin: 10px 0 0; }
