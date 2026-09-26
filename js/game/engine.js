@@ -874,6 +874,23 @@ export function actOf(state) {
 export const actStart = (state) => state.round > 1 && actOf(state) !== actOfRound(state, state.round - 1);
 const actOfRound = (state, r) => actOf({ ...state, round: r });
 
+// ---------- 결과 미리보기 (확인 화면용, 주사위 행동은 뺀다) ----------
+export function previewGains(state, plan) {
+  const s = state.sides.player;
+  const d = { food: 0, wood: 0, stone: 0, faith: 0 };
+  const per = {};
+  for (const a of plan) {
+    if (a.type === 'gather') { const n = gatherAmount(state, 'player', state.tileAt[a.tile]); d[a.gather] += n; per[a.key] = `+${n} ${RESOURCE_NAME[a.gather]}`; }
+    else if (a.type === 'pray') { const n = prayValue(state, 'player'); d.faith += n; per[a.key] = `+${n} 신앙`; }
+    else if (a.type === 'build') { for (const [k, v] of Object.entries(buildCost(state, 'player', a.build))) d[k] -= v; }
+  }
+  // 장이 끝날 때: 식량 생산(수도 2 + 마을) − 먹는 양, 신앙 수입
+  d.food += 2 + villageCount(state, 'player') - s.pop - (state.commandments?.includes('noFamine') ? 1 : 0);
+  d.faith += faithIncome(state, 'player');
+  const after = Object.fromEntries(Object.entries(d).map(([k, v]) => [k, s[k] + v]));
+  return { delta: d, after, per };
+}
+
 // ---------- 영원한 계명, 성언, 숨은 말 ----------
 export const canCarve = (state) => state.config.veteran && !state.tutorial && state.round >= 3 && state.commandments.length < MAX_COMMANDMENTS;
 export function carveCommandment(state, id) {

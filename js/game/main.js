@@ -6,7 +6,7 @@ import {
   grantGrace, petitionAnswered, nameTile, applyTone, sealProphecy, takeMiracle, resolveSite,
   scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
-  canCarve, carveCommandment, updateLiturgy, findSacred, distance,
+  canCarve, carveCommandment, updateLiturgy, findSacred, distance, previewGains,
 } from './engine.js';
 import {
   DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
@@ -67,6 +67,8 @@ let loadedPhase = null;     // 저장에서 불러온 판이면 그 판의 단�
 let hintTiles = [];         // 계시를 쓰는 동안 말씀이 닿을 것 같은 칸 (석판 해석 예감)
 let hintTimer = null;
 let acceptLock = 0;         // Enter 연타 방지
+let speed = meta.get('gsg.speed', '1'); // 재생 속도 '1' | '2' | 'instant'
+fx.motion.speed = speed === '2' ? 2 : 1;
 let resolved_rebuttal = null; // 이번 장 지도자의 반박 (율법 카드가 뒤집힌 뒤 말한다)
 let pendingLesson = null;   // 이번 장 대사제가 새로 배운 말버릇 (재생이 끝나면 알린다)
 
@@ -452,6 +454,7 @@ async function interpret(text, job = runInterpretation(text), naming = pending?.
   render();
   const done = await job;
   const result = done.result;
+  if (aiMode === 'llm' && document.querySelector('.omen-reel')) sfx.coin(4);
   notice = done.notice ?? '';
   pending = {
     text, result, fresh: true, naming, dropped: new Set(),
@@ -882,6 +885,7 @@ async function playback(before) {
   const enemySlots = [...document.querySelectorAll('#matEnemy .meeples svg')];
   const enemyFrom = resolved.enemyPlan.map((_, i) => enemySlots[i] ? center(enemySlots[i]) : null);
   phase = 'playing';
+  if (speed === 'instant') fx.motion.skip = true;
   view = makeView(before);
   flipLaw = true;
   resolved.incomingEnemy = true;
@@ -1371,6 +1375,15 @@ function renderLaw(cur) {
   $('law').querySelectorAll('.card').forEach((c) => fx.attachTilt(c, 8));
 }
 
+// 점괘 릴: 대사제가 헤아리는 동안 가능한 행동의 아이콘이 돈다 (0.7초 뒤에 나타난다)
+const REEL_ICON = { food: 'i-food', wood: 'i-wood', stone: 'i-stone', faith: 'i-faith', pray: 'i-temple', build: 'i-house', explore: 'e-prophet', preach: 'd-peace', attack: 'd-war' };
+function omenReel() {
+  const kinds = [...new Set(legalActions(state, 'player').map((a) => (a.type === 'gather' ? a.gather : a.type)))].slice(0, 8);
+  if (kinds.length < 2) return '';
+  const icons = [...kinds, kinds[0]].map((k) => `<span>${svgUse(REEL_ICON[k] ?? 'i-faith')}</span>`).join('');
+  return `<div class="omen-reel" style="--n:${kinds.length}"><div class="reel-strip">${icons}</div></div>`;
+}
+
 // 판정 승률 (저주 말투면 공격 +1을 미리 반영)
 function oddsTag(a) {
   const p = actionOdds(state, a, { curse: pending?.tone === 'curse' });
@@ -1517,6 +1530,7 @@ function renderAltar() {
       <svg class="flame-svg" viewBox="0 0 40 60"><rect x="15" y="34" width="10" height="24" rx="2" fill="#efe4cd" stroke="#8a6a3e"/>
         <g class="fl"><path d="M20 6c4 7 8 11 8 18a8 8 0 0 1-16 0c0-7 4-11 8-18z" fill="#ffb347"/><path d="M20 16c2 4 4 6 4 9a4 4 0 0 1-8 0c0-3 2-5 4-9z" fill="#fff3c4"/></g></svg>
       <div><div class="t">대사제가 제단 앞에 엎드렸다</div><div class="dots" style="font:15px var(--font-body);color:var(--ink-soft)">말씀의 뜻을 헤아리는 중${pct}</div></div>
+      ${aiMode === 'llm' && !fx.motion.reduced && speed !== 'instant' ? omenReel() : ''}
     </div></div>`;
     act = `<div class="act"><button class="seal-btn" type="button" disabled>${svgUse('i-faith')}<span>계시</span></button></div>`;
   } else if (phase === 'confirm') {
@@ -1527,9 +1541,10 @@ function renderAltar() {
     const doc = result.doctrine ? ` · ${DOCTRINE[result.doctrine].name}` : '';
     const short = (a) => esc(a.text.replace(/ \(.*\)$/, ''));
     const links = pending.links ?? {};
+    const prev = previewGains(state, [...accepted, ...auto]);
     const chips = [
-      ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${esc(a.text)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${oddsTag(a)}${firstNote(a.tile)}</span>`),
-      ...auto.map((a) => `<span class="order auto">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why" style="background:rgba(124,89,27,.12)">알아서</span></span>`),
+      ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${esc(a.text)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}${oddsTag(a)}${firstNote(a.tile)}</span>`),
+      ...auto.map((a) => `<span class="order auto">${meepleSvg('player')}<span class="t">${short(a)}</span>${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}<span class="why" style="background:rgba(124,89,27,.12)">알아서</span></span>`),
       ...(pending.miracle ? [`<span class="order miracle${pending.dropped.has(pending.miracle.key) ? ' dropped' : ''}" data-key="${pending.miracle.key}" title="눌러서 빼기/되살리기">${svgUse(MIRACLE_ART[pending.miracle.id], 'mi', '0 0 48 48')}<span class="t">${esc(MIRACLES.find((m) => m.id === pending.miracle.id).name)}${pending.miracle.target ? ` → ${esc(tileName(state, state.tileAt[pending.miracle.target]))}` : ''}</span><span class="why">기적 · 신앙 ${pending.miracle.cost}</span></span>`] : []),
       ...[...pending.dropped].map((k) => result.orders.find((a) => a.key === k)).filter(Boolean).map((a) => `<span class="order dropped" data-key="${esc(a.key)}" title="눌러서 되살리기">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why">뺌</span></span>`),
       ...rejected.map((r) => `<span class="order bad"><span class="t">${short(r.action)}</span><span class="why">${esc(r.reason)}</span></span>`),
@@ -1566,7 +1581,8 @@ function renderAltar() {
       ${text ? `<div class="rev-line">“${markWords(text, Object.values(links), pending.cited)}”</div>` : ''}
       ${tags.length ? `<div class="wtags">${tags.join('')}</div>` : ''}
       <div class="quote${voiceOf(state) ? ` voice-${voiceOf(state)}` : ''}">${fresh ? '' : esc(result.interpretation)}</div>
-      <div class="orders">${chips}</div>${seal}${carve}
+      <div class="orders">${chips}</div>
+      ${text || auto.length ? `<div class="preview" title="주사위로 정해지는 선교·공격·탐험, 율법파의 행동은 빼고 계산했다">예상 · ${['food', 'wood', 'stone', 'faith'].map((k) => `${RESOURCE_NAME[k]} ${p[k]}→<b class="${prev.after[k] > p[k] ? 'up' : prev.after[k] < p[k] ? 'down' : ''}">${prev.after[k]}</b>`).join(' · ')}</div>` : ''}${seal}${carve}
       ${hint ? `<div class="hint">⚠ ${hint}</div>` : ''}${noticeHTML}</div>`;
     act = `<div class="act">
       <button class="btn-primary big accept" type="button" ${fresh ? 'disabled' : ''}>수락하고 공개 <kbd>Enter</kbd></button>
@@ -1582,7 +1598,7 @@ function renderAltar() {
       ${v ? `<div class="verdict v-${v.grade}"><span class="v-stamp">${v.stamp}</span><span class="v-text">${esc(v.text)}</span></div>` : ''}
       ${phase === 'playing' ? '' : ledgerHTML(resolved.ledger)}</div>`;
     act = phase === 'playing'
-      ? '<div class="act"><button class="btn-ghost skip" type="button">⏩ 빨리 감기 <kbd>Space</kbd></button></div>'
+      ? `<div class="act"><div class="speed" role="group" aria-label="재생 속도">${[['1', '1×'], ['2', '2×'], ['instant', '즉시']].map(([v, l]) => `<button type="button" class="${speed === v ? 'on' : ''}" data-speed="${v}">${l}</button>`).join('')}</div><button class="btn-ghost skip" type="button">⏩ 빨리 감기 <kbd>Space</kbd></button></div>`
       : phase === 'over'
         ? `<div class="act"><button class="btn-primary big again-game" type="button">다시 하기</button><div style="text-align:center;font:13px var(--font-body);color:var(--on-table-dim)">${esc(state.winReason)}</div></div>`
         : '<div class="act"><button class="btn-primary big next" type="button">다음 장으로 ▶ <kbd>Enter</kbd></button></div>';
@@ -1701,6 +1717,16 @@ function bindAltar() {
   if (pbox) pbox.onchange = () => { pending.seal = pbox.checked; sfx.seal?.(); pbox.blur(); };
   on('.again', () => { sfx.click(); reinterpret(); });
   on('.skip', () => { fx.motion.skip = true; });
+  a.querySelectorAll('[data-speed]').forEach((b) => {
+    b.onclick = () => {
+      speed = b.dataset.speed;
+      meta.set('gsg.speed', speed);
+      fx.motion.speed = speed === '2' ? 2 : 1;
+      if (speed === 'instant') fx.motion.skip = true;
+      a.querySelectorAll('[data-speed]').forEach((x) => x.classList.toggle('on', x === b));
+      sfx.click();
+    };
+  });
   on('.next', () => { sfx.click(); newRound(); });
   on('.again-game', restart);
 }

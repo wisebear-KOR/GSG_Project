@@ -7,7 +7,8 @@ import { sfx } from './sound.js';
 function loadReduced() {
   try { return localStorage.getItem('gsg.motion') === 'reduced'; } catch { return false; }
 }
-export const motion = { skip: false, reduced: loadReduced() };
+// speed: 재생 배속 (1 · 2). 즉시는 main이 재생마다 skip을 켠다
+export const motion = { skip: false, reduced: loadReduced(), speed: 1 };
 export function setReduced(on) {
   motion.reduced = on;
   document.body.classList.toggle('reduce-motion', on);
@@ -16,7 +17,7 @@ export function setReduced(on) {
 document.body.classList.toggle('reduce-motion', motion.reduced);
 
 const off = () => motion.skip || motion.reduced;
-export const wait = (ms) => new Promise((r) => setTimeout(r, motion.skip ? 0 : motion.reduced ? ms * 0.35 : ms));
+export const wait = (ms) => new Promise((r) => setTimeout(r, motion.skip ? 0 : (motion.reduced ? ms * 0.35 : ms) / (motion.speed || 1)));
 const NS = 'http://www.w3.org/2000/svg';
 const EASE_OUT = 'cubic-bezier(.16,1,.3,1)';
 const EASE_BACK = 'cubic-bezier(.34,1.56,.64,1)';
@@ -733,6 +734,8 @@ export function countUp(el, from, to, ms = 650) {
     if (k < 1) requestAnimationFrame(step);
   };
   requestAnimationFrame(step);
+  // 탭이 가려져 있으면 rAF가 멈추므로 마지막 값은 타이머로도 확정한다
+  later(() => { el.textContent = to; }, ms + 80);
 }
 
 // ---------- 카드 기울이기 (커서를 따라 3D로 기운다) ----------
