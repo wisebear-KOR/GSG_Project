@@ -3,10 +3,8 @@ const R = 48;                       // 육각 반지름
 const W = Math.sqrt(3) * R;         // 육각 가로
 const PAD = 34;                     // 액자 안쪽 여백
 const NS = 'http://www.w3.org/2000/svg';
-const COLS = 5;
-const ROWS = 5;
-const WIDTH = W * (COLS + 0.5) + PAD * 2;
-const HEIGHT = 1.5 * R * (ROWS - 1) + 2 * R + PAD * 2;
+// 보드 크기는 맵(행·열 수)에 따라 정해진다
+const sizeOf = (rows, cols) => ({ width: W * (cols + 0.5) + PAD * 2, height: 1.5 * R * (rows - 1) + 2 * R + PAD * 2 });
 
 const center = (t) => ({ x: PAD + W / 2 + W * (t.c + 0.5 * (t.r & 1)), y: PAD + R + 1.5 * R * t.r });
 export const tileCenter = center;
@@ -42,7 +40,7 @@ function el(tag, attrs = {}, text) {
 }
 const use = (id, x, y, size, attrs = {}) => el('use', { href: `#${id}`, x: x - size / 2, y: y - size / 2, width: size, height: size, ...attrs });
 
-function frame(svg) {
+function frame(svg, WIDTH, HEIGHT) {
   const g = el('g', { class: 'frame' });
   g.append(el('rect', { x: 2, y: 2, width: WIDTH - 4, height: HEIGHT - 4, rx: 22, fill: 'url(#g-wood)', stroke: 'url(#g-gold)', 'stroke-width': 4 }));
   g.append(el('rect', { x: 14, y: 14, width: WIDTH - 28, height: HEIGHT - 28, rx: 14, class: 'parchment' }));
@@ -60,9 +58,10 @@ function frame(svg) {
 
 // markers: [{ tile, side, label, dim, drop, delay }]
 export function renderBoard(svg, state, { markers = [], highlight = [], onTileClick, selectable = [], focus = null } = {}) {
-  svg.setAttribute('viewBox', `0 0 ${WIDTH.toFixed(0)} ${HEIGHT.toFixed(0)}`);
+  const { width, height } = sizeOf(state.rows ?? 5, state.cols ?? 5);
+  svg.setAttribute('viewBox', `0 0 ${width.toFixed(0)} ${height.toFixed(0)}`);
   svg.replaceChildren();
-  frame(svg);
+  frame(svg, width, height);
 
   const tiles = el('g', { class: 'tiles' });
   for (const t of state.tiles) {

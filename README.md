@@ -4,7 +4,7 @@ Chrome 내장 AI(Prompt API, Gemma 4)로 신도들에게 계시를 내리는 보
 
 ## 현재 상태
 
-- [`game/index.html`](game/index.html): 보드 프로토타입 — 시나리오 1 "이웃의 불신자" (`?ai=tablet`이면 LLM 없이 석판 해석기)
+- [`game/index.html`](game/index.html): 게임 — 튜토리얼(3×3, 5장, 안내자 NPC)과 본 게임(맵 크기·난이도·시드 선택, 사막이 있는 무작위 맵). `?ai=tablet`이면 LLM 없이 석판 해석기
 - [`check.html`](check.html): 브라우저가 내장 모델을 제어할 수 있는지 점검하는 페이지
 - [`lab/interpret.html`](lab/interpret.html): 계시를 해석해 가능한 행동 목록에서 행동을 고르는 대사제 LLM 실험 페이지
 - [`docs/DESIGN.md`](docs/DESIGN.md): 기획 문서

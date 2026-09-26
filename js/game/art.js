@@ -8,6 +8,7 @@ const TERRAIN_GRAD = {
   river: ['#a9d9ec', '#5aa0c6', '#34729b'],
   hill: ['#f1dcef', '#bf9dbd', '#8f6d8c'],
   fog: ['#efe4c9', '#e1d1ab', '#c9b388'],
+  desert: ['#f6dfa6', '#e2b86a', '#b8843e'],
 };
 
 const grads = Object.entries(TERRAIN_GRAD).map(([k, [a, b, c]]) => `
@@ -53,6 +54,9 @@ export const ART = `
   </pattern>
   <pattern id="p-hill" width="12" height="12" patternUnits="userSpaceOnUse">
     <circle cx="6" cy="6" r=".9" fill="#fff6d8" fill-opacity=".55"/>
+  </pattern>
+  <pattern id="p-desert" width="16" height="8" patternUnits="userSpaceOnUse">
+    <path d="M0 6q4-4 8 0t8 0" fill="none" stroke="#8a5a1c" stroke-opacity=".28" stroke-width="1"/>
   </pattern>
   <pattern id="p-fog" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
     <path d="M0 0v6" stroke="#7c591b" stroke-opacity=".16" stroke-width="1"/>
@@ -110,6 +114,15 @@ export const ART = `
       <path d="M8 10 8 0q0-3 3-3t3 3l0 10z" fill="#c7b9a3"/>
     </g>
     <circle cx="0" cy="-16" r="3" fill="#fff4c4" class="holy-spark"/>
+  </symbol>
+  <symbol id="s-desert" viewBox="-30 -30 60 60">
+    <g stroke="#7a4f1c" stroke-width="1.1" stroke-linejoin="round">
+      <path d="M-22 12q10-14 22-6t22 2v4h-44z" fill="#e9c47c"/>
+      <path d="M-16 13q8-9 16-3t14 1" fill="none" stroke-opacity=".5"/>
+      <path d="M4 -2l5-9 5 9z" fill="#c9a36a" opacity=".8"/>
+      <circle cx="-12" cy="-10" r="4.5" fill="#ffd36b" stroke="#c98a1c"/>
+      <path d="M-9 4h3M-4 6h2" stroke="#a37a3e" stroke-linecap="round"/>
+    </g>
   </symbol>
   <symbol id="s-fog" viewBox="-30 -30 60 60">
     <g fill="none" stroke="#7c591b" stroke-opacity=".38" stroke-width="1.3" stroke-linecap="round" class="fog-cloud">
@@ -187,6 +200,25 @@ export const ART = `
 
   <!-- 문장 (게임 로고) -->
   <symbol id="sigil" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="url(#g-gold)" stroke="#5a3b10" stroke-width="1.5"/><circle cx="24" cy="24" r="17.5" fill="#2a1c0f" stroke="#f4dc92" stroke-width="1"/><path d="M27 8 16 26h7l-3 14 12-19h-7l4-13z" fill="url(#g-gold)" stroke="#f7e3a1" stroke-width=".8" stroke-linejoin="round"/></symbol>
+
+  <!-- 튜토리얼 안내자: 사관 세라 -->
+  <symbol id="npc-sera" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="31.5" fill="url(#g-gold)"/>
+    <circle cx="32" cy="32" r="28.5" fill="#2b1c10"/>
+    <circle cx="32" cy="26" r="22" fill="#4a3220" opacity=".7"/>
+    <path d="M9 61c2-14 10-22 23-22s21 8 23 22z" fill="#6b2a1e" stroke="#2a0e08" stroke-width="1"/>
+    <path d="M22 50c3 4 7 6 10 6s7-2 10-6" fill="none" stroke="#d9b36a" stroke-width="1.2"/>
+    <path d="M18 35c-1.5-15 6-25 14-25s15.5 10 14 25c-3 6-8 9-14 9s-11-3-14-9z" fill="#7d3324" stroke="#2a0e08" stroke-width="1"/>
+    <ellipse cx="32" cy="31" rx="8.5" ry="10" fill="#f0d2b0" stroke="#5a3b1e" stroke-width=".8"/>
+    <path d="M23.8 26c2.5-6 13.9-6 16.4 0-3.5-2.4-12.9-2.4-16.4 0z" fill="#e3ddd4" stroke="#8a8378" stroke-width=".5"/>
+    <path d="M27.4 30q1.6 1.3 3.2 0M33.4 30q1.6 1.3 3.2 0" stroke="#3b2410" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+    <path d="M29.6 35.6q2.4 1.7 4.8 0" stroke="#8a4a3a" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+    <circle cx="26.5" cy="33" r="1.6" fill="#e8a88c" opacity=".55"/><circle cx="37.5" cy="33" r="1.6" fill="#e8a88c" opacity=".55"/>
+    <rect x="19" y="48" width="24" height="7.5" rx="3.7" fill="#efe2c4" stroke="#8a6420" stroke-width=".9"/>
+    <path d="M23 51.8h14" stroke="#8a6420" stroke-width=".7" stroke-dasharray="2 1.5"/>
+    <path d="M45 57 52.5 34.5c1.2-3.2 4.4-4 5.2-1.8-1 5.4-5.2 12.6-11.2 24.6z" fill="#f4ead4" stroke="#5a4a38" stroke-width=".8"/>
+    <path d="M47 55 55.5 33.5" stroke="#8a7a66" stroke-width=".5"/>
+  </symbol>
 
   <!-- 헤더 선 아이콘 (currentColor) -->
   <symbol id="u-music" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5" fill="currentColor"/><circle cx="17.5" cy="16" r="2.5" fill="currentColor"/></g></symbol>

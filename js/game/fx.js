@@ -563,7 +563,7 @@ function blessTiles(boardEl) {
 }
 
 // ---------- 승패 ----------
-export function endScreen(won, title, sub, onAgain) {
+export function endScreen(won, title, sub, onAgain, { againLabel = '다시 하기', closeLabel = '보드 보기' } = {}) {
   (won ? sfx.win : sfx.lose)();
   const o = div(`endscreen ${won ? 'win' : 'lose'}`, `
     ${won ? '<div class="rays"></div>' : ''}
@@ -571,10 +571,12 @@ export function endScreen(won, title, sub, onAgain) {
       <div class="end-orn">${won ? '✦' : '✝'}</div>
       <div class="end-title"></div>
       <div class="end-sub"></div>
-      <div class="end-actions"><button class="btn-primary again">다시 하기</button><button class="btn-ghost close">보드 보기</button></div>
+      <div class="end-actions"><button class="btn-primary again"></button><button class="btn-ghost close"></button></div>
     </div>`);
   o.querySelector('.end-title').textContent = title;
   o.querySelector('.end-sub').textContent = sub;
+  o.querySelector('.again').textContent = againLabel;
+  o.querySelector('.close').textContent = closeLabel;
   o.querySelector('.again').onclick = () => { o.remove(); onAgain(); };
   o.querySelector('.close').onclick = () => o.remove();
   document.body.append(o);

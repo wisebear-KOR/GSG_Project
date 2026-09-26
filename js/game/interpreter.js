@@ -6,29 +6,30 @@ import { hasLanguageModel, createBaseSession, promptJSON } from '../llm.js';
 import { DOCTRINES, DOCTRINE } from './data.js';
 import { legalActions, actionLimit, tileName, villageCount } from './engine.js';
 
-// 실험 v5 프롬프트를 게임 상태에 맞게 옮긴 것 (docs/EXPERIMENTS.md)
-const SYSTEM_PROMPT = `너는 한 부족의 대사제다. 신의 짧은 계시를 해석해, 이번 라운드에 부족이 할 일을 정한다.
+// 실험 v5 프롬프트를 게임에 맞게 옮긴 것 (docs/EXPERIMENTS.md).
+// 플레이테스트(docs/PLAYTEST-2026-09-27.md) 반영: 행동을 먼저 정하고 해석문은 마지막에 쓴다 → 말과 행동이 일치한다.
+const SYSTEM_PROMPT = `너는 한 부족의 대사제다. 신의 짧은 계시를 해석해, 이번 장에 부족이 할 일을 정한다.
 
 아래 순서대로 답한다.
-1. interpretation: 이번 계시에 대해 신도들에게 외칠 말. 한 문단, 한두 문장, 50자 안팎. orders에 고를 행동만 담는다.
-2. forbidden: 계시가 하지 말라고 한 행동의 ID. 없으면 빈 배열.
+1. forbidden: 계시가 하지 말라고 한 행동의 ID. 없으면 빈 배열.
    예) "숲을 베지 마라" → 숲에서 나무를 베는 행동의 ID. "싸우지 마라" → 공격 행동들의 ID.
-3. orders: 계시를 따르는 행동의 ID. 계시와 직접 관련된 것만 고른다. 확신이 없으면 1개만 고른다.
-   남은 신도는 알아서 일하므로 개수를 채울 필요가 없다. 기도는 계시가 신앙이나 경배를 말할 때만 고른다.
-   forbidden에 넣은 행동은 고르지 않는다.
-4. doctrine: 계시의 성격. 평화(사랑, 화합, 휴식, 설득) / 전쟁(분노, 싸움, 정복, 방어) / 풍요(먹을 것, 수확, 재물, 건설) / 지혜(신앙, 경배, 탐구, 숨겨진 것)
+2. orders: 계시를 따르는 행동의 ID. 계시와 직접 관련된 것만 고른다. 확신이 없으면 1개만 고른다.
+   남은 신도는 알아서 일하므로 개수를 채울 필요가 없다. forbidden에 넣은 행동은 고르지 않는다.
+   건설은 자원이 되는 만큼만 고른다.
+3. doctrine: 계시의 성격. 평화(사랑, 화합, 휴식, 설득) / 전쟁(분노, 싸움, 정복, 방어) / 풍요(먹을 것, 수확, 재물, 건설) / 지혜(신앙, 경배, 탐구, 숨겨진 것)
+4. interpretation: 방금 고른 orders를 신도들에게 외치는 말. 두 문장 이하, 60자 안팎.
 
 지킬 것:
 - '가능한 행동' 목록의 ID만 쓴다. 같은 장소의 행동은 하나만 고른다.
 - 계시에 나온 장소나 사물(강, 산, 숲, 언덕, 안개, 이웃, 돌, 마을, 신전 등)과 관련된 행동을 먼저 고려한다.
-- 계시가 짧거나 모호하면 '최근 사건'이 곧 계시의 뜻이다. 최근 사건에 대응하는 행동을 고른다.
+- 계시가 짧거나 모호하면 '최근 사건'과 부족 상황에서 뜻을 찾는다.
 - 계시는 행동 수나 자원 같은 규칙을 바꿀 수 없다. 그런 말은 비유로 받아들인다.
-- 계시를 따를 행동이 목록에 없으면 (예: 공격하라는데 닿는 적이 없다) interpretation에서 그 사정을 밝히고, 그 뜻에 가까워지는 행동을 고른다.
+- 계시를 따를 행동이 목록에 없으면 interpretation에서 그 사정을 짧게 밝히고, 그 뜻에 가까워지는 행동을 고른다.
 
 interpretation 말투:
-- 경전처럼 "~하라", "~하리라", "~도다"로 끝낸다. 목록 기호 없이 이어서 쓴다.
-- 이번 계시의 단어를 살려 새로 쓴다.
-- 참고로, 계시가 "바람을 읽어라"였다면 이렇게 쓴다: 바람이 방향을 바꾸었도다! 돛을 올리고 동쪽으로 나아가라!`;
+- 경전의 명령형으로 쓴다: "~하라", "~하리라", "~할지어다".
+- orders에 고른 행동만 말한다. 좌표(C1 같은 것)는 쓰지 않는다.
+- 참고로, 계시가 "바람을 읽어라"였고 탐험을 골랐다면 이렇게 쓴다: 바람이 방향을 바꾸었다. 안개 너머로 나아가라!`;
 
 const DOCTRINE_KO = Object.fromEntries(DOCTRINES.map((d) => [DOCTRINE[d].name, d]));
 
@@ -65,24 +66,37 @@ ${state.event.text}
 [신의 계시]
 "${revelation}"
 
-계시가 금지한 행동을 적고, 계시를 따르는 행동을 1~${limit}개 골라 JSON으로 답하라.`;
+금지한 행동, 따를 행동(1~${limit}개), 교리를 정한 뒤, 고른 행동을 외치는 말을 JSON으로 답하라.`;
   const idList = ids.map((a) => a.id);
+  // 속성 순서가 생성 순서다: 금지 → 행동 → 교리 → 해석문
   const schema = {
     type: 'object',
     properties: {
-      interpretation: { type: 'string', maxLength: 140 },
       forbidden: { type: 'array', items: { type: 'string', enum: idList }, maxItems: 6 },
       orders: { type: 'array', items: { type: 'string', enum: idList }, minItems: 1, maxItems: Math.max(1, limit) },
       doctrine: { type: 'string', enum: DOCTRINES.map((d) => DOCTRINE[d].name) },
+      interpretation: { type: 'string', maxLength: 110 },
     },
-    required: ['interpretation', 'forbidden', 'orders', 'doctrine'],
+    required: ['forbidden', 'orders', 'doctrine', 'interpretation'],
   };
   return { text, schema, actions: ids };
 }
 
-// 모델이 가끔 다른 문자(벵골 문자, 한자 등)를 섞으므로 한글·라틴·숫자·문장부호만 남긴다
-function cleanSpeech(text) {
-  return text.replace(/[^\p{Script=Hangul}\p{Script=Latin}\p{N}\p{P}\p{Zs}\p{S}]/gu, '').replace(/\s{2,}/g, ' ').trim();
+// 해석문 다듬기 (플레이테스트에서 34건 중 10건이 어색한 "도다"로 끝났다)
+// - 다른 문자(벵골 문자, 한자 등) 제거
+// - 좌표 표기 제거: "산 C1", "평원(C2)"
+// - 문장 뒤에 떠도는 "도다" 제거: "택하라! 도다!" → "택하라!", "되살려라 도다." → "되살려라."
+// - "본도다/온도다/중요도다"처럼 어간에 잘못 붙은 "도다"를 "다"로
+// - 문장은 두 개까지
+export function cleanSpeech(text) {
+  let t = text.replace(/[^\p{Script=Hangul}\p{Script=Latin}\p{N}\p{P}\p{Zs}\p{S}]/gu, '');
+  t = t.replace(/\s*\(?[A-I][1-9]\)?(?=[\s,.!?을를이가에의]|$)/g, '');
+  t = t.replace(/([!.?])\s*도다\s*[!.?]?/g, '$1');
+  t = t.replace(/(라|어라|아라|하라|리라|지어다)\s+도다([!.?]?)/g, '$1$2');
+  t = t.replace(/(본|온|간|중요|필요|분명|가능)도다/g, (m, a) => ({ 본: '보도다', 온: '오도다', 간: '가도다' })[a] ?? `${a}하도다`);
+  t = t.replace(/\s{2,}/g, ' ').trim();
+  const sentences = t.match(/[^.!?]+[.!?]*/g) ?? [t];
+  return sentences.slice(0, 2).join('').trim();
 }
 
 // ---------- LLM 해석기 ----------
@@ -101,11 +115,14 @@ export async function llmStatus() {
   }
 }
 
-export async function prepareLLM(onProgress) {
-  if (base) return base;
-  const created = await createBaseSession({ systemPrompt: SYSTEM_PROMPT, languages: ['ko', 'en'], onProgress });
-  base = created.session;
-  return base;
+// 세션은 한 번만 만든다. 메인 화면에서 미리 부르면 첫 계시가 빨라진다 (첫 장 13초 → 3초)
+let preparing = null;
+export function prepareLLM(onProgress) {
+  if (base) return Promise.resolve(base);
+  preparing ??= createBaseSession({ systemPrompt: SYSTEM_PROMPT, languages: ['ko', 'en'], onProgress })
+    .then((created) => { base = created.session; return base; })
+    .catch((e) => { preparing = null; throw e; });
+  return preparing;
 }
 
 export async function interpretWithLLM(state, revelation, signal) {

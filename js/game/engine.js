@@ -2,13 +2,14 @@
 // LLM은 이 엔진이 만든 행동 목록 중에서 고르기만 한다. 수치와 판정은 전부 여기서 한다.
 
 import {
-  TERRAIN, RESOURCE_NAME, GATHER_VERB, COST, MAX_TEMPLE, CAPITAL_HP, MAX_ROUNDS, MAX_ACTIONS,
-  DOCTRINES, DOCTRINE_MAX, EVENTS, LAW_CARDS, MIRACLES, SCENARIOS,
+  TERRAIN, RESOURCE_NAME, GATHER_VERB, COST, MAX_TEMPLE, CAPITAL_HP, MAX_ACTIONS, RULES,
+  DOCTRINES, DOCTRINE_MAX, EVENTS, LAW_CARDS, MIRACLES, DIFFICULTY, MAP_SIZES, PLAYER_START, TUTORIAL,
 } from './data.js';
+import { generateMap } from './mapgen.js';
 
 export const SIDES = ['player', 'enemy'];
 export const other = (side) => (side === 'player' ? 'enemy' : 'player');
-const ROWS = 'ABCDE';
+const ROWS = 'ABCDEFGHI';
 
 // ---------- 난수 (시드 고정으로 재현 가능) ----------
 export function rand(state) {
@@ -50,35 +51,56 @@ export function distance(a, b) {
 }
 
 // ---------- 상태 ----------
-export function createState(scenarioId = 1) {
-  const sc = SCENARIOS[scenarioId];
+// config: { mode: 'standard' | 'tutorial', size: 5|6|7, difficulty: 'easy'|'normal'|'hard', seed }
+export const DEFAULT_CONFIG = { mode: 'standard', size: 5, difficulty: 'normal', seed: 2026 };
+
+export function createState(config = DEFAULT_CONFIG) {
+  const cfg = { ...DEFAULT_CONFIG, ...config };
+  const tutorial = cfg.mode === 'tutorial';
+  const diff = DIFFICULTY[cfg.difficulty] ?? DIFFICULTY.normal;
+  const map = tutorial ? TUTORIAL.map : generateMap({ rows: cfg.size, cols: cfg.size, seed: cfg.seed });
   const state = {
-    scenario: sc.id, seed: sc.seed, round: 0, maxRounds: MAX_ROUNDS, enemyBonus: sc.enemyBonus ?? 1,
+    config: cfg, tutorial, rows: map.length, cols: map[0].length,
+    seed: tutorial ? TUTORIAL.seed : cfg.seed, round: 0,
+    maxRounds: tutorial ? TUTORIAL.rounds : (MAP_SIZES[cfg.size]?.rounds ?? 12),
+    enemyBonus: tutorial ? TUTORIAL.enemyBonus : diff.enemyBonus,
     tiles: [], tileAt: {}, sides: {}, eventDeck: [], lawDeck: [],
     event: null, lawCard: null, rainActive: false,
     miracleUsed: false, reinterpretUsed: false,
     log: [], revelations: [], winner: null, winReason: '',
   };
-  sc.map.forEach((row, r) => row.forEach((cell, c) => {
+  map.forEach((row, r) => row.forEach((cell, c) => {
     const capital = cell === 'P' ? 'player' : cell === 'E' ? 'enemy' : null;
+    const village = cell === 'V' ? 'enemy' : null;
     const tile = {
       id: tileId(r, c), r, c,
-      terrain: capital ? 'plain' : cell,
-      owner: capital, building: capital ? 'capital' : null, wall: false, revealed: false,
+      terrain: capital || village ? 'plain' : cell,
+      owner: capital ?? village, building: capital ? 'capital' : village ? 'village' : null, wall: false, revealed: false,
     };
     state.tiles.push(tile);
     state.tileAt[tile.id] = tile;
   }));
+  const start = tutorial ? TUTORIAL.start : { player: PLAYER_START, enemy: diff.enemyStart };
   for (const side of SIDES) {
     state.sides[side] = {
-      ...sc.start[side], templeLevel: 1, capitalHp: CAPITAL_HP,
+      ...start[side], templeLevel: 1, capitalHp: CAPITAL_HP, faithless: 0,
       doctrine: Object.fromEntries(DOCTRINES.map((d) => [d, 0])),
     };
   }
-  // 플레이어 수도 주변 2칸까지 보인다
-  const home = capitalOf(state, 'player');
-  for (const t of state.tiles) if (distance(t, home) <= 2) t.revealed = true;
+  if (tutorial) {
+    // 튜토리얼은 사건과 율법 카드 순서가 정해져 있다 (뒤에서부터 뽑으므로 거꾸로 넣는다)
+    state.eventDeck = TUTORIAL.events.map((id) => EVENTS.find((e) => e.id === id)).reverse();
+    state.lawDeck = TUTORIAL.lawCards.map((id) => LAW_CARDS.find((c) => c.id === id)).reverse();
+  }
+  updateVision(state);
   return state;
+}
+
+// 우리 신도가 닿는 곳(수도 2칸, 마을 1칸)은 항상 보인다
+export function updateVision(state) {
+  for (const t of reach(state, 'player')) t.revealed = true;
+  const home = capitalOf(state, 'player');
+  if (home) for (const t of state.tiles) if (distance(t, home) <= 2) t.revealed = true;
 }
 
 export const capitalOf = (state, side) => state.tiles.find((t) => t.owner === side && t.building === 'capital');
@@ -96,13 +118,22 @@ export function reach(state, side) {
   return [...set.values()];
 }
 
+// 행동 수 = 2 + 신전 단계 + 신도 4명당 1 (+ 지혜 교리 / 율법파 난이도 보너스), 최대 6, 신도 수를 넘지 않는다
 export function actionLimit(state, side) {
   const s = state.sides[side];
-  // 율법파는 오토마 보너스로 행동 +1 (난이도)
   const bonus = side === 'enemy' ? state.enemyBonus : (s.doctrine.wisdom >= 4 ? 1 : 0);
-  const limit = Math.min(MAX_ACTIONS, 2 + s.templeLevel + bonus);
-  return Math.min(limit, s.pop);
+  const limit = Math.min(MAX_ACTIONS, 2 + s.templeLevel + Math.floor(s.pop / RULES.followersPerAction) + bonus);
+  return Math.max(0, Math.min(limit, s.pop));
 }
+
+// 매 장 들어오는 신앙: 기본 1 + 신도 3명당 1 + (신전 단계 - 1)
+export const faithIncome = (state, side) => {
+  const s = state.sides[side];
+  return RULES.baseFaithIncome + Math.floor(s.pop / RULES.followersPerFaith) + (s.templeLevel - 1);
+};
+
+// 신도 수가 상대보다 3명 이상 많으면 선교·공격 주사위 +1
+const superiority = (s, f) => (s.pop >= f.pop + RULES.superiority ? 1 : 0);
 
 // ---------- 행동 설명 ----------
 // 받침에 맞는 조사를 붙인다. "우리 마을(D2)"처럼 괄호 앞 글자를 기준으로 한다
@@ -174,7 +205,7 @@ export function legalActions(state, side) {
   for (const t of inReach) {
     if (!visible(t)) continue;
     const terr = TERRAIN[t.terrain];
-    if (t.owner !== foe && t.building !== 'capital') add({ type: 'gather', tile: t.id, gather: terr.gather });
+    if (terr.gather && t.owner !== foe && t.building !== 'capital') add({ type: 'gather', tile: t.id, gather: terr.gather });
     if (!t.owner && !t.building && canPay(s, COST.village)) add({ type: 'build', build: 'village', tile: t.id });
     if (t.owner === foe) {
       add({ type: 'preach', tile: t.id });
@@ -236,7 +267,7 @@ export function validateOrders(state, side, chosen, forbidden = [], doctrine = n
   return { accepted, rejected };
 }
 
-// 계시와 무관하게 남은 신도가 하는 기본 노동: 가장 부족한 자원 채집
+// 계시와 무관하게 남은 신도가 하는 기본 노동: 신앙이 바닥나면 기도부터, 그다음 가장 부족한 자원 채집
 export function autoFill(state, side, accepted, forbidden = []) {
   const limit = actionLimit(state, side);
   const s = state.sides[side];
@@ -244,6 +275,10 @@ export function autoFill(state, side, accepted, forbidden = []) {
   const order = ['food', 'wood', 'stone'].sort((x, y) => s[x] - s[y]);
   const pool = legalActions(state, side).filter((a) => a.type === 'gather' && !forbidden.includes(a.key));
   const filled = [];
+  const prayFirst = legalActions(state, side).find((a) => a.type === 'pray' && !forbidden.includes(a.key));
+  if (side === 'player' && s.faith <= RULES.lowFaith && prayFirst && !used.has(prayFirst.tile) && accepted.length < limit) {
+    used.add(prayFirst.tile); filled.push({ ...prayFirst, auto: true });
+  }
   for (const res of [...order, ...order]) {
     if (accepted.length + filled.length >= limit) break;
     const pick = pool.find((a) => a.gather === res && !used.has(a.tile));
@@ -301,10 +336,24 @@ export function startRound(state) {
   state.reinterpretUsed = false;
   state.rainActive = false;
   if (!state.eventDeck.length) state.eventDeck = shuffle(state, EVENTS);
-  if (!state.lawDeck.length) state.lawDeck = shuffle(state, LAW_CARDS);
+  if (!state.lawDeck.length) state.lawDeck = shuffle(state, state.tutorial ? LAW_CARDS.filter((c) => !['L5', 'L7'].includes(c.id)) : LAW_CARDS);
   state.event = state.eventDeck.pop();
   state.lawCard = state.lawDeck.pop();
+  // 어려움: 율법 카드를 두 장 보고 지금 더 위협적인 쪽을 쓴다 (다른 한 장은 덱 맨 아래로)
+  if (state.config.difficulty === 'hard' && !state.tutorial) {
+    if (!state.lawDeck.length) state.lawDeck = shuffle(state, LAW_CARDS);
+    let alt = state.lawDeck.pop();
+    if (lawThreat(state, alt) > lawThreat(state, state.lawCard)) [state.lawCard, alt] = [alt, state.lawCard];
+    state.lawDeck.unshift(alt);
+  }
   state.first = state.round % 2 === 1 ? 'player' : 'enemy';
+}
+
+// 율법 카드가 지금 얼마나 위협적인가: 실제로 할 수 있는 공격·선교·건설에 가중치
+function lawThreat(state, card) {
+  const pool = legalActions(state, 'enemy');
+  const weight = { attack: 3, preach: 2, build: 2, pray: 1, gather: 1 };
+  return card.rules.reduce((sum, r) => sum + (pool.some((a) => a.type === r.type && (!r.build || a.build === r.build) && (!r.gather || a.gather === r.gather)) ? weight[r.type] : 0), 0);
 }
 
 export function castMiracle(state, id, targetTile) {
@@ -419,8 +468,9 @@ function resolveAction(state, a) {
     }
     case 'preach': {
       if (t.owner !== foe || f.pop <= 0) return logEvent(state, side, `${place}에는 설교할 상대가 없었다.`, null, { tile: t.id, kind: 'fail' });
-      const bonus = (s.doctrine.peace >= 2 ? 1 : 0) + (s.doctrine.peace >= 4 ? 1 : 0) + (s.faith >= 8 ? 1 : 0);
-      const defBonus = f.faith >= 8 ? 1 : 0;
+      // 율법에 매인 자들은 설득하기 어렵다: 기본 방어 +1, 수도·성벽 안이면 +1씩
+      const bonus = (s.doctrine.peace >= 2 ? 1 : 0) + (s.doctrine.peace >= 4 ? 1 : 0);
+      const defBonus = (side === 'player' ? 1 : 0) + (t.building === 'capital' ? 1 : 0) + (t.wall ? 1 : 0);
       const ra = d6(state); const rd = d6(state);
       const win = ra + bonus > rd + defBonus;
       const dice = { attacker: ra, attackerBonus: bonus, defender: rd, defenderBonus: defBonus, win };
@@ -432,9 +482,9 @@ function resolveAction(state, a) {
     }
     case 'attack': {
       if (t.owner !== foe) return logEvent(state, side, `${J(place, '은', '는')} 이미 적의 땅이 아니었다.`, null, { tile: t.id, kind: 'fail' });
-      const bonus = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0)
+      const bonus = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0) + superiority(s, f)
         + (side === 'enemy' && state.event?.id === 'threat' ? 1 : 0);
-      const defBonus = (t.wall ? 2 : 0) + (t.building === 'capital' ? 1 : 0);
+      const defBonus = (t.wall ? 2 : 0) + (t.building === 'capital' ? 1 : 0) + superiority(f, s);
       const ra = d6(state); const rd = d6(state);
       const win = ra + bonus > rd + defBonus;
       const dice = { attacker: ra, attackerBonus: bonus, defender: rd, defenderBonus: defBonus, win };
@@ -465,24 +515,33 @@ function upkeep(state) {
     s.food += 2 + villageCount(state, side);
     s.food -= s.pop;
     if (s.food < 0) {
-      s.food = 0; s.pop = Math.max(0, s.pop - 1); s.faith = Math.max(0, s.faith - 1);
+      s.food = 0; s.pop = Math.max(0, s.pop - 1);
       logEvent(state, side, `${josa(who, '이', '가')} 굶주려 1명을 잃었다.`, null, { kind: 'loss' });
     } else {
+      // 식량에 여유가 있을 때만 늘어난다: 증가 비용 + 신도 절반만큼의 비축
       const growCost = s.doctrine.abundance >= 4 ? 1 : 2;
-      if (s.pop < popCap(state, side) && s.food >= growCost + 1) {
+      if (s.pop < popCap(state, side) && s.food >= growCost + Math.ceil(s.pop / 2)) {
         s.food -= growCost; s.pop += 1;
         logEvent(state, side, `${who}에 새 ${side === 'player' ? '신도가' : '구성원이'} 태어났다.`, null, { kind: 'birth' });
       }
     }
-    s.faith += s.templeLevel - 1;
+    s.faith += faithIncome(state, side);
     if (state.event?.id === 'plague' && s.pop > 1) { s.pop -= 1; logEvent(state, side, `역병으로 ${who} 1명을 잃었다.`, null, { kind: 'loss' }); }
   }
-  // 신앙이 바닥나면 이단이 생겨 율법파로 넘어간다
+  // 신앙이 바닥난 채로 한 장을 버티면 경고, 그다음 장부터 신도가 율법파로 떠난다
   const p = state.sides.player;
-  if (p.faith <= 0 && p.pop > 1) {
-    p.pop -= 1; state.sides.enemy.pop += 1;
-    logEvent(state, 'player', '신앙이 바닥나 신도 1명이 율법파로 떠났다.', null, { kind: 'loss' });
+  if (p.faith <= 0) {
+    p.faithless += 1;
+    if (p.faithless > RULES.heresyGrace && p.pop > 1) {
+      p.pop -= 1; state.sides.enemy.pop += 1;
+      logEvent(state, 'player', '신앙이 바닥나 신도 1명이 율법파로 떠났다.', null, { kind: 'loss' });
+    } else {
+      logEvent(state, 'player', '신앙이 바닥나 신도들이 흔들린다. 이대로면 다음 장에 떠나는 자가 생긴다.', null, { kind: 'warn' });
+    }
+  } else {
+    p.faithless = 0;
   }
+  updateVision(state);
   checkVictory(state);
 }
 
@@ -498,14 +557,14 @@ export function checkVictory(state) {
   if (e.pop <= 0) { state.winner = 'player'; state.winReason = '율법파 전원 개종·소멸'; }
   if (p.pop <= 0) { state.winner = 'enemy'; state.winReason = '신도가 모두 사라짐'; }
   const total = state.sides.player.pop + state.sides.enemy.pop;
-  if (!state.winner && total >= 6 && state.sides.player.pop >= total * 0.75) {
+  if (!state.winner && total >= 8 && state.round >= 6 && state.sides.player.pop >= total * 0.75) {
     state.winner = 'player'; state.winReason = '신앙 승리 (인구의 3/4이 신도)';
   }
   if (!state.winner && state.round >= state.maxRounds) {
     const ps = score(state, 'player');
     const es = score(state, 'enemy');
     state.winner = ps >= es ? 'player' : 'enemy';
-    state.winReason = `${state.maxRounds}라운드 종료 — 승점 ${ps} : ${es}`;
+    state.winReason = state.tutorial ? `튜토리얼 완료 — 승점 ${ps} : ${es}` : `${state.maxRounds}장 종료 — 승점 ${ps} : ${es}`;
   }
   return state.winner;
 }

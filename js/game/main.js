@@ -2,12 +2,14 @@
 import {
   createState, startRound, legalActions, validateOrders, autoFill, planEnemy, resolveRound,
   recordRevelation, castMiracle, actionLimit, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
+  faithIncome, DEFAULT_CONFIG,
 } from './engine.js';
 import {
-  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, revelationCost, RESOURCE_NAME, MAX_ROUNDS, CAPITAL_HP, MAX_TEMPLE, TERRAIN,
+  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, revelationCost, RESOURCE_NAME, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
 } from './data.js';
 import { renderBoard, tileToHost, markerToScreen } from './board.js';
 import { installArt } from './art.js';
+import { Tutorial } from './tutorial.js';
 import { llmStatus, prepareLLM, interpretWithLLM, interpretWithTablet } from './interpreter.js';
 import * as fx from './fx.js';
 import { sfx, soundOn, setSound, musicOn, setMusic, music, unlockAudio } from './sound.js';
@@ -39,6 +41,18 @@ let flipLaw = false;
 let prevNums = {};
 let prevDoctrine = {};
 let focusId = null;         // 해결 재생 중 카메라가 비추는 칸
+let tutorial = null;        // 튜토리얼 진행 중이면 안내자
+let setup = loadSetup();    // 메인 화면에서 고른 새 게임 설정
+
+function loadSetup() {
+  try {
+    const s = JSON.parse(localStorage.getItem('gsg.setup') ?? 'null');
+    if (s && MAP_SIZES[s.size] && DIFFICULTY[s.difficulty] && s.seed > 0) return { ...DEFAULT_CONFIG, ...s, mode: 'standard' };
+  } catch { /* 저장된 설정이 없거나 깨졌다 */ }
+  return { ...DEFAULT_CONFIG, seed: randomSeed() };
+}
+function saveSetup() { try { localStorage.setItem('gsg.setup', JSON.stringify(setup)); } catch { /* 무시 */ } }
+function randomSeed() { return 1 + Math.floor(Math.random() * 999998); }
 let lastAltarPhase = null;  // 제단 전환 연출용
 
 const V = () => view ?? state;
@@ -47,8 +61,11 @@ const frameEl = () => $('boardFrame');
 // ---------- 시작 ----------
 async function init() {
   fx.ambient($('ambient'));
-  state = createState(1);
+  state = createState(setup);
   bindTools();
+  bindSetup();
+  renderSetup();
+  renderSubtitle();
   aiState = await llmStatus();
   aiUsable = ['available', 'readily-available', 'downloadable', 'downloading', 'after-download'].includes(aiState);
   aiMode = aiUsable && new URLSearchParams(location.search).get('ai') !== 'tablet' ? 'llm' : 'tablet';
@@ -68,10 +85,62 @@ function showMain() {
   const ms = $('mainScreen');
   ms.classList.remove('leaving');
   ms.hidden = false;
-  $('startGame').innerHTML = inProgress()
-    ? `제 ${state.round} 장으로 돌아가기 <kbd>Enter</kbd>` : '제1권 · 이웃의 불신자 시작 <kbd>Enter</kbd>';
+  tutorial?.hide();
+  // 진행 중인 판이 있으면 돌아가기 버튼을 맨 앞에 둔다
+  let resume = $('resumeGame');
+  if (inProgress()) {
+    if (!resume) {
+      resume = document.createElement('button');
+      resume.id = 'resumeGame'; resume.type = 'button'; resume.className = 'btn-primary ms-start';
+      resume.onclick = () => startFromMain('resume');
+      $('startGame').before(resume);
+    }
+    resume.innerHTML = `제 ${state.round} 장으로 돌아가기 <kbd>Enter</kbd>`;
+    $('startGame').className = 'btn-ghost ms-start';
+    $('startGame').innerHTML = '새 게임 시작';
+  } else {
+    resume?.remove();
+    $('startGame').className = 'btn-primary ms-start';
+    $('startGame').innerHTML = '새 게임 시작 <kbd>Enter</kbd>';
+  }
   renderMainStatus();
-  $('startGame').focus({ preventScroll: true });
+  renderSetup();
+  ($('resumeGame') ?? $('startGame')).focus({ preventScroll: true });
+}
+
+// ---------- 새 게임 설정 ----------
+const DIFF_HINT = {
+  easy: '율법파 행동 +0, 적은 시작 자원',
+  normal: '율법파 행동 +1',
+  hard: '율법파 행동 +2, 율법 카드 두 장 중 위협적인 쪽을 쓴다',
+};
+
+function bindSetup() {
+  for (const [id, key, cast] of [['optSize', 'size', Number], ['optDiff', 'difficulty', String]]) {
+    $(id).querySelectorAll('button').forEach((b) => {
+      b.onclick = () => { setup[key] = cast(b.dataset.v); saveSetup(); sfx.click(); renderSetup(); };
+    });
+  }
+  $('optSeed').onchange = () => {
+    const v = Math.max(1, Math.min(999999, Math.floor(Number($('optSeed').value) || 1)));
+    setup.seed = v; saveSetup(); renderSetup();
+  };
+  $('reseed').onclick = () => { setup.seed = randomSeed(); saveSetup(); sfx.dice(); renderSetup(); };
+  $('startTutorial').onclick = () => startFromMain('tutorial');
+}
+
+function renderSetup() {
+  $('optSize').querySelectorAll('button').forEach((b) => b.classList.toggle('on', Number(b.dataset.v) === setup.size));
+  $('optDiff').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === setup.difficulty));
+  $('optSeed').value = setup.seed;
+  $('diffHint').textContent = DIFF_HINT[setup.difficulty];
+  // 미리보기: 같은 설정으로 맵을 만들어 전부 드러낸다
+  const preview = createState({ ...setup, mode: 'standard' });
+  for (const t of preview.tiles) t.revealed = true;
+  renderBoard($('mapPreview'), preview, {});
+  const st = {};
+  for (const t of preview.tiles) st[t.terrain] = (st[t.terrain] ?? 0) + 1;
+  $('mapHint').textContent = `${setup.size}×${setup.size} · ${MAP_SIZES[setup.size].rounds}장 · 사막 ${st.desert ?? 0}칸 · 성지 ${st.hill ?? 0}칸`;
 }
 
 function renderMainStatus() {
@@ -86,27 +155,64 @@ function renderMainStatus() {
   $('msMotion').textContent = fx.motion.reduced ? '✧ 연출 줄임' : '✦ 연출 화려하게';
 }
 
-function startFromMain() {
+// mode: 'new' | 'resume' | 'tutorial'
+function startFromMain(mode = 'new') {
   const ms = $('mainScreen');
   if (ms.hidden || ms.classList.contains('leaving')) return;
   // 사용자 입력 안에서 오디오를 연다 (이 전에는 AudioContext를 만들지 않는다)
   unlockAudio();
   sfx.holy();
+  // 대사제 세션을 미리 깨워 둔다 (첫 계시가 13초 → 3초)
+  if (aiMode === 'llm') prepareLLM().catch(() => {});
   ms.classList.add('leaving');
   setTimeout(() => {
     ms.hidden = true;
     ms.classList.remove('leaving');
-    if (!inProgress()) { if (state.winner) restart(); else newRound(); }
+    if (mode === 'resume' && inProgress()) { tutorial?.on('speak', state.round); return; }
+    beginGame(mode === 'tutorial' ? { mode: 'tutorial' } : { ...setup, mode: 'standard' });
   }, fx.motion.reduced ? 150 : 850);
 }
 
+function beginGame(config) {
+  tutorial?.destroy();
+  tutorial = config.mode === 'tutorial' ? new Tutorial({ onSuggest: suggestRevelation, onEnd: endTutorial }) : null;
+  state = createState(config);
+  resolved = null;
+  prevNums = {};
+  prevDoctrine = {};
+  renderSubtitle();
+  newRound();
+}
+
+function renderSubtitle() {
+  $('subtitle').textContent = state.tutorial ? '튜토리얼 · 첫 계시'
+    : `${state.rows}×${state.cols} · 율법파 ${DIFFICULTY[state.config.difficulty].name} · 시드 ${state.config.seed}`;
+}
+
+function suggestRevelation(text) {
+  const ta = document.querySelector('.scroll textarea');
+  if (!ta) return;
+  ta.value = text;
+  ta.dispatchEvent(new Event('input'));
+  ta.focus();
+}
+
+function endTutorial({ skipped }) {
+  const title = skipped ? '튜토리얼을 마쳤다' : '튜토리얼 완료';
+  const sub = skipped ? '언제든 메인 화면에서 다시 볼 수 있다.' : state.winReason;
+  fx.endScreen(true, title, sub, () => showMain(), { againLabel: '본 게임으로', closeLabel: '보드 보기' });
+}
+
 function bindMain() {
-  $('startGame').onclick = startFromMain;
+  $('startGame').onclick = () => startFromMain('new');
   $('msSound').onclick = () => { setSound(!soundOn()); renderMainStatus(); renderTools(); sfx.click(); };
   $('msMusic').onclick = () => { setMusic(!musicOn()); renderMainStatus(); renderTools(); sfx.click(); };
   $('msMotion').onclick = () => { fx.setReduced(!fx.motion.reduced); renderMainStatus(); renderTools(); sfx.click(); };
   addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !$('mainScreen').hidden) { e.preventDefault(); startFromMain(); }
+    if (e.key === 'Enter' && !$('mainScreen').hidden && document.activeElement?.id !== 'optSeed') {
+      e.preventDefault();
+      startFromMain($('resumeGame') ? 'resume' : 'new');
+    }
     if (e.key === 'Escape' && $('mainScreen').hidden && phase !== 'thinking' && phase !== 'playing') showMain();
   });
 }
@@ -133,7 +239,7 @@ function tileTipHTML(cur, t) {
   const terr = TERRAIN[t.terrain];
   const owner = t.owner === 'player' ? '우리 부족의 땅' : t.owner === 'enemy' ? '율법파의 땅' : '주인 없는 땅';
   const bld = t.building === 'capital' ? (t.owner === 'player' ? '신전 — 기도하는 곳' : '율법파의 탑') : t.building === 'village' ? '마을 — 인구 한도 +2, 식량 +1' : '';
-  const gather = t.building === 'capital' ? '' : `${RESOURCE_NAME[terr.gather]} 채집 +${terr.amount}`;
+  const gather = t.building === 'capital' ? '' : terr.gather ? `${RESOURCE_NAME[terr.gather]} 채집 +${terr.amount}` : '메마른 땅 — 아무것도 얻을 수 없다';
   return `<b>${esc(tileName(cur, t, 'player'))}</b><span>${[owner, bld, gather, t.wall ? '성벽 — 방어 +2' : ''].filter(Boolean).map(esc).join('<br>')}</span>`;
 }
 
@@ -185,13 +291,18 @@ async function newRound() {
   music.setMood('calm');
   render();
   fx.chapter(frameEl(), `제 ${state.round} 장`, state.event.name);
+  if (tutorial) {
+    const round = state.round;
+    // 장 제목이 걷힌 뒤에 말을 건다. 그새 계시를 내렸다면(제단이 잠겼다면) 이번 장 설명은 건너뛴다
+    setTimeout(() => {
+      if (phase === 'speak' && state.round === round && !document.querySelector('.seal-btn')?.disabled) tutorial?.on('speak', round);
+    }, fx.motion.reduced ? 400 : 2300);
+  }
 }
 
+// 같은 설정(같은 맵)으로 다시
 function restart() {
-  state = createState(1);
-  prevNums = {};
-  prevDoctrine = {};
-  newRound();
+  beginGame(state.config);
 }
 
 // ---------- 계시 ----------
@@ -205,30 +316,37 @@ async function speak() {
   p.faith -= cost;
   draft = '';
   lockAltar();
+  tutorial?.hide();
+  // 인장·빛기둥 연출이 도는 동안 대사제가 먼저 해석을 시작한다
+  const job = runInterpretation(text);
   await fx.castRevelation(document.querySelector('.scroll'), document.querySelector('.seal-btn'), frameEl(), text);
-  await interpret(text);
+  await interpret(text, job);
 }
 
 function lockAltar() { document.querySelectorAll('#altar button, #altar textarea').forEach((b) => { b.disabled = true; }); }
 
-async function interpret(text) {
+// 해석만 한다 (화면은 건드리지 않는다). 실패하면 석판으로 대신한다
+async function runInterpretation(text) {
+  if (aiMode === 'llm') {
+    try {
+      await prepareLLM((p) => { progress = p; if (phase === 'thinking') renderAltar(); });
+      progress = null;
+      return { result: await interpretWithLLM(state, text) };
+    } catch (e) {
+      return { result: interpretWithTablet(state, text), notice: `대사제가 말씀을 알아듣지 못해 석판으로 해석했다 (${e.name}).` };
+    }
+  }
+  await fx.wait(700);
+  return { result: interpretWithTablet(state, text) };
+}
+
+async function interpret(text, job = runInterpretation(text)) {
   phase = 'thinking';
   notice = '';
   render();
-  let result;
-  if (aiMode === 'llm') {
-    try {
-      await prepareLLM((p) => { progress = p; renderAltar(); });
-      progress = null;
-      result = await interpretWithLLM(state, text);
-    } catch (e) {
-      notice = `대사제가 말씀을 알아듣지 못해 석판으로 해석했다 (${e.name}).`;
-      result = interpretWithTablet(state, text);
-    }
-  } else {
-    await fx.wait(900);
-    result = interpretWithTablet(state, text);
-  }
+  const done = await job;
+  const result = done.result;
+  notice = done.notice ?? '';
   const forbiddenKeys = result.forbidden.map((a) => a.key);
   const { accepted, rejected } = validateOrders(state, 'player', result.orders, forbiddenKeys, result.doctrine);
   const auto = autoFill(state, 'player', accepted, forbiddenKeys);
@@ -278,8 +396,8 @@ async function reinterpret() {
 async function accept() {
   lockAltar();
   const { text, result, accepted, auto } = pending;
+  tutorial?.hide();
   if (text) {
-    recordRevelation(state, text, result.doctrine);
     state.log.push({ round: state.round, side: 'god', text: `“${text}”` });
     state.log.push({ round: state.round, side: 'priest', text: result.interpretation });
   }
@@ -287,6 +405,8 @@ async function accept() {
   const enemyPlan = planEnemy(state);
   const from = state.log.length;
   resolveRound(state, [...accepted, ...auto], enemyPlan);
+  // 교리는 해결이 끝난 뒤에 오른다: 확인 화면에 보인 수치 그대로 해결되도록
+  if (text) recordRevelation(state, text, result.doctrine);
   resolved = { enemyPlan, playerPlan: [...accepted, ...auto], logs: state.log.slice(from), shown: [] };
   await playback(before);
 }
@@ -345,6 +465,10 @@ async function playback(before) {
   phase = state.winner ? 'over' : 'resolved';
   if (phase !== 'over') music.setMood('calm');
   render();
+  if (tutorial) {
+    if (phase === 'over') { music.setMood('end'); tutorial.on('end', state.round); return; }
+    tutorial.on('resolved', state.round);
+  }
   if (phase === 'over') {
     music.setMood('end');
     const won = state.winner === 'player';
@@ -368,7 +492,7 @@ function bannerFor(log, seen) {
     gain: [isPray ? 'i-temple' : `i-${res}`, isPray ? '기도' : '채집'],
     treasure: ['i-faith', '보물 발견'], explore: ['e-prophet', '탐험'], build: ['i-house', '건설'], cathedral: ['i-temple', '대성당'],
     preach: ['d-peace', '선교'], attack: ['d-war', '공격'], blocked: ['i-shield', '선점당함'], fail: ['i-shield', '헛걸음'],
-    birth: ['i-house', '새 생명'], loss: ['i-shield', '잃음'], lightning: ['m-lightning', '번개'], rain: ['m-rain', '단비'], bounty: ['m-bounty', '풍요'],
+    birth: ['i-house', '새 생명'], loss: ['i-shield', '잃음'], warn: ['i-faith', '신앙의 흔들림'], lightning: ['m-lightning', '번개'], rain: ['m-rain', '단비'], bounty: ['m-bounty', '풍요'],
   }[e.kind];
   if (!map) return null;
   const [icon, verb] = map;
@@ -448,6 +572,10 @@ async function playFx(log) {
       }
       return fx.wait(600);
     }
+    case 'warn':
+      if (home) fx.floatText(svg, home, '신도들이 흔들린다', 'bad');
+      sfx.fail();
+      return fx.wait(900);
     case 'loss':
       if (home) fx.floatText(svg, home, '-1 신도', 'bad');
       sfx.loss();
@@ -534,7 +662,7 @@ function renderTools() {
 
 function renderTrack() {
   const nodes = [];
-  for (let i = 1; i <= MAX_ROUNDS; i++) {
+  for (let i = 1; i <= state.maxRounds; i++) {
     const cls = i < state.round ? 'done' : i === state.round ? 'now' : '';
     if (i > 1) nodes.push('<span class="link"></span>');
     nodes.push(`<span class="node ${cls}" title="제 ${i} 장">${i}</span>`);
@@ -620,9 +748,20 @@ function matHTML(cur, side) {
   const s = cur.sides[side];
   const mine = side === 'player';
   const cap = popCap(cur, side);
-  const res = RES_KEYS.map((k) => `
-    <div class="res"><span class="coin" id="coin-${side}-${k}">${svgUse(`i-${k}`)}</span>
-      <div>${num(`${side}.${k}`, s[k])}<div class="l">${RESOURCE_NAME[k]}</div></div></div>`).join('');
+  const income = faithIncome(cur, side);
+  const lowFaith = mine && s.faith <= RULES.lowFaith;
+  const res = RES_KEYS.map((k) => {
+    const faith = k === 'faith';
+    const tip = faith ? ` title="매 장 +${income} (기본 ${RULES.baseFaithIncome} · 신도 ${RULES.followersPerFaith}명마다 +1 · 신전)"` : '';
+    const warn = faith && lowFaith ? ` low${s.faithless ? ' critical' : ''}` : '';
+    const label = faith ? `${RESOURCE_NAME[k]} <em>+${income}</em>` : RESOURCE_NAME[k];
+    return `
+    <div class="res${warn}"${tip}><span class="coin" id="coin-${side}-${k}">${svgUse(`i-${k}`)}</span>
+      <div>${num(`${side}.${k}`, s[k])}<div class="l">${label}</div></div></div>`;
+  }).join('');
+  const warnLine = !lowFaith ? '' : s.faithless
+    ? '<div class="faith-warn critical">신앙이 바닥났다 — 한 장 더 비면 신도가 떠난다. 기도하라.</div>'
+    : '<div class="faith-warn">신앙이 낮다 — 계시를 아끼고 기도를 명하라.</div>';
   const away = Math.min(awayCount(side), s.pop);
   const meeples = Array.from({ length: Math.max(cap, s.pop) }, (_, i) => meepleSvg(side, i < away ? 'away' : i < s.pop ? '' : 'empty')).join('');
   const hearts = Array.from({ length: CAPITAL_HP }, (_, i) => svgUse('i-shield', i < s.capitalHp ? '' : 'lost')).join('');
@@ -648,12 +787,12 @@ function matHTML(cur, side) {
       <div><h2>${mine ? '우리 부족' : '율법파'}</h2><small>${mine ? '말씀을 따르는 자들' : '새겨진 율법대로 움직인다'}</small></div>
       <div class="score">${num(`${side}.score`, score(cur, side))}<small><br>승점</small></div>
     </div>
-    <div class="res-grid${mine ? '' : ' compact'}">${res}</div>
+    <div class="res-grid${mine ? '' : ' compact'}">${res}</div>${warnLine}
     <div class="section-label"><span>신도</span><span>${s.pop} / ${cap}</span></div>
     <div class="meeples">${meeples}</div>
     <div class="section-label"><span>세력</span></div>
     <div class="stats">
-      <div class="stat">${svgUse('i-hand')}행동<b>${num(`${side}.act`, actionLimit(cur, side))}</b></div>
+      <div class="stat" title="행동 = 2 + 신전 + 신도 ${RULES.followersPerAction}명마다 1 (최대 6)">${svgUse('i-hand')}행동<b>${num(`${side}.act`, actionLimit(cur, side))}</b></div>
       <div class="stat">${svgUse('i-temple')}신전<b>${temple}</b></div>
       <div class="stat">${svgUse('i-house')}마을<b>${num(`${side}.vil`, villageCount(cur, side))}</b></div>
       <div class="stat">수도<span class="hearts">${hearts}</span></div>
@@ -743,10 +882,11 @@ function renderAltar() {
     pending.fresh = false;
     const chips = [...altar.querySelectorAll('.order')];
     chips.forEach((c) => { c.style.visibility = 'hidden'; });
-    fx.typewriter(altar.querySelector('.quote'), pending.result.interpretation).then(async () => {
+    fx.typewriter(altar.querySelector('.quote'), pending.result.interpretation, 75).then(async () => {
       for (const c of chips) { c.style.visibility = ''; c.classList.add('appear'); sfx.click(); await fx.wait(110); }
       const ok = altar.querySelector('.accept');
       if (ok) ok.disabled = false;
+      tutorial?.on('confirm', state.round);
     });
   }
   const sc = altar.querySelector('.scroll');
