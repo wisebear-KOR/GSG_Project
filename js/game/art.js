@@ -159,7 +159,6 @@ export const ART = `
     <path d="M3 17l3-8 7-3 7 4 1 7-6 3H8z" fill="#9d958b"/><path d="M6 9l6 3 8-2M12 12l2 8" fill="none" stroke="#6f675e"/><path d="M8 8.5l4-1.6" stroke="#d8d2ca"/></g></symbol>
   <symbol id="i-faith" viewBox="0 0 24 24"><g stroke="#7a4a05" stroke-width="1.1" stroke-linejoin="round">
     <path d="M12 2c1.5 4 5.5 5.5 5.5 11a5.5 5.5 0 0 1-11 0C6.5 9 9 8 9 5c2 1.4 2.4 3 2.2 4.6C12.8 8 13 5 12 2z" fill="#ffcf5a"/><path d="M12 12c1 2 2.6 2.6 2.6 5a2.6 2.6 0 0 1-5.2 0c0-1.8 1.4-2.8 2.6-5z" fill="#fff3c4" stroke-width=".8"/></g></symbol>
-  <symbol id="i-pop" viewBox="-14 -16 28 30"><use href="#s-meeple"/></symbol>
   <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11V4a1.5 1.5 0 0 1 3 0v7V5.5a1.5 1.5 0 0 1 3 0V12v-3a1.5 1.5 0 0 1 3 0v6c0 4-3 7-7 7h-1c-3 0-4.5-1.5-6-4l-2.6-4.4a1.4 1.4 0 0 1 2.3-1.6z" fill="#f0dcc0" stroke="#5a3b1e" stroke-width="1.2" stroke-linejoin="round"/></symbol>
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z" fill="#c9a24a" stroke="#5a3b10" stroke-width="1.2"/><path d="M12 4.5v15.3c3-1.6 5.6-4.6 5.6-8.8V6.6z" fill="#e9cd7c"/></symbol>
   <symbol id="i-trophy" viewBox="0 0 24 24"><g stroke="#5a3b10" stroke-width="1.2" stroke-linejoin="round"><path d="M7 3h10v5a5 5 0 0 1-10 0z" fill="url(#g-gold)"/><path d="M7 5H4a3 3 0 0 0 3 4M17 5h3a3 3 0 0 1-3 4" fill="none"/><path d="M12 13v4M8 21h8l-1-4H9z" fill="#c99a3b"/></g></symbol>

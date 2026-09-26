@@ -16,7 +16,8 @@ installArt();
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const svgUse = (id, cls = '', vb = '0 0 24 24') => `<svg class="${cls}" viewBox="${vb}" aria-hidden="true"><use href="#${id}"/></svg>`;
-const meepleSvg = (side, cls = '') => `<svg class="${cls}" viewBox="-14 -16 28 30" aria-hidden="true"><use href="#s-meeple" fill="url(#g-meeple-${side})" stroke="rgba(0,0,0,.55)" stroke-width="1.1"/></svg>`;
+// 미플 심볼은 원점이 (0,0)이 아니므로 위치와 크기를 명시해야 잘리지 않는다
+const meepleSvg = (side, cls = '') => `<svg class="${cls}" viewBox="-14 -16 28 30" aria-hidden="true"><use href="#s-meeple" x="-14" y="-16" width="28" height="30" fill="url(#g-meeple-${side})" stroke="rgba(0,0,0,.55)" stroke-width="1.1"/></svg>`;
 const RES_KEYS = ['food', 'wood', 'stone', 'faith'];
 const MIRACLE_ART = { lightning: 'm-lightning', rain: 'm-rain', bounty: 'm-bounty' };
 
@@ -197,7 +198,8 @@ async function playback(before) {
     const won = state.winner === 'player';
     const title = state.winner === 'draw' ? '무승부' : won ? '승리' : '패배';
     await fx.wait(700);
-    fx.endScreen(won, title, `${state.winReason} · 승점 ${score(state, 'player')} : ${score(state, 'enemy')}`, restart);
+    const sub = state.winReason.includes('승점') ? state.winReason : `${state.winReason} · 승점 ${score(state, 'player')} : ${score(state, 'enemy')}`;
+    fx.endScreen(won, title, sub, restart);
   }
 }
 
