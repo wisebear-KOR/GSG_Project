@@ -78,7 +78,7 @@ export function createState(config = DEFAULT_CONFIG) {
     judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, oddUsed: false,
     edictOn: !!cfg.veteran && !tutorial, destiny: null, destinyOffer: null, holyId: null,
     commandments: [], liturgy: null, saints: [], deeds: {}, fallen: [], silentRun: 0, legends: {},
-    miraDone: false, miraQuote: null, bloodKills: 0,
+    miraDone: false, miraQuote: null, bloodKills: 0, pendingDilemma: null,
     sacred: cfg.daily ? hashPick(SACRED_WORDS, 'sacred', cfg.daily) : null, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
     miracleUsed: false, reinterpretUsed: false,
     log: [], revelations: [], history: [], winner: null, winReason: '',
@@ -115,7 +115,7 @@ export function createState(config = DEFAULT_CONFIG) {
   }
   // 소명: 두 번째 판부터 셋 중 하나 (고르지 않으면 첫째)
   if (cfg.veteran && !tutorial && !cfg.challenge) {
-    const ids = Object.keys(DESTINIES).sort((a, b) => hashPick([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], cfg.seed, 'dest', a) - hashPick([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], cfg.seed, 'dest', b) || a.localeCompare(b));
+    const ids = Object.keys(DESTINIES).filter((d) => !(cfg.trial === 'earth' && d === 'sword')).sort((a, b) => hashPick([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], cfg.seed, 'dest', a) - hashPick([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], cfg.seed, 'dest', b) || a.localeCompare(b));
     state.destinyOffer = ids.slice(0, 3);
     state.destiny = { id: ids[0], done: false };
   }
@@ -153,8 +153,8 @@ export function createState(config = DEFAULT_CONFIG) {
     state.lawDeck = dealDeck(state, lawPool(state), state.maxRounds * 2 + 2);
   }
   if (cfg.trial === 'earth') state.sides.player.doctrine.abundance = 1;
-  if (cfg.trial === 'last') state.sides.enemy.pop += 2;
-  if ((cfg.ascension ?? 0) >= 1) state.sides.enemy.pop += 1;
+  if (cfg.trial === 'last') { state.sides.enemy.pop += 2; state.sides.enemy.food += 8; }
+  if ((cfg.ascension ?? 0) >= 1) { state.sides.enemy.pop += 1; state.sides.enemy.food += 4; }
   // 은사 (오늘의 계시·도전·튜토리얼에선 main이 넘기지 않는다)
   if (cfg.blessing === 'granary') state.sides.player.food += 2;
   // 정경: 지난 판에 봉헌한 구절이 이 부족의 교리를 한 칸 올려 둔다 (오늘의 계시·어려움에선 말씀만 전해진다)
@@ -531,7 +531,7 @@ export function startRound(state) {
     state.miraQuote = q ? `신께서 “${q.text}”라 하셨으니, 곧 ${MIRA_TWIST[q.doctrine]}는 뜻이다!` : '신은 이미 우리를 떠났다!';
   }
   // 지혜 궁극: 다가올 계절 두 장 중 하나를 고른다 (고르지 않으면 첫 장)
-  state.eventChoice = hasUlt(state, 'player', 'wisdom') && state.eventDeck.length && state.eventDeck.at(-1).id !== state.event.id
+  state.eventChoice = !state.event.special && hasUlt(state, 'player', 'wisdom') && state.eventDeck.length && state.eventDeck.at(-1).id !== state.event.id
     ? [state.event.id, state.eventDeck.at(-1).id] : null;
   // 지난 장 검열 카드가 봉인한 말은 이번 장에만 효력이 있다
   state.bannedWords = state.bannedNext ? [state.bannedNext] : [];
@@ -566,7 +566,7 @@ export function startRound(state) {
   if (state.round > 1) state.destinyOffer = null; // 1장에 고르지 않았으면 첫 소명 그대로
   state.petition = makePetition(state);
   if (state.round === draftRound(state) && state.config.veteran && !state.tutorial) {
-    const pool = MIRACLES.map((m) => m.id).filter((id) => !state.miracleHand.includes(id));
+    const pool = MIRACLES.map((m) => m.id).filter((id) => !state.miracleHand.includes(id) && !(state.config.trial === 'storm' && id === 'rain'));
     const offer = [];
     for (let i = 0; i < 3 && pool.length; i++) offer.push(pool.splice(Math.floor(rand(state, 'deck') * pool.length), 1)[0]);
     state.miracleOffer = offer;
@@ -847,6 +847,8 @@ export function resolveRound(state, playerPlan, enemyPlan) {
       }
     }
   }
+  // 갈림길의 결과는 유지 단계 전에 (마지막 장의 승패에도 들어가게)
+  if (state.pendingDilemma && !state.winner) { resolveDilemma(state, state.pendingDilemma, true); state.pendingDilemma = null; }
   if (!state.winner) upkeep(state);
   recordHistory(state);
 }
@@ -956,7 +958,7 @@ export function markLegends(state, text, doctrine, orders, logs) {
   const made = [];
   for (const a of orders) {
     if (Object.keys(state.legends).length >= 3) break;
-    const hit = logs.find((l) => l.act === a.key && (l.fx?.capture || l.fx?.convert || l.fx?.kind === 'cathedral'));
+    const hit = logs.find((l) => l.act === a.key && (l.fx?.capture || l.fx?.convert || l.fx?.kind === 'cathedral' || (a.build === 'cathedral' && l.fx?.kind === 'build')));
     const t = state.tileAt[a.tile];
     if (!hit || state.legends[t.id] || state.names[t.id] || t.id === state.holyId) continue;
     const base = t.building === 'capital' ? '신전' : t.building === 'village' ? '마을' : TERRAIN[t.terrain]?.name ?? '땅';
@@ -969,9 +971,10 @@ export function markLegends(state, text, doctrine, orders, logs) {
 }
 
 // ---------- 영원한 계명, 성언, 숨은 말 ----------
+export const carvable = (state, id) => !(state.config.trial === 'earth' && id === 'noSword');
 export const canCarve = (state) => state.config.veteran && !state.tutorial && state.round >= 3 && state.commandments.length < MAX_COMMANDMENTS;
 export function carveCommandment(state, id) {
-  if (!canCarve(state) || !COMMANDMENTS[id] || state.commandments.includes(id)) return false;
+  if (!canCarve(state) || !COMMANDMENTS[id] || state.commandments.includes(id) || !carvable(state, id)) return false;
   state.commandments.push(id);
   logEvent(state, 'player', `영원한 계명을 새겼다 — 「${COMMANDMENTS[id].name}」. ${COMMANDMENTS[id].text}.`, null, { kind: 'commandment', tile: capitalOf(state, 'player')?.id });
   return true;
@@ -998,12 +1001,30 @@ export function dilemmaByText(state, text) {
   if (!opts || !text) return null;
   return opts.find((o) => new RegExp(o.tags).test(text))?.id ?? null;
 }
-export function resolveDilemma(state, pick) {
+// 갈림길 비용을 먼저 치른다. 감당할 수 없으면 비용 없는 선택으로 바뀐다
+export function payDilemma(state, pick) {
+  const ev = state.event;
+  if (!ev?.choice) return null;
+  let o = ev.choice.find((x) => x.id === pick) ?? ev.choice[0];
+  const s = state.sides.player;
+  const cost = Object.entries(o.gain ?? {}).filter(([, v]) => v < 0);
+  if (cost.some(([k, v]) => s[k] < -v)) {
+    const free = ev.choice.find((x) => !Object.values(x.gain ?? {}).some((v) => v < 0)) ?? o;
+    if (free !== o) logEvent(state, 'player', `${ev.name} — ${o.label}에 드는 것을 감당할 수 없어 「${free.label}」 쪽을 따랐다.`, null, { kind: 'dilemma' });
+    o = free;
+  }
+  for (const [k, v] of Object.entries(o.gain ?? {})) if (v < 0) s[k] += v;
+  if (o.ark) state.roundMods.ark = true;
+  state.pendingDilemma = o.id;
+  return o.id;
+}
+
+export function resolveDilemma(state, pick, prepaid = false) {
   const ev = state.event;
   if (!ev?.choice) return;
   const o = ev.choice.find((x) => x.id === pick) ?? ev.choice[0];
   const s = state.sides.player;
-  for (const [k, v] of Object.entries(o.gain ?? {})) s[k] = Math.max(0, s[k] + v);
+  for (const [k, v] of Object.entries(o.gain ?? {})) if (!prepaid || v > 0) s[k] = Math.max(0, s[k] + v);
   let note = '';
   if (o.pop > 0) { if (s.pop < popCap(state, 'player')) s.pop += 1; else { s.food += 2; note = ' 머물 자리가 없어 양식만 나누고 떠났다 (식량 +2).'; } }
   if (o.pop < 0 && s.pop > 1) s.pop -= 1;
@@ -1052,7 +1073,7 @@ export function hydrateState(obj) {
   state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.petitionIgnored ??= 0; state.prophecy ??= null;
   state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null; state.oddUsed ??= false;
   state.edictOn ??= false; state.dilemmaPick ??= null;
-  state.silentRun ??= 0; state.legends ??= {}; state.miraDone ??= false; state.miraQuote ??= null; state.bloodKills ??= 0;
+  state.silentRun ??= 0; state.legends ??= {}; state.miraDone ??= false; state.pendingDilemma ??= null; state.miraQuote ??= null; state.bloodKills ??= 0;
   state.commandments ??= []; state.liturgy ??= null; state.saints ??= []; state.deeds ??= {}; state.fallen ??= []; state.sacred ??= null; state.destiny ??= null; state.destinyOffer ??= null; state.holyId ??= null;
   for (const sd of Object.values(state.sides)) { sd.cathedral ??= 0; sd.edict ??= 0; }
   state.grace ??= { round: 0, used: 0 }; state.roundMods ??= {}; state.miracleHand ??= [...FIRST_HAND]; state.miracleOffer ??= null; state.pendingSite ??= null; state.stats ??= { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 };

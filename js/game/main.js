@@ -7,10 +7,10 @@ import {
   scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
   canCarve, carveCommandment, updateLiturgy, findSacred, distance, previewGains, ultRound, draftRound,
-  applySilence, markLegends, serializeState, hydrateState, monthOf,
+  applySilence, markLegends, serializeState, hydrateState, monthOf, payDilemma, carvable,
 } from './engine.js';
 import {
-  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, FESTIVALS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, TRIALS, ASCENSION, RULESET, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
+  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, FESTIVALS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, TRIALS, ASCENSION, RULESET, LAW_CARDS, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
 } from './data.js';
 import { renderBoard, tileToHost, markerToScreen, tileCenter } from './board.js';
 import { installArt } from './art.js';
@@ -278,6 +278,7 @@ function resumeLoaded() {
   music.setMood('calm');
   render();
   fx.chapter(frameEl(), `제 ${state.round} 장`, '다시 이어서');
+  meta.markSeen('events', state.event.id);
   if (state.miracleOffer) setTimeout(showMiracleDraft, fx.motion.reduced ? 300 : 2500);
   if (state.destinyOffer && state.round === 1) setTimeout(showDestinyChoice, fx.motion.reduced ? 300 : 2500);
 }
@@ -306,7 +307,7 @@ function renderSubtitle() {
 function suggestRevelation(text) {
   const ta = document.querySelector('.scroll textarea');
   if (!ta) return;
-  ta.value = text;
+  ta.value = text.slice(0, revMax());
   ta.dispatchEvent(new Event('input'));
   ta.focus();
 }
@@ -324,11 +325,11 @@ function bindMain() {
   $('msMusic').onclick = () => { setMusic(!musicOn()); renderMainStatus(); renderTools(); sfx.click(); };
   $('msMotion').onclick = () => { fx.setReduced(!fx.motion.reduced); renderMainStatus(); renderTools(); sfx.click(); };
   addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !$('mainScreen').hidden && document.activeElement?.id !== 'optSeed') {
+    if (e.key === 'Enter' && !$('mainScreen').hidden && !document.querySelector('.choice-modal') && !e.target.closest?.('button, input, textarea, select')) {
       e.preventDefault();
       startFromMain($('resumeGame') ? 'resume' : 'new');
     }
-    if (e.key === 'Escape' && phase === 'confirm' && document.querySelector('#altar .retract')) { e.preventDefault(); retract(); return; }
+    if (e.key === 'Escape' && phase === 'confirm' && document.querySelector('#altar .retract') && !document.querySelector('.choice-modal')) { e.preventDefault(); retract(); return; }
     if (e.key === 'Escape' && $('mainScreen').hidden && phase !== 'thinking' && phase !== 'playing' && !document.querySelector('.choice-modal:not(.list-modal)')) showMain();
   });
   addEventListener('keydown', onKey);
@@ -338,6 +339,7 @@ function bindTileTips() {
   const tip = $('tileTip');
   const board = $('board');
   board.addEventListener('pointermove', (e) => {
+    if (e.pointerType === 'touch') return;
     const g = e.target.closest?.('.tile');
     if (!g) { tip.classList.remove('show'); return; }
     const cur = V();
@@ -354,6 +356,8 @@ function bindTileTips() {
   let swallow = false;
   board.addEventListener('pointerdown', (e) => {
     if (e.pointerType !== 'touch') return;
+    swallow = false;
+    tip.classList.remove('show');
     const g = e.target.closest?.('.tile');
     if (!g) return;
     const x0 = e.clientX; const y0 = e.clientY;
@@ -365,9 +369,11 @@ function bindTileTips() {
       tip.style.top = `${Math.max(8, y0 - tip.offsetHeight - 24)}px`;
       swallow = true;
     }, 450);
-    const cancel = (ev) => { if (!ev || Math.hypot(ev.clientX - x0, ev.clientY - y0) > 8) { clearTimeout(press); press = null; } };
-    board.addEventListener('pointermove', cancel, { once: true });
-    board.addEventListener('pointerup', () => clearTimeout(press), { once: true });
+    const move = (ev) => { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 8) end(); };
+    const end = () => { clearTimeout(press); press = null; board.removeEventListener('pointermove', move); board.removeEventListener('pointerup', end); board.removeEventListener('pointercancel', end); };
+    board.addEventListener('pointermove', move);
+    board.addEventListener('pointerup', end);
+    board.addEventListener('pointercancel', end);
   });
   board.addEventListener('click', (e) => { if (swallow) { swallow = false; e.stopPropagation(); e.preventDefault(); } }, true);
   addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch' && !e.target.closest?.('#board')) tip.classList.remove('show'); });
@@ -472,6 +478,7 @@ async function speak() {
   const ta = document.querySelector('.scroll textarea');
   const text = (ta?.value ?? '').trim();
   if (!text) { ta?.focus(); return; }
+  if (text.length > revMax()) { notice = `이 시련에서는 계시를 ${revMax()}자까지만 적을 수 있다.`; renderAltar(); rejectFx(); return; }
   // 말줄임만 있는 계시는 침묵이다 (대사제를 부르지 않는다)
   if (!/[가-힣A-Za-z0-9]/.test(text)) { silence(); return; }
   const cost = revelationCostFor(state, text);
@@ -550,6 +557,7 @@ function derivePending() {
   pending.dilemma = text ? dilemmaByText(state, text) : null;
   pending.miracle = text ? spokenMiracle(text) : null;
   pending.command = text && canCarve(state) ? parseCommandment(text, COMMANDMENTS) : null;
+  if (pending.command && !carvable(state, pending.command)) pending.command = null;
   if (pending.command && state.commandments.includes(pending.command)) pending.command = null;
   // 기이한 해석: 처음 해석(칩을 빼기 전)으로 한 번만 정한다 — LLM이 계시의 어떤 낱말과도 잇지 못하는 행동을 골랐고, 석판과도 겹치지 않을 때 (판당 한 번)
   if (pending.odd === undefined) {
@@ -633,6 +641,7 @@ function swapReading() {
   other.prev = pending;
   other.fresh = false;
   pending = other;
+  derivePending();
   sfx.page();
   renderBoardView();
   renderAltar();
@@ -673,21 +682,23 @@ async function accept() {
   }
   applyTone(state, text ? pending.tone : null);
   if (!text) state.streak = null;
-  // 갈림길은 해결 뒤에 (다만 치료사의 보호는 이번 장부터)
+  // 갈림길: 비용은 먼저 치르고 결과는 유지 단계 전에 (엔진)
   const pick = state.event.choice ? pending.dilemma ?? state.dilemmaPick ?? state.event.choice[0].id : null;
-  if (pick && state.event.choice.find((o) => o.id === pick)?.ark) state.roundMods.ark = true;
+  if (pick) payDilemma(state, pick);
   let plan = [...accepted, ...auto];
   if (pending.command && pending.carve && carveCommandment(state, pending.command)) {
-    // 새긴 계명은 이번 장부터 지킨다
+    // 새긴 계명은 이번 장부터 지킨다. 빠진 자리는 신도들이 알아서 채운다
     const banned = { noSword: 'attack', noExpand: 'village' }[pending.command];
-    plan = plan.filter((a) => a.type !== banned && a.build !== banned);
+    const kept = accepted.filter((a) => a.type !== banned && a.build !== banned);
+    const fk = result.forbidden.map((a) => a.key);
+    plan = [...kept, ...autoFill(state, 'player', kept, fk)];
   }
+  const ordered = plan.filter((a) => !a.auto);
   if (text) findSacred(state, text);
   if (pending.seal && pending.prophecy) sealProphecy(state, pending.prophecy);
   resolveRound(state, plan, enemyPlan);
-  if (pick && !state.winner) resolveDilemma(state, pick);
   if (!state.winner) applySilence(state, !!text);
-  if (!state.winner && text) markLegends(state, text, result.doctrine, accepted, state.log.slice(from));
+  if (!state.winner && text) markLegends(state, text, result.doctrine, ordered, state.log.slice(from));
   if (!state.winner && text) keepVows(state, result.forbidden, plan);
   if (!state.winner) wordsAfter(pending);
   // 교리는 해결이 끝난 뒤에 오른다: 확인 화면에 보인 수치 그대로 해결되도록
@@ -705,7 +716,7 @@ async function accept() {
     for (const t of state.tiles) if (t.site?.found) meta.markSeen('sites', t.site.id);
     if (pending.miracle && !pending.dropped.has(pending.miracle.key)) meta.markSeen('miracles', pending.miracle.id);
     if (text) {
-      for (const a of accepted) meta.noteWords(a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type, text);
+      for (const a of ordered) meta.noteWords(a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type, text);
       if (pending.tone !== 'command') meta.noteWords(`tone:${pending.tone}`, text);
     }
   }
@@ -751,7 +762,7 @@ function finishGame() {
   const fresh = meta.unlockAchievements(evaluateAchievements(summary));
   if (state.config.daily) meta.recordDaily(state.config.daily, { winner: state.winner, score: summary.score, rounds: state.round });
   if (state.config.trial) { summary.stars = trialStars(summary); summary.newStars = meta.recordTrial(state.config.trial, summary.stars); }
-  if (state.winner === 'player' && state.config.difficulty === 'hard' && !state.config.trial && !state.config.daily) meta.openAscension((state.config.ascension ?? 0) + 1);
+  if (state.winner === 'player' && state.config.difficulty === 'hard' && !state.config.trial && !state.config.daily && !state.config.challenge) meta.openAscension((state.config.ascension ?? 0) + 1);
   const aweGain = summary.score[0] + (state.winner === 'player' ? 10 : 0) + fresh.length * 3;
   summary.awe = meta.addAwe(aweGain, AWE_LEVELS);
   const standard = !state.tutorial && !state.config.daily && !state.config.challenge && !state.config.trial && state.config.veteran;
@@ -984,7 +995,7 @@ function codexHTML() {
   const LEX = { 'gather:food': '식량 거두기', 'gather:wood': '나무 베기', 'gather:stone': '돌 캐기', 'gather:faith': '성지 묵상', pray: '기도', explore: '탐험', preach: '선교', attack: '공격', 'build:village': '마을 세우기', 'build:wall': '성벽', 'build:temple': '신전 높이기', 'build:cathedral': '대성당', 'tone:blessing': '축복의 말투', 'tone:curse': '저주의 말투', 'tone:metaphor': '비유의 말투' };
   return `<details class="codex"><summary>도감 · 어휘집</summary>
     ${cat('계절', 'events', [...EVENTS.map((e) => e.id), ...DILEMMAS.map((e) => e.id), 'mira'], (id) => (EVENTS.find((e) => e.id === id) ?? DILEMMAS.find((e) => e.id === id))?.name ?? '분열의 예언자 미라')}
-    ${cat('율법', 'laws', ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10'], (id) => id)}
+    ${cat('율법', 'laws', LAW_CARDS.map((c) => c.id), (id) => LAW_CARDS.find((c) => c.id === id)?.name ?? id)}
     ${cat('지도자', 'leaders', Object.keys(ENEMY_LEADERS), (id) => ENEMY_LEADERS[id].name)}
     ${cat('발견', 'sites', Object.keys(SITES), (id) => SITES[id].name)}
     ${cat('기적', 'miracles', MIRACLES.map((m) => m.id), (id) => MIRACLES.find((m) => m.id === id).name)}
@@ -1002,7 +1013,9 @@ function showBible() {
 // ---------- 설정 ----------
 function applyA11y() {
   document.body.classList.toggle('cb', !!meta.get('gsg.a11y.cb', false));
-  document.body.style.zoom = String(meta.get('gsg.a11y.zoom', 1));
+  const z = String(meta.get('gsg.a11y.zoom', 1));
+  document.body.style.zoom = '';
+  for (const el of document.querySelectorAll('.app, .ms-inner')) el.style.zoom = z;
 }
 function showSettings() {
   const o = listModal('설정', settingsHTML());
@@ -1302,7 +1315,7 @@ async function playback(before) {
     lastHidden = hidden;
     const banner = repeatHidden ? null : bannerFor(log, seen);
     if (banner && !fx.motion.skip) { fx.actionBanner(frameEl(), banner); await fx.wait(420); }
-    if (banner) announce(`${banner.title}. ${log.text}`);
+    if (banner && speed === '1' && !fx.motion.skip) announce(`${banner.title}. ${log.text}`);
     if (repeatHidden) await fx.wait(120); else await playFx(log);
     // 연속 성공 콤보: 우리 성공이 이어질수록 음이 오른다
     if (log.side === 'player' && log.fx) {
@@ -1689,6 +1702,7 @@ function renderSeason() {
   $('season').querySelectorAll('.card').forEach((c) => fx.attachTilt(c, 8));
   $('season').querySelector('.season-swap')?.addEventListener('click', (e) => {
     chooseEvent(state, e.currentTarget.dataset.ev);
+    meta.markSeen('events', state.event.id);
     sfx.deal();
     dealSeason = true;
     render();
@@ -1706,7 +1720,9 @@ function seasonChoiceHTML() {
   const other = state.eventChoice.find((id) => id !== state.event.id);
   const ev = EVENTS.find((e) => e.id === other) ?? DILEMMAS.find((e) => e.id === other);
   if (!ev) return '';
-  return `<button class="season-swap" type="button" data-ev="${other}" title="${esc(ev.rule)}">지혜의 눈 · 「${esc(ev.name)}」로 바꾸기</button>`;
+  const last = ev.name.charCodeAt(ev.name.length - 1) - 0xac00;
+  const ro = last >= 0 && last % 28 !== 0 && last % 28 !== 8 ? '으로' : '로';
+  return `<button class="season-swap" type="button" data-ev="${other}" title="${esc(ev.rule)}">지혜의 눈 · 「${esc(ev.name)}」${ro} 바꾸기</button>`;
 }
 
 function renderBoardView() {
@@ -2010,7 +2026,7 @@ function renderAltar() {
       <button class="btn-primary big accept" type="button" ${fresh ? 'disabled' : ''}>수락하고 공개 <kbd>Enter</kbd></button>
       <button class="btn-ghost again" type="button" ${!text || state.reinterpretUsed || p.faith < 1 ? 'disabled' : ''}>다시 해석 · 신앙 1 <kbd>R</kbd></button>
       ${pending.prev ? '<button class="text-btn swap-reading" type="button">↔ 이전 해석과 바꾸기</button>' : ''}
-      ${text && speakSnap && !state.reinterpretUsed ? '<button class="text-btn retract" type="button">말을 거두기 <kbd>Esc</kbd></button>' : ''}</div>`;
+      ${text && speakSnap && !state.reinterpretUsed && !state.tutorial ? '<button class="text-btn retract" type="button">말을 거두기 <kbd>Esc</kbd></button>' : ''}</div>`;
   } else {
     const shown = phase === 'playing' ? resolved.shown : resolved.logs;
     const plan = resolved.enemyPlan.map(enemyLabel).join(' · ') || '없음';
