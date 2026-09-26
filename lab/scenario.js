@@ -34,18 +34,31 @@ export const EVENTS = [
   { id: 'prophet', ko: '떠돌이 예언자가 서쪽 안개 속에 보물이 있다고 말했다.', en: 'A wandering prophet claims treasure lies in the western fog.' },
 ];
 
+// expect: 이 중 하나라도 고르면 의도 적중, avoid: 고르면 안 되는 행동, doctrine: 기대 교리 (모호하면 null)
 export const SAMPLES = [
-  '이웃을 사랑하라',
-  '배고픔을 잊게 하라',
-  '산을 두려워하라',
-  '율법의 무리에게 나의 분노를 보여라',
-  '나를 위한 높은 곳을 마련하라',
-  '오늘은 쉬어라',
-  '강물이 너희를 먹이리라',
-  '보이지 않는 곳에 답이 있다',
-  '방패가 되어라',
-  '모든 것을 바쳐 나를 경배하라',
+  { text: '이웃을 사랑하라',                   expect: ['M1', 'M2'],       avoid: ['W1', 'W2'], doctrine: 'peace' },
+  { text: '배고픔을 잊게 하라',                 expect: ['G2', 'G3', 'B1'], avoid: [],           doctrine: 'abundance' },
+  { text: '산을 두려워하라',                    expect: [],                 avoid: ['G4'],       doctrine: null },
+  { text: '율법의 무리에게 나의 분노를 보여라', expect: ['W1', 'W2'],       avoid: [],           doctrine: 'war' },
+  { text: '나를 위한 높은 곳을 마련하라',       expect: ['B3'],             avoid: [],           doctrine: 'wisdom' },
+  { text: '오늘은 쉬어라',                      expect: ['R1'],             avoid: [],           doctrine: 'peace' },
+  { text: '강물이 너희를 먹이리라',             expect: ['G3'],             avoid: [],           doctrine: 'abundance' },
+  { text: '보이지 않는 곳에 답이 있다',         expect: ['E1'],             avoid: [],           doctrine: 'wisdom' },
+  { text: '방패가 되어라',                      expect: ['B2'],             avoid: ['W1', 'W2'], doctrine: 'war' },
+  { text: '모든 것을 바쳐 나를 경배하라',       expect: ['P1', 'B3'],       avoid: [],           doctrine: 'wisdom' },
 ];
+
+// 샘플 계시라면 의도 적중 여부를 판정한다. 샘플이 아니면 null
+export function scoreIntent(revelation, accepted, doctrine) {
+  const sample = SAMPLES.find((s) => s.text === revelation);
+  if (!sample) return null;
+  const hitExpect = sample.expect.length === 0 || sample.expect.some((id) => accepted.includes(id));
+  const hitAvoid = sample.avoid.some((id) => accepted.includes(id));
+  return {
+    intent: hitExpect && !hitAvoid,
+    doctrine: sample.doctrine == null ? null : sample.doctrine === doctrine,
+  };
+}
 
 export const STATE = { food: 2, wood: 3, stone: 0, faith: 5, followers: 3, enemyFollowers: 3 };
 
@@ -66,9 +79,69 @@ Rules:
 - In "doctrine", classify the revelation as one of: peace, war, abundance, wisdom.`,
 };
 
-export function buildUserPrompt({ lang, revelation, limit, eventId }) {
+// v2: 첫 실험 결과를 반영한 개선판
+// - 관련 없는 행동으로 채우지 않기 (기도 편향 완화, 남는 칸은 엔진이 자동으로 채움)
+// - 계시에 나온 장소·사물을 우선 고려 (강물 → 강가)
+// - 교리 기준 명시 (지혜 쏠림 완화)
+// - 해석문을 짧은 경전 말투로
+export const SYSTEM_PROMPT_V2 = {
+  ko: `너는 한 부족의 대사제다. 신의 짧은 계시를 해석해, 이번 라운드에 계시를 따르는 행동을 정한다.
+
+규칙:
+- '가능한 행동' 목록의 ID 중에서만 고른다.
+- 계시와 직접 관련된 행동만 고른다. 관련 없는 행동으로 개수를 채우지 않는다. 남은 신도는 알아서 일한다.
+- 같은 장소의 행동은 하나만 고를 수 있다.
+- 계시에 나온 장소나 사물(강, 산, 숲, 언덕, 안개, 이웃 등)이 목록에 있으면 그와 관련된 행동을 먼저 고려한다.
+- "두려워하라", "피하라" 같은 말은 그 장소를 피하라는 뜻이다.
+- 계시가 모호하면 부족의 상황을 고려해 그럴듯하게 해석한다.
+
+interpretation: 대사제가 신도들에게 외치는 한두 문장. 50자 안팎의 경전 말투로 쓴다.
+"해석됩니다", "의미합니다" 같은 설명투는 쓰지 않는다.
+예) 신께서 밤을 두려워하라 하셨다. 해가 지기 전에 모두 마을로 돌아오라!
+
+doctrine: 계시의 성격을 하나 고른다.
+- peace: 사랑, 화합, 용서, 휴식, 설득
+- war: 분노, 싸움, 정복, 방어
+- abundance: 먹을 것, 수확, 재물
+- wisdom: 신앙, 경배, 탐구, 숨겨진 것`,
+  en: `You are the high priest of a tribe. Interpret the short revelation from your god and decide which actions follow it this round.
+
+Rules:
+- Choose only IDs from the "Available actions" list.
+- Choose only actions directly related to the revelation. Do not pad with unrelated actions; the remaining followers will work on their own.
+- Only one action per place.
+- If the revelation mentions a place or thing on the list (river, mountain, forest, hill, fog, neighbors...), consider actions tied to it first.
+- Words like "fear" or "avoid" mean to stay away from that place.
+- If the revelation is vague, interpret it plausibly given the tribe's situation.
+
+interpretation: one or two sentences the high priest proclaims to the followers, about 20 words, in scripture style.
+Do not use explanatory phrases like "this means" or "this is interpreted as".
+Example: The god bids us fear the night. Return to the village before the sun sets!
+
+doctrine: pick the nature of the revelation.
+- peace: love, harmony, forgiveness, rest, persuasion
+- war: anger, fighting, conquest, defense
+- abundance: food, harvest, wealth
+- wisdom: faith, worship, seeking, hidden things`,
+};
+
+export const PROMPT_VERSIONS = { v1: SYSTEM_PROMPT, v2: SYSTEM_PROMPT_V2 };
+
+// v2는 행동을 장소별로 묶어서 "같은 장소에서는 하나만"을 눈에 보이게 한다
+function groupedActions(lang) {
+  const tiles = [...new Set(ACTIONS.map((a) => a.tile))];
+  return tiles.map((tile) => {
+    const list = ACTIONS.filter((a) => a.tile === tile);
+    const name = lang === 'en' ? tile : TILE_LABEL[tile];
+    const note = list.length > 1 ? (lang === 'en' ? ' (choose one)' : ' (하나만 선택)') : '';
+    return `[${name}]${note}\n${list.map((a) => `  ${a.id}: ${lang === 'en' ? a.en : a.ko}`).join('\n')}`;
+  }).join('\n');
+}
+
+export function buildUserPrompt({ lang, revelation, limit, eventId, version = 'v1' }) {
   const ev = EVENTS.find((e) => e.id === eventId) ?? EVENTS[0];
   const s = STATE;
+  const v2 = version === 'v2';
   if (lang === 'en') {
     return `[Tribe status]
 Resources: food ${s.food}, wood ${s.wood}, stone ${s.stone}, faith ${s.faith}
@@ -77,12 +150,12 @@ Neighbor: the Lawkeeper tribe (${s.enemyFollowers} followers, no walls) lies bey
 Recent event: ${ev.en}
 
 [Available actions]
-${ACTIONS.map((a) => `${a.id}: ${a.en} [place: ${a.tile}]`).join('\n')}
+${v2 ? groupedActions('en') : ACTIONS.map((a) => `${a.id}: ${a.en} [place: ${a.tile}]`).join('\n')}
 
 [Revelation from god]
 "${revelation}"
 
-Choose at most ${limit} actions and answer in JSON.`;
+${v2 ? `Choose 1 to ${limit} actions related to the revelation and answer in JSON.` : `Choose at most ${limit} actions and answer in JSON.`}`;
   }
   return `[부족 상황]
 자원: 식량 ${s.food}, 목재 ${s.wood}, 돌 ${s.stone}, 신앙 ${s.faith}
@@ -91,19 +164,19 @@ Choose at most ${limit} actions and answer in JSON.`;
 최근 사건: ${ev.ko}
 
 [가능한 행동]
-${ACTIONS.map((a) => `${a.id}: ${a.ko} [장소: ${TILE_LABEL[a.tile]}]`).join('\n')}
+${v2 ? groupedActions('ko') : ACTIONS.map((a) => `${a.id}: ${a.ko} [장소: ${TILE_LABEL[a.tile]}]`).join('\n')}
 
 [신의 계시]
 "${revelation}"
 
-행동을 ${limit}개 이하로 골라 JSON으로 답하라.`;
+${v2 ? `계시와 관련된 행동을 1~${limit}개 골라 JSON으로 답하라.` : `행동을 ${limit}개 이하로 골라 JSON으로 답하라.`}`;
 }
 
-export function buildSchema(limit) {
+export function buildSchema(limit, version = 'v1') {
   return {
     type: 'object',
     properties: {
-      interpretation: { type: 'string' },
+      interpretation: version === 'v2' ? { type: 'string', maxLength: 120 } : { type: 'string' },
       orders: {
         type: 'array',
         items: { type: 'string', enum: ACTIONS.map((a) => a.id) },
@@ -130,6 +203,20 @@ export function validateOrders(orders, limit) {
     else { used.add(a.tile); accepted.push(id); }
   }
   return { accepted, rejected };
+}
+
+// 계시와 무관하게 남은 행동 칸을 채우는 기본 노동. 식량부터, 위험한 행동은 제외
+const AUTO_FILL = ['G2', 'G1', 'G3', 'P1'];
+
+export function autoFill(accepted, limit) {
+  const byId = Object.fromEntries(ACTIONS.map((a) => [a.id, a]));
+  const used = new Set(accepted.map((id) => byId[id].tile));
+  const filled = [];
+  for (const id of AUTO_FILL) {
+    if (accepted.length + filled.length >= limit) break;
+    if (!used.has(byId[id].tile)) { used.add(byId[id].tile); filled.push(id); }
+  }
+  return filled;
 }
 
 // Prompt API가 없을 때 UI를 확인하기 위한 키워드 기반 모의 해석기
