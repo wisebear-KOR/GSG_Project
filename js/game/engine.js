@@ -5,6 +5,7 @@ import {
   TERRAIN, RESOURCE_NAME, GATHER_VERB, COST, MAX_TEMPLE, CAPITAL_HP, MAX_ACTIONS, RULES,
   DOCTRINES, DOCTRINE_MAX, EVENTS, LAW_CARDS, MIRACLES, DIFFICULTY, MAP_SIZES, PLAYER_START, TUTORIAL, ENEMY_LEADERS,
   PRIESTS, PETITIONERS, PROPHECY, FIRST_HAND, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT,
+  CATHEDRAL, EDICT_MAX, DESTINIES, DESTINY_POINTS, ACTS,
 } from './data.js';
 import { generateMap, placeSites } from './mapgen.js';
 import { frequentNoun, hashPick, citedWords } from './lore.js';
@@ -73,7 +74,8 @@ export function createState(config = DEFAULT_CONFIG) {
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
     priest: 'loyal', names: {}, lessons: [], petition: null, petitionIgnored: 0, prophecy: null,
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
-    judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, oddUsed: false, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
+    judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, oddUsed: false,
+    edictOn: !!cfg.veteran && !tutorial, destiny: null, destinyOffer: null, holyId: null, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
     miracleUsed: false, reinterpretUsed: false,
     log: [], revelations: [], history: [], winner: null, winReason: '',
   };
@@ -89,10 +91,18 @@ export function createState(config = DEFAULT_CONFIG) {
     state.tileAt[tile.id] = tile;
   }));
   if (!tutorial) for (const p of placeSites({ rows: state.rows, cols: state.cols, seed: cfg.seed, map })) state.tileAt[tileId(p.r, p.c)].site = { id: p.kind, found: false };
+  // 성지: 맵 가운데 언덕 (쥔 쪽이 승점 +2, 율법 석판을 올리거나 내린다)
+  if (!tutorial) state.holyId = tileId(Math.floor(state.rows / 2), Math.floor(state.cols / 2));
+  // 소명: 두 번째 판부터 셋 중 하나 (고르지 않으면 첫째)
+  if (cfg.veteran && !tutorial && !cfg.challenge) {
+    const ids = Object.keys(DESTINIES).sort((a, b) => hashPick([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], cfg.seed, 'dest', a) - hashPick([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], cfg.seed, 'dest', b) || a.localeCompare(b));
+    state.destinyOffer = ids.slice(0, 3);
+    state.destiny = { id: ids[0], done: false };
+  }
   const start = tutorial ? TUTORIAL.start : { player: PLAYER_START, enemy: diff.enemyStart };
   for (const side of SIDES) {
     state.sides[side] = {
-      ...start[side], templeLevel: 1, capitalHp: CAPITAL_HP, faithless: 0,
+      ...start[side], templeLevel: 1, capitalHp: CAPITAL_HP, faithless: 0, cathedral: 0, edict: 0,
       doctrine: Object.fromEntries(DOCTRINES.map((d) => [d, 0])),
     };
   }
@@ -229,6 +239,13 @@ function costText(cost) {
   return Object.entries(cost).map(([k, v]) => `${RESOURCE_NAME[k]} -${v}`).join(', ');
 }
 const canPay = (s, cost) => Object.entries(cost).every(([k, v]) => s[k] >= v);
+// 건설 비용 (신전은 단계, 대성당은 공사 단계에 따라)
+export function buildCost(state, side, build) {
+  const s = state.sides[side];
+  if (build === 'temple') return COST.temple(s.templeLevel);
+  if (build === 'cathedral') return CATHEDRAL[Math.min(2, s.cathedral ?? 0)].cost;
+  return COST[build];
+}
 const pay = (s, cost) => { for (const [k, v] of Object.entries(cost)) s[k] -= v; };
 
 export function gatherAmount(state, side, tile) {
@@ -254,7 +271,7 @@ function describe(state, side, a) {
       if (a.build === 'village') return `${place}에 마을을 세운다 (${costText(COST.village)}, 영토 확장)`;
       if (a.build === 'wall') return `${place}에 성벽을 쌓는다 (${costText(COST.wall)}, 방어 +2)`;
       if (a.build === 'temple') return `신전을 높인다 (${costText(COST.temple(s.templeLevel))}, 행동 수 +1)`;
-      return `대성당을 짓는다 (${costText(COST.cathedral)}, 불가사의 승리)`;
+      return `대성당의 ${CATHEDRAL[Math.min(2, s.cathedral ?? 0)].name}을 올린다 (${costText(buildCost(state, side, 'cathedral'))}, ${s.cathedral ?? 0}/3단계${(s.cathedral ?? 0) === 2 ? ' — 완공하면 승리' : ''})`;
     case 'preach': return `${place}의 율법파에게 신의 뜻을 전한다 (개종 판정)`;
     case 'attack': return `${josa(place, '을', '를')} 공격한다 (전투 판정${t.wall ? ', 성벽 있음' : ''})`;
     case 'explore': return `${place} 속을 탐험한다 (무엇이 있을지 모름)`;
@@ -288,7 +305,7 @@ export function legalActions(state, side) {
   if (cap) {
     add({ type: 'pray', tile: cap.id });
     if (s.templeLevel < MAX_TEMPLE && canPay(s, COST.temple(s.templeLevel))) add({ type: 'build', build: 'temple', tile: cap.id });
-    if (side === 'player' && s.templeLevel === MAX_TEMPLE && canPay(s, COST.cathedral)) add({ type: 'build', build: 'cathedral', tile: cap.id });
+    if (side === 'player' && s.templeLevel === MAX_TEMPLE && (s.cathedral ?? 0) < 3 && canPay(s, buildCost(state, side, 'cathedral'))) add({ type: 'build', build: 'cathedral', tile: cap.id });
   }
   // 탐험: 닿는 범위 바로 바깥의 안개 칸 (플레이어만)
   if (side === 'player') {
@@ -314,7 +331,7 @@ export function validateOrders(state, side, chosen, forbidden = [], doctrine = n
   // 건설은 이번 라운드에 이미 고른 건설 비용까지 합쳐서 감당할 수 있어야 한다
   const s = state.sides[side];
   const budget = { food: s.food, wood: s.wood, stone: s.stone, faith: s.faith };
-  const costOf = (a) => (a.type !== 'build' ? null : a.build === 'temple' ? COST.temple(s.templeLevel) : COST[a.build]);
+  const costOf = (a) => (a.type !== 'build' ? null : buildCost(state, side, a.build));
   for (const a of chosen) {
     if (forbidden.includes(a.key)) { rejected.push({ action: a, reason: '계시가 금지' }); continue; }
     const cost = costOf(a);
@@ -368,6 +385,7 @@ function pickForRule(state, rule, pool) {
   const cands = pool.filter((a) => a.type === rule.type
     && (!rule.gather || a.gather === rule.gather) && (!rule.build || a.build === rule.build));
   if (!cands.length) return null;
+  if (rule.target === 'capital') return cands.find((a) => state.tileAt[a.tile].building === 'capital') ?? null;
   if (rule.type === 'attack' || rule.type === 'preach') {
     // 성벽 없는 마을 → 마을 → 수도 순으로 노린다
     const score = (a) => {
@@ -387,7 +405,9 @@ export function planEnemy(state) {
   const pool = legalActions(state, side);
   const used = new Set();
   const plan = [];
-  const rules = [...card.rules, ...card.rules];
+  // 대성당 공사가 시작되면 율법파는 수도를 먼저 친다
+  const rush = (state.sides.player.cathedral ?? 0) >= 1 ? [{ type: 'attack', target: 'capital' }] : [];
+  const rules = [...rush, ...card.rules, ...card.rules];
   for (const rule of rules) {
     if (plan.length >= limit) break;
     // 공격·선교는 신도가 둘 이상일 때만 (수도를 비우지 않는다)
@@ -407,6 +427,12 @@ export function startRound(state) {
   state.rainActive = false;
   if (!state.eventDeck.length) state.eventDeck = dealDeck(state, EVENTS, 6);
   if (state.lawDeck.length < 2) state.lawDeck.unshift(...dealDeck(state, lawPool(state), 9));
+  // 세 막 (두 번째 판부터): 2막에 들어서면 성전 카드 한 장을 덱에 넣고, 3막에는 평온한 계절이 오지 않는다
+  if (state.config.veteran && !state.tutorial && actStart(state)) {
+    if (actOf(state) === 2) state.lawDeck.splice(Math.max(0, state.lawDeck.length - 3), 0, LAW_CARDS.find((c) => c.id === 'L5'));
+    if (actOf(state) === 3) state.eventDeck = state.eventDeck.filter((e) => e.id !== 'calm');
+  }
+  if (!state.eventDeck.length) state.eventDeck = dealDeck(state, EVENTS, 6);
   state.event = state.eventDeck.pop();
   // 지혜 궁극: 다가올 계절 두 장 중 하나를 고른다 (고르지 않으면 첫 장)
   state.eventChoice = hasUlt(state, 'player', 'wisdom') && state.eventDeck.length && state.eventDeck.at(-1).id !== state.event.id
@@ -599,6 +625,7 @@ export function castMiracle(state, id, targetTile) {
     const t = state.tileAt[targetTile];
     if (!t || t.owner !== 'enemy' || !t.revealed) return { ok: false, text: '보이는 율법파 칸을 골라야 한다.' };
     s.faith -= cost;
+    if (t.building === 'capital') raiseEdict(state, -2, '번개가 탑의 돌판을 쪼갰다');
     if (t.wall) { t.wall = false; logEvent(state, 'player', `⚡ 번개가 ${tileName(state, t)}의 성벽을 무너뜨렸다.`, null, { tile: t.id, kind: 'lightning' }); }
     else { state.sides.enemy.pop = Math.max(0, state.sides.enemy.pop - 1); logEvent(state, 'player', `⚡ 번개가 ${tileName(state, t)}에 떨어져 율법파 1명이 쓰러졌다.`, null, { tile: t.id, kind: 'lightning' }); }
   } else if (m.id === 'rain') {
@@ -622,6 +649,7 @@ const MIRACLE_FX = {
     e.capitalHp = Math.max(0, e.capitalHp - 1);
     e.pop = Math.max(0, e.pop - 1);
     state.wrath = 0;
+    raiseEdict(state, -2, '심판의 날이 돌판을 갈랐다');
     logEvent(state, 'player', `심판의 날 — 하늘이 갈라져 율법파의 탑이 흔들리고(수도 내구도 ${e.capitalHp}) 한 사람이 쓰러졌다. 신의 분노가 가라앉는다.`, null, { kind: 'lightning', tile: cap?.id });
     if (e.capitalHp <= 0) { state.winner = 'player'; state.winReason = '적 수도 점령 (심판의 날)'; }
   },
@@ -726,6 +754,7 @@ function recordHistory(state) {
     round: state.round, ps, es,
     res: { food: p.food, wood: p.wood, stone: p.stone, faith: p.faith, pop: p.pop }, text: null,
   });
+  checkDestiny(state);
   // 신의 분노: 4장부터 6점 이상 뒤지면 차오르고, 3점 이내로 좁히면 가라앉는다
   if (state.tutorial || state.winner) return;
   const before = state.wrath;
@@ -735,6 +764,52 @@ function recordHistory(state) {
     logEvent(state, 'player', state.wrath >= 3 ? '신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다.' : `신의 분노가 차오른다 (${state.wrath}/3) — 기적이 ${state.wrath}만큼 싸진다.`, null, { kind: 'wrath', tile: capitalOf(state, 'player')?.id });
   }
 }
+
+// ---------- 율법 석판과 성지 ----------
+export const holyTile = (state) => (state.holyId ? state.tileAt[state.holyId] : null);
+export const holyOwner = (state) => { const t = holyTile(state); return t?.building === 'village' ? t.owner : null; };
+export const edictMax = (state) => (state.rows <= 4 ? 7 : EDICT_MAX);
+export function raiseEdict(state, n, why) {
+  if (!state.edictOn || n === 0) return;
+  const e = state.sides.enemy;
+  const before = e.edict;
+  e.edict = Math.max(0, Math.min(edictMax(state), e.edict + n));
+  if (e.edict === before) return;
+  logEvent(state, 'enemy', `율법 석판 ${n > 0 ? '+' : ''}${e.edict - before} — ${why} (${e.edict}/${edictMax(state)}).`, null, { kind: 'edict', tile: capitalOf(state, 'enemy')?.id });
+  if (before < edictMax(state) - 2 && e.edict >= edictMax(state) - 2) logEvent(state, 'player', '율법 석판이 거의 완성되었다! 성지를 쥐거나 탑을 쳐서 막아야 한다.', null, { kind: 'warn' });
+}
+function holyAndEdict(state) {
+  if (!state.edictOn) return;
+  const owner = holyOwner(state);
+  if (owner === 'enemy') raiseEdict(state, 1, '율법파가 성지에서 율법을 외웠다');
+  else if (owner === 'player') raiseEdict(state, -1, '성지의 말씀이 율법을 지웠다');
+  const e = state.sides.enemy;
+  if (e.faith >= 8) { e.faith -= 8; raiseEdict(state, 1, '율법파가 경건을 돌에 새겼다'); }
+}
+
+// 소명 (장이 끝날 때 확인)
+function checkDestiny(state) {
+  const d = state.destiny;
+  if (!d || d.done) return;
+  if (DESTINIES[d.id].test(state, { villages: villageCount(state, 'player') })) {
+    d.done = true;
+    logEvent(state, 'player', `소명을 이루었다 — 「${DESTINIES[d.id].name}」 ${DESTINIES[d.id].text}. 승점 +${DESTINY_POINTS}.`, null, { kind: 'prophecy', tile: capitalOf(state, 'player')?.id });
+  }
+}
+export function chooseDestiny(state, id) {
+  if (!state.destinyOffer?.includes(id)) return;
+  state.destiny = { id, done: false };
+  state.destinyOffer = null;
+}
+
+// ---------- 세 막 ----------
+export function actOf(state) {
+  const m = state.maxRounds;
+  const r = state.round;
+  return r < Math.floor(m / 4) + 1 ? 1 : r < Math.ceil((m * 2) / 3) ? 2 : 3;
+}
+export const actStart = (state) => state.round > 1 && actOf(state) !== actOfRound(state, state.round - 1);
+const actOfRound = (state, r) => actOf({ ...state, round: r });
 
 // 다음 장의 계절 (덱의 다음 카드)
 export const nextEvent = (state) => state.eventDeck.at(-1) ?? null;
@@ -765,6 +840,8 @@ export function hydrateState(obj) {
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
   state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.petitionIgnored ??= 0; state.prophecy ??= null;
   state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null; state.oddUsed ??= false;
+  state.edictOn ??= false; state.destiny ??= null; state.destinyOffer ??= null; state.holyId ??= null;
+  for (const sd of Object.values(state.sides)) { sd.cathedral ??= 0; sd.edict ??= 0; }
   state.grace ??= { round: 0, used: 0 }; state.roundMods ??= {}; state.miracleHand ??= [...FIRST_HAND]; state.miracleOffer ??= null; state.pendingSite ??= null; state.stats ??= { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 };
   return state;
 }
@@ -791,7 +868,7 @@ function resolveAction(state, a) {
       return logEvent(state, side, `${subj(side)} 기도해 신앙을 ${n} 얻었다.`, null, { tile: t.id, kind: 'gain', gain: { faith: n } });
     }
     case 'build': {
-      const cost = a.build === 'temple' ? COST.temple(s.templeLevel) : COST[a.build];
+      const cost = buildCost(state, side, a.build);
       if (!canPay(s, cost)) return logEvent(state, side, `${topic(side)} 자원이 모자라 ${place}에 짓지 못했다.`, null, { tile: t.id, kind: 'fail' });
       if (a.build === 'village') {
         if (t.owner) return logEvent(state, side, `${J(place, '은', '는')} 이미 주인이 있어 마을을 세우지 못했다.`, null, { tile: t.id, kind: 'fail' });
@@ -802,11 +879,16 @@ function resolveAction(state, a) {
       if (a.build === 'temple') {
         if (s.templeLevel >= MAX_TEMPLE) return;
         pay(s, cost); s.templeLevel += 1;
+        if (side === 'enemy') raiseEdict(state, 2, '율법파가 탑을 높였다');
         return logEvent(state, side, `${poss(side)} 신전이 ${s.templeLevel}단계로 높아졌다.`, null, { tile: t.id, kind: 'build', icon: side === 'player' ? '⛪' : '🏛️' });
       }
       pay(s, cost);
-      state.winner = side; state.winReason = '대성당 완공';
-      return logEvent(state, side, `${subj(side)} 대성당을 완공했다!`, null, { tile: t.id, kind: 'cathedral' });
+      s.cathedral = (s.cathedral ?? 0) + 1;
+      if (s.cathedral >= 3) {
+        state.winner = side; state.winReason = '대성당 완공';
+        return logEvent(state, side, `${subj(side)} 대성당의 첨탑을 올려 완공했다!`, null, { tile: t.id, kind: 'cathedral' });
+      }
+      return logEvent(state, side, `${subj(side)} 대성당의 ${CATHEDRAL[s.cathedral - 1].name}을 올렸다 (${s.cathedral}/3). 율법파가 이를 알아챘다.`, null, { tile: t.id, kind: 'build', icon: '⛪' });
     }
     case 'explore': {
       t.revealed = true;
@@ -865,6 +947,7 @@ function resolveAction(state, a) {
       if (!(foe === 'player' && state.roundMods.ark)) f.pop = Math.max(0, f.pop - 1);
       if (t.building === 'capital') {
         f.capitalHp -= 1;
+        if (foe === 'player' && (f.cathedral ?? 0) >= 2) { f.cathedral -= 1; logEvent(state, side, `대성당의 ${CATHEDRAL[f.cathedral].name}이 무너졌다 (${f.cathedral}/3).`, null, { tile: t.id, kind: 'loss' }); }
         logEvent(state, side, `${subj(side)} ${J(place, '을', '를')} 쳤다! 수도 내구도 ${f.capitalHp}.`, dice, { tile: t.id, kind: 'attack', capital: true });
         if (f.capitalHp <= 0) { state.winner = side; state.winReason = '적 수도 점령'; }
         return;
@@ -891,6 +974,7 @@ function upkeep(state) {
       s.food = 0;
     } else if (s.food < 0) {
       s.food = 0; s.pop = Math.max(0, s.pop - 1);
+      if (side === 'player') state.stats.starved = (state.stats.starved ?? 0) + 1;
       logEvent(state, side, `${josa(who, '이', '가')} 굶주려 1명을 잃었다.`, null, { kind: 'loss' });
     } else {
       // 식량에 여유가 있을 때만 늘어난다: 증가 비용 + 신도 절반만큼의 비축
@@ -942,6 +1026,7 @@ function upkeep(state) {
     p.faithless = 0;
   }
   checkProphecy(state);
+  holyAndEdict(state);
   updateVision(state);
   discoverSites(state);
   checkVictory(state);
@@ -959,6 +1044,9 @@ export function scoreBreakdown(state, side) {
     { key: 'hp', label: '수도', n: s.capitalHp, w: w.hp },
   ];
   if (w.wall) parts.push({ key: 'wall', label: '성벽', n: walls, w: w.wall });
+  if (holyOwner(state) === side) parts.push({ key: 'holy', label: '성지', n: 1, w: 2 });
+  if (s.cathedral) parts.push({ key: 'cathedral', label: '대성당', n: s.cathedral, w: 1 });
+  if (side === 'player' && state.destiny?.done) parts.push({ key: 'destiny', label: '소명', n: 1, w: DESTINY_POINTS });
   if (w.faith) parts.push({ key: 'faith', label: '신앙', n: Math.floor(s.faith / w.faith), w: 1, note: `신앙 ${w.faith}마다` });
   return { parts, total: parts.reduce((a, p) => a + p.n * p.w, 0) };
 }
@@ -970,6 +1058,7 @@ export function checkVictory(state, final = true) {
   const { player: p, enemy: e } = state.sides;
   if (p.pop <= 0 && e.pop <= 0) { state.winner = 'draw'; state.winReason = '양쪽 부족이 모두 사라짐'; return state.winner; }
   if (e.pop <= 0) { state.winner = 'player'; state.winReason = '율법파 전원 개종·소멸'; }
+  if (!state.winner && state.edictOn && e.edict >= edictMax(state)) { state.winner = 'enemy'; state.winReason = '율법 석판 완성'; }
   if (p.pop <= 0) { state.winner = 'enemy'; state.winReason = '신도가 모두 사라짐'; }
   const total = state.sides.player.pop + state.sides.enemy.pop;
   if (!state.winner && total >= 8 && state.round >= 6 && state.sides.player.pop >= total * 0.75) {

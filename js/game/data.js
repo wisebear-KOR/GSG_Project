@@ -20,6 +20,33 @@ export const COST = {
   temple: (level) => ({ stone: level * 2, wood: level + 1 }),
   cathedral: { stone: 11, wood: 11, faith: 13 },
 };
+// 대성당은 세 단계로 올린다 (합계는 한 번에 짓던 비용과 같다)
+export const CATHEDRAL = [
+  { name: '기초', cost: { stone: 4, wood: 4, faith: 4 } },
+  { name: '벽', cost: { stone: 4, wood: 4, faith: 4 } },
+  { name: '첨탑', cost: { stone: 3, wood: 3, faith: 5 } },
+];
+export const EDICT_MAX = 10;         // 율법 석판이 이만큼 차면 율법파가 이긴다
+
+// 소명: 두 번째 판부터 판 시작에 셋 중 하나를 고른다. 이루면 승점 +5
+export const DESTINIES = {
+  villages: { name: '넓히는 자', text: '8장까지 마을 넷', test: (st, v) => st.round <= 8 && v.villages >= 4 },
+  convert:  { name: '부르는 자', text: '선교로 셋을 개종', test: (st) => st.stats.converted >= 3 },
+  ultimate: { name: '한길의 자', text: '교리 하나를 여섯 칸까지', test: (st) => Object.values(st.sides.player.doctrine).some((x) => x >= 6) },
+  temple:   { name: '쌓는 자', text: '6장까지 신전 3단계', test: (st) => st.round <= 6 && st.sides.player.templeLevel >= 3 },
+  feeder:   { name: '먹이는 자', text: '끝까지 아무도 굶기지 않기', test: (st) => st.round >= st.maxRounds && !st.stats.starved },
+  fortress: { name: '지키는 자', text: '끝까지 수도 내구도 3 지키기', test: (st) => st.round >= st.maxRounds && st.sides.player.capitalHp >= 3 },
+  sword:    { name: '치는 자', text: '율법파의 땅 둘을 빼앗기', test: (st) => st.stats.captured >= 2 },
+  namer:    { name: '부르는 이름', text: '땅 셋에 이름 붙이기', test: (st) => Object.keys(st.names ?? {}).length >= 3 },
+};
+export const DESTINY_POINTS = 5;
+
+// 세 막: 막이 바뀌면 규칙이 조금 바뀐다 (두 번째 판부터)
+export const ACTS = [
+  { name: '제1막 · 개척' },
+  { name: '제2막 · 경쟁', text: '율법파가 칼을 갈기 시작한다 (성전 카드 한 장)' },
+  { name: '제3막 · 심판', text: '평온한 계절은 더 오지 않는다' },
+];
 
 export const MAX_TEMPLE = 3;
 export const CAPITAL_HP = 3;

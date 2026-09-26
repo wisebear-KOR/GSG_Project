@@ -5,9 +5,10 @@ import {
   faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent, josa, batchim,
   grantGrace, petitionAnswered, nameTile, applyTone, sealProphecy, takeMiracle, resolveSite,
   scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
+  holyOwner, edictMax, chooseDestiny, actOf, actStart,
 } from './engine.js';
 import {
-  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
+  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DESTINIES, DESTINY_POINTS, ACTS, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
 } from './data.js';
 import { renderBoard, tileToHost, markerToScreen } from './board.js';
 import { installArt } from './art.js';
@@ -234,6 +235,7 @@ function resumeLoaded() {
   render();
   fx.chapter(frameEl(), `제 ${state.round} 장`, '다시 이어서');
   if (state.miracleOffer) setTimeout(showMiracleDraft, fx.motion.reduced ? 300 : 2500);
+  if (state.destinyOffer && state.round === 1) setTimeout(showDestinyChoice, fx.motion.reduced ? 300 : 2500);
 }
 
 function beginGame(config) {
@@ -308,10 +310,12 @@ function tileTipHTML(cur, t) {
   const owner = t.owner === 'player' ? '우리 부족의 땅' : t.owner === 'enemy' ? '율법파의 땅' : '주인 없는 땅';
   const bld = t.building === 'capital' ? (t.owner === 'player' ? '신전 — 기도하는 곳' : '율법파의 탑') : t.building === 'village' ? '마을 — 인구 한도 +2, 식량 +1' : '';
   const gather = t.building === 'capital' ? '' : terr.gather ? `${RESOURCE_NAME[terr.gather]} 채집 +${terr.amount}` : '메마른 땅 — 아무것도 얻을 수 없다';
+  const holy = t.id === state.holyId ? `성지 — 여기에 마을을 둔 쪽이 승점 +2${state.edictOn ? ', 율법 석판을 올리고 내린다' : ''}` : '';
   const marks = t.faithMarks ? `믿음의 표식 ${t.faithMarks.n}/2 — ${t.faithMarks.side === 'player' ? '한 번 더 전하면 우리 땅' : '율법파가 한 번 더 가르치면 넘어간다'}` : '';
   const intent = ['speak', 'thinking', 'confirm'].includes(phase) ? enemyIntent(state).find((a) => a.shown && a.tile === t.id) : null;
   const threat = intent ? `율법파가 이번 장에 이곳을 노린다: ${enemyLabel(intent).replace(/\(.*\)$/, '')} — ${state.first === 'player' ? '선공이니 먼저 움직이면 막는다' : '율법파가 선공이라 먼저 가져간다'}` : '';
-  return `<b>${esc(tileName(cur, t, 'player'))}</b><span>${[owner, bld, gather, t.wall ? '성벽 — 방어 +2' : '', marks, threat].filter(Boolean).map(esc).join('<br>')}</span>`;
+  const cath = t.building === 'capital' && t.owner === 'player' && cur.sides.player.cathedral ? `대성당 ${cur.sides.player.cathedral}/3단계 — 율법파가 수도를 노린다` : '';
+  return `<b>${esc(tileName(cur, t, 'player'))}</b><span>${[owner, bld, gather, t.wall ? '성벽 — 방어 +2' : '', holy, cath, marks, threat].filter(Boolean).map(esc).join('<br>')}</span>`;
 }
 
 function bindTools() {
@@ -364,7 +368,10 @@ async function newRound() {
   meta.saveGame(state, 'speak');
   if (state.miracleOffer) setTimeout(showMiracleDraft, fx.motion.reduced ? 300 : 2500);
   const judge = state.judgement !== 'classic' ? ` · 심판의 기준 「${JUDGEMENTS[state.judgement].name}」` : '';
-  fx.chapter(frameEl(), `제 ${state.round} 장`, state.round === 1 ? `${state.event.name}${judge}` : state.event.name);
+  const act = state.tutorial ? '' : state.round === state.maxRounds ? '최후의 계절 · ' : state.round === 1 || actStart(state) ? `${ACTS[actOf(state) - 1].name} · ` : '';
+  fx.chapter(frameEl(), `제 ${state.round} 장`, state.round === 1 ? `${act}${state.event.name}${judge}` : `${act}${state.event.name}`);
+  if (actStart(state) && state.config.veteran && ACTS[actOf(state) - 1].text) setTimeout(() => leaderSay(ACTS[actOf(state) - 1].text), fx.motion.reduced ? 300 : 2600);
+  if (state.round === 1 && state.destinyOffer) setTimeout(showDestinyChoice, fx.motion.reduced ? 400 : 2600);
   if (state.round === 1 && state.leader) setTimeout(() => leaderSay(leaderLine(state, 'intro')), fx.motion.reduced ? 300 : 2400);
   else if (state.reacted && REACT[state.reacted]) setTimeout(() => leaderSay(REACT[state.reacted].line), fx.motion.reduced ? 300 : 2400);
   if (tutorial) {
@@ -767,6 +774,17 @@ function choiceModal({ kind, title, text, options }) {
   });
 }
 
+async function showDestinyChoice() {
+  if (!state.destinyOffer || phase !== 'speak') return;
+  const id = await choiceModal({
+    kind: '소명', title: '이 판에서 이룰 소명을 하나 고르라', text: `이루면 승점 +${DESTINY_POINTS}. 이 판이 끝날 때까지 바꿀 수 없다.`,
+    options: state.destinyOffer.map((d) => ({ id: d, label: DESTINIES[d].name, text: DESTINIES[d].text })),
+  });
+  chooseDestiny(state, id);
+  if (phase === 'speak') meta.saveGame(state, 'speak');
+  render();
+}
+
 async function showMiracleDraft() {
   if (!state.miracleOffer || phase !== 'speak') return;
   const id = await choiceModal({
@@ -970,7 +988,7 @@ function bannerFor(log, seen) {
     gain: [isPray ? 'i-temple' : `i-${res}`, isPray ? '기도' : '채집'],
     treasure: ['i-faith', '보물 발견'], explore: ['e-prophet', '탐험'], build: ['i-house', '건설'], cathedral: ['i-temple', '대성당'],
     preach: ['d-peace', '선교'], attack: ['d-war', '공격'], blocked: ['i-shield', '선점당함'], fail: ['i-shield', '헛걸음'],
-    birth: ['i-house', '새 생명'], loss: ['i-shield', '잃음'], warn: ['i-faith', '신앙의 흔들림'], ban: ['s-tablet', '검열'], grace: ['i-faith', '은총'], prophecy: ['i-faith', '예언 성취'], bless: ['i-faith', '기적'], wrath: ['d-war', '신의 분노'], streak: ['i-faith', '말씀이 이어졌다'], site: ['e-prophet', '발견'], lightning: ['m-lightning', '번개'], rain: ['m-rain', '단비'], bounty: ['m-bounty', '풍요'],
+    birth: ['i-house', '새 생명'], loss: ['i-shield', '잃음'], warn: ['i-faith', '신앙의 흔들림'], ban: ['s-tablet', '검열'], grace: ['i-faith', '은총'], prophecy: ['i-faith', '예언 성취'], bless: ['i-faith', '기적'], wrath: ['d-war', '신의 분노'], streak: ['i-faith', '말씀이 이어졌다'], edict: ['s-tablet', '율법 석판'], site: ['e-prophet', '발견'], lightning: ['m-lightning', '번개'], rain: ['m-rain', '단비'], bounty: ['m-bounty', '풍요'],
   }[e.kind];
   if (!map) return null;
   const [icon, verb] = map;
@@ -1059,6 +1077,12 @@ async function playFx(log) {
         fx.floatText(svg, tile, e.convert ? '마을이 넘어왔다!' : '+1 신도', mine ? 'good' : 'bad');
         if (e.convert) { fx.ring(svg, tile, mine ? '#9cc0ff' : '#ff9f8e', true); sfx.holy(); }
       }
+      return fx.wait(600);
+    }
+    case 'edict': {
+      const up = /\+/.test(log.text.split('—')[0]);
+      if (tile) fx.floatText(svg, tile, up ? '석판 +' : '석판 −', up ? 'bad' : 'good');
+      (up ? sfx.fail : sfx.chime)();
       return fx.wait(600);
     }
     case 'streak':
@@ -1207,7 +1231,7 @@ function renderSeason() {
         <div class="rule">${esc(ev.rule)}</div>
         ${state.eventChoice && phase === 'speak' ? seasonChoiceHTML() : ''}
       </div>
-    </div>${nextEvent(state) && state.round < state.maxRounds ? `<div class="next-season" title="${esc(nextEvent(state).rule)}">다음 장 · ${svgUse(`e-${nextEvent(state).id}`)}${esc(nextEvent(state).name)}</div>` : ''}`;
+    </div>${nextEvent(state) && state.round < state.maxRounds ? `<div class="next-season" title="${esc(nextEvent(state).rule)}">다음 장 · ${svgUse(`e-${nextEvent(state).id}`)}${esc(nextEvent(state).name)}</div>` : ''}${destinyHTML()}`;
   if (dealSeason) setTimeout(() => sfx.deal(), 250);
   dealSeason = false;
   $('season').querySelectorAll('.card').forEach((c) => fx.attachTilt(c, 8));
@@ -1217,6 +1241,13 @@ function renderSeason() {
     dealSeason = true;
     render();
   });
+}
+
+function destinyHTML() {
+  const d = state.destiny;
+  if (!d || state.destinyOffer) return '';
+  const info = DESTINIES[d.id];
+  return `<div class="destiny${d.done ? ' done' : ''}" title="이루면 승점 +${DESTINY_POINTS}">${d.done ? '✓ ' : ''}소명 「${esc(info.name)}」 · ${esc(info.text)}</div>`;
 }
 
 function seasonChoiceHTML() {
@@ -1379,6 +1410,7 @@ function matHTML(cur, side) {
     </div>
     ${mine && currentTask() ? `<div class="task-ribbon"><span>세라의 과제</span>${esc(currentTask().text)}<button class="task-x" type="button" title="과제 끄기">✕</button></div>` : ''}
     <div class="res-grid${mine ? '' : ' compact'}">${res}</div>${warnLine}
+    ${!mine && cur.edictOn ? `<div class="edict-bar${s.edict >= edictMax(cur) - 2 ? ' danger' : ''}" title="율법 석판이 ${edictMax(cur)}에 이르면 율법파가 이긴다. 오름: 율법파가 성지를 쥠·탑을 높임·신앙을 바침 / 내림: 우리가 성지를 쥠·번개로 탑을 침"><span>율법 석판</span><i><em style="width:${(s.edict / edictMax(cur)) * 100}%"></em></i><b>${s.edict}/${edictMax(cur)}</b></div>` : ''}
     <div class="section-label"><span>신도</span><span>${s.pop} / ${cap}</span></div>
     <div class="meeples">${meeples}</div>
     <div class="section-label"><span>세력</span></div>

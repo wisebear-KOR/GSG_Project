@@ -934,3 +934,18 @@ body.reduce-motion .site-mark { animation: none; }
 .kbar b { text-align: right; }
 
 .float.gold { fill: #ffd98a; font-size: 24px; }
+
+/* ---------- 3차 웨이브 A ---------- */
+.edict-bar { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; margin: 6px 0 8px; font: 12px var(--font-ui); color: var(--on-table-dim); }
+.edict-bar i { height: 8px; border-radius: 4px; background: rgba(0, 0, 0, .35); overflow: hidden; }
+.edict-bar em { display: block; height: 100%; background: linear-gradient(90deg, #8a6420, #e0503c); transition: width .6s; }
+.edict-bar b { font: 700 13px var(--font-display); color: var(--on-table); }
+.edict-bar.danger em { animation: faithPulse 1.2s ease-in-out infinite; }
+.edict-bar.danger b { color: #ff9f8e; }
+.holy-ring { fill: none; stroke: rgba(255, 236, 170, .75); stroke-width: 2; stroke-dasharray: 2 6; animation: holyGlow 2.4s ease-in-out infinite; pointer-events: none; }
+@keyframes holyGlow { 50% { stroke: rgba(255, 250, 220, 1); filter: drop-shadow(0 0 6px rgba(255, 230, 150, .9)); } }
+body.reduce-motion .holy-ring { animation: none; }
+.cath-pip { fill: rgba(0, 0, 0, .35); stroke: #fff2c0; stroke-width: 1.2; }
+.cath-pip.on { fill: #ffd98a; }
+.destiny { margin-top: 8px; padding: 6px 10px; border-radius: 10px; font: 12.5px var(--font-ui); color: #e3edff; background: rgba(61, 111, 182, .25); border: 1px solid rgba(156, 192, 255, .35); }
+.destiny.done { background: rgba(90, 164, 104, .3); border-color: rgba(155, 226, 155, .5); }

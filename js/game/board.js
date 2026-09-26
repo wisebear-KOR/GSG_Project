@@ -70,7 +70,7 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
     const c = center(t);
     const hidden = !t.revealed;
     const terr = hidden ? 'fog' : t.terrain;
-    const g = el('g', { class: `tile tile-${terr}${selectable.includes(t.id) ? ' selectable' : ''}${focus === t.id ? ' focused' : ''}`, 'data-id': t.id });
+    const g = el('g', { class: `tile tile-${terr}${selectable.includes(t.id) ? ' selectable' : ''}${focus === t.id ? ' focused' : ''}${t.id === state.holyId && !hidden ? ' holy' : ''}`, 'data-id': t.id });
     g.append(el('polygon', { points: hexPoints({ x: c.x, y: c.y + 3 }), class: 'hex-base' }));
     g.append(el('polygon', { points: hexPoints(c), fill: `url(#g-${terr})`, class: 'hex' }));
     g.append(el('polygon', { points: hexPoints(c), fill: `url(#p-${terr})` }));
@@ -93,6 +93,9 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
       g.append(use(`s-${t.terrain}`, c.x, c.y - 2, 60, { class: 'glyph' }));
     }
     g.append(el('text', { x: c.x, y: c.y + R * 0.74, class: 'coord' }, t.id));
+    if (t.id === state.holyId && !hidden) g.append(el('polygon', { points: hexPoints(c, R - 7), class: 'holy-ring' }));
+    const cath = t.building === 'capital' && t.owner === 'player' ? state.sides?.player?.cathedral ?? 0 : 0;
+    if (cath) for (let i = 0; i < 3; i++) g.append(el('circle', { cx: c.x - 12 + i * 12, cy: c.y + R * 0.5, r: 4, class: `cath-pip${i < cath ? ' on' : ''}` }));
     if (state.names?.[t.id] && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name' }, state.names[t.id]));
     if (t.faithMarks && !hidden) {
       // 믿음의 표식: 테두리의 절반(1/2)만큼 상대 색으로 물든다
