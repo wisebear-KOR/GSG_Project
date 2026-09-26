@@ -6,6 +6,15 @@ const W = Math.sqrt(3) * R;         // 육각 가로
 const NS = 'http://www.w3.org/2000/svg';
 
 const center = (t) => ({ x: W / 2 + 8 + W * (t.c + 0.5 * (t.r & 1)), y: R + 8 + 1.5 * R * t.r });
+export const tileCenter = center;
+
+// 칸 중심을 보드를 감싼 요소 기준의 픽셀 좌표로 바꾼다 (HTML 연출용)
+export function tileToHost(svg, host, tile) {
+  const c = center(tile);
+  const m = svg.getScreenCTM();
+  const hr = host.getBoundingClientRect();
+  return { x: m.a * c.x + m.e - hr.left, y: m.d * c.y + m.f - hr.top };
+}
 const hexPoints = ({ x, y }) => Array.from({ length: 6 }, (_, i) => {
   const a = (Math.PI / 180) * (60 * i - 30);
   return `${(x + R * Math.cos(a)).toFixed(1)},${(y + R * Math.sin(a)).toFixed(1)}`;
@@ -19,7 +28,8 @@ function el(tag, attrs = {}, text) {
 }
 
 // markers: [{ tile, side, label, dim }] — 이번 라운드에 놓인 미플
-export function renderBoard(svg, state, { markers = [], highlight = [], onTileClick, selectable = [] } = {}) {
+// markers의 drop이 참이면 떨어지는 연출을 한다 (delay: 순서)
+export function renderBoard(svg, state, { markers = [], highlight = [], onTileClick, selectable = [], tileTitle } = {}) {
   const cols = 5;
   const rows = 5;
   svg.setAttribute('viewBox', `0 0 ${(W * (cols + 0.5) + 16).toFixed(0)} ${(1.5 * R * (rows - 1) + 2 * R + 16).toFixed(0)}`);
@@ -29,6 +39,7 @@ export function renderBoard(svg, state, { markers = [], highlight = [], onTileCl
     const c = center(t);
     const g = el('g', { class: 'tile', 'data-id': t.id });
     const hidden = !t.revealed;
+    g.append(el('title', {}, tileTitle ? tileTitle(t) : t.id));
     const cls = ['hex', hidden ? 'fog' : `t-${t.terrain}`];
     if (t.owner && !hidden) cls.push(`own-${t.owner}`);
     if (highlight.includes(t.id)) cls.push('hl');
@@ -58,7 +69,8 @@ export function renderBoard(svg, state, { markers = [], highlight = [], onTileCl
     if (m.side === 'enemy' && !t.revealed) continue; // 안개 속 율법파는 보이지 않는다
     const c = center(t);
     const dx = m.side === 'player' ? -R * 0.42 : R * 0.42;
-    const g = el('g', { class: `meeple ${m.side}${m.dim ? ' dim' : ''}` });
+    const g = el('g', { class: `meeple ${m.side}${m.dim ? ' dim' : ''}${m.drop ? ' drop' : ''}` });
+    if (m.drop) g.style.animationDelay = `${(m.delay ?? 0) * 140}ms`;
     const x = c.x + dx;
     const y = c.y - R * 0.38;
     // 머리 + 몸통 형태의 미플
