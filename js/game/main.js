@@ -51,14 +51,14 @@ let focusId = null;         // 해결 재생 중 카메라가 비추는 칸
 let tutorial = null;        // 튜토리얼 진행 중이면 안내자
 let setup = loadSetup();    // 메인 화면에서 고른 새 게임 설정
 // 도전 링크: ?seed=&size=&diff=&target= (설정을 덮어쓰되 저장하지 않는다)
-const challenge = (() => {
+let challenge = (() => {
   const q = new URLSearchParams(location.search);
   const seed = Number(q.get('seed'));
   if (!(seed > 0)) return null;
   const size = MAP_SIZES[Number(q.get('size'))] ? Number(q.get('size')) : 5;
   const difficulty = DIFFICULTY[q.get('diff')] ? q.get('diff') : 'normal';
   const target = Math.max(0, Number(q.get('target')) || 0);
-  return { seed: Math.min(999999, Math.floor(seed)), size, difficulty, target };
+  return { seed: Math.min(999999, Math.floor(seed)), size, difficulty, target, veteran: q.get('v') !== '0' };
 })();
 if (challenge) setup = { ...setup, size: challenge.size, difficulty: challenge.difficulty, seed: challenge.seed };
 let loadedPhase = null;     // 저장에서 불러온 판이면 그 판의 단계 ('speak' | 'resolved')
@@ -128,7 +128,7 @@ function showMain() {
   } else {
     resume?.remove();
     $('startGame').className = 'btn-primary ms-start';
-    $('startGame').innerHTML = challenge ? `도전 시작 <small>${challenge.target ? `승점 ${challenge.target}을 넘어라` : `시드 ${challenge.seed}`}</small> <kbd>Enter</kbd>` : '새 게임 시작 <kbd>Enter</kbd>';
+    $('startGame').innerHTML = challenge ? `도전 시작 <small>${challenge.target ? `승점 ${challenge.target}점을 넘어라` : `시드 ${challenge.seed}`}</small> <kbd>Enter</kbd>` : '새 게임 시작 <kbd>Enter</kbd>';
   }
   renderMainStatus();
   renderSetup();
@@ -207,7 +207,14 @@ function startFromMain(mode = 'new') {
     const veteran = meta.getHistory().length > 0;
     if (mode === 'tutorial') beginGame({ mode: 'tutorial' });
     else if (mode === 'daily') beginGame({ ...meta.dailyConfig(), veteran: true });
-    else if (challenge && mode === 'new') beginGame({ ...setup, mode: 'standard', veteran: true, canon: null, challenge: { target: challenge.target } });
+    else if (challenge && mode === 'new') {
+      const ch = challenge;
+      // 도전은 한 번만: 주소창의 도전 파라미터를 지우고 원래 설정으로 돌아간다
+      challenge = null;
+      try { history.replaceState(null, '', location.pathname + location.search.replace(/([?&])(seed|size|diff|target|v)=[^&]*/g, '$1').replace(/[?&]+$/, '').replace(/\?&+/, '?')); } catch { /* 무시 */ }
+      setup = loadSetup();
+      beginGame({ mode: 'standard', size: ch.size, difficulty: ch.difficulty, seed: ch.seed, veteran: ch.veteran, canon: null, challenge: { target: ch.target } });
+    }
     else beginGame({ ...setup, mode: 'standard', veteran, canon: veteran ? meta.getCanon()[0] ?? null : null });
   }, fx.motion.reduced ? 150 : 850);
 }
@@ -242,7 +249,7 @@ function beginGame(config) {
 }
 
 function renderSubtitle() {
-  if (state.config.challenge) { $('subtitle').textContent = `도전 · ${state.rows}×${state.cols} ${DIFFICULTY[state.config.difficulty].name} · 시드 ${state.config.seed}${state.config.challenge.target ? ` · 승점 ${state.config.challenge.target}을 넘어라` : ''}`; return; }
+  if (state.config.challenge) { $('subtitle').textContent = `도전 · ${state.rows}×${state.cols} ${DIFFICULTY[state.config.difficulty].name} · 시드 ${state.config.seed}${state.config.challenge.target ? ` · 승점 ${state.config.challenge.target}점을 넘어라` : ''}`; return; }
   if (state.config.daily) { $('subtitle').textContent = `오늘의 계시 · ${state.config.daily}${state.leader ? ` · ${ENEMY_LEADERS[state.leader].name}` : ''}`; return; }
   $('subtitle').textContent = state.tutorial ? '튜토리얼 · 첫 계시'
     : `${state.rows}×${state.cols} · 율법파 ${DIFFICULTY[state.config.difficulty].name} · 시드 ${state.config.seed}${state.leader ? ` · ${ENEMY_LEADERS[state.leader].name}` : ''}${state.judgement !== 'classic' ? ` · 심판 「${JUDGEMENTS[state.judgement].name}」` : ''}`;
@@ -438,12 +445,14 @@ function derivePending() {
   const { accepted, rejected } = validateOrders(state, 'player', orders, forbiddenKeys, result.doctrine);
   pending.accepted = accepted;
   pending.rejected = rejected;
-  pending.auto = autoFill(state, 'player', accepted, forbiddenKeys);
+  pending.auto = autoFill(state, 'player', accepted, [...forbiddenKeys, ...pending.dropped]);
   pending.links = text ? linkWords(state, text, accepted) : {};
   pending.answered = text ? petitionAnswered(state, text, accepted) : false;
-  // 기이한 해석: LLM이 계시의 어떤 낱말과도 잇지 못하는 행동을 골랐고, 석판과도 겹치지 않을 때 (판당 한 번)
-  pending.odd = !state.oddUsed && result.source === 'llm' && accepted.length > 0 && !Object.keys(pending.links).length
-    && !interpretWithTablet(state, text).orders.some((o) => accepted.some((a) => a.key === o.key));
+  // 기이한 해석: 처음 해석(칩을 빼기 전)으로 한 번만 정한다 — LLM이 계시의 어떤 낱말과도 잇지 못하는 행동을 골랐고, 석판과도 겹치지 않을 때 (판당 한 번)
+  if (pending.odd === undefined) {
+    pending.odd = !state.oddUsed && result.source === 'llm' && accepted.length > 0 && !Object.keys(pending.links).length
+      && !interpretWithTablet(state, text).orders.some((o) => accepted.some((a) => a.key === o.key));
+  }
 }
 
 async function enterConfirm() {
@@ -499,6 +508,7 @@ async function accept() {
   const enemyPlan = planEnemy(state);
   const from = state.log.length;
   applyTone(state, text ? pending.tone : null);
+  if (!text) state.streak = null;
   if (pending.seal && pending.prophecy) sealProphecy(state, pending.prophecy);
   resolveRound(state, [...accepted, ...auto], enemyPlan);
   if (!state.winner && text) keepVows(state, result.forbidden, [...accepted, ...auto]);
@@ -523,10 +533,9 @@ async function accept() {
 // 해결 뒤: 청원 응답·이름 붙이기의 은총, 외면당한 청원 (로그에 남아 재생된다)
 function wordsAfter(pd) {
   if (pd.odd && !state.oddUsed) {
-    state.oddUsed = true;
     const said = nouns(pd.text)[0] ?? pd.text.slice(0, 8);
     const heard = pd.accepted[0]?.text.replace(/ \(.*\)$/, '') ?? '다른 일';
-    grantGrace(state, 1, `신께서 '${said}'${batchim(said) ? '이라' : '라'} 하셨으나 사제는 '${heard}'로 들었다 — 기이한 해석`);
+    if (grantGrace(state, 1, `신께서 '${said}'${batchim(said) ? '이라' : '라'} 하셨으나 사제는 '${heard}'${batchim(heard) ? '으로' : '로'} 들었다 — 기이한 해석`)) state.oddUsed = true;
   }
   const pt = state.petition;
   if (pt?.need) {
@@ -600,7 +609,7 @@ function showEnd(summary, fresh, had) {
   const o = fx.endScreen(won, title, sub, restart, {
     bodyHTML: body,
     buttons: [
-      { label: '시편 복사', keep: true, onClick: () => copyPsalm(summary) },
+      { label: '시편 복사', cls: 'btn-ghost psalm', keep: true, onClick: () => copyPsalm(summary) },
       { label: '같은 맵 다시', cls: 'btn-primary', onClick: restart },
       { label: '새 맵', onClick: () => { setup.seed = randomSeed(); saveSetup(); beginGame({ ...setup, mode: 'standard', veteran: true, canon: meta.getCanon()[0] ?? null }); } },
       { label: '메인 화면', onClick: () => showMain() },
@@ -627,7 +636,7 @@ async function copyPsalm(summary) {
   const round = scene?.round ?? state.revelations.at(-1)?.round;
   const rev = state.revelations.find((r) => r.round === round)?.text;
   const cry = state.log.find((l) => l.round === round && l.side === 'priest')?.text;
-  const url = `${location.origin}${location.pathname}?seed=${state.config.seed}&size=${state.rows}&diff=${state.config.difficulty}&target=${summary.score[0]}`;
+  const url = `${location.origin}${location.pathname}?seed=${state.config.seed}&size=${state.rows}&diff=${state.config.difficulty}&target=${summary.score[0]}&v=${state.config.veteran ? 1 : 0}`;
   const won = state.winner === 'player' ? '승리' : state.winner === 'draw' ? '무승부' : '패배';
   const text = [
     `「계시록: 말씀의 전쟁」${round ? ` 제 ${round} 장` : ''}`,
@@ -645,7 +654,7 @@ async function copyPsalm(summary) {
     try { ok = document.execCommand('copy'); } catch { /* 무시 */ }
     ta.remove();
   }
-  const b = [...document.querySelectorAll('.end-actions button')].find((x) => x.textContent.startsWith('시편'));
+  const b = document.querySelector('.end-actions .psalm');
   if (b) { b.textContent = ok ? '복사했다' : '복사 실패'; setTimeout(() => { b.textContent = '시편 복사'; }, 1800); }
   sfx.page();
 }
@@ -762,7 +771,7 @@ async function showMiracleDraft() {
   if (!state.miracleOffer || phase !== 'speak') return;
   const id = await choiceModal({
     kind: '제 5 장 · 새 기적', title: '하늘이 새 기적을 내민다 — 하나를 받으라', text: '받은 기적은 이 판이 끝날 때까지 손에 남는다.',
-    options: state.miracleOffer.map((mid) => { const m = MIRACLES.find((x) => x.id === mid); return { id: mid, label: m.name, text: m.text, cost: m.cost, art: MIRACLE_ART[mid] }; }),
+    options: state.miracleOffer.map((mid) => { const m = MIRACLES.find((x) => x.id === mid); return { id: mid, label: m.name, text: m.text, cost: miracleCost(state, m), art: MIRACLE_ART[mid] }; }),
   });
   takeMiracle(state, id);
   if (phase === 'speak') meta.saveGame(state, 'speak');
@@ -1391,7 +1400,7 @@ function renderAltar() {
   const hand = `<div class="hand">${cards.map((m) => `
     <button class="mcard${targeting === m.id ? ' on' : ''}${m.hidden ? ' doom' : ''}" data-m="${m.id}" type="button" ${!canMiracle || state.miracleUsed || p.faith < miracleCost(state, m) ? 'disabled' : ''}>
       <span class="cost">${miracleCost(state, m) < m.cost ? `<s>${m.cost}</s>${miracleCost(state, m)}` : m.cost}</span>${svgUse(MIRACLE_ART[m.id], 'art', '0 0 48 48')}<div class="nm">${m.name}</div>
-      <span class="tip"><b>${m.name}</b> · 신앙 ${miracleCost(state, m)}${state.wrath && !m.hidden ? ` (분노 ${state.wrath}로 -${m.cost - miracleCost(state, m)})` : ''}<br>${esc(m.text)}${state.miracleUsed ? '<br><i>이번 장에는 이미 기적을 썼다.</i>' : ''}</span>
+      <span class="tip"><b>${m.name}</b> · 신앙 ${miracleCost(state, m)}${state.wrath && !m.hidden ? ` (분노 ${state.wrath}칸, -${m.cost - miracleCost(state, m)})` : ''}<br>${esc(m.text)}${state.miracleUsed ? '<br><i>이번 장에는 이미 기적을 썼다.</i>' : ''}</span>
     </button>`).join('')}</div>`;
   const noticeHTML = notice ? `<div class="notice">${esc(notice)}</div>` : '';
   let scroll = '';
@@ -1441,10 +1450,14 @@ function renderAltar() {
       : result.doctrine === 'peace' && !legal.some((a) => a.type === 'preach') && /이웃|율법|전하|설득/.test(text ?? '')
         ? '아직 말씀을 전할 율법파가 닿는 곳에 없다. 영토를 넓혀야 한다.' : null;
     const tags = [];
+    // 은총은 장당 하나: 서원 > 기이한 해석 > 청원 > 이름 순으로 첫 하나만 '은총'이라 적는다
+    let graceShown = result.forbidden.some((a) => ['attack', 'preach'].includes(a.type));
+    const grace = () => { if (graceShown) return ''; graceShown = true; return ' · 은총'; };
     if (text && pending.tone !== 'command') tags.push(`<span class="wtag tone-${pending.tone}" title="${esc(TONES[pending.tone].text)}">${TONES[pending.tone].name}의 말투 · ${esc(TONES[pending.tone].text)}</span>`);
-    if (pending.answered) tags.push(`<span class="wtag ok">${esc(state.petition.from)}의 청원에 답함 · 은총</span>`);
+    if (pending.odd) tags.push(`<span class="wtag tone-metaphor">기이한 해석${grace()}</span>`);
+    if (pending.answered) tags.push(`<span class="wtag ok">${esc(state.petition.from)}의 청원에 답함${grace()}</span>`);
     if (pending.naming) tags.push(`<span class="wtag name">이름 · ${esc(pending.naming.name)}</span>`);
-    if (pending.odd) tags.push('<span class="wtag tone-metaphor">기이한 해석 · 은총</span>');
+
     if (pending.cited?.length) tags.push(`<span class="wtag">인용 · ${pending.cited.map((w) => `'${esc(w)}'`).join(' ')}</span>`);
     const opp = result.doctrine && state.config.veteran ? OPPOSED[result.doctrine] : null;
     if (opp && state.sides.player.doctrine[opp] > [6, 4, 2, 0].find((f) => state.sides.player.doctrine[opp] >= f)) tags.push(`<span class="wtag tone-curse">${DOCTRINE[opp].name} -1</span>`);
@@ -1622,16 +1635,21 @@ function showSuggest() {
   row.querySelectorAll('.sg-chip').forEach((b) => { b.onclick = () => typeInto(b.textContent); });
   row.querySelector('.sg-off').onclick = () => { meta.set('gsg.suggest', false); row.classList.remove('show'); row.innerHTML = ''; sfx.click(); };
 }
+let typeToken = null;
 async function typeInto(text) {
-  const ta = document.querySelector('.scroll textarea');
-  if (!ta) return;
+  const token = (typeToken = Symbol('type'));
   $('suggestRow')?.classList.remove('show');
-  ta.value = '';
+  draft = '';
   for (const ch of text) {
-    ta.value += ch;
+    const ta = document.querySelector('.scroll textarea');
+    if (typeToken !== token || !ta || phase !== 'speak') return;
+    draft += ch;
+    ta.value = draft;
     if (ch.trim()) sfx.type();
     await fx.wait(28);
   }
+  const ta = document.querySelector('.scroll textarea');
+  if (typeToken !== token || !ta) return;
   ta.dispatchEvent(new Event('input'));
   ta.focus();
 }
@@ -1655,7 +1673,7 @@ function onKey(e) {
   if (!$('mainScreen').hidden || document.querySelector('.endscreen, .npc-dialog.show, .choice-modal')) return;
   const typing = ['TEXTAREA', 'INPUT'].includes(document.activeElement?.tagName);
   const click = (sel) => { const b = $('altar').querySelector(sel); if (b && !b.disabled) { e.preventDefault(); b.click(); return true; } return false; };
-  if (e.altKey && /^[1-4]$/.test(e.key) && phase === 'speak') {
+  if (e.altKey && /^[1-5]$/.test(e.key) && phase === 'speak') {
     const c = $('altar').querySelectorAll('.mcard')[Number(e.key) - 1];
     if (c && !c.disabled) { e.preventDefault(); c.click(); }
     return;

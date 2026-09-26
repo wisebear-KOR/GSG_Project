@@ -424,7 +424,8 @@ export function startRound(state) {
   // 어려움: 율법 카드를 두 장 보고 지금 더 위협적인 쪽을 쓴다 (다른 한 장은 버린다). 들은 말은 동점 깨기로
   if (state.config.difficulty === 'hard' && !state.tutorial) {
     const alt = state.lawDeck.pop();
-    if (lawThreat(state, alt) + pref(alt) > lawThreat(state, state.lawCard) + pref(state.lawCard)) { state.lawCard = alt; if (pref(alt)) state.reacted = heard; }
+    if (lawThreat(state, alt) + pref(alt) > lawThreat(state, state.lawCard) + pref(state.lawCard)) state.lawCard = alt;
+    if (pref(state.lawCard)) state.reacted = heard;
   } else if (react && pref(state.lawCard)) {
     state.reacted = heard; // 마침 뽑힌 카드가 들은 말에 맞선다
   } else if (react) {
@@ -990,6 +991,7 @@ export function recordRevelation(state, text, doctrine, extra = 0) {
   // 비유·첫 이름 같은 가속은 그 교리가 낮을 때만 (궁극에 너무 빨리 닿지 않게)
   if (doctrine && extra && d[doctrine] < RULES.graceDoctrineBelow) d[doctrine] = Math.min(DOCTRINE_MAX, d[doctrine] + extra);
   state.revelations.push({ round: state.round, text, doctrine });
+  if (state.winner) return; // 판이 끝난 뒤에는 교리 대립·연속 기적이 점수를 바꾸지 않는다
   if (!doctrine) { state.streak = null; return; }
   // 교리 대립 (두 번째 판부터): 반대 교리가 흔들린다. 이미 얻은 특전 칸 아래로는 내려가지 않는다
   const opp = OPPOSED[doctrine];
@@ -1035,7 +1037,7 @@ export function keepVows(state, forbidden, plan) {
   if (!types.length) return false;
   if (types.includes('attack')) state.vowNext = 'attack';
   if (plan.some((a) => types.includes(a.type))) return false;
-  state.stats.vows = (state.stats.vows ?? 0) + 1;
-  grantGrace(state, 1, `${types.map((t) => (t === 'attack' ? '칼' : '설교')).join('과 ')}을 거두는 서원을 지켰다`);
+  const what = types.map((t) => (t === 'attack' ? '칼' : '설교')).join('과 ');
+  if (grantGrace(state, 1, `${josa(what, '을', '를')} 거두는 서원을 지켰다`)) state.stats.vows = (state.stats.vows ?? 0) + 1;
   return true;
 }
