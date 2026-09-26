@@ -234,6 +234,8 @@ export const ART = `
   <symbol id="m-tongues" viewBox="0 0 48 48"><path d="M24 6c5 7 10 11 10 19a10 10 0 0 1-20 0c0-8 5-12 10-19z" fill="#ffb347" stroke="#8a4a00" stroke-width="1.2"/><path d="M24 16c3 4 5 7 5 11a5 5 0 0 1-10 0c0-4 2-7 5-11z" fill="#fff3c4"/><path d="M6 40c6-4 12-4 18 0M24 40c6-4 12-4 18 0" fill="none" stroke="#f4f1e8" stroke-width="2.6" stroke-linecap="round"/></symbol>
   <symbol id="m-pillar" viewBox="0 0 48 48"><defs><linearGradient id="g-pillar" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff6c8"/><stop offset=".5" stop-color="#ffb347"/><stop offset="1" stop-color="#d9483a"/></linearGradient></defs><path d="M18 44c-2-10 2-16 0-26-1-6 3-10 6-14 3 4 7 8 6 14-2 10 2 16 0 26z" fill="url(#g-pillar)" stroke="#8a2a10" stroke-width="1.2"/><path d="M22 42c-1-8 2-12 1-20 0-3 1-5 1-7 1 2 2 4 1 7-1 8 2 12 1 20z" fill="#fff8e0"/></symbol>
   <symbol id="m-revive" viewBox="0 0 48 48"><circle cx="24" cy="22" r="16" fill="#fff4c8" opacity=".55"/><use href="#s-meeple" x="12" y="10" width="24" height="26" fill="#f4efe4" stroke="#6b5a3a" stroke-width="1"/><path d="M8 42h32" stroke="#6b4a2a" stroke-width="2.4" stroke-linecap="round"/><path d="M24 2v6M10 8l4 4M38 8l-4 4" stroke="#ffd98a" stroke-width="2" stroke-linecap="round"/></symbol>
+  <pattern id="pat-own-player" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="8" fill="rgba(31,63,115,.35)"/></pattern>
+  <pattern id="pat-own-enemy" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="1.8" fill="rgba(101,26,17,.4)"/></pattern>
 </defs>
 </svg>`;
 

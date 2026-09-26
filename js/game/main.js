@@ -21,7 +21,7 @@ import {
 } from './chronicle.js';
 import { llmStatus, prepareLLM, interpretWithLLM, interpretWithTablet, linkWords, extractLesson, describeLesson, voiceOf } from './interpreter.js';
 import * as fx from './fx.js';
-import { sfx, soundOn, setSound, musicOn, setMusic, music, unlockAudio } from './sound.js';
+import { sfx, soundOn, setSound, musicOn, setMusic, music, unlockAudio, volume, setVolume } from './sound.js';
 
 installArt();
 const $ = (id) => document.getElementById(id);
@@ -89,6 +89,7 @@ const frameEl = () => $('boardFrame');
 // ---------- 시작 ----------
 async function init() {
   fx.ambient($('ambient'));
+  applyA11y();
   const saved = meta.loadGame();
   if (saved) { state = saved.state; loadedPhase = saved.uiPhase; }
   else state = createState(setup);
@@ -137,6 +138,7 @@ function showMain() {
   renderMainStatus();
   renderSetup();
   renderMetaLinks();
+  renderWelcome();
   ($('resumeGame') ?? $('startGame')).focus({ preventScroll: true });
 }
 
@@ -165,6 +167,7 @@ function bindSetup() {
   $('optSigil').querySelectorAll('button').forEach((b) => { b.onclick = () => { meta.set('gsg.god', { ...godOf(), sigil: b.dataset.v }); sfx.click(); renderSetup(); }; });
   $('startDaily').onclick = () => startFromMain('daily');
   $('msLibrary').onclick = () => { sfx.page(); showLibrary(); };
+  $('msSettings').onclick = () => { sfx.page(); showSettings(); };
   $('msBible').onclick = () => { sfx.page(); showBible(); };
 }
 
@@ -353,6 +356,7 @@ function tileTipHTML(cur, t) {
 function bindTools() {
   bindMain();
   bindTileTips();
+  $('settings').onclick = () => { sfx.click(); showSettings(); };
   $('home').onclick = () => { if (document.querySelector('.choice-modal:not(.list-modal)')) return; sfx.click(); showMain(); };
   $('ai').onclick = () => {
     if (!aiUsable || phase === 'thinking') return;
@@ -398,6 +402,7 @@ async function newRound() {
   music.setMood('calm');
   render();
   meta.saveGame(state, 'speak');
+  announce(`제 ${state.round} 장. ${state.event.name}. 계시를 적을 차례다.`);
   if (state.miracleOffer) setTimeout(showMiracleDraft, fx.motion.reduced ? 300 : 2500);
   const judge = state.judgement !== 'classic' ? ` · 심판의 기준 「${JUDGEMENTS[state.judgement].name}」` : '';
   const act = state.tutorial ? '' : state.round === state.maxRounds ? '최후의 계절 · ' : state.round === 1 || actStart(state) ? `${ACTS[actOf(state) - 1].name} · ` : '';
@@ -427,7 +432,7 @@ async function speak() {
   if (!text) { ta?.focus(); return; }
   const cost = revelationCostFor(state, text);
   const p = state.sides.player;
-  if (p.faith < cost) { notice = `신앙이 모자라다 (필요 ${cost}, 보유 ${p.faith}). 계시를 줄이거나 침묵하라.`; sfx.fail(); renderAltar(); return; }
+  if (p.faith < cost) { notice = `신앙이 모자라다 (필요 ${cost}, 보유 ${p.faith}). 계시를 줄이거나 침묵하라.`; sfx.fail(); renderAltar(); rejectFx(); return; }
   p.faith -= cost;
   draft = '';
   hintTiles = [];
@@ -441,6 +446,15 @@ async function speak() {
   const job = runInterpretation(text);
   await fx.castRevelation(document.querySelector('.scroll'), document.querySelector('.seal-btn'), frameEl(), text);
   await interpret(text, job, naming);
+}
+
+// 안 되는 입력: 인장이 튕기고 비용 알약이 붉게 번쩍인다
+function rejectFx() {
+  for (const sel of ['.seal-btn', '.cost-pill']) {
+    const el = document.querySelector(`#altar ${sel}`);
+    if (!el) continue;
+    el.classList.remove('reject'); void el.offsetWidth; el.classList.add('reject');
+  }
 }
 
 function lockAltar() { document.querySelectorAll('#altar button, #altar textarea').forEach((b) => { b.disabled = true; }); }
@@ -768,6 +782,19 @@ function renderMetaLinks() {
   $('msBible').textContent = `성서 · ${Object.keys(meta.getAchievements()).length}/${ACHIEVEMENTS.length}`;
 }
 
+// 오랜만에 돌아오면 지난 판을 한 줄로
+function renderWelcome() {
+  const last = meta.get('gsg.lastVisit', 0);
+  meta.set('gsg.lastVisit', Date.now());
+  document.querySelector('.ms-welcome')?.remove();
+  const g = meta.getHistory()[0];
+  if (!g || !last || Date.now() - last < 3 * 86400000) return;
+  const el = document.createElement('div');
+  el.className = 'ms-welcome';
+  el.textContent = `다시 오셨군요. 지난 판 — ${g.size}×${g.size} ${g.winner === 'player' ? '승리' : '패배'}, ${g.rounds}장, 승점 ${g.score[0]} : ${g.score[1]}. 「${g.epithet}」${loadedPhase ? ' · 이어하던 판이 있다.' : ''}`;
+  $('msAwe').before(el);
+}
+
 function listModal(title, html) {
   const o = document.createElement('div');
   o.className = 'choice-modal list-modal';
@@ -809,6 +836,101 @@ function showBible() {
   const have = meta.getAchievements();
   const html = `<div class="bible">${ACHIEVEMENTS.map((a) => `<div class="verse ${have[a.id] ? 'got' : ''}"><b>${esc(a.name)}</b><span>${esc(a.desc)}</span>${have[a.id] ? `<i>${esc(have[a.id])}</i>` : ''}</div>`).join('')}</div>`;
   listModal(`성서 — ${Object.keys(have).length} / ${ACHIEVEMENTS.length} 구절`, html);
+}
+
+// ---------- 설정 ----------
+function applyA11y() {
+  document.body.classList.toggle('cb', !!meta.get('gsg.a11y.cb', false));
+  document.body.style.zoom = String(meta.get('gsg.a11y.zoom', 1));
+}
+function showSettings() {
+  const o = listModal('설정', settingsHTML());
+  bindSettings(o);
+}
+function settingsHTML() {
+  const seg = (name, cur, opts) => `<div class="seg set-seg" data-set="${name}">${opts.map(([v, l]) => `<button type="button" data-v="${v}" class="${String(cur) === String(v) ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  return `<div class="settings">
+    <section><h4>소리</h4>
+      <label>배경음악 <input type="range" min="0" max="100" value="${Math.round(volume('music') * 100)}" data-vol="music"> <button type="button" class="chip" data-toggle="music">${musicOn() ? '켜짐' : '꺼짐'}</button></label>
+      <label>효과음 <input type="range" min="0" max="100" value="${Math.round(volume('sfx') * 100)}" data-vol="sfx"> <button type="button" class="chip" data-toggle="sound">${soundOn() ? '켜짐' : '꺼짐'}</button></label>
+    </section>
+    <section><h4>연출</h4>
+      <label>화면 효과 ${seg('motion', fx.motion.reduced ? 'low' : 'full', [['full', '화려하게'], ['low', '줄이기']])}</label>
+      <label>재생 속도 ${seg('speed', speed, [['1', '1×'], ['2', '2×'], ['instant', '즉시']])}</label>
+      <label>계시 제안 ${seg('suggest', meta.get('gsg.suggest', true) ? 'on' : 'off', [['on', '처음 세 판'], ['off', '끄기']])}</label>
+    </section>
+    <section><h4>보기</h4>
+      <label>진영 무늬 ${seg('cb', meta.get('gsg.a11y.cb', false) ? 'on' : 'off', [['off', '색만'], ['on', '무늬 더하기']])}</label>
+      <label>글자 크기 ${seg('zoom', meta.get('gsg.a11y.zoom', 1), [[1, '보통'], [1.1, '크게'], [1.2, '아주 크게']])}</label>
+    </section>
+    <section><h4>대사제</h4>
+      <p class="set-note">${aiUsable ? `이 브라우저의 내장 AI 상태: ${esc(aiState)} · 지금 ${aiMode === 'llm' ? 'LLM으로 해석한다' : '석판(키워드)으로 해석한다'}` : '이 브라우저에는 내장 AI가 없어 석판(키워드) 해석기로 플레이한다. 데스크톱 Chrome에서 Gemini Nano를 켜면 대사제가 말을 알아듣는다.'}</p>
+    </section>
+    <section><h4>기록</h4>
+      <div class="set-row"><button type="button" class="btn-ghost" data-act="export">기록 내보내기</button><button type="button" class="btn-ghost" data-act="import">기록 가져오기</button><button type="button" class="btn-ghost danger" data-act="reset">기록 지우기</button></div>
+      <p class="set-note">서고·성서·경외·정경·설정이 이 브라우저에만 저장된다. 다른 기기로 옮기려면 내보내고 가져온다.</p>
+      <input type="file" accept="application/json" hidden data-file>
+    </section>
+  </div>`;
+}
+function bindSettings(o) {
+  o.querySelectorAll('[data-vol]').forEach((r) => { r.oninput = () => setVolume(r.dataset.vol, Number(r.value) / 100); r.onchange = () => sfx.click(); });
+  o.querySelectorAll('[data-toggle]').forEach((b) => {
+    b.onclick = () => {
+      if (b.dataset.toggle === 'music') setMusic(!musicOn()); else setSound(!soundOn());
+      b.textContent = (b.dataset.toggle === 'music' ? musicOn() : soundOn()) ? '켜짐' : '꺼짐';
+      renderTools(); renderMainStatus(); sfx.click();
+    };
+  });
+  o.querySelectorAll('.set-seg').forEach((g) => g.querySelectorAll('button').forEach((b) => {
+    b.onclick = () => {
+      const v = b.dataset.v;
+      const k = g.dataset.set;
+      if (k === 'motion') fx.setReduced(v === 'low');
+      if (k === 'speed') { speed = v; meta.set('gsg.speed', v); fx.motion.speed = v === '2' ? 2 : 1; }
+      if (k === 'suggest') meta.set('gsg.suggest', v === 'on');
+      if (k === 'cb') meta.set('gsg.a11y.cb', v === 'on');
+      if (k === 'zoom') meta.set('gsg.a11y.zoom', Number(v));
+      applyA11y();
+      g.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+      renderTools(); renderMainStatus(); sfx.click();
+      if (!$('mainScreen').hidden) return;
+      render();
+    };
+  }));
+  const file = o.querySelector('[data-file]');
+  o.querySelector('[data-act="export"]').onclick = () => {
+    const blob = new Blob([JSON.stringify({ app: 'gsg', exported: new Date().toISOString(), data: meta.exportAll() }, null, 1)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = `revelation-${meta.dayKey()}.json`;
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    sfx.page();
+  };
+  o.querySelector('[data-act="import"]').onclick = () => file.click();
+  file.onchange = async () => {
+    try {
+      const obj = JSON.parse(await file.files[0].text());
+      if (obj.app !== 'gsg' || typeof obj.data !== 'object') throw new Error('형식');
+      if (!confirm('지금 이 브라우저의 기록을 가져온 기록으로 덮어쓴다. 계속할까?')) return;
+      meta.importAll(obj.data);
+      location.reload();
+    } catch { alert('기록 파일을 읽지 못했다.'); }
+  };
+  o.querySelector('[data-act="reset"]').onclick = () => {
+    if (!confirm('서고·성서·경외·정경·이어하기를 모두 지운다. 되돌릴 수 없다. 계속할까?')) return;
+    for (const k of Object.keys(meta.exportAll())) { try { localStorage.removeItem(k); } catch { /* 무시 */ } }
+    location.reload();
+  };
+}
+
+// ---------- 음성 해설 (화면 읽기 프로그램) ----------
+function announce(text) {
+  const box = $('sr');
+  if (!box || !text) return;
+  const p = document.createElement('p');
+  p.textContent = text;
+  box.append(p);
+  while (box.children.length > 4) box.firstChild.remove();
 }
 
 // ---------- 사관 세라의 과제 (튜토리얼 뒤 첫 판들) ----------
@@ -952,6 +1074,7 @@ async function playback(before) {
     lastHidden = hidden;
     const banner = repeatHidden ? null : bannerFor(log, seen);
     if (banner && !fx.motion.skip) { fx.actionBanner(frameEl(), banner); await fx.wait(420); }
+    if (banner) announce(`${banner.title}. ${log.text}`);
     if (repeatHidden) await fx.wait(120); else await playFx(log);
     // 연속 성공 콤보: 우리 성공이 이어질수록 음이 오른다
     if (log.side === 'player' && log.fx) {
@@ -979,6 +1102,7 @@ async function playback(before) {
   if (resolved.verdict && state.history.at(-1)) state.history.at(-1).verdict = resolved.verdict.grade;
   render();
   playLedger();
+  if (resolved.ledger) announce(`이번 장 결산: ${resolved.ledger.rows.map((r) => `${r.label} ${r.d > 0 ? '+' : ''}${r.d}`).join(', ') || '변화 없음'}. 승점 ${resolved.ledger.score >= 0 ? '+' : ''}${resolved.ledger.score}.`);
   if (phase !== 'over') revealPerk(before);
   if (resolved.verdict) setTimeout(() => (resolved.verdict.grade === 'miss' ? sfx.fail() : sfx.seal?.()), 200);
   if (pendingLesson) { const l = pendingLesson; pendingLesson = null; setTimeout(() => priestSay(`깨달았나이다. 신께서 '${l.word}'${batchim(l.word) ? '이라' : '라'} 하시면 ${josa(describeLesson(l), '을', '를')} 뜻하시는군요.`), 900); }
@@ -1236,6 +1360,7 @@ async function useMiracle(id) {
   const before = makeView(snapshot(state));
   const r = castMiracle(state, id);
   notice = r.ok ? '' : r.text;
+  if (!r.ok) { sfx.fail(); setTimeout(() => document.querySelector(`.mcard[data-m="${id}"]`)?.classList.add('reject'), 30); }
   matView = r.ok ? before : null;
   render();
   if (r.ok) {
@@ -1360,6 +1485,7 @@ function renderBoardView() {
   const intents = ['speak', 'thinking', 'confirm'].includes(phase) && state.round > 0 && !state.winner
     ? enemyIntent(state).filter((a) => a.shown).map((a) => ({ tile: a.tile, type: a.type === 'build' ? 'build' : a.type })) : [];
   renderBoard($('board'), cur, { markers, highlight, hints, intents, selectable, onTileClick, focus: focusId });
+  $('board').setAttribute('aria-label', `육각 보드 — 제 ${state.round} 장. 우리 땅 ${cur.tiles.filter((t) => t.owner === 'player').length}칸, 율법파 땅 ${cur.tiles.filter((t) => t.owner === 'enemy' && t.revealed).length}칸 보임. 승점 ${score(cur, 'player')} 대 ${score(cur, 'enemy')}.`);
   frameEl().classList.toggle('thinking', phase === 'thinking');
 }
 

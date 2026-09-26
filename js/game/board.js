@@ -78,6 +78,7 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
     g.append(el('polygon', { points: hexPoints(c), fill: 'url(#g-bevel)', class: 'hex-bevel' }));
     g.append(el('polygon', { points: hexPoints(c), class: 'hex-edge' }));
     if (t.owner && !hidden) g.append(el('polygon', { points: hexPoints(c, R - 5), class: `own-line own-${t.owner}` }));
+    if (t.owner && !hidden) g.append(el('polygon', { points: hexPoints(c, R - 1), class: `own-pat pat-${t.owner}` }));
     if (t.wall && !hidden) g.append(el('polygon', { points: hexPoints(c, R - 9), class: 'wall-ring' }));
 
     if (hidden) {

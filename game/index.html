@@ -9,25 +9,25 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Song+Myung&family=Hahmlet:wght@400;500;600;700;800&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="style.css?v=202609270447">
+<link rel="stylesheet" href="style.css?v=202609270449">
 <!-- 배포 후 브라우저가 옛 모듈을 쓰지 않도록 버전을 붙인다 (올릴 때 v를 바꾼다) -->
 <script type="importmap">
 {
   "imports": {
-    "../js/game/art.js": "../js/game/art.js?v=202609270447",
-    "../js/game/board.js": "../js/game/board.js?v=202609270447",
-    "../js/game/chronicle.js": "../js/game/chronicle.js?v=202609270447",
-    "../js/game/data.js": "../js/game/data.js?v=202609270447",
-    "../js/game/engine.js": "../js/game/engine.js?v=202609270447",
-    "../js/game/fx.js": "../js/game/fx.js?v=202609270447",
-    "../js/game/interpreter.js": "../js/game/interpreter.js?v=202609270447",
-    "../js/game/lore.js": "../js/game/lore.js?v=202609270447",
-    "../js/game/main.js": "../js/game/main.js?v=202609270447",
-    "../js/game/mapgen.js": "../js/game/mapgen.js?v=202609270447",
-    "../js/game/meta.js": "../js/game/meta.js?v=202609270447",
-    "../js/game/sound.js": "../js/game/sound.js?v=202609270447",
-    "../js/game/tutorial.js": "../js/game/tutorial.js?v=202609270447",
-    "../js/llm.js": "../js/llm.js?v=202609270447"
+    "../js/game/art.js": "../js/game/art.js?v=202609270449",
+    "../js/game/board.js": "../js/game/board.js?v=202609270449",
+    "../js/game/chronicle.js": "../js/game/chronicle.js?v=202609270449",
+    "../js/game/data.js": "../js/game/data.js?v=202609270449",
+    "../js/game/engine.js": "../js/game/engine.js?v=202609270449",
+    "../js/game/fx.js": "../js/game/fx.js?v=202609270449",
+    "../js/game/interpreter.js": "../js/game/interpreter.js?v=202609270449",
+    "../js/game/lore.js": "../js/game/lore.js?v=202609270449",
+    "../js/game/main.js": "../js/game/main.js?v=202609270449",
+    "../js/game/mapgen.js": "../js/game/mapgen.js?v=202609270449",
+    "../js/game/meta.js": "../js/game/meta.js?v=202609270449",
+    "../js/game/sound.js": "../js/game/sound.js?v=202609270449",
+    "../js/game/tutorial.js": "../js/game/tutorial.js?v=202609270449",
+    "../js/llm.js": "../js/llm.js?v=202609270449"
   }
 }
 </script>
@@ -53,6 +53,7 @@
       <button class="chip icon-only" id="sound" type="button" title="효과음"></button>
       <button class="chip icon-only" id="motion" type="button" title="연출"></button>
       <button class="chip" id="openChron" type="button"><svg class="u" viewBox="0 0 24 24"><use href="#u-scroll"/></svg><span class="label">연대기</span></button>
+      <button class="chip icon-only" id="settings" type="button" title="설정" aria-label="설정">⚙</button>
       <button class="chip icon-only" id="home" type="button" title="메인 화면 (Esc)"><svg class="u" viewBox="0 0 24 24"><use href="#u-home"/></svg></button>
     </div>
   </header>
@@ -83,6 +84,7 @@
 </aside>
 <div id="stage" aria-hidden="true"></div>
 <div class="tile-tip" id="tileTip" role="tooltip"></div>
+<div id="sr" class="sr-only" aria-live="polite"></div>
 
 <!-- 메인 화면: 시작 버튼을 누르는 순간 오디오를 열고 제1장으로 들어간다 -->
 <section class="main-screen" id="mainScreen" aria-label="메인 화면">
@@ -147,6 +149,7 @@
       <button class="chip" id="msMusic" type="button"></button>
       <button class="chip" id="msSound" type="button"></button>
       <button class="chip" id="msMotion" type="button"></button>
+      <button class="chip" id="msSettings" type="button">⚙ 설정</button>
       <button class="chip" id="msLibrary" type="button" hidden>서고</button>
       <button class="chip" id="msBible" type="button" hidden>성서</button>
       <a class="chip" href="../check.html">내장 AI 점검</a>
@@ -157,6 +160,6 @@
   </div>
 </section>
 
-<script type="module" src="../js/game/main.js?v=202609270447"></script>
+<script type="module" src="../js/game/main.js?v=202609270449"></script>
 </body>
 </html>

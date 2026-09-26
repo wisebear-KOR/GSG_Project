@@ -997,3 +997,28 @@ body.reduce-motion .holy-ring { animation: none; }
 
 .omen-reel { animation: reelIn .4s .7s forwards; }
 @keyframes reelIn { to { opacity: 1; } }
+
+/* ---------- 4차 웨이브 A: 설정·접근성 ---------- */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.own-pat { display: none; pointer-events: none; }
+body.cb .own-pat { display: block; }
+body.cb .own-pat.pat-player { fill: url(#pat-own-player); }
+body.cb .own-pat.pat-enemy { fill: url(#pat-own-enemy); }
+body.cb .own-line.own-enemy { stroke-dasharray: 2 4; stroke-linecap: round; }
+.settings { display: grid; gap: 14px; }
+.settings section { display: grid; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid rgba(124, 89, 27, .2); }
+.settings h4 { margin: 0; font: 400 18px var(--font-title); color: var(--gold-lo); }
+.settings label { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font: 14px var(--font-ui); color: var(--ink); }
+.settings input[type=range] { flex: 1; min-width: 140px; accent-color: #9a6a10; }
+.settings .chip { color: var(--ink); border-color: rgba(124, 89, 27, .5); }
+.set-seg { background: rgba(124, 89, 27, .12); border-color: rgba(124, 89, 27, .3); }
+.set-seg button { color: var(--ink-soft); min-height: 32px; font-size: 13px; }
+.set-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.set-row .btn-ghost { color: var(--ink); border-color: rgba(124, 89, 27, .5); height: 36px; }
+.set-row .btn-ghost.danger { color: #a3372a; border-color: rgba(163, 55, 42, .5); }
+.set-note { margin: 0; font: 12.5px/1.5 var(--font-ui); color: var(--ink-soft); }
+.ms-welcome { max-width: 520px; margin: 0 auto 10px; padding: 8px 14px; border-radius: 12px; font: 14px/1.5 var(--font-body); color: var(--on-table); background: rgba(61, 111, 182, .2); border: 1px solid rgba(156, 192, 255, .3); }
+.reject { animation: rejectShake .42s ease; }
+.cost-pill.reject { background: #8a2a1c !important; color: #fff; }
+@keyframes rejectShake { 20% { transform: translateX(-6px) rotate(-3deg); } 40% { transform: translateX(6px) rotate(3deg); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px; }

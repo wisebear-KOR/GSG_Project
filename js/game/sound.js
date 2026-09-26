@@ -23,11 +23,32 @@ export function levels() {
 
 export const soundOn = () => sfxOn;
 export const musicOn = () => musicOnFlag;
-export function setSound(on) { sfxOn = on; store.set('gsg.sound', on ? 'on' : 'off'); if (bus) ramp(bus.sfx.gain, on ? 0.9 : 0, 0.15); }
+export function setSound(on) { sfxOn = on; store.set('gsg.sound', on ? 'on' : 'off'); if (bus) ramp(bus.sfx.gain, on ? 0.9 * vol.sfx : 0, 0.15); }
+// 볼륨 (0~1). 켜고 끄는 스위치는 따로 남는다
+const vol = { music: Number(store.get('gsg.vol.music', '1')), sfx: Number(store.get('gsg.vol.sfx', '1')) };
+export const volume = (k) => vol[k];
+export function setVolume(k, v) {
+  vol[k] = Math.max(0, Math.min(1, v));
+  store.set(`gsg.vol.${k}`, String(vol[k]));
+  if (!bus) return;
+  if (k === 'music' && musicOnFlag) ramp(bus.music.gain, musicLevel(), 0.2);
+  if (k === 'sfx' && sfxOn) ramp(bus.sfx.gain, 0.9 * vol.sfx, 0.1);
+}
+const musicLevel = () => MUSIC_LEVEL * vol.music;
+// 덕킹: 큰 효과음이 날 때 음악을 잠깐 낮춘다 (같은 소리도 더 크게 들린다)
+export function duck(depth = 0.4, hold = 0.5, release = 0.9) {
+  if (!bus?.duck) return;
+  const g = bus.duck.gain; const t = ctx.currentTime;
+  g.cancelScheduledValues(t);
+  g.setValueAtTime(g.value, t);
+  g.linearRampToValueAtTime(depth, t + 0.05);
+  g.setValueAtTime(depth, t + 0.05 + hold);
+  g.linearRampToValueAtTime(1, t + 0.05 + hold + release);
+}
 export function setMusic(on) {
   musicOnFlag = on; store.set('gsg.music', on ? 'on' : 'off');
   if (!bus) return;
-  ramp(bus.music.gain, on ? MUSIC_LEVEL : 0, 0.8);
+  ramp(bus.music.gain, on ? musicLevel() : 0, 0.8);
   if (on) music.start(); else music.stop();
 }
 
@@ -53,16 +74,17 @@ function build() {
   const master = ctx.createGain(); master.gain.value = 0.85;
   const reverb = ctx.createConvolver(); reverb.buffer = impulse();
   const wet = ctx.createGain(); wet.gain.value = 0.42;
-  const sfx = ctx.createGain(); sfx.gain.value = sfxOn ? 0.9 : 0;
+  const sfx = ctx.createGain(); sfx.gain.value = sfxOn ? 0.9 * vol.sfx : 0;
   const musicG = ctx.createGain(); musicG.gain.value = 0;
-  sfx.connect(master); musicG.connect(master);
+  const duckG = ctx.createGain(); duckG.gain.value = 1;
+  sfx.connect(master); musicG.connect(duckG).connect(master);
   // 레벨 측정용 (디버그): 음악/효과음 버스의 실제 출력 크기
   const meterMusic = ctx.createAnalyser(); meterMusic.fftSize = 2048; musicG.connect(meterMusic);
   const meterSfx = ctx.createAnalyser(); meterSfx.fftSize = 2048; sfx.connect(meterSfx);
   meters = { music: meterMusic, sfx: meterSfx };
   reverb.connect(wet).connect(master);
   master.connect(comp).connect(ctx.destination);
-  bus = { master, reverb, sfx, music: musicG };
+  bus = { master, reverb, sfx, music: musicG, duck: duckG };
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) ctx.suspend(); else ctx.resume();
   });
@@ -73,7 +95,7 @@ export function unlockAudio() {
   if (unlocked) { if (ctx?.state === 'suspended') ctx.resume(); return; }
   unlocked = true;
   if (!build()) return;
-  if (musicOnFlag) { ramp(bus.music.gain, MUSIC_LEVEL, 2.5); music.start(); }
+  if (musicOnFlag) { ramp(bus.music.gain, musicLevel(), 2.5); music.start(); }
 }
 for (const type of ['pointerdown', 'keydown']) addEventListener(type, unlockAudio, { once: true, capture: true });
 
@@ -371,8 +393,14 @@ export const music = (() => {
     setMood(m) {
       mood = m;
       target = m === 'tension' ? 1 : 0;
-      if (m === 'end') { this.stop(); if (bus) { ramp(bus.music.gain, 0, 1.2); setTimeout(() => { if (musicOnFlag && bus) ramp(bus.music.gain, MUSIC_LEVEL, 3); }, 6000); } }
+      if (m === 'end') { this.stop(); if (bus) { ramp(bus.music.gain, 0, 1.2); setTimeout(() => { if (musicOnFlag && bus) ramp(bus.music.gain, musicLevel(), 3); }, 6000); } }
     },
     get mood() { return mood; },
   };
 })();
+
+// 큰 순간의 효과음은 음악을 잠깐 눌러 준다
+for (const k of ['seal', 'impact', 'thunder', 'win', 'lose', 'holy', 'hit']) {
+  const f = sfx[k];
+  if (typeof f === 'function') sfx[k] = (...a) => { if (ready()) duck(k === 'win' || k === 'lose' ? 0.25 : 0.4, k === 'holy' ? 0.3 : 0.5); return f(...a); };
+}
