@@ -125,7 +125,7 @@ export function summarizeGame(state, extra = {}) {
     score: [score(state, 'player'), score(state, 'enemy')], rounds: state.round,
     doctrine: { ...state.sides.player.doctrine }, top: topDoctrine(state), epithet: ep.epithet,
     revelations: state.revelations.map((r) => ({ round: r.round, text: r.text, doctrine: r.doctrine })),
-    stats: { ...state.stats }, names: Object.values(state.names ?? {}), ...extra,
+    stats: { ...state.stats }, names: Object.values(state.names ?? {}), god: state.config.god?.name ?? null, ...extra,
   };
 }
 

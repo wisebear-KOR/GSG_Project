@@ -162,6 +162,28 @@ export const JUDGEMENTS = {
   steadfast: { name: '굳센 자', text: '수도 내구도가 3점, 성벽마다 1점', w: { pop: 2, village: 2, temple: 2, hp: 3, wall: 1 } },
 };
 
+// 두 갈래 사건 (두 번째 판부터 사건 덱에 섞인다). 버튼으로 고르거나, 계시 속 말로 답한다 (tags)
+export const DILEMMAS = [
+  { id: 'refugees', name: '난민 행렬', text: '전쟁을 피한 난민이 문 앞에 섰다.', rule: '갈림길 — 버튼이나 계시로 답한다', choice: [
+    { id: 'take', label: '받아들인다', text: '신도 +1, 식량 -2', tags: '받아|맞아|품어|들여|환영|받으라', gain: { food: -2 }, pop: 1 },
+    { id: 'send', label: '돌려보낸다', text: '신앙 -1', tags: '돌려|내쫓|쫓아|거절|막아', gain: { faith: -1 } }] },
+  { id: 'pilgrims', name: '순례자', text: '먼 곳의 순례자들이 우리 신전을 찾아왔다.', rule: '갈림길 — 버튼이나 계시로 답한다', choice: [
+    { id: 'host', label: '맞아들인다', text: '신앙 +2, 식량 -1', tags: '맞아|대접|먹이|환영|품어', gain: { faith: 2, food: -1 } },
+    { id: 'ignore', label: '지나보낸다', text: '아무 일도 없다', tags: '지나|보내|모른|돌려', gain: {} }] },
+  { id: 'inquisitor', name: '율법 심문관', text: '율법파 심문관이 우리 마을을 캐묻고 다닌다.', rule: '갈림길 — 버튼이나 계시로 답한다', choice: [
+    { id: 'expel', label: '쫓아낸다', text: '신앙 +1, 다음 장 율법파가 칼을 든다', tags: '쫓아|내쫓|몰아|꾸짖|벌하', gain: { faith: 1 }, provoke: true },
+    { id: 'soothe', label: '달랜다', text: '식량 -2', tags: '달래|대접|먹이|평화|참아', gain: { food: -2 } }] },
+  { id: 'schism', name: '신도들의 다툼', text: '신도들 사이에 말씀의 뜻을 두고 다툼이 났다.', rule: '갈림길 — 버튼이나 계시로 답한다', choice: [
+    { id: 'side', label: '한쪽 편을 든다', text: '가장 깊은 교리 +1, 신도 -1', tags: '옳다|편을|따르라|벌하|내쫓', doctrine: 1, pop: -1 },
+    { id: 'reconcile', label: '둘 다 달랜다', text: '신앙 -2', tags: '화해|달래|하나|함께|사랑', gain: { faith: -2 } }] },
+  { id: 'merchant', name: '떠돌이 상인', text: '상인이 곡식을 받고 돌과 목재를 내놓는다.', rule: '갈림길 — 버튼이나 계시로 답한다', choice: [
+    { id: 'trade', label: '곡식을 내준다', text: '식량 -3, 돌 +2, 목재 +2', tags: '바꾸|사고|팔|내주|거래', gain: { food: -3, stone: 2, wood: 2 } },
+    { id: 'pass', label: '보낸다', text: '아무 일도 없다', tags: '보내|거절|돌려', gain: {} }] },
+  { id: 'healer', name: '역병 치료사', text: '약초를 든 치료사가 대가를 청한다.', rule: '갈림길 — 버튼이나 계시로 답한다', choice: [
+    { id: 'pay', label: '대가를 치른다', text: '신앙 -2, 이번 장 아무도 잃지 않는다', tags: '치료|고치|낫|살리|치르', gain: { faith: -2 }, ark: true },
+    { id: 'refuse', label: '거절한다', text: '아무 일도 없다', tags: '거절|돌려|보내', gain: {} }] },
+];
+
 // 안개 속 발견지: 처음 드러날 때 한 번 일어난다
 export const SITES = {
   nomads: { name: '떠도는 유목민', text: '안개 속에서 떠도는 유목민 무리를 만났다.', choice: [
@@ -171,7 +193,16 @@ export const SITES = {
   altar:  { name: '잊힌 제단', text: '이름 모를 신의 제단이 이끼에 덮여 있다.', gain: { faith: 3 } },
   spring: { name: '말하는 샘', text: '샘물이 속삭이며 길을 알려 준다.', gain: { wood: 2, stone: 1 } },
   bones:  { name: '거인의 뼈', text: '거대한 뼈가 땅에 박혀 있다. 좋은 돌감이다.', gain: { stone: 3 } },
+  legacy: { name: '전생의 유적', text: '이름 잊힌 신의 제단이 무너져 있다.', gain: { faith: 2 } },
 };
+// 영구 지형: 사막 속 오아시스는 식량 3, 산의 채석장은 돌 3
+export const FEATURES = {
+  oasis:  { name: '오아시스', on: 'desert', gather: 'food', amount: 3 },
+  quarry: { name: '채석장', on: 'mountain', gather: 'stone', amount: 3 },
+};
+
+// 신의 상징 (인장에 찍힌다)
+export const SIGILS = { light: 'i-faith', sword: 'd-war', dove: 'd-peace', grain: 'i-food', eye: 'e-prophet', storm: 'm-lightning' };
 
 // 율법 카드: 율법파(오토마)는 매 장 한 장을 뽑아 위에서부터 행동한다.
 // 규칙 항목: { type, gather?, build? }. 조건에 맞는 행동이 없으면 다음 항목으로 넘어간다.

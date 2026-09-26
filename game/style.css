@@ -949,3 +949,19 @@ body.reduce-motion .holy-ring { animation: none; }
 .cath-pip.on { fill: #ffd98a; }
 .destiny { margin-top: 8px; padding: 6px 10px; border-radius: 10px; font: 12.5px var(--font-ui); color: #e3edff; background: rgba(61, 111, 182, .25); border: 1px solid rgba(156, 192, 255, .35); }
 .destiny.done { background: rgba(90, 164, 104, .3); border-color: rgba(155, 226, 155, .5); }
+
+/* ---------- 3차 웨이브 B ---------- */
+.seg.sigils button { min-height: 36px; padding: 4px; }
+.seg.sigils svg { width: 22px; height: 22px; }
+#optGod { font: 700 15px var(--font-title); }
+.dilemma { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+.dl-opt { display: grid; gap: 1px; padding: 6px 6px; border-radius: 10px; border: 1px solid rgba(124, 89, 27, .45); background: rgba(255, 250, 235, .5); color: var(--ink); cursor: pointer; text-align: left; }
+.dl-opt b { font: 700 12.5px var(--font-display); }
+.dl-opt small { font: 11px var(--font-ui); color: var(--ink-soft); }
+.dl-opt.on { background: linear-gradient(180deg, rgba(244, 220, 146, .9), rgba(201, 162, 74, .7)); border-color: var(--gold-lo); }
+.dl-opt:disabled { cursor: default; opacity: .8; }
+.tile-name.feat { font: 700 11px var(--font-ui); fill: #3a5a2a; }
+.scroll .dilemma { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: -2px 0 8px; }
+.dl-head { font: 700 12px var(--font-ui); color: var(--gold-lo); }
+.dl-note { font: 11px var(--font-ui); color: var(--ink-faint); }
+.scroll .dl-opt { grid-template-columns: auto auto; gap: 6px; align-items: baseline; padding: 3px 10px; border-radius: 999px; }

@@ -5,10 +5,10 @@ import {
   faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent, josa, batchim,
   grantGrace, petitionAnswered, nameTile, applyTone, sealProphecy, takeMiracle, resolveSite,
   scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
-  holyOwner, edictMax, chooseDestiny, actOf, actStart,
+  holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
 } from './engine.js';
 import {
-  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DESTINIES, DESTINY_POINTS, ACTS, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
+  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
 } from './data.js';
 import { renderBoard, tileToHost, markerToScreen } from './board.js';
 import { installArt } from './art.js';
@@ -156,15 +156,31 @@ function bindSetup() {
   };
   $('reseed').onclick = () => { setup.seed = randomSeed(); saveSetup(); sfx.dice(); renderSetup(); };
   $('startTutorial').onclick = () => startFromMain('tutorial');
+  $('optGod').oninput = () => { meta.set('gsg.god', { ...godOf(), name: $('optGod').value.trim().slice(0, 8) }); };
+  $('optSigil').innerHTML = Object.entries(SIGILS).map(([k, icon]) => `<button type="button" data-v="${k}" title="${k}">${svgUse(icon)}</button>`).join('');
+  $('optSigil').querySelectorAll('button').forEach((b) => { b.onclick = () => { meta.set('gsg.god', { ...godOf(), sigil: b.dataset.v }); sfx.click(); renderSetup(); }; });
   $('startDaily').onclick = () => startFromMain('daily');
   $('msLibrary').onclick = () => { sfx.page(); showLibrary(); };
   $('msBible').onclick = () => { sfx.page(); showBible(); };
 }
 
+const godOf = () => meta.get('gsg.god', { name: '', sigil: 'light' });
+// 새 판에 들고 갈 것: 신의 이름, 지난 판의 유적(서고 최근 세 판에서 하나)
+function legacyFor(seed) {
+  const past = meta.getHistory().filter((g) => g.revelations?.length).slice(0, 3);
+  if (!past.length) return null;
+  const g = past[seed % past.length];
+  const quote = g.revelations[Math.floor(g.revelations.length / 2)]?.text;
+  return quote ? { quote, epithet: g.epithet, god: g.god, doctrine: g.top } : null;
+}
+const godConfig = () => { const g = godOf(); return g.name || g.sigil !== 'light' ? { name: g.name, sigil: g.sigil } : null; };
+
 function renderSetup() {
   $('optSize').querySelectorAll('button').forEach((b) => b.classList.toggle('on', Number(b.dataset.v) === setup.size));
   $('optDiff').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === setup.difficulty));
   $('optSeed').value = setup.seed;
+  if (document.activeElement !== $('optGod')) $('optGod').value = godOf().name ?? '';
+  $('optSigil').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === (godOf().sigil ?? 'light')));
   $('diffHint').textContent = DIFF_HINT[setup.difficulty];
   // 미리보기: 같은 설정으로 맵을 만들어 전부 드러낸다
   const preview = createState({ ...setup, mode: 'standard' });
@@ -207,7 +223,7 @@ function startFromMain(mode = 'new') {
     }
     const veteran = meta.getHistory().length > 0;
     if (mode === 'tutorial') beginGame({ mode: 'tutorial' });
-    else if (mode === 'daily') beginGame({ ...meta.dailyConfig(), veteran: true });
+    else if (mode === 'daily') beginGame({ ...meta.dailyConfig(), veteran: true, god: godConfig() });
     else if (challenge && mode === 'new') {
       const ch = challenge;
       // 도전은 한 번만: 주소창의 도전 파라미터를 지우고 원래 설정으로 돌아간다
@@ -216,7 +232,7 @@ function startFromMain(mode = 'new') {
       setup = loadSetup();
       beginGame({ mode: 'standard', size: ch.size, difficulty: ch.difficulty, seed: ch.seed, veteran: ch.veteran, canon: null, challenge: { target: ch.target } });
     }
-    else beginGame({ ...setup, mode: 'standard', veteran, canon: veteran ? meta.getCanon()[0] ?? null : null });
+    else beginGame({ ...setup, mode: 'standard', veteran, canon: veteran ? meta.getCanon()[0] ?? null : null, god: godConfig(), legacy: veteran ? legacyFor(setup.seed) : null });
   }, fx.motion.reduced ? 150 : 850);
 }
 
@@ -309,7 +325,8 @@ function tileTipHTML(cur, t) {
   const terr = TERRAIN[t.terrain];
   const owner = t.owner === 'player' ? '우리 부족의 땅' : t.owner === 'enemy' ? '율법파의 땅' : '주인 없는 땅';
   const bld = t.building === 'capital' ? (t.owner === 'player' ? '신전 — 기도하는 곳' : '율법파의 탑') : t.building === 'village' ? '마을 — 인구 한도 +2, 식량 +1' : '';
-  const gather = t.building === 'capital' ? '' : terr.gather ? `${RESOURCE_NAME[terr.gather]} 채집 +${terr.amount}` : '메마른 땅 — 아무것도 얻을 수 없다';
+  const y = yieldOf(t);
+  const gather = t.building === 'capital' ? '' : y.gather ? `${t.feature ? `${FEATURES[t.feature].name} — ` : ''}${RESOURCE_NAME[y.gather]} 채집 +${y.amount}` : '메마른 땅 — 아무것도 얻을 수 없다';
   const holy = t.id === state.holyId ? `성지 — 여기에 마을을 둔 쪽이 승점 +2${state.edictOn ? ', 율법 석판을 올리고 내린다' : ''}` : '';
   const marks = t.faithMarks ? `믿음의 표식 ${t.faithMarks.n}/2 — ${t.faithMarks.side === 'player' ? '한 번 더 전하면 우리 땅' : '율법파가 한 번 더 가르치면 넘어간다'}` : '';
   const intent = ['speak', 'thinking', 'confirm'].includes(phase) ? enemyIntent(state).find((a) => a.shown && a.tile === t.id) : null;
@@ -455,6 +472,7 @@ function derivePending() {
   pending.auto = autoFill(state, 'player', accepted, [...forbiddenKeys, ...pending.dropped]);
   pending.links = text ? linkWords(state, text, accepted) : {};
   pending.answered = text ? petitionAnswered(state, text, accepted) : false;
+  pending.dilemma = text ? dilemmaByText(state, text) : null;
   // 기이한 해석: 처음 해석(칩을 빼기 전)으로 한 번만 정한다 — LLM이 계시의 어떤 낱말과도 잇지 못하는 행동을 골랐고, 석판과도 겹치지 않을 때 (판당 한 번)
   if (pending.odd === undefined) {
     pending.odd = !state.oddUsed && result.source === 'llm' && accepted.length > 0 && !Object.keys(pending.links).length
@@ -516,6 +534,7 @@ async function accept() {
   const from = state.log.length;
   applyTone(state, text ? pending.tone : null);
   if (!text) state.streak = null;
+  if (state.event.choice) resolveDilemma(state, pending.dilemma ?? state.dilemmaPick ?? state.event.choice[0].id);
   if (pending.seal && pending.prophecy) sealProphecy(state, pending.prophecy);
   resolveRound(state, [...accepted, ...auto], enemyPlan);
   if (!state.winner && text) keepVows(state, result.forbidden, [...accepted, ...auto]);
@@ -597,7 +616,7 @@ function showEnd(summary, fresh, had) {
       <div class="ep-title">${esc(ep.title)}</div>
       <p class="ep-body">${esc(ep.body)}</p>
       ${ep.quote ? `<p class="ep-quote">${esc(ep.quote)}</p>` : ''}
-      <div class="ep-epithet">이 신은 「${esc(ep.epithet)}」${hasBatchim(ep.epithet) ? '으로' : '로'} 기억되었다.</div>
+      <div class="ep-epithet">${state.config.god?.name ? `${esc(state.config.god.name)}${hasBatchim(state.config.god.name) ? '은' : '는'}` : '이 신은'} 「${esc(ep.epithet)}」${hasBatchim(ep.epithet) ? '으로' : '로'} 기억되었다.</div>
       ${fresh.length ? `<div class="ep-ach">새 구절이 성서에 기록되었다 — ${fresh.map((id) => `「${esc(achName(id))}」`).join(' ')}</div>` : ''}
       ${summary.newBest ? `<div class="ep-ach best">새 기록 — 이 맵(시드 ${state.config.seed})에서 승점 ${summary.score[0]}</div>` : ''}
     </div>
@@ -618,7 +637,7 @@ function showEnd(summary, fresh, had) {
     buttons: [
       { label: '시편 복사', cls: 'btn-ghost psalm', keep: true, onClick: () => copyPsalm(summary) },
       { label: '같은 맵 다시', cls: 'btn-primary', onClick: restart },
-      { label: '새 맵', onClick: () => { setup.seed = randomSeed(); saveSetup(); beginGame({ ...setup, mode: 'standard', veteran: true, canon: meta.getCanon()[0] ?? null }); } },
+      { label: '새 맵', onClick: () => { setup.seed = randomSeed(); saveSetup(); beginGame({ ...setup, mode: 'standard', veteran: true, canon: meta.getCanon()[0] ?? null, god: godConfig(), legacy: legacyFor(setup.seed) }); } },
       { label: '메인 화면', onClick: () => showMain() },
       { label: '보드 보기' },
     ],
@@ -651,7 +670,7 @@ async function copyPsalm(summary) {
     cry ? `대사제: “${cry}”` : null,
     scene ? `→ ${scene.text}` : null,
     `${won} (${state.winReason.replace(/ — 승점.*/, '')}) · 승점 ${summary.score[0]} : ${summary.score[1]} · ${state.rows}×${state.cols} ${DIFFICULTY[state.config.difficulty].name}`,
-    `이 신은 「${summary.epithet}」${batchim(summary.epithet) ? '으로' : '로'} 기억되었다.`,
+    `${state.config.god?.name ? `${state.config.god.name}${batchim(state.config.god.name) ? '은' : '는'}` : '이 신은'} 「${summary.epithet}」${batchim(summary.epithet) ? '으로' : '로'} 기억되었다.`,
     `같은 맵에 도전하기: ${url}`,
   ].filter(Boolean).join('\n');
   let ok = false;
@@ -988,7 +1007,7 @@ function bannerFor(log, seen) {
     gain: [isPray ? 'i-temple' : `i-${res}`, isPray ? '기도' : '채집'],
     treasure: ['i-faith', '보물 발견'], explore: ['e-prophet', '탐험'], build: ['i-house', '건설'], cathedral: ['i-temple', '대성당'],
     preach: ['d-peace', '선교'], attack: ['d-war', '공격'], blocked: ['i-shield', '선점당함'], fail: ['i-shield', '헛걸음'],
-    birth: ['i-house', '새 생명'], loss: ['i-shield', '잃음'], warn: ['i-faith', '신앙의 흔들림'], ban: ['s-tablet', '검열'], grace: ['i-faith', '은총'], prophecy: ['i-faith', '예언 성취'], bless: ['i-faith', '기적'], wrath: ['d-war', '신의 분노'], streak: ['i-faith', '말씀이 이어졌다'], edict: ['s-tablet', '율법 석판'], site: ['e-prophet', '발견'], lightning: ['m-lightning', '번개'], rain: ['m-rain', '단비'], bounty: ['m-bounty', '풍요'],
+    birth: ['i-house', '새 생명'], loss: ['i-shield', '잃음'], warn: ['i-faith', '신앙의 흔들림'], ban: ['s-tablet', '검열'], grace: ['i-faith', '은총'], prophecy: ['i-faith', '예언 성취'], bless: ['i-faith', '기적'], wrath: ['d-war', '신의 분노'], streak: ['i-faith', '말씀이 이어졌다'], edict: ['s-tablet', '율법 석판'], dilemma: ['e-prophet', '갈림길'], site: ['e-prophet', '발견'], lightning: ['m-lightning', '번개'], rain: ['m-rain', '단비'], bounty: ['m-bounty', '풍요'],
   }[e.kind];
   if (!map) return null;
   const [icon, verb] = map;
@@ -1085,6 +1104,10 @@ async function playFx(log) {
       (up ? sfx.fail : sfx.chime)();
       return fx.wait(600);
     }
+    case 'dilemma':
+      sfx.page();
+      if (home) fx.ring(svg, home, '#f4efe4', true);
+      return fx.wait(700);
     case 'streak':
       sfx.holy();
       fx.flash('rgba(255,236,170,.45)', 700);
@@ -1444,14 +1467,16 @@ function renderAltar() {
     const pt = state.petition;
     const petition = pt ? `<div class="petition" title="${pt.need ? '이 청원에 답하는 계시를 내리면 은총(신앙 +1)' : ''}"><b>${esc(pt.from)}</b>“${esc(pt.text)}”${pt.need ? '<span>답하면 은총 +1</span>' : ''}</div>` : '';
     const prophecyNote = state.prophecy ? `<div class="petition prophecy"><b>봉인된 예언</b>“${esc(PROPHECY.kinds[state.prophecy.kind].name)}” — ${state.prophecy.due - state.round + 1}장 남음</div>` : '';
+    const ev = state.event;
+    const dilemma = ev.choice ? `<div class="dilemma"><span class="dl-head">${esc(ev.name)} · 갈림길</span>${ev.choice.map((o) => `<button type="button" class="dl-opt${(state.dilemmaPick ?? ev.choice[0].id) === o.id ? ' on' : ''}" data-opt="${o.id}" title="${esc(o.text)}"><b>${esc(o.label)}</b><small>${esc(o.text)}</small></button>`).join('')}<span class="dl-note">계시로 답해도 된다</span></div>` : '';
     scroll = `<div class="scroll">
-      ${petition}${prophecyNote}<div class="suggest-row" id="suggestRow"></div>
+      ${petition}${prophecyNote}${dilemma}<div class="suggest-row" id="suggestRow"></div>
       <div class="scroll-head"><h3>신의 말씀</h3>${ban}<small>제 ${state.round} 장 · 신도 행동 ${actionLimit(state, 'player')}회</small></div>
       <textarea maxlength="${REVELATION_MAX}" rows="2" placeholder="강물이 너희를 먹이리라…" aria-label="계시">${esc(draft)}</textarea>
       <div class="ink-meta"><span class="count">${draft.length} / ${REVELATION_MAX}</span>
         <span class="cost-pill${cost > p.faith ? ' over' : ''}">${svgUse('i-faith')}<span class="c">신앙 ${cost}</span></span></div>
       ${noticeHTML}</div>`;
-    act = `<div class="act"><button class="seal-btn" type="button" title="계시 내리기 (Ctrl+Enter)">${svgUse('i-faith')}<span>계시</span></button>
+    act = `<div class="act"><button class="seal-btn" type="button" title="계시 내리기 (Ctrl+Enter)">${svgUse(SIGILS[state.config.god?.sigil] ?? 'i-faith')}<span>계시</span></button>
       <button class="text-btn silence" type="button">침묵하기 — 신도들이 알아서 일한다</button></div>`;
   } else if (phase === 'thinking') {
     const pct = progress != null ? ` · 모델 내려받는 중 ${(progress * 100).toFixed(0)}%` : '';
@@ -1489,6 +1514,7 @@ function renderAltar() {
     if (pending.odd) tags.push(`<span class="wtag tone-metaphor">기이한 해석${grace()}</span>`);
     if (pending.answered) tags.push(`<span class="wtag ok">${esc(state.petition.from)}의 청원에 답함${grace()}</span>`);
     if (pending.naming) tags.push(`<span class="wtag name">이름 · ${esc(pending.naming.name)}</span>`);
+    if (pending.dilemma) tags.push(`<span class="wtag ok">이 사건에 대한 뜻 · ${esc(state.event.choice.find((o) => o.id === pending.dilemma).label)}</span>`);
 
     if (pending.cited?.length) tags.push(`<span class="wtag">인용 · ${pending.cited.map((w) => `'${esc(w)}'`).join(' ')}</span>`);
     const opp = result.doctrine && state.config.veteran ? OPPOSED[result.doctrine] : null;
@@ -1611,6 +1637,9 @@ function bindAltar() {
   on('.seal-btn', speak);
   on('.silence', silence);
   on('.accept', () => { sfx.click(); accept(); });
+  a.querySelectorAll('.dl-opt').forEach((b) => {
+    b.onclick = () => { if (phase !== 'speak') return; state.dilemmaPick = b.dataset.opt; sfx.click(); a.querySelectorAll('.dl-opt').forEach((x) => x.classList.toggle('on', x === b)); };
+  });
   // 확인 칩을 눌러 그 행동을 빼거나 되살린다 (장당 두 개까지, 빈 자리는 신도들이 알아서)
   if (phase === 'confirm' && pending) {
     a.querySelectorAll('.order[data-key]').forEach((c) => {

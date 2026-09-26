@@ -143,6 +143,40 @@ export function placeSites({ rows, cols, seed, map }) {
   return out;
 }
 
+// 영구 지형: 사막 한 쌍은 오아시스, 산 한 쌍은 채석장 (점대칭, 수도 옆 제외, 별도 난수)
+export function placeFeatures({ rows, cols, seed, map, taken = [] }) {
+  const rnd = mulberry32(seed ^ 0x51a7c0de);
+  const caps = capitalsFor(rows, cols);
+  const mirror = (p) => ({ r: rows - 1 - p.r, c: cols - 1 - p.c });
+  const busy = (p) => taken.some((q) => q.r === p.r && q.c === p.c);
+  const out = [];
+  for (const [kind, terr] of [['oasis', 'desert'], ['quarry', 'mountain']]) {
+    const cands = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const p = { r, c }; const m = mirror(p);
+      if ((r < m.r || (r === m.r && c < m.c)) && map[r][c] === terr && map[m.r][m.c] === terr && !busy(p) && !busy(m)
+        && [p, m].every((q) => dist(q, caps.player) > 1 && dist(q, caps.enemy) > 1)) cands.push(p);
+    }
+    if (!cands.length) continue;
+    const p = cands[Math.floor(rnd() * cands.length)];
+    out.push({ ...p, kind }, { ...mirror(p), kind });
+  }
+  return out;
+}
+
+// 전생의 유적 자리: 수도에서 멀고 비어 있는 칸 하나
+export function placeLegacy({ rows, cols, seed, map, taken = [] }) {
+  const rnd = mulberry32(seed ^ 0x1e6ac7);
+  const caps = capitalsFor(rows, cols);
+  const cands = [];
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const p = { r, c };
+    if (!['P', 'E'].includes(map[r][c]) && !taken.some((q) => q.r === r && q.c === c) && dist(p, caps.player) >= 2 && dist(p, caps.enemy) >= 2
+      && !(r === Math.floor(rows / 2) && c === Math.floor(cols / 2))) cands.push(p);
+  }
+  return cands.length ? cands[Math.floor(rnd() * cands.length)] : null;
+}
+
 export const tileLabel = (r, c) => `${ROWS[r]}${c + 1}`;
 
 // 맵 통계 (밸런스 확인용)
