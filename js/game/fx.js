@@ -1,8 +1,9 @@
-// 연출 도우미. 모든 대기는 wait()를 거치므로 빨리 감기(motion.skip)로 한 번에 건너뛸 수 있다.
-import { tileCenter } from './board.js';
+// 연출 도우미. 모든 대기는 wait()를 거치므로 빨리 감기(motion.skip)로 건너뛸 수 있다.
+import { tileCenter, tileToHost } from './board.js';
+import { sfx } from './sound.js';
 
 // 연출 설정: 기본은 화려하게. 줄이기를 고르면 브라우저에 저장한다.
-// (OS의 '애니메이션 줄이기' 설정을 따르지 않는 이유: 연출이 게임의 핵심이라 기본값으로 켜 두고 직접 끌 수 있게 한다)
+// (OS의 '애니메이션 줄이기'를 따르지 않는 이유: 연출이 게임의 핵심이라 기본으로 켜 두고 직접 끌 수 있게 한다)
 function loadReduced() {
   try { return localStorage.getItem('gsg.motion') === 'reduced'; } catch { return false; }
 }
@@ -14,9 +15,11 @@ export function setReduced(on) {
 }
 document.body.classList.toggle('reduce-motion', motion.reduced);
 
-export const wait = (ms) => new Promise((r) => setTimeout(r, motion.skip ? 0 : motion.reduced ? ms * 0.4 : ms));
-const DIE = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+const off = () => motion.skip || motion.reduced;
+export const wait = (ms) => new Promise((r) => setTimeout(r, motion.skip ? 0 : motion.reduced ? ms * 0.35 : ms));
 const NS = 'http://www.w3.org/2000/svg';
+const EASE_OUT = 'cubic-bezier(.16,1,.3,1)';
+const EASE_BACK = 'cubic-bezier(.34,1.56,.64,1)';
 
 function svgEl(tag, attrs, text) {
   const e = document.createElementNS(NS, tag);
@@ -24,238 +27,375 @@ function svgEl(tag, attrs, text) {
   if (text != null) e.textContent = text;
   return e;
 }
-const remove = (el, ms) => setTimeout(() => el.remove(), ms);
+const later = (fn, ms) => setTimeout(fn, ms);
+const stage = () => document.getElementById('stage');
+const div = (cls, html = '') => { const d = document.createElement('div'); d.className = cls; d.innerHTML = html; return d; };
+const centerOf = (el) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
 
-// 칸에서 떠오르는 글자 (+2 🌾 등)
+// ---------- 보드 위 ----------
 export function floatText(svg, tile, text, kind = 'good', offset = 0) {
   if (motion.skip) return;
   const c = tileCenter(tile);
-  const t = svgEl('text', { x: c.x, y: c.y - 6 + offset, class: `float ${kind}` }, text);
+  const t = svgEl('text', { x: c.x, y: c.y - 8 + offset, class: `float ${kind}` }, text);
   svg.append(t);
   t.animate([
-    { transform: 'translateY(8px) scale(.6)', opacity: 0 },
-    { transform: 'translateY(-6px) scale(1.15)', opacity: 1, offset: 0.25 },
-    { transform: 'translateY(-44px) scale(1)', opacity: 0 },
-  ], { duration: 1300, easing: 'ease-out', fill: 'forwards' });
-  remove(t, 1400);
+    { transform: 'translateY(10px) scale(.5)', opacity: 0 },
+    { transform: 'translateY(-4px) scale(1.18)', opacity: 1, offset: 0.22 },
+    { transform: 'translateY(-10px) scale(1)', opacity: 1, offset: 0.6 },
+    { transform: 'translateY(-40px) scale(.96)', opacity: 0 },
+  ], { duration: 1500, easing: EASE_OUT, fill: 'forwards' });
+  later(() => t.remove(), 1600);
 }
 
-// 칸에서 퍼지는 고리
 export function ring(svg, tile, color = '#ffd76a', big = false) {
-  if (motion.skip) return;
+  if (off()) return;
   const c = tileCenter(tile);
-  const r = svgEl('circle', { cx: c.x, cy: c.y, r: 10, class: 'ring', stroke: color });
-  svg.append(r);
-  r.animate([{ r: 10, opacity: 1, strokeWidth: 6 }, { r: big ? 90 : 55, opacity: 0, strokeWidth: 1 }],
-    { duration: big ? 900 : 700, easing: 'ease-out', fill: 'forwards' });
-  remove(r, 1000);
+  for (let i = 0; i < 2; i++) {
+    const r = svgEl('circle', { cx: c.x, cy: c.y, r: 8, class: 'ring', stroke: color });
+    svg.append(r);
+    r.animate([{ r: 8, opacity: 0.95, strokeWidth: 5 }, { r: big ? 96 : 58, opacity: 0, strokeWidth: 0.5 }],
+      { duration: big ? 1000 : 800, delay: i * 140, easing: EASE_OUT, fill: 'forwards' });
+    later(() => r.remove(), 1300);
+  }
 }
 
-// 칸 위로 솟아오르는 아이콘 (건설)
-export function rise(svg, tile, icon) {
-  if (motion.skip) return;
+// 건물이 튀어 오르며 세워진다
+export function rise(svg, tile, symbol) {
+  if (off()) return;
   const c = tileCenter(tile);
-  const t = svgEl('text', { x: c.x, y: c.y + 4, class: 'icon big' }, icon);
-  svg.append(t);
-  t.animate([
-    { transform: 'translateY(30px) scale(.2)', opacity: 0 },
-    { transform: 'translateY(-10px) scale(1.5)', opacity: 1, offset: 0.6 },
-    { transform: 'translateY(0) scale(1.2)', opacity: 0 },
-  ], { duration: 1000, easing: 'cubic-bezier(.2,1.4,.4,1)', fill: 'forwards' });
-  remove(t, 1100);
+  const u = svgEl('use', { href: `#${symbol}`, x: c.x - 34, y: c.y - 36, width: 68, height: 68, class: 'rise' });
+  svg.append(u);
+  u.animate([
+    { transform: 'translateY(28px) scale(.2)', opacity: 0 },
+    { transform: 'translateY(-14px) scale(1.25)', opacity: 1, offset: 0.55 },
+    { transform: 'translateY(0) scale(1)', opacity: 1, offset: 0.8 },
+    { transform: 'translateY(0) scale(1)', opacity: 0 },
+  ], { duration: 1100, easing: EASE_OUT, fill: 'forwards' });
+  later(() => u.remove(), 1200);
+  dust(tileToHost(svg, null, tile));
 }
 
-// 흔들기 (공격당한 보드)
-export function shake(el, strength = 6) {
-  if (motion.skip) return;
-  el.animate([0, 1, 2, 3, 4, 5, 6].map((i) => ({ transform: `translate(${i % 2 ? strength : -strength}px, ${i % 3 ? -2 : 2}px)` }))
-    .concat([{ transform: 'none' }]), { duration: 420 });
+// 흙먼지
+function dust(at) {
+  if (off()) return;
+  for (let i = 0; i < 12; i++) {
+    const p = div('dust');
+    p.style.left = `${at.x}px`; p.style.top = `${at.y + 18}px`;
+    stage().append(p);
+    const a = Math.PI + Math.random() * Math.PI;
+    const d = 20 + Math.random() * 34;
+    p.animate([{ transform: 'translate(-50%,-50%) scale(.6)', opacity: 0.8 },
+      { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d * 0.5}px)) scale(1.6)`, opacity: 0 }],
+    { duration: 700 + Math.random() * 300, easing: EASE_OUT, fill: 'forwards' });
+    later(() => p.remove(), 1100);
+  }
 }
 
-// 화면 섬광
-export function flash(host, color = '#fffbe8', ms = 500) {
-  if (motion.skip) return;
-  const f = document.createElement('div');
-  f.className = 'flash';
+export function shake(el, strength = 7) {
+  if (off()) return;
+  const k = [];
+  for (let i = 0; i < 8; i++) k.push({ transform: `translate(${(Math.random() - 0.5) * strength * 2}px, ${(Math.random() - 0.5) * strength}px) rotate(${(Math.random() - 0.5) * 0.6}deg)` });
+  k.push({ transform: 'none' });
+  el.animate(k, { duration: 460, easing: 'linear' });
+}
+
+export function flash(color = 'rgba(255,248,220,.9)', ms = 500) {
+  if (off()) return;
+  const f = div('flash');
   f.style.background = color;
-  host.append(f);
-  f.animate([{ opacity: 0.85 }, { opacity: 0 }], { duration: ms, easing: 'ease-out', fill: 'forwards' });
-  remove(f, ms + 50);
+  stage().append(f);
+  f.animate([{ opacity: 1 }, { opacity: 0 }], { duration: ms, easing: 'ease-out', fill: 'forwards' });
+  later(() => f.remove(), ms + 50);
 }
 
-// 번개: 위에서 칸까지 지그재그
-export function lightning(svg, host, tile) {
-  if (motion.skip) return;
+export function lightning(svg, tile) {
+  if (off()) { sfx.thunder(); return; }
   const c = tileCenter(tile);
-  let x = c.x + (Math.random() - 0.5) * 40;
-  const pts = [[x, -10]];
-  for (let y = 0; y < c.y; y += 28) { x += (Math.random() - 0.5) * 36; pts.push([x, y]); }
-  pts.push([c.x, c.y]);
-  const p = svgEl('polyline', { points: pts.map((q) => q.join(',')).join(' '), class: 'bolt' });
-  svg.append(p);
-  p.animate([{ opacity: 1 }, { opacity: 0.2 }, { opacity: 1 }, { opacity: 0 }], { duration: 650, fill: 'forwards' });
-  remove(p, 700);
-  flash(host, '#fffbe8', 450);
-  shake(svg, 8);
+  const make = (spread, width) => {
+    let x = c.x + (Math.random() - 0.5) * 60;
+    const pts = [[x, -20]];
+    for (let y = 0; y < c.y - 10; y += 20) { x += (Math.random() - 0.5) * spread; pts.push([x, y]); }
+    pts.push([c.x, c.y]);
+    const p = svgEl('polyline', { points: pts.map((q) => q.join(',')).join(' '), class: 'bolt', 'stroke-width': width });
+    svg.append(p);
+    p.animate([{ opacity: 0 }, { opacity: 1, offset: 0.05 }, { opacity: 0.2, offset: 0.3 }, { opacity: 1, offset: 0.4 }, { opacity: 0 }],
+      { duration: 700, fill: 'forwards' });
+    later(() => p.remove(), 750);
+  };
+  make(40, 5); make(60, 2);
+  sfx.thunder();
+  flash('rgba(255,252,230,.95)', 520);
+  shake(svg.closest('.board-frame') ?? svg, 10);
   ring(svg, tile, '#fff27a', true);
+  sparks(tileToHost(svg, null, tile), 24, ['#fff6b0', '#ffe066', '#ffffff']);
 }
 
-// 비
-export function rain(host, ms = 1600) {
-  if (motion.skip) return;
-  const w = host.clientWidth;
-  for (let i = 0; i < 70; i++) {
-    const d = document.createElement('div');
-    d.className = 'raindrop';
-    d.style.left = `${Math.random() * w}px`;
-    host.append(d);
-    d.animate([{ transform: 'translateY(0)' }, { transform: `translateY(${host.clientHeight + 40}px)` }],
-      { duration: 500 + Math.random() * 400, delay: Math.random() * ms * 0.6, easing: 'linear', fill: 'forwards' });
-    remove(d, ms + 600);
+export function rain(host) {
+  sfx.rain();
+  if (off()) return;
+  const r = host.getBoundingClientRect();
+  for (let i = 0; i < 110; i++) {
+    const d = div('raindrop');
+    d.style.left = `${r.left + Math.random() * r.width}px`;
+    d.style.top = `${r.top - 30}px`;
+    stage().append(d);
+    d.animate([{ transform: 'translate(0,0) rotate(12deg)', opacity: 0.9 }, { transform: `translate(-${r.height * 0.2}px, ${r.height + 40}px) rotate(12deg)`, opacity: 0.4 }],
+      { duration: 550 + Math.random() * 350, delay: Math.random() * 1100, easing: 'linear', fill: 'forwards' });
+    later(() => d.remove(), 2200);
   }
 }
 
-// 반짝이 (풍요, 보물)
-export function sparkles(host, emoji = '✨', n = 16, at = null) {
-  if (motion.skip) return;
-  const w = host.clientWidth;
-  const h = host.clientHeight;
+// 반짝이는 불꽃 입자 (화면 좌표)
+export function sparks(at, n = 18, colors = ['#ffe28a', '#ffc94a', '#fff7d6']) {
+  if (off()) return;
   for (let i = 0; i < n; i++) {
-    const s = document.createElement('div');
-    s.className = 'sparkle';
-    s.textContent = emoji;
-    const x0 = at ? at.x : w / 2;
-    const y0 = at ? at.y : h / 2;
-    s.style.left = `${x0}px`;
-    s.style.top = `${y0}px`;
-    host.append(s);
-    const ang = Math.random() * Math.PI * 2;
-    const dist = 40 + Math.random() * 110;
+    const s = div('spark');
+    s.style.left = `${at.x}px`; s.style.top = `${at.y}px`;
+    s.style.background = colors[i % colors.length];
+    stage().append(s);
+    const a = Math.random() * Math.PI * 2;
+    const d = 30 + Math.random() * 90;
     s.animate([
-      { transform: 'translate(-50%,-50%) scale(.3)', opacity: 1 },
-      { transform: `translate(calc(-50% + ${Math.cos(ang) * dist}px), calc(-50% + ${Math.sin(ang) * dist}px)) scale(1.1)`, opacity: 0 },
-    ], { duration: 900 + Math.random() * 500, easing: 'ease-out', fill: 'forwards' });
-    remove(s, 1500);
+      { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d + 30}px)) scale(.2)`, opacity: 0 },
+    ], { duration: 800 + Math.random() * 600, easing: EASE_OUT, fill: 'forwards' });
+    later(() => s.remove(), 1500);
   }
 }
 
-// 장 배너 ("제 3장")
+// ---------- 토큰이 칸에서 매트로 날아간다 ----------
+export async function flyTokens(from, toEl, iconId, count = 1) {
+  if (!toEl) return;
+  if (off()) { pulse(toEl); return; }
+  const to = centerOf(toEl);
+  const n = Math.min(count, 4);
+  for (let i = 0; i < n; i++) {
+    const tk = div('token', `<svg><use href="#${iconId}"/></svg>`);
+    tk.style.left = `${from.x}px`; tk.style.top = `${from.y}px`;
+    stage().append(tk);
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const lift = -80 - Math.abs(dx) * 0.15;
+    const jitter = (i - n / 2) * 14;
+    tk.animate([
+      { transform: `translate(-50%,-50%) translate(0,0) scale(.3)`, opacity: 0 },
+      { transform: `translate(-50%,-50%) translate(${jitter}px,-18px) scale(1.15)`, opacity: 1, offset: 0.15 },
+      { transform: `translate(-50%,-50%) translate(${dx * 0.5 + jitter}px, ${dy * 0.5 + lift}px) scale(1)`, offset: 0.55 },
+      { transform: `translate(-50%,-50%) translate(${dx}px, ${dy}px) scale(.55)`, opacity: 0.95 },
+    ], { duration: 900, delay: i * 110, easing: 'cubic-bezier(.45,0,.3,1)', fill: 'forwards' });
+    later(() => { tk.remove(); pulse(toEl); sfx.coin(i); }, 900 + i * 110);
+  }
+  await wait(900 + (n - 1) * 110);
+}
+
+export function pulse(el) {
+  el?.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.35)', filter: 'brightness(1.4)' }, { transform: 'scale(1)' }],
+    { duration: 420, easing: EASE_BACK });
+}
+
+// ---------- 장 제목 ----------
 export async function chapter(host, title, sub) {
-  if (motion.skip) return;
-  const o = document.createElement('div');
-  o.className = 'overlay';
-  o.innerHTML = '<div class="veil"></div><div class="chapter"><div class="t"></div><div class="s"></div></div>';
+  sfx.page();
+  if (off()) return;
+  const o = div('chapter-overlay', `
+    <div class="chapter">
+      <div class="orn">❦</div>
+      <div class="t"></div>
+      <div class="rule"></div>
+      <div class="s"></div>
+    </div>`);
   o.querySelector('.t').textContent = title;
   o.querySelector('.s').textContent = sub;
   host.append(o);
-  o.animate([{ opacity: 0 }, { opacity: 1, offset: 0.2 }, { opacity: 1, offset: 0.75 }, { opacity: 0 }], { duration: 1700, fill: 'forwards' });
-  o.querySelector('.chapter').animate([{ transform: 'scale(.7)', letterSpacing: '0' }, { transform: 'scale(1)', letterSpacing: '.12em' }],
-    { duration: 1700, easing: 'cubic-bezier(.2,1,.3,1)' });
-  await wait(1700);
+  o.animate([{ opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.8 }, { opacity: 0 }], { duration: 2300, fill: 'forwards' });
+  o.querySelector('.t').animate([{ clipPath: 'inset(0 100% 0 0)', filter: 'blur(4px)' }, { clipPath: 'inset(0 0 0 0)', filter: 'blur(0)' }],
+    { duration: 900, delay: 150, easing: EASE_OUT, fill: 'both' });
+  o.querySelector('.rule').animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 800, delay: 450, easing: EASE_OUT, fill: 'both' });
+  o.querySelector('.s').animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 600, delay: 800, easing: EASE_OUT, fill: 'both' });
+  o.querySelector('.orn').animate([{ opacity: 0, transform: 'scale(.4) rotate(-40deg)' }, { opacity: 1, transform: 'none' }], { duration: 700, easing: EASE_BACK, fill: 'both' });
+  await wait(2300);
   o.remove();
 }
 
-// 주사위 굴림. result: { attacker, attackerBonus, defender, defenderBonus, win }
+// ---------- 3D 주사위 ----------
+const FACE_ROT = { 1: [0, 0], 6: [0, 180], 3: [0, -90], 4: [0, 90], 2: [-90, 0], 5: [90, 0] };
+const PIPS = { 1: [5], 2: [1, 9], 3: [1, 5, 9], 4: [1, 3, 7, 9], 5: [1, 3, 5, 7, 9], 6: [1, 3, 4, 6, 7, 9] };
+const FACES = [['front', 1], ['back', 6], ['right', 3], ['left', 4], ['top', 2], ['bottom', 5]];
+const dieHTML = (side) => `<div class="die3d ${side}"><div class="cube">${FACES.map(([f, v]) =>
+  `<div class="dface ${f}">${Array.from({ length: 9 }, (_, i) => `<i${PIPS[v].includes(i + 1) ? ' class="on"' : ''}></i>`).join('')}</div>`).join('')}</div></div>`;
+
 export async function rollDice(host, d, { leftLabel, rightLabel, leftSide, rightSide, winText, loseText }) {
   if (motion.skip) return;
-  const o = document.createElement('div');
-  o.className = 'overlay';
-  o.innerHTML = `
-    <div>
-      <div class="dice-box">
-        <div class="die-col"><div class="die ${leftSide}">⚀</div><div class="die-label"></div><div class="die-total"></div></div>
-        <div class="vs">VS</div>
-        <div class="die-col"><div class="die ${rightSide}">⚀</div><div class="die-label"></div><div class="die-total"></div></div>
+  const o = div('dice-overlay', `
+    <div class="dice-panel">
+      <div class="dice-row">
+        <div class="dcol"><div class="dlabel"></div>${dieHTML(leftSide)}<div class="dtotal"></div></div>
+        <div class="vs">대</div>
+        <div class="dcol"><div class="dlabel"></div>${dieHTML(rightSide)}<div class="dtotal"></div></div>
       </div>
-      <div class="dice-result"></div>
-    </div>`;
-  const [l, r] = o.querySelectorAll('.die-col');
-  l.querySelector('.die-label').textContent = leftLabel;
-  r.querySelector('.die-label').textContent = rightLabel;
+      <div class="dresult"></div>
+    </div>`);
+  const cols = o.querySelectorAll('.dcol');
+  cols[0].querySelector('.dlabel').textContent = leftLabel;
+  cols[1].querySelector('.dlabel').textContent = rightLabel;
   host.append(o);
-  o.animate([{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 200, fill: 'forwards' });
-  const dice = o.querySelectorAll('.die');
-  const spin = setInterval(() => dice.forEach((x) => { x.textContent = DIE[Math.floor(Math.random() * 6)]; }), 70);
-  dice.forEach((x) => x.animate([{ transform: 'rotate(0) translateY(0)' }, { transform: 'rotate(360deg) translateY(-18px)' }, { transform: 'rotate(720deg) translateY(0)' }],
-    { duration: 800, easing: 'ease-out' }));
-  await wait(800);
-  clearInterval(spin);
-  dice[0].textContent = DIE[d.attacker - 1];
-  dice[1].textContent = DIE[d.defender - 1];
-  l.querySelector('.die-total').textContent = d.attackerBonus ? `${d.attacker} + ${d.attackerBonus}` : `${d.attacker}`;
-  r.querySelector('.die-total').textContent = d.defenderBonus ? `${d.defender} + ${d.defenderBonus}` : `${d.defender}`;
-  const res = o.querySelector('.dice-result');
+  o.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, fill: 'forwards' });
+  o.querySelector('.dice-panel').animate([{ transform: 'translateY(20px) scale(.92)' }, { transform: 'none' }], { duration: 350, easing: EASE_BACK });
+  sfx.dice();
+  const dur = motion.reduced ? 300 : 1300;
+  [[d.attacker, 0], [d.defender, 1]].forEach(([v, i]) => {
+    const cube = cols[i].querySelector('.cube');
+    const [rx, ry] = FACE_ROT[v];
+    const spinX = 720 + (i ? 360 : 0);
+    const spinY = 1080 - (i ? 360 : 0);
+    cube.animate([
+      { transform: `translateZ(-38px) rotateX(${rx + spinX + 40}deg) rotateY(${ry + spinY + 70}deg)` },
+      { transform: `translateZ(-38px) rotateX(${rx - 12}deg) rotateY(${ry + 14}deg)`, offset: 0.82 },
+      { transform: `translateZ(-38px) rotateX(${rx}deg) rotateY(${ry}deg)` },
+    ], { duration: dur, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'forwards' });
+    cols[i].querySelector('.die3d').animate([
+      { transform: 'translateY(-70px)' }, { transform: 'translateY(0)', offset: 0.45 },
+      { transform: 'translateY(-18px)', offset: 0.62 }, { transform: 'translateY(0)', offset: 0.78 }, { transform: 'translateY(0)' },
+    ], { duration: dur, easing: 'ease-in' });
+  });
+  await wait(dur + 100);
+  const show = (el, base, bonus) => { el.innerHTML = bonus ? `${base}<small> + ${bonus}</small> = <b>${base + bonus}</b>` : `<b>${base}</b>`; };
+  show(cols[0].querySelector('.dtotal'), d.attacker, d.attackerBonus);
+  show(cols[1].querySelector('.dtotal'), d.defender, d.defenderBonus);
+  const res = o.querySelector('.dresult');
   res.textContent = d.win ? winText : loseText;
-  res.className = `dice-result ${d.win ? 'win' : 'lose'}`;
-  res.animate([{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1.2)', opacity: 1 }, { transform: 'scale(1)' }], { duration: 400, fill: 'forwards' });
-  await wait(1000);
+  res.className = `dresult ${d.win ? 'win' : 'lose'}`;
+  cols[d.win ? 0 : 1].classList.add('winner');
+  res.animate([{ transform: 'scale(2.2)', opacity: 0, letterSpacing: '.4em' }, { transform: 'scale(1)', opacity: 1, letterSpacing: '.08em' }],
+    { duration: 450, easing: EASE_BACK, fill: 'forwards' });
+  (d.win ? sfx.chime : sfx.fail)();
+  await wait(1250);
   o.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: 'forwards' });
   await wait(250);
   o.remove();
 }
 
-// 타자기 효과
-export async function typewriter(el, text, cps = 40) {
-  if (motion.skip || motion.reduced) { el.textContent = text; return; }
+// ---------- 글 ----------
+export async function typewriter(el, text, cps = 38) {
+  if (off()) { el.textContent = text; return; }
   el.textContent = '';
+  el.classList.add('typing');
   for (const ch of text) {
-    if (motion.skip) { el.textContent = text; return; }
+    if (motion.skip) break;
     el.textContent += ch;
-    await new Promise((r) => setTimeout(r, 1000 / cps));
+    await new Promise((r) => setTimeout(r, ch === ',' || ch === '.' || ch === '!' ? 260 : 1000 / cps));
   }
+  el.textContent = text;
+  el.classList.remove('typing');
 }
 
-// 계시 글자가 입력칸에서 떠올라 보드로 날아간다
-export async function castRevelation(fromEl, boardHost, text) {
-  if (motion.skip || motion.reduced) return;
-  const a = fromEl.getBoundingClientRect();
-  const b = boardHost.getBoundingClientRect();
-  const s = document.createElement('div');
-  s.className = 'cast';
-  s.textContent = text.length > 24 ? `${text.slice(0, 24)}…` : text;
-  s.style.left = `${a.left + 12}px`;
-  s.style.top = `${a.top + 8}px`;
-  document.body.append(s);
-  const dx = b.left + b.width / 2 - (a.left + 12) - s.offsetWidth / 2;
-  const dy = b.top + b.height / 2 - (a.top + 8);
-  s.animate([
-    { transform: 'translate(0,0) scale(1)', opacity: 0 },
-    { transform: 'translate(0,-30px) scale(1.15)', opacity: 1, offset: 0.25 },
-    { transform: `translate(${dx}px, ${dy}px) scale(.4)`, opacity: 0 },
-  ], { duration: 1200, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' });
-  const glow = document.createElement('div');
-  glow.className = 'board-glow';
-  boardHost.append(glow);
-  glow.animate([{ opacity: 0 }, { opacity: 0, offset: 0.6 }, { opacity: 1, offset: 0.8 }, { opacity: 0 }], { duration: 1500, fill: 'forwards' });
-  await wait(1100);
-  remove(s, 200);
-  remove(glow, 500);
+// 계시: 밀랍 인장이 찍히고, 글이 빛이 되어 떠올라 보드에 빛기둥으로 내린다
+export async function castRevelation(scrollEl, sealEl, boardEl, text) {
+  if (off()) { sfx.seal(); return; }
+  const sr = scrollEl.getBoundingClientRect();
+  // 1) 인장
+  const seal = div('seal-stamp', '<svg viewBox="0 0 24 24"><use href="#i-faith"/></svg>');
+  const sc = centerOf(sealEl);
+  seal.style.left = `${sc.x}px`; seal.style.top = `${sc.y}px`;
+  stage().append(seal);
+  const target = { x: sr.right - 60, y: sr.bottom - 36 };
+  // 애니메이션의 finished는 탭이 가려지면 멈추므로 타이머로 기다린다
+  seal.animate([
+    { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+    { transform: `translate(calc(-50% + ${(target.x - sc.x) / 2}px), calc(-50% + ${(target.y - sc.y) / 2 - 60}px)) scale(2.4)`, offset: 0.55 },
+    { transform: `translate(calc(-50% + ${target.x - sc.x}px), calc(-50% + ${target.y - sc.y}px)) scale(1)` },
+  ], { duration: 520, easing: 'cubic-bezier(.5,0,.75,0)', fill: 'forwards' });
+  await wait(520);
+  sfx.seal();
+  shake(scrollEl.closest('.altar') ?? scrollEl, 5);
+  sparks(target, 14, ['#ff6b4a', '#c0392b', '#ffd0a0']);
+  // 2) 글자가 빛으로 떠오른다
+  const words = div('cast-words');
+  words.textContent = text.length > 30 ? `${text.slice(0, 30)}…` : text;
+  words.style.left = `${sr.left + sr.width / 2}px`;
+  words.style.top = `${sr.top + sr.height / 2}px`;
+  stage().append(words);
+  const br = boardEl.getBoundingClientRect();
+  sfx.whoosh();
+  words.animate([
+    { transform: 'translate(-50%,-50%) scale(1)', opacity: 0, filter: 'blur(2px)' },
+    { transform: 'translate(-50%,-50%) translateY(-20px) scale(1.1)', opacity: 1, filter: 'blur(0)', offset: 0.25 },
+    { transform: `translate(-50%,-50%) translate(${br.left + br.width / 2 - (sr.left + sr.width / 2)}px, ${br.top + br.height * 0.1 - (sr.top + sr.height / 2)}px) scale(.5)`, opacity: 0, filter: 'blur(3px)' },
+  ], { duration: 1000, easing: 'cubic-bezier(.5,0,.2,1)', fill: 'forwards' });
+  later(() => { words.remove(); seal.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' }); later(() => seal.remove(), 450); }, 1000);
+  await wait(750);
+  // 3) 빛기둥
+  const beam = div('beam');
+  beam.style.left = `${br.left + br.width / 2}px`;
+  beam.style.top = `${br.top - 40}px`;
+  beam.style.height = `${br.height + 60}px`;
+  stage().append(beam);
+  sfx.holy();
+  beam.animate([
+    { transform: 'translateX(-50%) scaleX(.1)', opacity: 0 },
+    { transform: 'translateX(-50%) scaleX(1)', opacity: 1, offset: 0.3 },
+    { transform: 'translateX(-50%) scaleX(1.6)', opacity: 0 },
+  ], { duration: 1200, easing: EASE_OUT, fill: 'forwards' });
+  later(() => beam.remove(), 1250);
+  sparks({ x: br.left + br.width / 2, y: br.top + br.height / 2 }, 30);
+  await wait(700);
 }
 
-// 승패 화면
+// ---------- 승패 ----------
 export function endScreen(won, title, sub, onAgain) {
-  const o = document.createElement('div');
-  o.className = `endscreen ${won ? 'win' : 'lose'}`;
-  o.innerHTML = `${won ? '<div class="rays"></div>' : ''}<div class="box"><div class="t"></div><div class="s"></div><button>다시 하기</button> <button class="ghost close">보드 보기</button></div>`;
-  o.querySelector('.t').textContent = title;
-  o.querySelector('.s').textContent = sub;
-  o.querySelector('button').onclick = () => { o.remove(); onAgain(); };
+  (won ? sfx.win : sfx.lose)();
+  const o = div(`endscreen ${won ? 'win' : 'lose'}`, `
+    ${won ? '<div class="rays"></div>' : ''}
+    <div class="end-box">
+      <div class="end-orn">${won ? '✦' : '✝'}</div>
+      <div class="end-title"></div>
+      <div class="end-sub"></div>
+      <div class="end-actions"><button class="btn-primary again">다시 하기</button><button class="btn-ghost close">보드 보기</button></div>
+    </div>`);
+  o.querySelector('.end-title').textContent = title;
+  o.querySelector('.end-sub').textContent = sub;
+  o.querySelector('.again').onclick = () => { o.remove(); onAgain(); };
   o.querySelector('.close').onclick = () => o.remove();
   document.body.append(o);
-  o.animate([{ opacity: 0 }, { opacity: 1 }], { duration: won ? 600 : 1400, fill: 'forwards' });
-  o.querySelector('.t').animate([{ transform: 'scale(.3)', opacity: 0 }, { transform: 'scale(1.1)', opacity: 1 }, { transform: 'scale(1)' }],
-    { duration: 900, easing: 'cubic-bezier(.2,1.4,.4,1)', fill: 'forwards' });
-  if (won && !motion.reduced) {
-    const bits = ['🎉', '✨', '🕊️', '🌾', '⭐', '🎊'];
-    for (let i = 0; i < 60; i++) {
-      const c = document.createElement('div');
-      c.className = 'confetti';
-      c.textContent = bits[i % bits.length];
-      c.style.left = `${Math.random() * 100}vw`;
-      document.body.append(c);
-      c.animate([{ transform: 'translateY(0) rotate(0)' }, { transform: `translateY(110vh) rotate(${Math.random() * 720 - 360}deg)` }],
-        { duration: 2500 + Math.random() * 2500, delay: Math.random() * 1500, easing: 'ease-in', fill: 'forwards' });
-      remove(c, 6500);
-    }
+  o.animate([{ opacity: 0 }, { opacity: 1 }], { duration: won ? 700 : 1600, fill: 'forwards' });
+  o.querySelector('.end-title').animate([{ transform: 'scale(.4)', opacity: 0, letterSpacing: '.6em' }, { transform: 'scale(1)', opacity: 1, letterSpacing: '.12em' }],
+    { duration: 1200, easing: EASE_OUT, fill: 'forwards' });
+  if (motion.reduced) return;
+  const colors = won ? ['#ffe28a', '#ffc94a', '#fff7d6', '#9cc0ff'] : ['#6b645c', '#4a443e', '#8a8176'];
+  for (let i = 0; i < (won ? 90 : 60); i++) {
+    const c = div(won ? 'confetti' : 'ash');
+    c.style.left = `${Math.random() * 100}vw`;
+    c.style.background = colors[i % colors.length];
+    document.body.append(c);
+    c.animate([{ transform: 'translateY(-5vh) rotate(0)' }, { transform: `translate(${(Math.random() - 0.5) * 20}vw, 110vh) rotate(${Math.random() * 900 - 450}deg)` }],
+      { duration: (won ? 2600 : 5000) + Math.random() * 2600, delay: Math.random() * 1600, easing: won ? 'cubic-bezier(.3,.1,.6,1)' : 'linear', fill: 'forwards' });
+    later(() => c.remove(), 9000);
   }
+}
+
+// ---------- 배경: 촛불 아래 떠다니는 먼지 ----------
+export function ambient(canvas) {
+  const ctx = canvas.getContext('2d');
+  const motes = Array.from({ length: 46 }, () => ({ x: Math.random(), y: Math.random(), r: 0.6 + Math.random() * 1.8, v: 0.00012 + Math.random() * 0.00035, p: Math.random() * 6.28 }));
+  const resize = () => { canvas.width = innerWidth * devicePixelRatio; canvas.height = innerHeight * devicePixelRatio; };
+  resize();
+  addEventListener('resize', resize);
+  const draw = (t) => {
+    if (!motion.reduced) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const m of motes) {
+        m.y -= m.v;
+        if (m.y < -0.02) { m.y = 1.02; m.x = Math.random(); }
+        const x = (m.x + Math.sin(t / 3000 + m.p) * 0.01) * canvas.width;
+        const y = m.y * canvas.height;
+        const a = 0.25 + 0.25 * Math.sin(t / 900 + m.p);
+        ctx.fillStyle = `rgba(255, 214, 150, ${a})`;
+        ctx.beginPath(); ctx.arc(x, y, m.r * devicePixelRatio, 0, 6.283); ctx.fill();
+      }
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    requestAnimationFrame(draw);
+  };
+  requestAnimationFrame(draw);
 }

@@ -1,24 +1,28 @@
-// 육각 보드 SVG 렌더링
-import { TERRAIN } from './data.js';
-
-const R = 46;                       // 육각 반지름
+// 육각 보드 SVG 렌더링: 금테 액자 속 양피지 지도 위에 입체 타일을 올린다
+const R = 48;                       // 육각 반지름
 const W = Math.sqrt(3) * R;         // 육각 가로
+const PAD = 34;                     // 액자 안쪽 여백
 const NS = 'http://www.w3.org/2000/svg';
+const COLS = 5;
+const ROWS = 5;
+const WIDTH = W * (COLS + 0.5) + PAD * 2;
+const HEIGHT = 1.5 * R * (ROWS - 1) + 2 * R + PAD * 2;
 
-const center = (t) => ({ x: W / 2 + 8 + W * (t.c + 0.5 * (t.r & 1)), y: R + 8 + 1.5 * R * t.r });
+const center = (t) => ({ x: PAD + W / 2 + W * (t.c + 0.5 * (t.r & 1)), y: PAD + R + 1.5 * R * t.r });
 export const tileCenter = center;
 
-// 칸 중심을 보드를 감싼 요소 기준의 픽셀 좌표로 바꾼다 (HTML 연출용)
+const hexPoints = ({ x, y }, r = R) => Array.from({ length: 6 }, (_, i) => {
+  const a = (Math.PI / 180) * (60 * i - 30);
+  return `${(x + r * Math.cos(a)).toFixed(1)},${(y + r * Math.sin(a)).toFixed(1)}`;
+}).join(' ');
+
+// 칸 중심을 기준 요소의 픽셀 좌표로 바꾼다 (HTML 연출용). host가 없으면 화면 좌표
 export function tileToHost(svg, host, tile) {
   const c = center(tile);
   const m = svg.getScreenCTM();
-  const hr = host.getBoundingClientRect();
+  const hr = host ? host.getBoundingClientRect() : { left: 0, top: 0 };
   return { x: m.a * c.x + m.e - hr.left, y: m.d * c.y + m.f - hr.top };
 }
-const hexPoints = ({ x, y }) => Array.from({ length: 6 }, (_, i) => {
-  const a = (Math.PI / 180) * (60 * i - 30);
-  return `${(x + R * Math.cos(a)).toFixed(1)},${(y + R * Math.sin(a)).toFixed(1)}`;
-}).join(' ');
 
 function el(tag, attrs = {}, text) {
   const e = document.createElementNS(NS, tag);
@@ -26,57 +30,81 @@ function el(tag, attrs = {}, text) {
   if (text != null) e.textContent = text;
   return e;
 }
+const use = (id, x, y, size, attrs = {}) => el('use', { href: `#${id}`, x: x - size / 2, y: y - size / 2, width: size, height: size, ...attrs });
 
-// markers: [{ tile, side, label, dim }] — 이번 라운드에 놓인 미플
-// markers의 drop이 참이면 떨어지는 연출을 한다 (delay: 순서)
+function frame(svg) {
+  const g = el('g', { class: 'frame' });
+  g.append(el('rect', { x: 2, y: 2, width: WIDTH - 4, height: HEIGHT - 4, rx: 22, fill: 'url(#g-wood)', stroke: 'url(#g-gold)', 'stroke-width': 4 }));
+  g.append(el('rect', { x: 14, y: 14, width: WIDTH - 28, height: HEIGHT - 28, rx: 14, class: 'parchment' }));
+  g.append(el('rect', { x: 14, y: 14, width: WIDTH - 28, height: HEIGHT - 28, rx: 14, fill: '#000', filter: 'url(#f-paper)', opacity: 0.9 }));
+  g.append(el('rect', { x: 20, y: 20, width: WIDTH - 40, height: HEIGHT - 40, rx: 10, fill: 'none', stroke: '#8a6420', 'stroke-opacity': 0.55, 'stroke-width': 1.2 }));
+  // 나침반 장식
+  const rose = el('g', { class: 'rose', transform: `translate(${WIDTH - 52} ${HEIGHT - 50})` });
+  rose.append(el('circle', { r: 20, fill: 'none', stroke: '#8a6420', 'stroke-opacity': 0.5 }));
+  rose.append(el('path', { d: 'M0-24 4-4 0 0-4-4zM0 24 4 4 0 0-4 4z', fill: '#8a6420', 'fill-opacity': 0.55 }));
+  rose.append(el('path', { d: 'M-24 0-4-4 0 0-4 4zM24 0 4-4 0 0 4 4z', fill: '#8a6420', 'fill-opacity': 0.3 }));
+  rose.append(el('text', { y: -27, class: 'rose-n' }, '北'));
+  g.append(rose);
+  svg.append(g);
+}
+
+// markers: [{ tile, side, label, dim, drop, delay }]
 export function renderBoard(svg, state, { markers = [], highlight = [], onTileClick, selectable = [], tileTitle } = {}) {
-  const cols = 5;
-  const rows = 5;
-  svg.setAttribute('viewBox', `0 0 ${(W * (cols + 0.5) + 16).toFixed(0)} ${(1.5 * R * (rows - 1) + 2 * R + 16).toFixed(0)}`);
+  svg.setAttribute('viewBox', `0 0 ${WIDTH.toFixed(0)} ${HEIGHT.toFixed(0)}`);
   svg.replaceChildren();
+  frame(svg);
 
+  const tiles = el('g', { class: 'tiles' });
   for (const t of state.tiles) {
     const c = center(t);
-    const g = el('g', { class: 'tile', 'data-id': t.id });
     const hidden = !t.revealed;
+    const terr = hidden ? 'fog' : t.terrain;
+    const g = el('g', { class: `tile tile-${terr}${selectable.includes(t.id) ? ' selectable' : ''}`, 'data-id': t.id });
     g.append(el('title', {}, tileTitle ? tileTitle(t) : t.id));
-    const cls = ['hex', hidden ? 'fog' : `t-${t.terrain}`];
-    if (t.owner && !hidden) cls.push(`own-${t.owner}`);
-    if (highlight.includes(t.id)) cls.push('hl');
-    if (selectable.includes(t.id)) cls.push('selectable');
-    g.append(el('polygon', { points: hexPoints(c), class: cls.join(' ') }));
-    if (t.wall && !hidden) g.append(el('polygon', { points: hexPoints(c), class: `wall own-${t.owner}`, transform: `translate(${c.x} ${c.y}) scale(0.84) translate(${-c.x} ${-c.y})` }));
+    g.append(el('polygon', { points: hexPoints({ x: c.x, y: c.y + 3 }), class: 'hex-base' }));
+    g.append(el('polygon', { points: hexPoints(c), fill: `url(#g-${terr})`, class: 'hex' }));
+    g.append(el('polygon', { points: hexPoints(c), fill: `url(#p-${terr})` }));
+    if (t.owner && !hidden) g.append(el('polygon', { points: hexPoints(c), fill: `url(#g-own-${t.owner})` }));
+    g.append(el('polygon', { points: hexPoints(c), fill: 'url(#g-bevel)', class: 'hex-bevel' }));
+    g.append(el('polygon', { points: hexPoints(c), class: 'hex-edge' }));
+    if (t.owner && !hidden) g.append(el('polygon', { points: hexPoints(c, R - 5), class: `own-line own-${t.owner}` }));
+    if (t.wall && !hidden) g.append(el('polygon', { points: hexPoints(c, R - 9), class: 'wall-ring' }));
 
     if (hidden) {
-      g.append(el('text', { x: c.x, y: c.y + 6, class: 'fog-mark' }, '?'));
+      g.append(use('s-fog', c.x, c.y, 58, { class: 'glyph fog-glyph' }));
+    } else if (t.building === 'capital') {
+      g.append(use(`s-${t.terrain}`, c.x, c.y + 14, 34, { opacity: 0.35 }));
+      g.append(use(t.owner === 'player' ? 's-temple' : 's-tower', c.x, c.y - 2, 64, { class: 'glyph building' }));
+    } else if (t.building === 'village') {
+      g.append(use(`s-${t.terrain}`, c.x - 12, c.y + 10, 32, { opacity: 0.55 }));
+      g.append(use('s-village', c.x + 4, c.y - 2, 50, { class: 'glyph building' }));
     } else {
-      const icon = t.building === 'capital' ? (t.owner === 'player' ? '⛪' : '🏛️')
-        : t.building === 'village' ? '🏠' : TERRAIN[t.terrain].icon;
-      g.append(el('text', { x: c.x, y: c.y + 2, class: t.building ? 'icon big' : 'icon' }, icon));
+      g.append(use(`s-${t.terrain}`, c.x, c.y - 2, 60, { class: 'glyph' }));
     }
-    g.append(el('text', { x: c.x, y: c.y + R * 0.66, class: 'coord' }, t.id));
-
-    if (onTileClick) {
-      g.style.cursor = selectable.length && !selectable.includes(t.id) ? 'default' : 'pointer';
-      g.addEventListener('click', () => onTileClick(t.id));
-    }
-    svg.append(g);
+    g.append(el('text', { x: c.x, y: c.y + R * 0.74, class: 'coord' }, t.id));
+    if (highlight.includes(t.id)) g.append(el('polygon', { points: hexPoints(c, R - 2), class: 'hl-ring' }));
+    if (selectable.includes(t.id)) g.append(el('polygon', { points: hexPoints(c, R - 2), class: 'sel-ring' }));
+    if (onTileClick) g.addEventListener('click', () => onTileClick(t.id));
+    tiles.append(g);
   }
+  svg.append(tiles);
 
-  // 미플: 칸마다 진영별로 위치를 나눠 겹치지 않게 놓는다
+  const pieces = el('g', { class: 'pieces' });
   for (const m of markers) {
     const t = state.tileAt[m.tile];
     if (m.side === 'enemy' && !t.revealed) continue; // 안개 속 율법파는 보이지 않는다
     const c = center(t);
-    const dx = m.side === 'player' ? -R * 0.42 : R * 0.42;
+    const x = c.x + (m.side === 'player' ? -R * 0.46 : R * 0.46);
+    const y = c.y - R * 0.3;
     const g = el('g', { class: `meeple ${m.side}${m.dim ? ' dim' : ''}${m.drop ? ' drop' : ''}` });
-    if (m.drop) g.style.animationDelay = `${(m.delay ?? 0) * 140}ms`;
-    const x = c.x + dx;
-    const y = c.y - R * 0.38;
-    // 머리 + 몸통 형태의 미플
-    g.append(el('circle', { cx: x, cy: y - 7, r: 5.5 }));
-    g.append(el('path', { d: `M${x - 9},${y + 9} Q${x - 9},${y - 2} ${x},${y - 2} Q${x + 9},${y - 2} ${x + 9},${y + 9} Z` }));
-    if (m.label) g.append(el('text', { x, y: y + 7, class: 'meeple-label' }, m.label));
-    svg.append(g);
+    if (m.drop) g.style.animationDelay = `${(m.delay ?? 0) * 150}ms`;
+    g.append(el('ellipse', { cx: x, cy: y + 13, rx: 10, ry: 3.2, class: 'meeple-shadow' }));
+    g.append(use('s-meeple', x, y, 30, { fill: `url(#g-meeple-${m.side})`, class: 'meeple-body' }));
+    if (m.label) {
+      g.append(el('circle', { cx: x + 10, cy: y - 12, r: 7, class: 'meeple-badge' }));
+      g.append(el('text', { x: x + 10, y: y - 8.8, class: 'meeple-num' }, m.label));
+    }
+    pieces.append(g);
   }
+  svg.append(pieces);
 }
