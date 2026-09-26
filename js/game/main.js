@@ -6,10 +6,10 @@ import {
   grantGrace, petitionAnswered, nameTile, applyTone, sealProphecy, takeMiracle, resolveSite,
   scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
-  canCarve, carveCommandment, updateLiturgy, findSacred, distance, previewGains,
+  canCarve, carveCommandment, updateLiturgy, findSacred, distance, previewGains, ultRound,
 } from './engine.js';
 import {
-  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
+  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
 } from './data.js';
 import { renderBoard, tileToHost, markerToScreen } from './board.js';
 import { installArt } from './art.js';
@@ -159,6 +159,7 @@ function bindSetup() {
   };
   $('reseed').onclick = () => { setup.seed = randomSeed(); saveSetup(); sfx.dice(); renderSetup(); };
   $('startTutorial').onclick = () => startFromMain('tutorial');
+  $('optBless').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; meta.set('gsg.blessing', b.dataset.v || null); sfx.click(); renderSetup(); };
   $('optGod').oninput = () => { meta.set('gsg.god', { ...godOf(), name: $('optGod').value.trim().slice(0, 8) }); };
   $('optSigil').innerHTML = Object.entries(SIGILS).map(([k, icon]) => `<button type="button" data-v="${k}" title="${k}">${svgUse(icon)}</button>`).join('');
   $('optSigil').querySelectorAll('button').forEach((b) => { b.onclick = () => { meta.set('gsg.god', { ...godOf(), sigil: b.dataset.v }); sfx.click(); renderSetup(); }; });
@@ -168,6 +169,8 @@ function bindSetup() {
 }
 
 const godOf = () => meta.get('gsg.god', { name: '', sigil: 'light' });
+const aweLevel = () => AWE_LEVELS.filter((x) => meta.getAwe().awe >= x).length;
+const blessingPick = () => { const b = meta.get('gsg.blessing', null); return b && BLESSINGS[b] && BLESSINGS[b].level <= aweLevel() ? b : null; };
 // 새 판에 들고 갈 것: 신의 이름, 지난 판의 유적(서고 최근 세 판에서 하나)
 function legacyFor(seed) {
   const past = meta.getHistory().filter((g) => g.revelations?.length).slice(0, 3);
@@ -184,6 +187,15 @@ function renderSetup() {
   $('optSeed').value = setup.seed;
   if (document.activeElement !== $('optGod')) $('optGod').value = godOf().name ?? '';
   $('optSigil').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === (godOf().sigil ?? 'light')));
+  const lv = aweLevel();
+  $('blessField').hidden = lv === 0;
+  const open = Object.entries(BLESSINGS).filter(([, b]) => b.level <= lv);
+  $('optBless').innerHTML = `<button type="button" data-v="" class="${blessingPick() ? '' : 'on'}">없음</button>${open.map(([k, b]) => `<button type="button" data-v="${k}" class="${blessingPick() === k ? 'on' : ''}" title="${esc(b.text)}">${esc(b.name.replace(/의 은사$/, ''))}</button>`).join('')}`;
+  $('blessHint').textContent = blessingPick() ? BLESSINGS[blessingPick()].text : '은사 없이 시작한다';
+  const awe = meta.getAwe().awe;
+  const next = AWE_LEVELS.find((x) => x > awe);
+  $('msAwe').hidden = awe === 0;
+  $('msAwe').innerHTML = `<b>${AWE_TITLES[lv]}</b> · 경외 ${awe}${next ? ` · 다음 은사까지 ${next - awe}` : ''}<i style="width:${next ? Math.round(((awe - (AWE_LEVELS[lv - 1] ?? 0)) / (next - (AWE_LEVELS[lv - 1] ?? 0))) * 100) : 100}%"></i>`;
   $('diffHint').textContent = DIFF_HINT[setup.difficulty];
   // 미리보기: 같은 설정으로 맵을 만들어 전부 드러낸다
   const preview = createState({ ...setup, mode: 'standard' });
@@ -235,7 +247,7 @@ function startFromMain(mode = 'new') {
       setup = loadSetup();
       beginGame({ mode: 'standard', size: ch.size, difficulty: ch.difficulty, seed: ch.seed, veteran: ch.veteran, canon: null, challenge: { target: ch.target } });
     }
-    else beginGame({ ...setup, mode: 'standard', veteran, canon: veteran ? meta.getCanon()[0] ?? null : null, god: godConfig(), legacy: veteran ? legacyFor(setup.seed) : null });
+    else beginGame({ ...setup, mode: 'standard', veteran, canon: veteran ? meta.getCanon()[0] ?? null : null, god: godConfig(), legacy: veteran ? legacyFor(setup.seed) : null, blessing: blessingPick() });
   }, fx.motion.reduced ? 150 : 850);
 }
 
@@ -617,6 +629,8 @@ function finishGame() {
   meta.pushHistory(summary);
   const fresh = meta.unlockAchievements(evaluateAchievements(summary));
   if (state.config.daily) meta.recordDaily(state.config.daily, { winner: state.winner, score: summary.score, rounds: state.round });
+  const aweGain = summary.score[0] + (state.winner === 'player' ? 10 : 0) + fresh.length * 3;
+  summary.awe = meta.addAwe(aweGain, AWE_LEVELS);
   const standard = !state.tutorial && !state.config.daily && !state.config.challenge && state.config.veteran;
   summary.newBest = standard && state.winner === 'player' && meta.setBest(state.config, summary.score[0]);
   checkOnboard(true);
@@ -646,6 +660,7 @@ function showEnd(summary, fresh, had) {
       ${ep.quote ? `<p class="ep-quote">${esc(ep.quote)}</p>` : ''}
       <div class="ep-epithet">${state.config.god?.name ? `${esc(state.config.god.name)}${hasBatchim(state.config.god.name) ? '은' : '는'}` : '이 신은'} 「${esc(ep.epithet)}」${hasBatchim(ep.epithet) ? '으로' : '로'} 기억되었다.</div>
       ${fresh.length ? `<div class="ep-ach">새 구절이 성서에 기록되었다 — ${fresh.map((id) => `「${esc(achName(id))}」`).join(' ')}</div>` : ''}
+      ${summary.awe ? `<div class="ep-ach awe">경외 +${summary.awe.gained} (${summary.awe.awe})${summary.awe.level > summary.awe.levelBefore ? ` — 「${AWE_TITLES[summary.awe.level]}」이 되었다. 새 은사: ${esc(Object.values(BLESSINGS).find((b) => b.level === summary.awe.level)?.name ?? '')}` : ''}</div>` : ''}
       ${summary.newBest ? `<div class="ep-ach best">새 기록 — 이 맵(시드 ${state.config.seed})에서 승점 ${summary.score[0]}</div>` : ''}
     </div>
     <div class="end-page" data-page="record" hidden>
@@ -666,7 +681,7 @@ function showEnd(summary, fresh, had) {
     buttons: [
       { label: '시편 복사', cls: 'btn-ghost psalm', keep: true, onClick: () => copyPsalm(summary) },
       { label: '같은 맵 다시', cls: 'btn-primary', onClick: restart },
-      { label: '새 맵', onClick: () => { setup.seed = randomSeed(); saveSetup(); beginGame({ ...setup, mode: 'standard', veteran: true, canon: meta.getCanon()[0] ?? null, god: godConfig(), legacy: legacyFor(setup.seed) }); } },
+      { label: '새 맵', onClick: () => { setup.seed = randomSeed(); saveSetup(); beginGame({ ...setup, mode: 'standard', veteran: true, canon: meta.getCanon()[0] ?? null, god: godConfig(), legacy: legacyFor(setup.seed), blessing: blessingPick() }); } },
       { label: '메인 화면', onClick: () => showMain() },
       { label: '보드 보기' },
     ],
@@ -975,13 +990,13 @@ function revealPerk(before) {
   for (const k of DOCTRINES) {
     for (const lv of [6, 4, 2]) {
       if (b[k] < lv && d[k] >= lv) {
-        const early = lv === 6 && state.round < ULT_ROUND;
-        setTimeout(() => fx.perkReveal(frameEl(), { title: `${DOCTRINE[k].name} ${lv}칸 · ${early ? '잠든 궁극' : lv === 6 ? '궁극' : '특전 해금'}`, text: early ? `${ULT_ROUND}장에 깨어난다 — ${DOCTRINE[k].perks[lv].replace(/^궁극\(8장부터\) — /, '')}` : DOCTRINE[k].perks[lv].replace(/^궁극\(8장부터\) — /, ''), icon: `d-${k}` }), 900);
+        const early = lv === 6 && state.round < ultRound(state);
+        setTimeout(() => fx.perkReveal(frameEl(), { title: `${DOCTRINE[k].name} ${lv}칸 · ${early ? '잠든 궁극' : lv === 6 ? '궁극' : '특전 해금'}`, text: early ? `${ultRound(state)}장에 깨어난다 — ${DOCTRINE[k].perks[lv].replace(/^궁극\(8장부터\) — /, '')}` : DOCTRINE[k].perks[lv].replace(/^궁극\(8장부터\) — /, ''), icon: `d-${k}` }), 900);
         return;
       }
     }
   }
-  if (state.round === ULT_ROUND - 1) {
+  if (state.round === ultRound(state) - 1) {
     const k = DOCTRINES.find((x) => d[x] >= DOCTRINE_MAX);
     if (k) setTimeout(() => fx.perkReveal(frameEl(), { title: `${DOCTRINE[k].name} · 궁극이 깨어난다`, text: `다음 장부터 — ${DOCTRINE[k].perks[6].replace(/^궁극\(8장부터\) — /, '')}`, icon: `d-${k}` }), 900);
   }
@@ -1478,7 +1493,7 @@ function matHTML(cur, side) {
     ${mine && (cur.commandments?.length || cur.saints?.length) ? `<div class="vows-row">${(cur.commandments ?? []).map((c) => `<span class="cmd" title="${esc(COMMANDMENTS[c].text)}">「${esc(COMMANDMENTS[c].name)}」</span>`).join('')}${(cur.saints ?? []).map((x) => `<span class="saint" title="${x.kind === 'preacher' ? '설교자 성인 — 선교 +1' : '수호자 성인 — 수도 방어 +1'}">✦ ${esc(x.name)}</span>`).join('')}</div>` : ''}
     ${mine && currentTask() ? `<div class="task-ribbon"><span>세라의 과제</span>${esc(currentTask().text)}<button class="task-x" type="button" title="과제 끄기">✕</button></div>` : ''}
     <div class="res-grid${mine ? '' : ' compact'}">${res}</div>${warnLine}
-    ${!mine && cur.edictOn ? `<div class="edict-bar${s.edict >= edictMax(cur) - 2 ? ' danger' : ''}" title="율법 석판이 ${edictMax(cur)}에 이르면 율법파가 이긴다. 오름: 율법파가 성지를 쥠·탑을 높임·신앙을 바침 / 내림: 우리가 성지를 쥠·번개로 탑을 침"><span>율법 석판</span><i><em style="width:${(s.edict / edictMax(cur)) * 100}%"></em></i><b>${s.edict}/${edictMax(cur)}</b></div>` : ''}
+    ${!mine && cur.edictOn ? `<div class="edict-bar${s.edict >= edictMax(cur) - 2 ? ' danger' : ''}" title="율법 석판이 ${edictMax(cur)}에 이르면 율법파가 이긴다. 오름: 율법파가 성지를 쥠(2막부터)·탑을 높임·신앙 10을 바침 / 내림: 우리가 성지를 쥠·번개로 탑을 침"><span>율법 석판</span><i><em style="width:${(s.edict / edictMax(cur)) * 100}%"></em></i><b>${s.edict}/${edictMax(cur)}</b></div>` : ''}
     <div class="section-label"><span>신도</span><span>${s.pop} / ${cap}</span></div>
     <div class="meeples">${meeples}</div>
     <div class="section-label"><span>세력</span></div>

@@ -112,3 +112,13 @@ export function setBest(c, score) {
   set('gsg.best', all);
   return true;
 }
+
+// ---------- 경외와 은사 ----------
+export const getAwe = () => get('gsg.awe', { awe: 0 });
+export function addAwe(n, levels) {
+  const cur = getAwe();
+  const before = levels.filter((x) => cur.awe >= x).length;
+  const awe = cur.awe + Math.max(0, n);
+  set('gsg.awe', { awe });
+  return { awe, gained: n, levelBefore: before, level: levels.filter((x) => awe >= x).length };
+}

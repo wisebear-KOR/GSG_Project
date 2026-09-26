@@ -9,25 +9,25 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Song+Myung&family=Hahmlet:wght@400;500;600;700;800&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="style.css?v=202609270435">
+<link rel="stylesheet" href="style.css?v=202609270438">
 <!-- 배포 후 브라우저가 옛 모듈을 쓰지 않도록 버전을 붙인다 (올릴 때 v를 바꾼다) -->
 <script type="importmap">
 {
   "imports": {
-    "../js/game/art.js": "../js/game/art.js?v=202609270435",
-    "../js/game/board.js": "../js/game/board.js?v=202609270435",
-    "../js/game/chronicle.js": "../js/game/chronicle.js?v=202609270435",
-    "../js/game/data.js": "../js/game/data.js?v=202609270435",
-    "../js/game/engine.js": "../js/game/engine.js?v=202609270435",
-    "../js/game/fx.js": "../js/game/fx.js?v=202609270435",
-    "../js/game/interpreter.js": "../js/game/interpreter.js?v=202609270435",
-    "../js/game/lore.js": "../js/game/lore.js?v=202609270435",
-    "../js/game/main.js": "../js/game/main.js?v=202609270435",
-    "../js/game/mapgen.js": "../js/game/mapgen.js?v=202609270435",
-    "../js/game/meta.js": "../js/game/meta.js?v=202609270435",
-    "../js/game/sound.js": "../js/game/sound.js?v=202609270435",
-    "../js/game/tutorial.js": "../js/game/tutorial.js?v=202609270435",
-    "../js/llm.js": "../js/llm.js?v=202609270435"
+    "../js/game/art.js": "../js/game/art.js?v=202609270438",
+    "../js/game/board.js": "../js/game/board.js?v=202609270438",
+    "../js/game/chronicle.js": "../js/game/chronicle.js?v=202609270438",
+    "../js/game/data.js": "../js/game/data.js?v=202609270438",
+    "../js/game/engine.js": "../js/game/engine.js?v=202609270438",
+    "../js/game/fx.js": "../js/game/fx.js?v=202609270438",
+    "../js/game/interpreter.js": "../js/game/interpreter.js?v=202609270438",
+    "../js/game/lore.js": "../js/game/lore.js?v=202609270438",
+    "../js/game/main.js": "../js/game/main.js?v=202609270438",
+    "../js/game/mapgen.js": "../js/game/mapgen.js?v=202609270438",
+    "../js/game/meta.js": "../js/game/meta.js?v=202609270438",
+    "../js/game/sound.js": "../js/game/sound.js?v=202609270438",
+    "../js/game/tutorial.js": "../js/game/tutorial.js?v=202609270438",
+    "../js/llm.js": "../js/llm.js?v=202609270438"
   }
 }
 </script>
@@ -98,6 +98,7 @@
         <div class="ms-field">
           <span class="ms-label">맵 크기</span>
           <div class="seg" id="optSize">
+            <button type="button" data-v="4">빠르게 <small>4×4 · 8장</small></button>
             <button type="button" data-v="5">작게 <small>5×5 · 12장</small></button>
             <button type="button" data-v="6">보통 <small>6×6 · 12장</small></button>
             <button type="button" data-v="7">크게 <small>7×7 · 14장</small></button>
@@ -111,6 +112,11 @@
             <button type="button" data-v="hard">어려움</button>
           </div>
           <small class="ms-hint" id="diffHint"></small>
+        </div>
+        <div class="ms-field" id="blessField" hidden>
+          <span class="ms-label">은사</span>
+          <div class="seg blessings" id="optBless"></div>
+          <small class="ms-hint" id="blessHint"></small>
         </div>
         <div class="ms-field">
           <span class="ms-label">너의 이름</span>
@@ -135,6 +141,7 @@
       <button class="btn-ghost ms-tutorial" id="startTutorial" type="button">튜토리얼 <small>3×3 · 5장</small></button>
       <button class="btn-ghost ms-daily" id="startDaily" type="button" hidden>오늘의 계시 <small id="dailyHint"></small></button>
     </div>
+    <div class="ms-awe" id="msAwe" hidden></div>
     <div class="ms-status" id="msStatus"><span class="dot off"></span><span>대사제를 깨우는 중…</span></div>
     <div class="ms-links">
       <button class="chip" id="msMusic" type="button"></button>
@@ -150,6 +157,6 @@
   </div>
 </section>
 
-<script type="module" src="../js/game/main.js?v=202609270435"></script>
+<script type="module" src="../js/game/main.js?v=202609270438"></script>
 </body>
 </html>

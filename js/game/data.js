@@ -26,7 +26,7 @@ export const CATHEDRAL = [
   { name: '벽', cost: { stone: 4, wood: 4, faith: 4 } },
   { name: '첨탑', cost: { stone: 3, wood: 3, faith: 5 } },
 ];
-export const EDICT_MAX = 10;         // 율법 석판이 이만큼 차면 율법파가 이긴다
+export const EDICT_MAX = 12;         // 율법 석판이 이만큼 차면 율법파가 이긴다
 
 // 소명: 두 번째 판부터 판 시작에 셋 중 하나를 고른다. 이루면 승점 +5
 export const DESTINIES = {
@@ -221,6 +221,16 @@ export const SACRED_WORDS = [
   { word: '날개', clue: '새가 하늘을 붙잡는 손' },
 ];
 
+// 경외와 은사: 판이 끝날 때마다 경외가 쌓이고, 레벨마다 은사 하나가 열린다 (힘이 아니라 시작의 모양을 바꾼다)
+export const AWE_LEVELS = [20, 50, 100, 160, 240];
+export const BLESSINGS = {
+  preacher: { level: 1, name: '설교자의 은사', text: '처음 개종에 성공할 때까지 선교 주사위 +1' },
+  mason:    { level: 2, name: '석공의 은사', text: '첫 신전을 높일 때 돌 -1' },
+  granary:  { level: 3, name: '곳간의 은사', text: '시작 식량 +2' },
+  seer:     { level: 4, name: '눈 밝은 자의 은사', text: '시작할 때 수도 둘레 3칸이 보인다' },
+};
+export const AWE_TITLES = ['이름 없는 신', '속삭이는 신', '불리는 신', '섬김받는 신', '두려운 신', '영원한 신'];
+
 // 신의 상징 (인장에 찍힌다)
 export const SIGILS = { light: 'i-faith', sword: 'd-war', dove: 'd-peace', grain: 'i-food', eye: 'e-prophet', storm: 'm-lightning' };
 
@@ -323,6 +333,7 @@ export const DIFFICULTY = {
 };
 
 export const MAP_SIZES = {
+  4: { name: '빠르게', rounds: 8 },
   5: { name: '작게', rounds: 12 },
   6: { name: '보통', rounds: 12 },
   7: { name: '크게', rounds: 14 },

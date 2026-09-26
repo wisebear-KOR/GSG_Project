@@ -987,3 +987,10 @@ body.reduce-motion .holy-ring { animation: none; }
 .reel-strip span { height: 40px; display: grid; place-items: center; }
 .reel-strip svg { width: 28px; height: 28px; }
 @keyframes reel { to { transform: translateY(calc(var(--n) * -40px)); } }
+
+/* ---------- 3차 웨이브 E ---------- */
+.ms-awe { position: relative; max-width: 420px; margin: 0 auto 14px; padding: 6px 14px 10px; border-radius: 12px; font: 13px var(--font-ui); color: var(--on-table-dim); background: rgba(0, 0, 0, .25); border: 1px solid rgba(201, 162, 74, .25); overflow: hidden; }
+.ms-awe b { font: 400 16px var(--font-title); color: var(--gold-hi); }
+.ms-awe i { position: absolute; left: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-hi)); }
+.seg.blessings button { font-size: 12.5px; }
+.ep-ach.awe { background: rgba(244, 196, 74, .22); }
