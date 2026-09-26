@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>내장 AI 점검</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #fff; --text: #1d2330; --muted: #677084;
+    --line: #dde1e8; --accent: #3a63d8; --ok: #1f8a4c; --warn: #b7791f; --bad: #c53030;
+    --code: #eef1f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151b; --panel: #1b1f27; --text: #e6e9ef; --muted: #98a1b3;
+      --line: #2c3240; --accent: #7d9cff; --ok: #4cc38a; --warn: #f0b75a; --bad: #ff7b7b;
+      --code: #232936;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.55 system-ui, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  main { max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  p.sub { color: var(--muted); margin: 0 0 20px; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td:first-child { color: var(--muted); width: 42%; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+  code { background: var(--code); padding: 1px 5px; border-radius: 4px; }
+  pre { background: var(--code); padding: 12px; border-radius: 8px; white-space: pre-wrap;
+    word-break: break-word; margin: 8px 0 0; min-height: 44px; }
+  .ok { color: var(--ok); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+  textarea, input[type=number] { width: 100%; background: var(--bg); color: var(--text);
+    border: 1px solid var(--line); border-radius: 6px; padding: 8px; font: inherit; }
+  textarea { min-height: 70px; resize: vertical; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  button { background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+    padding: 8px 14px; font: inherit; cursor: pointer; }
+  button.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  progress { width: 100%; height: 10px; margin-top: 10px; }
+  .help li { margin-bottom: 4px; }
+  #log { max-height: 240px; overflow: auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Chrome 내장 AI 점검</h1>
+  <p class="sub">이 브라우저에서 Prompt API(<code>LanguageModel</code>)로 내장 모델을 제어할 수 있는지 확인합니다.</p>
+
+  <section>
+    <h2>1. 환경</h2>
+    <table id="env"></table>
+    <div class="row"><button class="ghost" id="recheck">다시 확인</button></div>
+  </section>
+
+  <section>
+    <h2>2. 세션 만들기</h2>
+    <p class="sub" style="margin:0">모델이 아직 없으면 이 버튼을 눌렀을 때 다운로드가 시작됩니다(수 GB).</p>
+    <label for="sys">시스템 프롬프트</label>
+    <textarea id="sys">너는 친절한 한국어 조수야. 짧게 답해.</textarea>
+    <label for="temp">temperature (웹 페이지에서는 무시되거나 오류가 날 수 있음 — 확인용)</label>
+    <input type="number" id="temp" step="0.1" min="0" placeholder="비워두면 기본값">
+    <div class="row">
+      <button id="create">세션 만들기</button>
+      <button class="ghost" id="destroy" disabled>세션 종료</button>
+    </div>
+    <progress id="dl" max="1" value="0" hidden></progress>
+    <table id="sess" style="margin-top:10px"></table>
+  </section>
+
+  <section>
+    <h2>3. 프롬프트 보내기</h2>
+    <textarea id="prompt">자기소개를 한 문장으로 해줘. 어떤 모델인지도 알려줘.</textarea>
+    <div class="row">
+      <button id="send" disabled>스트리밍으로 보내기</button>
+      <button class="ghost" id="json" disabled>JSON 출력 테스트</button>
+      <button class="ghost" id="stop" disabled>중지</button>
+    </div>
+    <pre id="out"></pre>
+    <table id="stats" style="margin-top:10px"></table>
+  </section>
+
+  <section>
+    <h2>로그</h2>
+    <pre id="log"></pre>
+  </section>
+
+  <section class="help">
+    <h2>안 될 때</h2>
+    <ul>
+      <li>데스크톱 Chrome 148 이상이 필요합니다. Gemma 4를 쓰려면 Chrome Canary에서 <code>chrome://flags</code>의 “Gemma 4 for Built-in AI” 플래그를 켜세요.</li>
+      <li><code>chrome://on-device-internals</code>에서 모델 상태와 실제로 로드된 모델 이름·버전을 볼 수 있습니다.</li>
+      <li>사양: 여유 저장공간 22GB, VRAM 4GB 초과 GPU 또는 RAM 16GB + 4코어 이상 CPU.</li>
+      <li><code>file://</code>이 아니라 <code>http://localhost</code> 또는 https에서 열어야 합니다.</li>
+    </ul>
+  </section>
+</main>
+
+<script type="module">
+const $ = (id) => document.getElementById(id);
+const hasAPI = 'LanguageModel' in self;
+let session = null;
+let controller = null;
+
+function log(msg, cls = '') {
+  const t = new Date().toLocaleTimeString();
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = `[${t}] ${msg}`;
+  $('log').append(line);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+function rows(table, pairs) {
+  table.replaceChildren(...pairs.map(([k, v, cls]) => {
+    const tr = document.createElement('tr');
+    const a = document.createElement('td'); a.textContent = k;
+    const b = document.createElement('td'); b.textContent = v; if (cls) b.className = cls;
+    tr.append(a, b);
+    return tr;
+  }));
+}
+
+const availClass = (v) => v === 'available' || v === 'readily-available' ? 'ok'
+  : v === 'unavailable' || String(v).startsWith('오류') ? 'bad' : 'warn';
+
+async function availability(langs) {
+  try {
+    return await LanguageModel.availability({
+      expectedInputs: [{ type: 'text', languages: langs }],
+      expectedOutputs: [{ type: 'text', languages: langs }],
+    });
+  } catch (e) {
+    return `오류: ${e.name} ${e.message}`;
+  }
+}
+
+async function checkEnv() {
+  const brand = navigator.userAgentData?.brands?.map(b => `${b.brand} ${b.version}`).join(', ');
+  const pairs = [
+    ['브라우저', brand || navigator.userAgent],
+    ['보안 컨텍스트 (https/localhost)', String(isSecureContext), isSecureContext ? 'ok' : 'bad'],
+    ['LanguageModel 전역 객체', hasAPI ? '있음' : '없음', hasAPI ? 'ok' : 'bad'],
+  ];
+  if (hasAPI) {
+    const en = await availability(['en']);
+    const ko = await availability(['ko']);
+    pairs.push(['availability (영어)', en, availClass(en)]);
+    pairs.push(['availability (한국어)', ko, availClass(ko)]);
+    if (typeof LanguageModel.params === 'function') {
+      try {
+        const p = await LanguageModel.params();
+        pairs.push(['params()', p ? JSON.stringify(p) : 'null']);
+      } catch (e) { pairs.push(['params()', `오류: ${e.message}`, 'warn']); }
+    } else {
+      pairs.push(['params()', '웹 페이지에서는 제공 안 됨 (확장 프로그램 전용)', 'warn']);
+    }
+    log(`availability en=${en}, ko=${ko}`);
+  }
+  rows($('env'), pairs);
+  $('create').disabled = !hasAPI;
+}
+
+function showSession() {
+  if (!session) { rows($('sess'), []); return; }
+  const pairs = [
+    ['contextWindow', String(session.contextWindow ?? session.inputQuota ?? '알 수 없음')],
+    ['contextUsage', String(session.contextUsage ?? session.inputUsage ?? '알 수 없음')],
+    ['temperature', String(session.temperature ?? '노출 안 됨')],
+    ['topK', String(session.topK ?? '노출 안 됨')],
+  ];
+  rows($('sess'), pairs);
+}
+
+$('recheck').onclick = checkEnv;
+
+$('create').onclick = async () => {
+  $('create').disabled = true;
+  session?.destroy();
+  session = null;
+  const opts = {
+    initialPrompts: [{ role: 'system', content: $('sys').value }],
+    expectedInputs: [{ type: 'text', languages: ['ko', 'en'] }],
+    expectedOutputs: [{ type: 'text', languages: ['ko'] }],
+    monitor(m) {
+      m.addEventListener('downloadprogress', (e) => {
+        $('dl').hidden = false;
+        $('dl').value = e.loaded;
+        log(`다운로드 ${(e.loaded * 100).toFixed(1)}%`);
+      });
+    },
+  };
+  const temp = $('temp').value.trim();
+  if (temp !== '') { opts.temperature = Number(temp); opts.topK = 3; }
+  try {
+    log('세션 생성 중…');
+    const t0 = performance.now();
+    session = await LanguageModel.create(opts);
+    log(`세션 생성 완료 (${Math.round(performance.now() - t0)}ms)`, 'ok');
+    $('send').disabled = $('json').disabled = $('destroy').disabled = false;
+  } catch (e) {
+    // 한국어 출력이 거부되면 언어 지정 없이 재시도
+    log(`세션 생성 실패: ${e.name} ${e.message}`, 'bad');
+    if (e.name === 'NotSupportedError') {
+      delete opts.expectedInputs; delete opts.expectedOutputs;
+      try {
+        session = await LanguageModel.create(opts);
+        log('언어 지정 없이 세션 생성 성공', 'warn');
+        $('send').disabled = $('json').disabled = $('destroy').disabled = false;
+      } catch (e2) { log(`재시도 실패: ${e2.name} ${e2.message}`, 'bad'); }
+    }
+  } finally {
+    $('create').disabled = false;
+    showSession();
+  }
+};
+
+$('destroy').onclick = () => {
+  session?.destroy();
+  session = null;
+  $('send').disabled = $('json').disabled = $('destroy').disabled = true;
+  log('세션 종료');
+  showSession();
+};
+
+async function run(fn) {
+  controller = new AbortController();
+  $('send').disabled = $('json').disabled = true;
+  $('stop').disabled = false;
+  $('out').textContent = '';
+  const t0 = performance.now();
+  let first = null;
+  try {
+    const text = await fn(controller.signal, () => { first ??= performance.now(); });
+    const total = performance.now() - t0;
+    rows($('stats'), [
+      ['첫 토큰까지', first ? `${Math.round(first - t0)}ms` : '-'],
+      ['전체 시간', `${Math.round(total)}ms`],
+      ['응답 길이', `${text.length}자`],
+    ]);
+  } catch (e) {
+    log(`${e.name}: ${e.message}`, e.name === 'AbortError' ? 'warn' : 'bad');
+  } finally {
+    $('send').disabled = $('json').disabled = !session;
+    $('stop').disabled = true;
+    showSession();
+  }
+}
+
+$('send').onclick = () => run(async (signal, onFirst) => {
+  log('스트리밍 시작');
+  const stream = session.promptStreaming($('prompt').value, { signal });
+  let text = '';
+  for await (const chunk of stream) {
+    onFirst();
+    text += chunk;
+    $('out').textContent = text;
+  }
+  log('스트리밍 완료', 'ok');
+  return text;
+});
+
+$('json').onclick = () => run(async (signal, onFirst) => {
+  const schema = {
+    type: 'object',
+    properties: {
+      name: { type: 'string' },
+      mood: { type: 'string', enum: ['happy', 'sad', 'angry'] },
+      level: { type: 'integer', minimum: 1, maximum: 10 },
+    },
+    required: ['name', 'mood', 'level'],
+  };
+  log('responseConstraint(JSON Schema) 테스트');
+  const text = await session.prompt(
+    '판타지 게임의 몬스터 하나를 만들어줘.',
+    { signal, responseConstraint: schema },
+  );
+  onFirst();
+  try {
+    const obj = JSON.parse(text);
+    $('out').textContent = JSON.stringify(obj, null, 2);
+    log('JSON 파싱 성공', 'ok');
+  } catch {
+    $('out').textContent = text;
+    log('JSON 파싱 실패', 'bad');
+  }
+  return text;
+});
+
+$('stop').onclick = () => controller?.abort();
+
+checkEnv();
+</script>
+</body>
+</html>
