@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>계시록: 말씀의 전쟁</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #efe4cc; --paper-2: #f7efdc; --card: #fffaf0; --ink: #2d2417; --muted: #7b6a52;
+    --line: #d6c3a0; --accent: #8a4b1f; --accent-ink: #fff8ec;
+    --player: #2f5d9e; --enemy: #a8392b; --ok: #2f7d4a; --bad: #b3372b;
+    --t-plain: #e9d89a; --t-forest: #9fbb7c; --t-mountain: #bcae9a; --t-river: #9fc6d8; --t-hill: #dcc3de; --t-fog: #cbc3b1;
+    --shadow: 0 2px 0 rgba(80, 55, 20, .18), 0 6px 16px rgba(80, 55, 20, .12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #1d1912; --paper-2: #26211a; --card: #2c261d; --ink: #efe6d3; --muted: #b3a489;
+      --line: #4a3f2e; --accent: #e3a35c; --accent-ink: #1c140a;
+      --player: #7ea6e8; --enemy: #ee7f6f; --ok: #70cf90; --bad: #ff8a7a;
+      --t-plain: #8d7f4b; --t-forest: #5d7446; --t-mountain: #6f6558; --t-river: #4f7384; --t-hill: #7d6680; --t-fog: #3d372d;
+      --shadow: 0 2px 0 rgba(0, 0, 0, .4), 0 6px 16px rgba(0, 0, 0, .3);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink); background: var(--paper);
+    background-image: radial-gradient(circle at 20% 10%, rgba(255,255,255,.18), transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(120,80,30,.08), transparent 45%);
+    font: 15px/1.55 "Noto Sans KR", system-ui, sans-serif;
+  }
+  h1, h2, h3, .serif { font-family: "Gowun Batang", serif; }
+  header { max-width: 1180px; margin: 0 auto; padding: 18px 16px 8px; display: flex; flex-wrap: wrap;
+    gap: 8px 20px; align-items: baseline; justify-content: space-between; }
+  header h1 { margin: 0; font-size: 26px; letter-spacing: .02em; }
+  header .meta { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--muted); font-size: 14px; }
+  header .meta b { color: var(--ink); }
+  main { max-width: 1180px; margin: 0 auto; padding: 0 16px 48px; display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 880px) { main { grid-template-columns: minmax(0, 1fr); } }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 14px; }
+  .stack { display: grid; gap: 14px; }
+  h2 { font-size: 17px; margin: 0 0 10px; }
+
+  /* 보드 */
+  .board-wrap { padding: 10px; }
+  #board { width: 100%; height: auto; display: block; }
+  .hex { stroke: rgba(60, 40, 15, .35); stroke-width: 1.5; transition: filter .15s; }
+  .t-plain { fill: var(--t-plain); } .t-forest { fill: var(--t-forest); } .t-mountain { fill: var(--t-mountain); }
+  .t-river { fill: var(--t-river); } .t-hill { fill: var(--t-hill); } .fog { fill: var(--t-fog); }
+  .hex.own-player { stroke: var(--player); stroke-width: 4; }
+  .hex.own-enemy { stroke: var(--enemy); stroke-width: 4; }
+  .hex.hl { filter: brightness(1.12) drop-shadow(0 0 6px var(--accent)); }
+  .hex.selectable { stroke: var(--accent); stroke-width: 4; stroke-dasharray: 6 4; }
+  .wall { fill: none; stroke-width: 3; stroke-dasharray: 3 3; }
+  .wall.own-player { stroke: var(--player); } .wall.own-enemy { stroke: var(--enemy); }
+  .icon { font-size: 22px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+  .icon.big { font-size: 28px; }
+  .fog-mark { font: 700 22px "Gowun Batang", serif; fill: var(--muted); text-anchor: middle; pointer-events: none; }
+  .coord { font-size: 10px; fill: rgba(40, 28, 10, .6); text-anchor: middle; pointer-events: none; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .coord { fill: rgba(255, 245, 225, .55); } }
+  .meeple circle, .meeple path { stroke: rgba(0, 0, 0, .45); stroke-width: 1; }
+  .meeple.player circle, .meeple.player path { fill: var(--player); }
+  .meeple.enemy circle, .meeple.enemy path { fill: var(--enemy); }
+  .meeple.dim { opacity: .5; }
+  .meeple-label { font: 700 9px "Noto Sans KR", sans-serif; fill: #fff; text-anchor: middle; pointer-events: none; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+
+  /* 카드 */
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--paper-2); min-height: 92px; }
+  .card .kind { font-size: 11px; letter-spacing: .08em; color: var(--muted); }
+  .card .title { font: 700 17px "Gowun Batang", serif; margin: 2px 0; }
+  .card .rule { font-size: 13px; color: var(--muted); }
+  .card.back { display: grid; place-items: center; text-align: center; color: var(--muted);
+    background: repeating-linear-gradient(45deg, var(--paper-2), var(--paper-2) 8px, var(--card) 8px, var(--card) 16px); }
+  .card.enemy { border-color: var(--enemy); }
+
+  /* 자원 표 */
+  table.res { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.res th, table.res td { padding: 4px 6px; text-align: right; border-bottom: 1px solid var(--line); }
+  table.res th:first-child, table.res td:first-child { text-align: left; }
+  table.res thead th { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .c-player { color: var(--player); font-weight: 700; } .c-enemy { color: var(--enemy); font-weight: 700; }
+
+  /* 교리 트랙 */
+  .track { display: grid; grid-template-columns: 70px 1fr; gap: 6px; align-items: center; margin: 4px 0; font-size: 14px; }
+  .pips { display: flex; gap: 4px; flex-wrap: wrap; }
+  .pip { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--paper-2);
+    font-size: 10px; display: grid; place-items: center; color: var(--muted); }
+  .pip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .pip.perk { border-style: dashed; border-color: var(--accent); }
+  .perks { font-size: 12px; color: var(--muted); grid-column: 2; margin-top: -2px; }
+
+  /* 행동 패널 */
+  .phase h2 { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .phase h2 small { font: 12px "Noto Sans KR", sans-serif; color: var(--muted); }
+  textarea { width: 100%; min-height: 64px; resize: vertical; background: var(--paper-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: 16px "Gowun Batang", serif; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+  .spacer { flex: 1; }
+  button { font: 600 14px "Noto Sans KR", sans-serif; border-radius: 8px; padding: 8px 14px; cursor: pointer;
+    background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent); }
+  button.ghost { background: transparent; color: var(--accent); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .miracles { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .miracle { background: var(--paper-2); color: var(--ink); border: 1px solid var(--line); font-weight: 400; padding: 6px 10px; }
+  .miracle.on { border-color: var(--accent); outline: 2px solid var(--accent); }
+  .muted { color: var(--muted); } .small { font-size: 12px; }
+  blockquote { margin: 8px 0; padding: 10px 14px; border-left: 4px solid var(--accent); background: var(--paper-2);
+    border-radius: 0 8px 8px 0; font: 17px/1.6 "Gowun Batang", serif; }
+  ul.plan { margin: 6px 0; padding-left: 20px; }
+  ul.plan li { margin: 3px 0; }
+  ul.plan li.auto { color: var(--muted); }
+  ul.plan li.bad { color: var(--bad); text-decoration: line-through; }
+  .tag { display: inline-block; font-size: 11px; padding: 0 6px; border-radius: 4px; background: var(--paper-2); border: 1px solid var(--line); margin-left: 4px; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--line); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 1s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .banner { text-align: center; padding: 18px 10px; }
+  .banner .big { font: 700 26px "Gowun Batang", serif; }
+
+  /* 연대기 */
+  .log { max-height: 320px; overflow: auto; font-size: 14px; }
+  .log .round { font: 700 14px "Gowun Batang", serif; margin: 10px 0 4px; color: var(--muted); }
+  .log p { margin: 3px 0; padding-left: 10px; border-left: 3px solid transparent; }
+  .log p.player { border-left-color: var(--player); }
+  .log p.enemy { border-left-color: var(--enemy); }
+  .log p.god { font-family: "Gowun Batang", serif; font-weight: 700; }
+  .log p.priest { font-family: "Gowun Batang", serif; font-style: italic; }
+  .dice { font-size: 12px; color: var(--muted); margin-left: 6px; white-space: nowrap; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>⚡ 계시록 <span class="muted" style="font-size:16px">— 이웃의 불신자</span></h1>
+  <div class="meta">
+    <span>라운드 <b id="round">-</b></span>
+    <span>선 플레이어 <b id="first">-</b></span>
+    <span>대사제 <b id="ai" style="cursor:pointer">확인 중…</b></span>
+    <a href="../index.html">처음으로</a>
+  </div>
+</header>
+
+<main>
+  <div class="stack">
+    <section class="panel board-wrap">
+      <svg id="board" role="img" aria-label="육각 보드"></svg>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--player)"></span>우리 부족</span>
+        <span><span class="dot" style="background:var(--enemy)"></span>율법파</span>
+        <span>🌾 평원 🌲 숲 ⛰️ 산 🌊 강 ✨ 성스러운 언덕 ? 안개</span>
+        <span>점선 테두리 = 성벽</span>
+      </div>
+    </section>
+    <section class="panel phase" id="phase"></section>
+  </div>
+
+  <div class="stack">
+    <section class="panel">
+      <div class="cards">
+        <div class="card" id="eventCard"></div>
+        <div class="card" id="lawCard"></div>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>부족 현황</h2>
+      <table class="res" id="res"></table>
+    </section>
+    <section class="panel">
+      <h2>교리</h2>
+      <div id="doctrine"></div>
+    </section>
+    <section class="panel">
+      <h2>연대기</h2>
+      <div class="log" id="log"></div>
+    </section>
+  </div>
+</main>
+
+<script type="module" src="../js/game/main.js"></script>
+</body>
+</html>
