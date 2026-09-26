@@ -779,3 +779,16 @@ export function linkCurve(from, to, delay = 0) {
   host.append(dot);
   later(() => { path.remove(); dot.remove(); }, 2800 + delay);
 }
+
+// ---------- 교리 특전 해금: 보드 위로 카드가 뒤집혀 나온다 ----------
+export function perkReveal(host, { title, text, icon }) {
+  const card = div('perk-card', `<div class="pk-inner"><div class="pk-kind">${title}</div>
+    ${icon ? `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#${icon}"/></svg>` : ''}<div class="pk-text"></div></div>`);
+  card.querySelector('.pk-text').textContent = text;
+  host.append(card);
+  sfx.holy();
+  const r = host.getBoundingClientRect();
+  sparks({ x: r.left + r.width / 2, y: r.top + r.height / 2 }, 30, ['#fff6d0', '#ffd98a', '#ffffff']);
+  later(() => card.classList.add('out'), motion.reduced ? 1600 : 2600);
+  later(() => card.remove(), motion.reduced ? 2000 : 3100);
+}

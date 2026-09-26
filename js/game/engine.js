@@ -4,7 +4,7 @@
 import {
   TERRAIN, RESOURCE_NAME, GATHER_VERB, COST, MAX_TEMPLE, CAPITAL_HP, MAX_ACTIONS, RULES,
   DOCTRINES, DOCTRINE_MAX, EVENTS, LAW_CARDS, MIRACLES, DIFFICULTY, MAP_SIZES, PLAYER_START, TUTORIAL, ENEMY_LEADERS,
-  PRIESTS, PETITIONERS, PROPHECY, FIRST_HAND, SITES, DOOM, JUDGEMENTS,
+  PRIESTS, PETITIONERS, PROPHECY, FIRST_HAND, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT,
 } from './data.js';
 import { generateMap, placeSites } from './mapgen.js';
 import { frequentNoun, hashPick } from './lore.js';
@@ -73,7 +73,7 @@ export function createState(config = DEFAULT_CONFIG) {
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
     priest: 'loyal', names: {}, lessons: [], petition: null, petitionIgnored: 0, prophecy: null,
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
-    judgement: 'classic', wrath: 0, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
+    judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
     miracleUsed: false, reinterpretUsed: false,
     log: [], revelations: [], history: [], winner: null, winReason: '',
   };
@@ -397,10 +397,27 @@ export function startRound(state) {
   state.bannedWords = state.bannedNext ? [state.bannedNext] : [];
   state.bannedNext = null;
   state.lawCard = state.lawDeck.pop();
-  // 어려움: 율법 카드를 두 장 보고 지금 더 위협적인 쪽을 쓴다 (다른 한 장은 버린다)
+  // 율법파가 지난 장의 말씀을 들었다: 그 말에 맞서는 카드를 고른다 (쉬움·튜토리얼 제외, 난수 없이)
+  const heard = state.vowNext ? 'vow' : state.revelations.find((r) => r.round === state.round - 1)?.doctrine ?? null;
+  const react = heard && !state.tutorial && state.config.difficulty !== 'easy' ? REACT[heard] : null;
+  const pref = (card) => (react?.cards.includes(card.id) ? 2 : 0);
+  state.reacted = null;
+  state.vowNext = null;
+  // 어려움: 율법 카드를 두 장 보고 지금 더 위협적인 쪽을 쓴다 (다른 한 장은 버린다). 들은 말은 동점 깨기로
   if (state.config.difficulty === 'hard' && !state.tutorial) {
     const alt = state.lawDeck.pop();
-    if (lawThreat(state, alt) > lawThreat(state, state.lawCard)) state.lawCard = alt;
+    if (lawThreat(state, alt) + pref(alt) > lawThreat(state, state.lawCard) + pref(state.lawCard)) { state.lawCard = alt; if (pref(alt)) state.reacted = heard; }
+  } else if (react && pref(state.lawCard)) {
+    state.reacted = heard; // 마침 뽑힌 카드가 들은 말에 맞선다
+  } else if (react) {
+    // 덱 위 세 장 가운데 들은 말에 맞서는 카드가 있으면 그 카드를 먼저 쓴다 (지금 카드는 그 자리로)
+    const i = [1, 2, 3].map((k) => state.lawDeck.length - k).find((j) => j >= 0 && pref(state.lawDeck[j]));
+    if (i !== undefined) {
+      const pick = state.lawDeck[i];
+      state.lawDeck[i] = state.lawCard;
+      state.lawCard = pick;
+      state.reacted = heard;
+    }
   }
   state.first = state.round % 2 === 1 ? 'player' : 'enemy';
   state.roundMods = {};
@@ -727,7 +744,7 @@ export function hydrateState(obj) {
   state.tileAt = Object.fromEntries(state.tiles.map((t) => [t.id, t]));
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
   state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.petitionIgnored ??= 0; state.prophecy ??= null;
-  state.judgement ??= 'classic'; state.wrath ??= 0;
+  state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null;
   state.grace ??= { round: 0, used: 0 }; state.roundMods ??= {}; state.miracleHand ??= [...FIRST_HAND]; state.miracleOffer ??= null; state.pendingSite ??= null; state.stats ??= { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 };
   return state;
 }
@@ -954,4 +971,52 @@ export function recordRevelation(state, text, doctrine, extra = 0) {
   // 비유·첫 이름 같은 가속은 그 교리가 낮을 때만 (궁극에 너무 빨리 닿지 않게)
   if (doctrine && extra && d[doctrine] < RULES.graceDoctrineBelow) d[doctrine] = Math.min(DOCTRINE_MAX, d[doctrine] + extra);
   state.revelations.push({ round: state.round, text, doctrine });
+  if (!doctrine) { state.streak = null; return; }
+  // 교리 대립 (두 번째 판부터): 반대 교리가 흔들린다. 이미 얻은 특전 칸 아래로는 내려가지 않는다
+  const opp = OPPOSED[doctrine];
+  if (state.config.veteran && !state.tutorial && d[opp] > perkFloor(d[opp])) {
+    d[opp] -= 1;
+    logEvent(state, 'player', `${DOCTRINE_NAME[opp]}의 서약이 흔들린다 (${DOCTRINE_NAME[opp]} -1).`, null, { kind: 'doctrine' });
+  }
+  // 같은 교리를 세 장 이어 말하면 작은 기적이 일어난다
+  state.streak = state.streak?.doctrine === doctrine ? { doctrine, n: state.streak.n + 1 } : { doctrine, n: 1 };
+  if (state.streak.n >= 3) { state.streak = null; streakMiracle(state, doctrine); }
+}
+const perkFloor = (v) => (v >= 6 ? 6 : v >= 4 ? 4 : v >= 2 ? 2 : 0);
+const DOCTRINE_NAME = { peace: '평화', war: '전쟁', abundance: '풍요', wisdom: '지혜' };
+
+function streakMiracle(state, doctrine) {
+  const p = state.sides.player;
+  const e = state.sides.enemy;
+  const home = capitalOf(state, 'player')?.id;
+  const head = `말씀이 세 장 이어졌다 — ${DOCTRINE_NAME[doctrine]}의 기적.`;
+  if (doctrine === 'peace' && e.pop > 0) {
+    e.pop -= 1;
+    if (p.pop < popCap(state, 'player')) p.pop += 1;
+    logEvent(state, 'player', `${head} 율법파 한 사람이 스스로 말씀을 받아들였다.`, null, { kind: 'streak', tile: capitalOf(state, 'enemy')?.id ?? home, doctrine });
+  } else if (doctrine === 'war') {
+    const wall = state.tiles.filter((t) => t.owner === 'enemy' && t.wall && t.revealed).sort((a, b) => distance(a, state.tileAt[home]) - distance(b, state.tileAt[home]))[0];
+    if (wall) { wall.wall = false; logEvent(state, 'player', `${head} ${tileName(state, wall)}의 성벽이 무너졌다.`, null, { kind: 'streak', tile: wall.id, doctrine }); }
+    else { e.faith = Math.max(0, e.faith - 2); logEvent(state, 'player', `${head} 율법파가 두려워 떤다 (율법파 신앙 -2).`, null, { kind: 'streak', tile: home, doctrine }); }
+  } else if (doctrine === 'abundance') {
+    p.food += 4;
+    logEvent(state, 'player', `${head} 곳간이 넘친다. 식량 +4.`, null, { kind: 'streak', tile: home, doctrine, gain: { food: 4 } });
+  } else if (doctrine === 'wisdom') {
+    const mine = ownedTiles(state, 'player');
+    for (const t of state.tiles) if (mine.some((m) => distance(m, t) <= 2)) t.revealed = true;
+    logEvent(state, 'player', `${head} 안개가 걷혔다.`, null, { kind: 'streak', tile: home, doctrine });
+    discoverSites(state);
+  }
+  checkVictory(state, false);
+}
+
+// 금욕 서원: 할 수 있었던 공격·선교를 금했고 끝까지 하지 않았으면 은총. 공격을 금하면 율법파가 그 틈을 노린다
+export function keepVows(state, forbidden, plan) {
+  const types = [...new Set(forbidden.map((a) => a.type).filter((t) => t === 'attack' || t === 'preach'))];
+  if (!types.length) return false;
+  if (types.includes('attack')) state.vowNext = 'attack';
+  if (plan.some((a) => types.includes(a.type))) return false;
+  state.stats.vows = (state.stats.vows ?? 0) + 1;
+  grantGrace(state, 1, `${types.map((t) => (t === 'attack' ? '칼' : '설교')).join('과 ')}을 거두는 서원을 지켰다`);
+  return true;
 }

@@ -4,10 +4,10 @@ import {
   recordRevelation, castMiracle, actionLimit, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
   faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent, josa, batchim,
   grantGrace, petitionAnswered, nameTile, applyTone, sealProphecy, takeMiracle, resolveSite,
-  scoreBreakdown, miracleCost, doomReady, nextEvent,
+  scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND,
 } from './engine.js';
 import {
-  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
+  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
 } from './data.js';
 import { renderBoard, tileToHost, markerToScreen } from './board.js';
 import { installArt } from './art.js';
@@ -345,6 +345,7 @@ async function newRound() {
   const judge = state.judgement !== 'classic' ? ` · 심판의 기준 「${JUDGEMENTS[state.judgement].name}」` : '';
   fx.chapter(frameEl(), `제 ${state.round} 장`, state.round === 1 ? `${state.event.name}${judge}` : state.event.name);
   if (state.round === 1 && state.leader) setTimeout(() => leaderSay(leaderLine(state, 'intro')), fx.motion.reduced ? 300 : 2400);
+  else if (state.reacted && REACT[state.reacted]) setTimeout(() => leaderSay(REACT[state.reacted].line), fx.motion.reduced ? 300 : 2400);
   if (tutorial) {
     const round = state.round;
     // 장 제목이 걷힌 뒤에 말을 건다. 그새 계시를 내렸다면(제단이 잠겼다면) 이번 장 설명은 건너뛴다
@@ -472,6 +473,7 @@ async function accept() {
   applyTone(state, text ? pending.tone : null);
   if (pending.seal && pending.prophecy) sealProphecy(state, pending.prophecy);
   resolveRound(state, [...accepted, ...auto], enemyPlan);
+  if (!state.winner && text) keepVows(state, result.forbidden, [...accepted, ...auto]);
   if (!state.winner) wordsAfter(pending);
   // 교리는 해결이 끝난 뒤에 오른다: 확인 화면에 보인 수치 그대로 해결되도록
   if (text) recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0);
@@ -787,6 +789,7 @@ async function playback(before) {
   if (resolved.verdict && state.history.at(-1)) state.history.at(-1).verdict = resolved.verdict.grade;
   render();
   playLedger();
+  if (phase !== 'over') revealPerk(before);
   if (resolved.verdict) setTimeout(() => (resolved.verdict.grade === 'miss' ? sfx.fail() : sfx.seal?.()), 200);
   if (pendingLesson) { const l = pendingLesson; pendingLesson = null; setTimeout(() => priestSay(`깨달았나이다. 신께서 '${l.word}'${batchim(l.word) ? '이라' : '라'} 하시면 ${josa(describeLesson(l), '을', '를')} 뜻하시는군요.`), 900); }
   if (state.pendingSite && phase !== 'over') await showSiteChoice();
@@ -800,6 +803,25 @@ async function playback(before) {
     await fx.wait(700);
     finishGame();
   } else checkOnboard();
+}
+
+// 교리 특전 해금: 새로 넘은 칸(2·4·6), 또는 8장에 깨어난 궁극 — 장당 하나
+function revealPerk(before) {
+  const b = before.sides.player.doctrine;
+  const d = state.sides.player.doctrine;
+  for (const k of DOCTRINES) {
+    for (const lv of [6, 4, 2]) {
+      if (b[k] < lv && d[k] >= lv) {
+        const early = lv === 6 && state.round < ULT_ROUND;
+        setTimeout(() => fx.perkReveal(frameEl(), { title: `${DOCTRINE[k].name} ${lv}칸 · ${early ? '잠든 궁극' : lv === 6 ? '궁극' : '특전 해금'}`, text: early ? `${ULT_ROUND}장에 깨어난다 — ${DOCTRINE[k].perks[lv].replace(/^궁극\(8장부터\) — /, '')}` : DOCTRINE[k].perks[lv].replace(/^궁극\(8장부터\) — /, ''), icon: `d-${k}` }), 900);
+        return;
+      }
+    }
+  }
+  if (state.round === ULT_ROUND - 1) {
+    const k = DOCTRINES.find((x) => d[x] >= DOCTRINE_MAX);
+    if (k) setTimeout(() => fx.perkReveal(frameEl(), { title: `${DOCTRINE[k].name} · 궁극이 깨어난다`, text: `다음 장부터 — ${DOCTRINE[k].perks[6].replace(/^궁극\(8장부터\) — /, '')}`, icon: `d-${k}` }), 900);
+  }
 }
 
 // ---------- 장 결산: 이번 장에 무엇이 늘고 줄었나 ----------
@@ -852,7 +874,7 @@ function bannerFor(log, seen) {
     gain: [isPray ? 'i-temple' : `i-${res}`, isPray ? '기도' : '채집'],
     treasure: ['i-faith', '보물 발견'], explore: ['e-prophet', '탐험'], build: ['i-house', '건설'], cathedral: ['i-temple', '대성당'],
     preach: ['d-peace', '선교'], attack: ['d-war', '공격'], blocked: ['i-shield', '선점당함'], fail: ['i-shield', '헛걸음'],
-    birth: ['i-house', '새 생명'], loss: ['i-shield', '잃음'], warn: ['i-faith', '신앙의 흔들림'], ban: ['s-tablet', '검열'], grace: ['i-faith', '은총'], prophecy: ['i-faith', '예언 성취'], bless: ['i-faith', '기적'], wrath: ['d-war', '신의 분노'], site: ['e-prophet', '발견'], lightning: ['m-lightning', '번개'], rain: ['m-rain', '단비'], bounty: ['m-bounty', '풍요'],
+    birth: ['i-house', '새 생명'], loss: ['i-shield', '잃음'], warn: ['i-faith', '신앙의 흔들림'], ban: ['s-tablet', '검열'], grace: ['i-faith', '은총'], prophecy: ['i-faith', '예언 성취'], bless: ['i-faith', '기적'], wrath: ['d-war', '신의 분노'], streak: ['i-faith', '말씀이 이어졌다'], site: ['e-prophet', '발견'], lightning: ['m-lightning', '번개'], rain: ['m-rain', '단비'], bounty: ['m-bounty', '풍요'],
   }[e.kind];
   if (!map) return null;
   const [icon, verb] = map;
@@ -933,6 +955,12 @@ async function playFx(log) {
       }
       return fx.wait(600);
     }
+    case 'streak':
+      sfx.holy();
+      fx.flash('rgba(255,236,170,.45)', 700);
+      if (tile) { fx.ring(svg, tile, '#ffe28a', true); fx.sparks(tileToHost(svg, null, tile), 40, ['#fff6d0', '#ffd98a', '#ffffff']); }
+      if (e.gain && home) await gainTo(home);
+      return fx.wait(900);
     case 'wrath':
       sfx.thunder?.();
       fx.flash('rgba(160,30,20,.35)', 600);
@@ -1227,7 +1255,8 @@ function matHTML(cur, side) {
       const next = Object.entries(info.perks).find(([lv]) => d[k] < Number(lv));
       const got = Object.entries(info.perks).filter(([lv]) => d[k] >= Number(lv)).map(([, t]) => t);
       const perk = got.length ? `<b>✓ ${esc(got.join(', '))}</b>${next ? ` · ${next[0]}칸: ${esc(next[1])}` : ''}` : next ? `${next[0]}칸: ${esc(next[1])}` : '';
-      return `<div class="dtrack"><span class="medal">${svgUse(`d-${k}`)}</span><div class="row"><span class="nm">${info.name}</span>${gems}</div><div class="perk-text">${perk}</div></div>`;
+      const streak = cur.streak?.doctrine === k ? `<span class="streak" title="같은 교리 세 장 연속이면 기적">${'●'.repeat(cur.streak.n)}${'○'.repeat(3 - cur.streak.n)}</span>` : '';
+      return `<div class="dtrack"><span class="medal">${svgUse(`d-${k}`)}</span><div class="row"><span class="nm">${info.name}</span>${gems}${streak}</div><div class="perk-text">${perk}</div></div>`;
     }).join('')}</div>`;
   }
   return `
@@ -1300,7 +1329,7 @@ function renderAltar() {
       ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${esc(a.text)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${firstNote(a.tile)}</span>`),
       ...auto.map((a) => `<span class="order auto">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why" style="background:rgba(124,89,27,.12)">알아서</span></span>`),
       ...rejected.map((r) => `<span class="order bad"><span class="t">${short(r.action)}</span><span class="why">${esc(r.reason)}</span></span>`),
-      ...result.forbidden.map((a) => `<span class="order forbid">⊘ <span class="t">${short(a)}</span><span class="why" style="background:rgba(40,20,10,.12)">금지</span></span>`),
+      ...result.forbidden.map((a) => `<span class="order forbid">⊘ <span class="t">${short(a)}</span><span class="why" style="background:rgba(40,20,10,.12)">${['attack', 'preach'].includes(a.type) ? '서원 · 지키면 은총' : '금지'}</span></span>`),
     ].join('');
     const legal = legalActions(state, 'player');
     const hint = result.doctrine === 'war' && !legal.some((a) => a.type === 'attack')
@@ -1311,6 +1340,10 @@ function renderAltar() {
     if (text && pending.tone !== 'command') tags.push(`<span class="wtag tone-${pending.tone}" title="${esc(TONES[pending.tone].text)}">${TONES[pending.tone].name}의 말투 · ${esc(TONES[pending.tone].text)}</span>`);
     if (pending.answered) tags.push(`<span class="wtag ok">${esc(state.petition.from)}의 청원에 답함 · 은총</span>`);
     if (pending.naming) tags.push(`<span class="wtag name">이름 · ${esc(pending.naming.name)}</span>`);
+    const opp = result.doctrine && state.config.veteran ? OPPOSED[result.doctrine] : null;
+    if (opp && state.sides.player.doctrine[opp] > [6, 4, 2, 0].find((f) => state.sides.player.doctrine[opp] >= f)) tags.push(`<span class="wtag tone-curse">${DOCTRINE[opp].name} -1</span>`);
+    const st = state.streak;
+    if (result.doctrine && st?.doctrine === result.doctrine && st.n === 2) tags.push(`<span class="wtag ok">${DOCTRINE[result.doctrine].name} 세 장째 — 말씀이 이어지면 기적</span>`);
     const seal = pending.prophecy ? `<label class="seal-prophecy"><input type="checkbox" class="prophecy-box" ${pending.seal ? 'checked' : ''}>
       예언으로 봉인 — “${esc(PROPHECY.kinds[pending.prophecy.kind].name)}” ${pending.prophecy.rounds}장 안에 이루어지면 신앙 +${PROPHECY.reward[pending.prophecy.rounds]}, 빗나가면 -${PROPHECY.penalty}</label>` : '';
     const priest = source === 'silence' ? '' : `${esc(PRIESTS[state.priest]?.name ?? '대사제')}`;

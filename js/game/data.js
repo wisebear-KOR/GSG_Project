@@ -107,6 +107,17 @@ export const FIRST_HAND = ['lightning', 'rain', 'bounty'];
 // 신의 분노가 가득 차면 손에 들어오는 숨은 기적 (드래프트에 나오지 않는다)
 export const DOOM = { id: 'doom', name: '심판의 날', cost: 0, hidden: true, text: '율법파의 탑이 흔들리고(수도 -1) 한 사람이 쓰러진다. 분노가 가라앉는다.' };
 
+// 교리 대립: 한쪽이 오르면 반대쪽이 한 칸 흔들린다 (이미 얻은 특전 칸 아래로는 내려가지 않는다)
+export const OPPOSED = { peace: 'war', war: 'peace', abundance: 'wisdom', wisdom: 'abundance' };
+// 율법파가 지난 장의 말씀을 듣고 고르는 율법 카드
+export const REACT = {
+  war:       { cards: ['L4', 'L3'], line: '전쟁을 말하더니… 성벽부터 쌓아라.' },
+  peace:     { cards: ['L7'], line: '사랑을 말한다고? 우리에게도 가르칠 것이 있다.' },
+  abundance: { cards: ['L2', 'L9'], line: '곳간을 자랑하더니. 우리도 거두고 넓히리라.' },
+  wisdom:    { cards: ['L6'], line: '신을 부르는 소리가 크구나. 율법을 더 높이 쌓아라.' },
+  vow:       { cards: ['L5'], line: '칼을 거두었다고? 그 틈을 친다.' },
+};
+
 // 심판의 기준: 마지막 장의 승점 공식 (두 번째 판부터 판마다 하나). 합계가 기본과 비슷하도록 맞췄다
 export const JUDGEMENTS = {
   classic:   { name: '기본', text: '신도 2 · 마을 3 · 신전 2 · 수도 1', w: { pop: 2, village: 3, temple: 2, hp: 1 } },
