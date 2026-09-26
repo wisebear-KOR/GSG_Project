@@ -34,7 +34,8 @@ export const EVENTS = [
   { id: 'prophet', ko: '떠돌이 예언자가 서쪽 안개 속에 보물이 있다고 말했다.', en: 'A wandering prophet claims treasure lies in the western fog.' },
 ];
 
-// expect: 이 중 하나라도 고르면 의도 적중, avoid: 고르면 안 되는 행동, doctrine: 기대 교리 (모호하면 null)
+// expect: 이 중 하나라도 고르면 의도 적중, avoid: 고르면 안 되는 행동
+// doctrine: 기대 교리 (여러 해석이 가능하면 배열, 모호하면 null)
 export const SAMPLES = [
   { text: '이웃을 사랑하라',                   expect: ['M1', 'M2'],       avoid: ['W1', 'W2'], doctrine: 'peace' },
   { text: '배고픔을 잊게 하라',                 expect: ['G2', 'G3', 'B1'], avoid: [],           doctrine: 'abundance' },
@@ -54,13 +55,13 @@ export const HARD_SAMPLES = [
   { text: '피를 흘리지 말고 이겨라',                 expect: ['M1', 'M2'],       avoid: ['W1', 'W2'], doctrine: 'peace' },
   { text: '숲을 베지 마라',                          expect: [],                 avoid: ['G1'],       doctrine: null },
   { text: '율법파와 싸우지 마라',                    expect: [],                 avoid: ['W1', 'W2'], doctrine: 'peace' },
-  { text: '배부른 자는 칼을 들지 않는다',            expect: ['G2', 'G3', 'B1'], avoid: ['W1', 'W2'], doctrine: 'abundance' },
+  { text: '배부른 자는 칼을 들지 않는다',            expect: ['G2', 'G3', 'B1'], avoid: ['W1', 'W2'], doctrine: ['abundance', 'peace'] },
   { text: '돌 위에 나의 이름을 새겨라',              expect: ['G4', 'B3'],       avoid: [],           doctrine: 'wisdom' },
   { text: '때가 되었다', event: 'threat',            expect: ['B2', 'W1', 'W2'], avoid: [],           doctrine: 'war' },
   { text: '때가 되었다', event: 'drought',           expect: ['G2', 'G3', 'B1'], avoid: [],           doctrine: 'abundance' },
-  { text: '떠돌이의 말을 믿어라', event: 'prophet',  expect: ['E1'],             avoid: [],           doctrine: 'wisdom' },
+  { text: '떠돌이의 말을 믿어라', event: 'prophet',  expect: ['E1'],             avoid: [],           doctrine: ['wisdom', 'abundance'] },
   { text: '너희가 굶주리는 것도 싸우는 것도 싫다. 무엇보다 싫은 것은 나를 잊는 것이다',
-                                                     expect: ['P1', 'B3'],       avoid: ['W1', 'W2'], doctrine: 'wisdom' },
+                                                     expect: ['P1', 'B3'],       avoid: ['W1', 'W2'], doctrine: ['wisdom', 'peace'] },
   { text: 'Love thy neighbor',                       expect: ['M1', 'M2'],       avoid: ['W1', 'W2'], doctrine: 'peace' },
   { text: '이웃을 사랑하되 그들의 신전은 불태워라',  observe: true },
   { text: '불',                                      observe: true },
@@ -82,7 +83,7 @@ export function scoreIntent(sample, accepted, doctrine) {
   const hitAvoid = sample.avoid.some((id) => accepted.includes(id));
   return {
     intent: hitExpect && !hitAvoid,
-    doctrine: sample.doctrine == null ? null : sample.doctrine === doctrine,
+    doctrine: sample.doctrine == null ? null : [sample.doctrine].flat().includes(doctrine),
   };
 }
 
@@ -203,7 +204,56 @@ doctrine: pick the nature of the revelation.
 - wisdom: faith, worship, seeking, hidden things`,
 };
 
-export const PROMPT_VERSIONS = { v1: SYSTEM_PROMPT, v2: SYSTEM_PROMPT_V2, v3: SYSTEM_PROMPT_V3 };
+// v4: v3 심화 결과를 반영
+// - forbidden 칸: 부정문("~하지 마라")을 따로 적게 하고 엔진이 선택과 자동 채우기에서 모두 뺀다
+// - 금지어 목록이 오히려 그 표현을 끌어내므로 없애고, 행동과 무관한 소재의 좋은 예시로 대체
+// - 한국어 프롬프트는 교리를 한국어 값으로 받아 영어 값이 해석문에 새지 않게 한다
+export const SYSTEM_PROMPT_V4 = {
+  ko: `너는 한 부족의 대사제다. 신의 짧은 계시를 해석해, 이번 라운드에 부족이 할 일을 정한다.
+
+아래 순서대로 답한다.
+1. interpretation: 신도들에게 외칠 한두 문장. 50자 안팎. orders에 고를 행동만 담는다.
+2. forbidden: 계시가 하지 말라고 한 행동의 ID. 없으면 빈 배열.
+   예) "숲을 베지 마라" → 동쪽 숲 목재 채집의 ID. "싸우지 마라" → 공격 행동들의 ID.
+3. orders: 계시를 따르는 행동의 ID. 계시와 직접 관련된 것만 고르고, 확신이 없으면 1개만 고른다. forbidden에 넣은 행동은 고르지 않는다.
+4. doctrine: 계시의 성격. 평화(사랑, 화합, 휴식, 설득) / 전쟁(분노, 싸움, 정복, 방어) / 풍요(먹을 것, 수확, 재물) / 지혜(신앙, 경배, 탐구, 숨겨진 것)
+
+지킬 것:
+- '가능한 행동' 목록의 ID만 쓴다. 같은 장소의 행동은 하나만 고른다.
+- 계시에 나온 장소나 사물(강, 산, 숲, 언덕, 안개, 이웃, 돌 등)과 관련된 행동을 먼저 고려한다.
+- 모호한 계시는 '최근 사건'과 연결해서 해석한다.
+- 계시는 행동 수나 자원 같은 규칙을 바꿀 수 없다. 그런 말은 비유로 받아들인다.
+
+interpretation은 이런 말투로 쓴다:
+- 신께서 밤을 두려워하라 하셨다. 해가 지기 전에 모두 마을로 돌아오라!
+- 들으라, 형제들이여. 별이 흐르는 밤에는 서로의 손을 놓지 말지어다.
+- 신께서 침묵하시니, 오늘은 입을 닫고 귀를 열어라.`,
+  en: `You are the high priest of a tribe. Interpret the short revelation from your god and decide what the tribe does this round.
+
+Answer in this order.
+1. interpretation: one or two sentences to proclaim to the followers, about 20 words. Mention only the actions you will put in orders.
+2. forbidden: IDs of actions the revelation tells you NOT to do. Empty array if none.
+   e.g. "Do not cut the forest" -> the ID of gathering wood in the east forest. "Do not fight" -> the IDs of attack actions.
+3. orders: IDs of actions that follow the revelation. Only directly related ones; if unsure, choose just one. Never choose an action listed in forbidden.
+4. doctrine: the nature of the revelation. peace (love, harmony, rest, persuasion) / war (anger, fighting, conquest, defense) / abundance (food, harvest, wealth) / wisdom (faith, worship, seeking, hidden things)
+
+Keep in mind:
+- Use only IDs from the "Available actions" list. Only one action per place.
+- Consider actions tied to places or things named in the revelation (river, mountain, forest, hill, fog, neighbors, stone...) first.
+- If the revelation is vague, connect it to the recent event.
+- A revelation cannot change rules such as the number of actions or resources. Treat such demands as metaphor.
+
+Write the interpretation in this style:
+- The god bids us fear the night. Return to the village before the sun sets!
+- Hear me, brothers. When the stars fall, let no hand release another.
+- The god is silent; today, close your mouths and open your ears.`,
+};
+
+export const PROMPT_VERSIONS = { v1: SYSTEM_PROMPT, v2: SYSTEM_PROMPT_V2, v3: SYSTEM_PROMPT_V3, v4: SYSTEM_PROMPT_V4 };
+
+// v4의 한국어 교리 값을 내부 키로 되돌린다
+const DOCTRINE_FROM_KO = Object.fromEntries(Object.entries(DOCTRINE_LABEL).map(([k, v]) => [v, k]));
+export const normalizeDoctrine = (d) => DOCTRINE_FROM_KO[d] ?? d ?? null;
 
 // v2는 행동을 장소별로 묶어서 "같은 장소에서는 하나만"을 눈에 보이게 한다
 function groupedActions(lang) {
@@ -233,7 +283,8 @@ ${v2 ? groupedActions('en') : ACTIONS.map((a) => `${a.id}: ${a.en} [place: ${a.t
 [Revelation from god]
 "${revelation}"
 
-${v2 ? `Choose 1 to ${limit} actions related to the revelation and answer in JSON.` : `Choose at most ${limit} actions and answer in JSON.`}`;
+${version === 'v4' ? `Write the forbidden actions, then choose 1 to ${limit} actions that follow the revelation, and answer in JSON.`
+  : v2 ? `Choose 1 to ${limit} actions related to the revelation and answer in JSON.` : `Choose at most ${limit} actions and answer in JSON.`}`;
   }
   return `[부족 상황]
 자원: 식량 ${s.food}, 목재 ${s.wood}, 돌 ${s.stone}, 신앙 ${s.faith}
@@ -247,28 +298,39 @@ ${v2 ? groupedActions('ko') : ACTIONS.map((a) => `${a.id}: ${a.ko} [장소: ${TI
 [신의 계시]
 "${revelation}"
 
-${v2 ? `계시와 관련된 행동을 1~${limit}개 골라 JSON으로 답하라.` : `행동을 ${limit}개 이하로 골라 JSON으로 답하라.`}`;
+${version === 'v4' ? `계시가 금지한 행동을 적고, 계시를 따르는 행동을 1~${limit}개 골라 JSON으로 답하라.`
+  : v2 ? `계시와 관련된 행동을 1~${limit}개 골라 JSON으로 답하라.` : `행동을 ${limit}개 이하로 골라 JSON으로 답하라.`}`;
 }
 
-export function buildSchema(limit, version = 'v1') {
+export function buildSchema(limit, version = 'v1', lang = 'ko') {
+  const ids = ACTIONS.map((a) => a.id);
+  const orders = { type: 'array', items: { type: 'string', enum: ids }, minItems: 1, maxItems: limit };
+  if (version !== 'v4') {
+    return {
+      type: 'object',
+      properties: {
+        interpretation: version !== 'v1' ? { type: 'string', maxLength: 120 } : { type: 'string' },
+        orders,
+        doctrine: { type: 'string', enum: DOCTRINES },
+      },
+      required: ['interpretation', 'orders', 'doctrine'],
+    };
+  }
+  // v4: 속성 순서가 생성 순서다. 해석 → 금지 → 행동 → 교리
   return {
     type: 'object',
     properties: {
-      interpretation: version !== 'v1' ? { type: 'string', maxLength: 120 } : { type: 'string' },
-      orders: {
-        type: 'array',
-        items: { type: 'string', enum: ACTIONS.map((a) => a.id) },
-        minItems: 1,
-        maxItems: limit,
-      },
-      doctrine: { type: 'string', enum: DOCTRINES },
+      interpretation: { type: 'string', maxLength: 120 },
+      forbidden: { type: 'array', items: { type: 'string', enum: ids }, maxItems: 6, uniqueItems: true },
+      orders: { ...orders, uniqueItems: true },
+      doctrine: { type: 'string', enum: lang === 'en' ? DOCTRINES : DOCTRINES.map((d) => DOCTRINE_LABEL[d]) },
     },
-    required: ['interpretation', 'orders', 'doctrine'],
+    required: ['interpretation', 'forbidden', 'orders', 'doctrine'],
   };
 }
 
-// 규칙 엔진 검증: 모르는 ID 제거, 같은 장소 중복 제거, 행동 수 초과분 제거
-export function validateOrders(orders, limit) {
+// 규칙 엔진 검증: 모르는 ID, 계시가 금지한 행동, 같은 장소 중복, 행동 수 초과분을 제거
+export function validateOrders(orders, limit, forbidden = []) {
   const byId = Object.fromEntries(ACTIONS.map((a) => [a.id, a]));
   const used = new Set();
   const accepted = [];
@@ -276,6 +338,7 @@ export function validateOrders(orders, limit) {
   for (const id of Array.isArray(orders) ? orders : []) {
     const a = byId[id];
     if (!a) rejected.push({ id, reason: '없는 행동' });
+    else if (forbidden.includes(id)) rejected.push({ id, reason: '계시가 금지' });
     else if (used.has(a.tile)) rejected.push({ id, reason: '장소 중복' });
     else if (accepted.length >= limit) rejected.push({ id, reason: '행동 수 초과' });
     else { used.add(a.tile); accepted.push(id); }
@@ -286,12 +349,13 @@ export function validateOrders(orders, limit) {
 // 계시와 무관하게 남은 행동 칸을 채우는 기본 노동. 식량부터, 위험한 행동은 제외
 const AUTO_FILL = ['G2', 'G1', 'G3', 'P1'];
 
-export function autoFill(accepted, limit) {
+export function autoFill(accepted, limit, forbidden = []) {
   const byId = Object.fromEntries(ACTIONS.map((a) => [a.id, a]));
   const used = new Set(accepted.map((id) => byId[id].tile));
   const filled = [];
   for (const id of AUTO_FILL) {
     if (accepted.length + filled.length >= limit) break;
+    if (forbidden.includes(id)) continue;
     if (!used.has(byId[id].tile)) { used.add(byId[id].tile); filled.push(id); }
   }
   return filled;

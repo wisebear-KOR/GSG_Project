@@ -105,7 +105,8 @@
         <select id="version">
           <option value="v1">v1 (처음 버전)</option>
           <option value="v2">v2 (개선판)</option>
-          <option value="v3" selected>v3 (심화 대응)</option>
+          <option value="v3">v3 (심화 대응)</option>
+          <option value="v4" selected>v4 (금지 행동 분리)</option>
         </select>
       </div>
       <div>
@@ -166,7 +167,7 @@
 import { hasLanguageModel, availability, createBaseSession, promptJSON } from '../js/llm.js';
 import {
   ACTIONS, EVENTS, SAMPLE_SETS, PROMPT_VERSIONS, DOCTRINE_LABEL,
-  buildUserPrompt, buildSchema, validateOrders, autoFill, findSample, scoreIntent, mockInterpret,
+  buildUserPrompt, buildSchema, validateOrders, autoFill, findSample, scoreIntent, normalizeDoctrine, mockInterpret,
 } from './scenario.js';
 
 const $ = (id) => document.getElementById(id);
@@ -285,28 +286,38 @@ async function interpret(job, signal) {
   const version = $('version').value;
   const sample = findSample(revelation, eventId);
   let out;
+  let retried = false;
   if ($('mock').checked) {
     out = await mockInterpret(revelation, limit);
   } else {
-    const s = await (await ensureBase()).clone({ signal });
-    try {
-      out = await promptJSON(
-        s, buildUserPrompt({ lang, revelation, limit, eventId, version }), buildSchema(limit, version), signal,
-      );
-    } finally {
-      s.destroy();
+    const userPrompt = buildUserPrompt({ lang, revelation, limit, eventId, version });
+    const schema = buildSchema(limit, version, lang);
+    // 모델이 가끔 UnknownError로 실패하므로 한 번 다시 시도한다
+    for (let attempt = 0; ; attempt++) {
+      const s = await (await ensureBase()).clone({ signal });
+      try {
+        out = await promptJSON(s, userPrompt, schema, signal);
+        break;
+      } catch (e) {
+        if (e.name === 'AbortError' || attempt >= 1) throw e;
+        retried = true;
+      } finally {
+        s.destroy();
+      }
     }
   }
-  const check = validateOrders(out.data?.orders, limit);
-  const doctrine = out.data?.doctrine ?? null;
+  const forbidden = out.data?.forbidden ?? [];
+  const check = validateOrders(out.data?.orders, limit, forbidden);
+  const doctrine = normalizeDoctrine(out.data?.doctrine);
   return {
-    revelation, lang, limit, eventId, version, set, observe: !!sample?.observe, mock: $('mock').checked,
+    revelation, lang, limit, eventId, version, set, observe: !!sample?.observe, mock: $('mock').checked, retried,
     interpretation: out.data?.interpretation ?? '',
+    forbidden,
     orders: out.data?.orders ?? [],
     doctrine,
     accepted: check.accepted,
     rejected: check.rejected,
-    autoFilled: $('autofill').checked ? autoFill(check.accepted, limit) : [],
+    autoFilled: $('autofill').checked ? autoFill(check.accepted, limit, forbidden) : [],
     score: scoreIntent(sample, check.accepted, doctrine),
     error: out.error,
     ms: Math.round(out.ms),
@@ -439,6 +450,7 @@ function renderCard(r, index) {
       r.mock ? el('span', { className: 'tag warn', textContent: '모의' }) : '',
       el('span', { className: 'tag', textContent: r.version ?? 'v1' }),
       r.observe ? el('span', { className: 'tag warn', textContent: '관찰' }) : '',
+      r.retried ? el('span', { className: 'tag warn', textContent: '재시도' }) : '',
       r.score ? el('span', { className: `tag ${r.score.intent ? 'ok' : 'bad'}`, textContent: r.score.intent ? '의도 ✓' : '의도 ✗' }) : '',
       r.doctrine ? el('span', {
         className: `tag ${r.score?.doctrine === false ? 'bad' : ''}`,
@@ -453,6 +465,9 @@ function renderCard(r, index) {
     card.append(el('ul', {},
       ...r.accepted.map((id) => el('li', { textContent: actionText(id, r.lang) })),
       ...(r.autoFilled ?? []).map((id) => el('li', { className: 'muted', textContent: `${actionText(id, r.lang)} (자동)` }))));
+    if (r.forbidden?.length) {
+      card.append(el('p', { className: 'muted', textContent: `금지: ${r.forbidden.map((id) => actionText(id, r.lang)).join(', ')}` }));
+    }
     if (r.rejected.length) {
       card.append(el('p', { className: 'warn', textContent:
         `엔진이 거부: ${r.rejected.map((x) => `${x.id}(${x.reason})`).join(', ')}` }));
