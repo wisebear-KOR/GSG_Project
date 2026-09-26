@@ -287,6 +287,7 @@ export const sfx = {
     thud(t, { dest: S(), freq: 90, end: 38, gain: 0.8, dur: 0.7, send: 0.5 });
     noise({ dest: S(), t, dur: 0.5, gain: 0.25, freq: 600, sweep: 120, q: 0.6, send: 0.4 });
   },
+  heartbeat: () => { if (!ready()) return; const t = now(); thud(t, { dest: S(), freq: 70, end: 40, gain: 0.55, dur: 0.22, send: 0.05 }); thud(t + 0.26, { dest: S(), freq: 62, end: 38, gain: 0.4, dur: 0.22, send: 0.05 }); },
   shield: () => { if (!ready()) return; const t = now(); thud(t, { dest: S(), freq: 200, end: 90, gain: 0.4, dur: 0.25 }); clack(t, { dest: S(), gain: 0.25, freq: 800 }); },
   fail: () => { if (!ready()) return; const t = now(); pluck(NOTE(57), t, { dest: S(), gain: 0.12, dur: 0.6, bright: 900 }); pluck(NOTE(56), t + 0.14, { dest: S(), gain: 0.1, dur: 0.9, bright: 700 }); },
   build: () => { if (!ready()) return; const t = now(); [0, 0.16, 0.32].forEach((d) => { clack(t + d, { dest: S(), gain: 0.28, freq: 900 }); thud(t + d, { dest: S(), freq: 160, end: 90, gain: 0.2, dur: 0.12 }); }); bell(NOTE(84), t + 0.5, { dest: S(), gain: 0.06, dur: 1.5 }); },

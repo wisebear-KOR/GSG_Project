@@ -1022,3 +1022,33 @@ body.cb .own-line.own-enemy { stroke-dasharray: 2 4; stroke-linecap: round; }
 .cost-pill.reject { background: #8a2a1c !important; color: #fff; }
 @keyframes rejectShake { 20% { transform: translateX(-6px) rotate(-3deg); } 40% { transform: translateX(6px) rotate(3deg); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
 :focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px; }
+
+/* ---------- 4차 웨이브 B: 최소 모바일 (가로 스크롤 없이) ---------- */
+@media (max-width: 720px) {
+  html, body { overflow-x: hidden; }
+  .app, .table { max-width: 100vw; box-sizing: border-box; }
+  .topbar { flex-wrap: wrap; row-gap: 6px; }
+  .tools { flex-wrap: wrap; justify-content: flex-end; gap: 4px; max-width: 100%; }
+  .tools .chip { height: 32px; padding: 0 8px; }
+  .track { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .table { grid-template-columns: minmax(0, 1fr) !important; }
+  .mat, .board-area, .side-col, .board-frame { min-width: 0; max-width: 100%; }
+  .altar-inner { grid-template-columns: minmax(0, 1fr) !important; }
+  .hand { justify-content: center; }
+}
+
+/* ---------- 4차 웨이브 B: 국경선·위기 ---------- */
+.border { fill: none; stroke-width: 3.2; stroke-linecap: round; pointer-events: none; }
+.border.b-player { stroke: var(--player-hi); filter: drop-shadow(0 0 3px rgba(156, 192, 255, .8)); }
+.border.b-enemy { stroke: var(--enemy-hi); filter: drop-shadow(0 0 3px rgba(255, 159, 142, .8)); }
+.border.ink { stroke-dasharray: 1; stroke-dashoffset: 1; animation: inkIn .7s cubic-bezier(.6, 0, .3, 1) forwards; }
+@keyframes inkIn { to { stroke-dashoffset: 0; } }
+body.reduce-motion .border.ink { animation: none; stroke-dashoffset: 0; }
+body.cb .border.b-enemy { stroke-dasharray: 5 4; }
+body.cb .border.b-enemy.ink { stroke-dasharray: 1; }
+.own-line { opacity: .35; }
+body.faith-crisis .vignette { box-shadow: inset 0 0 160px 40px rgba(150, 20, 10, .55); animation: crisisPulse 2.4s ease-in-out infinite; }
+@keyframes crisisPulse { 50% { box-shadow: inset 0 0 200px 60px rgba(170, 25, 12, .7); } }
+body.reduce-motion.faith-crisis .vignette { animation: none; }
+#board { touch-action: manipulation; -webkit-touch-callout: none; user-select: none; }
+body.faith-crisis .vignette { background: radial-gradient(ellipse at center, transparent 50%, rgba(150, 20, 10, .5) 100%) !important; }

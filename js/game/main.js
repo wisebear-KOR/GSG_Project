@@ -11,7 +11,7 @@ import {
 import {
   DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
 } from './data.js';
-import { renderBoard, tileToHost, markerToScreen } from './board.js';
+import { renderBoard, tileToHost, markerToScreen, tileCenter } from './board.js';
 import { installArt } from './art.js';
 import { Tutorial } from './tutorial.js';
 import * as meta from './meta.js';
@@ -335,7 +335,30 @@ function bindTileTips() {
     const y = Math.min(e.clientY + 18, innerHeight - tip.offsetHeight - 8);
     tip.style.left = `${x}px`; tip.style.top = `${y}px`;
   });
-  board.addEventListener('pointerleave', () => tip.classList.remove('show'));
+  board.addEventListener('pointerleave', (e) => { if (e.pointerType !== 'touch') tip.classList.remove('show'); });
+  // 터치: 길게 누르면 칸 설명, 다음 탭에 닫힌다 (짧은 탭은 그대로 칸 누르기)
+  let press = null;
+  let swallow = false;
+  board.addEventListener('pointerdown', (e) => {
+    if (e.pointerType !== 'touch') return;
+    const g = e.target.closest?.('.tile');
+    if (!g) return;
+    const x0 = e.clientX; const y0 = e.clientY;
+    press = setTimeout(() => {
+      const cur = V();
+      tip.innerHTML = tileTipHTML(cur, cur.tileAt[g.dataset.id]);
+      tip.classList.add('show');
+      tip.style.left = `${Math.max(8, Math.min(x0 - tip.offsetWidth / 2, innerWidth - tip.offsetWidth - 8))}px`;
+      tip.style.top = `${Math.max(8, y0 - tip.offsetHeight - 24)}px`;
+      swallow = true;
+    }, 450);
+    const cancel = (ev) => { if (!ev || Math.hypot(ev.clientX - x0, ev.clientY - y0) > 8) { clearTimeout(press); press = null; } };
+    board.addEventListener('pointermove', cancel, { once: true });
+    board.addEventListener('pointerup', () => clearTimeout(press), { once: true });
+  });
+  board.addEventListener('click', (e) => { if (swallow) { swallow = false; e.stopPropagation(); e.preventDefault(); } }, true);
+  addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch' && !e.target.closest?.('#board')) tip.classList.remove('show'); });
+  board.addEventListener('contextmenu', (e) => e.preventDefault());
 }
 
 function tileTipHTML(cur, t) {
@@ -1175,13 +1198,23 @@ function playLedger() {
   setTimeout(() => { if (l.score > 0) sfx.chime(); }, 160 + l.rows.length * 130);
 }
 
+// 우리 수도에서 본 8방위
+function directionOf(tileId) {
+  const home = capitalOf(state, 'player');
+  const t = state.tileAt[tileId];
+  if (!home || !t) return '먼 ';
+  const a = tileCenter(home); const b = tileCenter(t);
+  const deg = (Math.atan2(a.y - b.y, b.x - a.x) * 180) / Math.PI;
+  return ['동', '북동', '북', '북서', '서', '남서', '남', '남동'][((Math.round(deg / 45) % 8) + 8) % 8];
+}
+
 // 해결 단계마다 보드 위에 띄우는 띠
 function bannerFor(log, seen) {
   const e = log.fx;
   if (!e) return null;
   if (log.side !== 'player' && log.side !== 'enemy') return null;
   const who = log.side === 'player' ? '우리 신도' : '율법파';
-  if (e.tile && !seen) return { side: log.side, icon: 's-tablet', title: `${who} · 안개 속의 움직임`, detail: '무엇을 했는지 보이지 않는다' };
+  if (e.tile && !seen) return { side: log.side, icon: 's-tablet', title: `${who} · ${directionOf(e.tile)}쪽 안개 속의 움직임`, detail: '무엇을 했는지 보이지 않는다' };
   const res = e.gain ? Object.keys(e.gain)[0] : null;
   const isPray = e.kind === 'gain' && res === 'faith' && log.fx.tile && view?.tileAt[log.fx.tile]?.building === 'capital';
   const map = {
@@ -1275,7 +1308,7 @@ async function playFx(log) {
         sfx.preach();
         fx.sparks(tileToHost(svg, null, tile), e.convert ? 40 : 18, ['#ffffff', '#cfe3ff', '#ffe9a8']);
         fx.floatText(svg, tile, e.convert ? '마을이 넘어왔다!' : '+1 신도', mine ? 'good' : 'bad');
-        if (e.convert) { fx.ring(svg, tile, mine ? '#9cc0ff' : '#ff9f8e', true); sfx.holy(); }
+        if (e.convert) { fx.ring(svg, tile, mine ? '#9cc0ff' : '#ff9f8e', true); sfx.holy(); sfx.page(); }
       }
       return fx.wait(600);
     }
@@ -1504,8 +1537,14 @@ function awayCount(side) {
   return 0;
 }
 
+let inCrisis = false;
 function renderMats() {
   const cur = matView ?? V();
+  // 신앙 위기(바닥난 채로 한 장을 버팀): 화면 가장자리가 붉게, 들어설 때 심장이 두 번 뛴다
+  const crisis = !state.tutorial && state.sides.player.faithless > 0 && !state.winner;
+  document.body.classList.toggle('faith-crisis', crisis);
+  if (crisis && !inCrisis && !fx.motion.reduced) sfx.heartbeat();
+  inCrisis = crisis;
   $('matPlayer').innerHTML = matHTML(cur, 'player');
   $('matEnemy').innerHTML = matHTML(cur, 'enemy');
   const x = $('matPlayer').querySelector('.task-x');

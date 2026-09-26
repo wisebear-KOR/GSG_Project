@@ -57,6 +57,32 @@ function frame(svg, WIDTH, HEIGHT) {
 }
 
 // markers: [{ tile, side, label, dim, drop, delay }]
+// ---------- 국경선: 소유가 다른 이웃과 맞닿은 변만 긋는다 (안개 너머는 주인 없음으로 본다) ----------
+// 꼭짓점 i는 60i-30°. 변 k(꼭짓점 k→k+1)의 이웃: 동, 남동, 남서, 서, 북서, 북동
+const EDGE_DIRS = {
+  even: [[0, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0]],
+  odd: [[0, 1], [1, 1], [1, 0], [0, -1], [-1, 0], [-1, 1]],
+};
+const vertex = (c, i, r = R) => { const a = (Math.PI / 180) * (60 * i - 30); return { x: c.x + r * Math.cos(a), y: c.y + r * Math.sin(a) }; };
+export function borderEdges(state) {
+  const ROWS = 'ABCDEFGHI';
+  const at = (r, c) => state.tileAt?.[`${ROWS[r]}${c + 1}`];
+  const out = [];
+  for (const t of state.tiles) {
+    if (!t.owner || !t.revealed) continue;
+    const c = center(t);
+    (t.r % 2 ? EDGE_DIRS.odd : EDGE_DIRS.even).forEach(([dr, dc], k) => {
+      const n = at(t.r + dr, t.c + dc);
+      const other = n && n.revealed ? n.owner : null;
+      if (other === t.owner) return;
+      const a = vertex(c, k, R - 2); const b = vertex(c, (k + 1) % 6, R - 2);
+      out.push({ key: `${t.id}:${k}`, owner: t.owner, x1: a.x, y1: a.y, x2: b.x, y2: b.y });
+    });
+  }
+  return out;
+}
+const lastEdges = new WeakMap();
+
 const INTENT_ICON = { attack: 'd-war', preach: 'd-peace', build: 'i-house', gather: 'i-food', pray: 'i-temple' };
 
 export function renderBoard(svg, state, { markers = [], highlight = [], hints = [], intents = [], onTileClick, selectable = [], focus = null } = {}) {
@@ -118,6 +144,21 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
     tiles.append(g);
   }
   svg.append(tiles);
+
+  // 국경선: 새로 생긴 변은 잉크처럼 번진다
+  const edges = borderEdges(state);
+  const prev = lastEdges.get(svg);
+  const now = new Map(edges.map((e) => [e.key, e.owner]));
+  const borders = el('g', { class: 'borders' });
+  for (const owner of ['player', 'enemy']) {
+    const old = edges.filter((e) => e.owner === owner && (!prev || prev.get(e.key) === owner));
+    const fresh = edges.filter((e) => e.owner === owner && prev && prev.get(e.key) !== owner);
+    const d = (list) => list.map((e) => `M${e.x1.toFixed(1)},${e.y1.toFixed(1)}L${e.x2.toFixed(1)},${e.y2.toFixed(1)}`).join('');
+    if (old.length) borders.append(el('path', { d: d(old), class: `border b-${owner}` }));
+    for (const e of fresh) borders.append(el('path', { d: d([e]), class: `border b-${owner} ink`, pathLength: 1 }));
+  }
+  lastEdges.set(svg, now);
+  svg.append(borders);
 
   const pieces = el('g', { class: 'pieces' });
   for (const m of markers) {
