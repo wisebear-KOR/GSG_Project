@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -29,7 +30,7 @@
       <button class="chip icon-only" id="sound" type="button" title="소리"></button>
       <button class="chip icon-only" id="motion" type="button" title="연출"></button>
       <button class="chip" id="openChron" type="button">📜<span class="label"> 연대기</span></button>
-      <a class="chip icon-only" href="../index.html" title="처음으로">⌂</a>
+      <button class="chip icon-only" id="home" type="button" title="메인 화면 (Esc)">⌂</button>
     </div>
   </header>
 
@@ -57,6 +58,33 @@
   <div class="chron" id="chronBody"></div>
 </aside>
 <div id="stage" aria-hidden="true"></div>
+
+<!-- 메인 화면: 시작 버튼을 누르는 순간 오디오를 열고 제1장으로 들어간다 -->
+<section class="main-screen" id="mainScreen" aria-label="메인 화면">
+  <div class="ms-inner">
+    <svg class="ms-sigil" aria-hidden="true"><use href="#sigil"/></svg>
+    <h1 class="ms-title">계시록</h1>
+    <div class="ms-sub">말씀의 전쟁</div>
+    <div class="ms-rule"></div>
+    <p class="ms-lede">너는 <b>말로만 세상을 움직이는 신</b>이다. 계시를 내리면 대사제가 그 뜻을 헤아려 신도들을 움직인다.
+      신 없이 율법대로만 사는 이웃과 겨루어, 열두 장 안에 너의 말씀을 세상에 새겨라.</p>
+    <ol class="ms-steps">
+      <li><span class="ms-step-ico"><svg viewBox="0 0 24 24"><use href="#i-faith"/></svg></span><b>계시를 쓴다</b><small>두루마리에 한 줄. 25자마다 신앙 1</small></li>
+      <li><span class="ms-step-ico"><svg viewBox="0 0 24 24"><use href="#d-wisdom"/></svg></span><b>대사제가 해석한다</b><small>뜻을 헤아려 신도를 보낸다. 가끔 어긋난다</small></li>
+      <li><span class="ms-step-ico"><svg viewBox="0 0 24 24"><use href="#s-tablet"/></svg></span><b>율법파와 겨룬다</b><small>동시에 공개, 주사위로 판정, 열두 장 안에</small></li>
+    </ol>
+    <button class="btn-primary ms-start" id="startGame" type="button">제1권 · 이웃의 불신자 시작 <kbd>Enter</kbd></button>
+    <div class="ms-status" id="msStatus"><span class="dot off"></span><span>대사제를 깨우는 중…</span></div>
+    <div class="ms-links">
+      <button class="chip" id="msSound" type="button"></button>
+      <button class="chip" id="msMotion" type="button"></button>
+      <a class="chip" href="../check.html">내장 AI 점검</a>
+      <a class="chip" href="../lab/interpret.html">해석기 실험실</a>
+      <a class="chip" href="https://github.com/wisebear-KOR/GSG_Project">GitHub</a>
+    </div>
+    <p class="ms-foot">데스크톱 Chrome의 내장 AI(Prompt API)로 동작하며, 쓸 수 없으면 석판(키워드) 해석기로 플레이한다 · MIT License</p>
+  </div>
+</section>
 
 <script type="module" src="../js/game/main.js"></script>
 </body>

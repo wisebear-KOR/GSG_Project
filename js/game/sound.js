@@ -9,8 +9,12 @@ export function setSound(on) {
   try { localStorage.setItem('gsg.sound', on ? 'on' : 'off'); } catch { /* 무시 */ }
 }
 
+// 브라우저는 사용자 입력(클릭·키) 뒤에만 오디오를 허락한다.
+// 입력 전에 AudioContext를 만들면 콘솔 경고가 나므로, 입력이 있기 전까지는 소리를 건너뛴다.
+let unlocked = false;
+
 function ac() {
-  if (!enabled) return null;
+  if (!enabled || !unlocked) return null;
   if (!ctx) {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
@@ -22,8 +26,13 @@ function ac() {
   if (ctx.state === 'suspended') ctx.resume();
   return ctx;
 }
-// 브라우저는 사용자 입력 뒤에만 소리를 허락한다
-addEventListener('pointerdown', () => ac(), { once: true });
+
+// 사용자 입력 처리기 안에서 불러야 한다 (메인 화면의 시작 버튼 등)
+export function unlockAudio() {
+  unlocked = true;
+  ac();
+}
+for (const type of ['pointerdown', 'keydown']) addEventListener(type, unlockAudio, { once: true, capture: true });
 
 function tone(freq, { type = 'sine', dur = 0.3, gain = 0.25, at = 0, slide = null, attack = 0.005 } = {}) {
   const a = ac(); if (!a) return;

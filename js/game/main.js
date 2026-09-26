@@ -10,7 +10,7 @@ import { renderBoard, tileToHost } from './board.js';
 import { installArt } from './art.js';
 import { llmStatus, prepareLLM, interpretWithLLM, interpretWithTablet } from './interpreter.js';
 import * as fx from './fx.js';
-import { sfx, soundOn, setSound } from './sound.js';
+import { sfx, soundOn, setSound, unlockAudio } from './sound.js';
 
 installArt();
 const $ = (id) => document.getElementById(id);
@@ -50,10 +50,66 @@ async function init() {
   aiState = await llmStatus();
   aiUsable = ['available', 'readily-available', 'downloadable', 'downloading', 'after-download'].includes(aiState);
   aiMode = aiUsable && new URLSearchParams(location.search).get('ai') !== 'tablet' ? 'llm' : 'tablet';
-  newRound();
+  renderMainStatus();
+  // 메인 화면 뒤로 흐릿하게 비치도록 보드와 매트를 먼저 그린다
+  renderTools();
+  renderBoardView();
+  renderMats();
+  // ?play 이면 메인 화면을 건너뛴다 (시험용)
+  if (new URLSearchParams(location.search).has('play')) { $('mainScreen').hidden = true; newRound(); }
+}
+
+// ---------- 메인 화면 ----------
+const inProgress = () => state.round > 0 && !state.winner;
+
+function showMain() {
+  const ms = $('mainScreen');
+  ms.classList.remove('leaving');
+  ms.hidden = false;
+  $('startGame').innerHTML = inProgress()
+    ? `제 ${state.round} 장으로 돌아가기 <kbd>Enter</kbd>` : '제1권 · 이웃의 불신자 시작 <kbd>Enter</kbd>';
+  renderMainStatus();
+  $('startGame').focus({ preventScroll: true });
+}
+
+function renderMainStatus() {
+  const [cls, text] = aiMode === 'llm'
+    ? aiState === 'available' || aiState === 'readily-available'
+      ? ['', '대사제 준비됨 · Chrome 내장 AI가 계시를 해석한다']
+      : ['warn', '대사제 모델은 첫 계시 때 내려받는다 (수 GB)']
+    : ['off', aiUsable ? '석판 해석기로 플레이한다 (헤더에서 LLM으로 전환)' : '이 브라우저에는 내장 AI가 없어 석판(키워드) 해석기로 플레이한다'];
+  $('msStatus').innerHTML = `<span class="dot ${cls}"></span><span>${text}</span>`;
+  $('msSound').textContent = soundOn() ? '♫ 소리 켜짐' : '✕ 소리 꺼짐';
+  $('msMotion').textContent = fx.motion.reduced ? '✧ 연출 줄임' : '✦ 연출 화려하게';
+}
+
+function startFromMain() {
+  const ms = $('mainScreen');
+  if (ms.hidden || ms.classList.contains('leaving')) return;
+  // 사용자 입력 안에서 오디오를 연다 (이 전에는 AudioContext를 만들지 않는다)
+  unlockAudio();
+  sfx.holy();
+  ms.classList.add('leaving');
+  setTimeout(() => {
+    ms.hidden = true;
+    ms.classList.remove('leaving');
+    if (!inProgress()) { if (state.winner) restart(); else newRound(); }
+  }, fx.motion.reduced ? 150 : 850);
+}
+
+function bindMain() {
+  $('startGame').onclick = startFromMain;
+  $('msSound').onclick = () => { setSound(!soundOn()); renderMainStatus(); renderTools(); sfx.click(); };
+  $('msMotion').onclick = () => { fx.setReduced(!fx.motion.reduced); renderMainStatus(); renderTools(); sfx.click(); };
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !$('mainScreen').hidden) { e.preventDefault(); startFromMain(); }
+    if (e.key === 'Escape' && $('mainScreen').hidden && phase !== 'thinking' && phase !== 'playing') showMain();
+  });
 }
 
 function bindTools() {
+  bindMain();
+  $('home').onclick = () => { sfx.click(); showMain(); };
   $('ai').onclick = () => {
     if (!aiUsable || phase === 'thinking') return;
     aiMode = aiMode === 'llm' ? 'tablet' : 'llm';
