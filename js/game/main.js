@@ -4,7 +4,7 @@ import {
   recordRevelation, castMiracle, actionLimit, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
   faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent, josa, batchim,
   grantGrace, petitionAnswered, nameTile, applyTone, sealProphecy, takeMiracle, resolveSite,
-  scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND,
+  scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
 } from './engine.js';
 import {
   DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
@@ -50,6 +50,17 @@ let prevDoctrine = {};
 let focusId = null;         // 해결 재생 중 카메라가 비추는 칸
 let tutorial = null;        // 튜토리얼 진행 중이면 안내자
 let setup = loadSetup();    // 메인 화면에서 고른 새 게임 설정
+// 도전 링크: ?seed=&size=&diff=&target= (설정을 덮어쓰되 저장하지 않는다)
+const challenge = (() => {
+  const q = new URLSearchParams(location.search);
+  const seed = Number(q.get('seed'));
+  if (!(seed > 0)) return null;
+  const size = MAP_SIZES[Number(q.get('size'))] ? Number(q.get('size')) : 5;
+  const difficulty = DIFFICULTY[q.get('diff')] ? q.get('diff') : 'normal';
+  const target = Math.max(0, Number(q.get('target')) || 0);
+  return { seed: Math.min(999999, Math.floor(seed)), size, difficulty, target };
+})();
+if (challenge) setup = { ...setup, size: challenge.size, difficulty: challenge.difficulty, seed: challenge.seed };
 let loadedPhase = null;     // 저장에서 불러온 판이면 그 판의 단계 ('speak' | 'resolved')
 let hintTiles = [];         // 계시를 쓰는 동안 말씀이 닿을 것 같은 칸 (석판 해석 예감)
 let hintTimer = null;
@@ -117,7 +128,7 @@ function showMain() {
   } else {
     resume?.remove();
     $('startGame').className = 'btn-primary ms-start';
-    $('startGame').innerHTML = '새 게임 시작 <kbd>Enter</kbd>';
+    $('startGame').innerHTML = challenge ? `도전 시작 <small>${challenge.target ? `승점 ${challenge.target}을 넘어라` : `시드 ${challenge.seed}`}</small> <kbd>Enter</kbd>` : '새 게임 시작 <kbd>Enter</kbd>';
   }
   renderMainStatus();
   renderSetup();
@@ -160,7 +171,8 @@ function renderSetup() {
   renderBoard($('mapPreview'), preview, {});
   const st = {};
   for (const t of preview.tiles) st[t.terrain] = (st[t.terrain] ?? 0) + 1;
-  $('mapHint').textContent = `${setup.size}×${setup.size} · ${MAP_SIZES[setup.size].rounds}장 · 사막 ${st.desert ?? 0}칸 · 성지 ${st.hill ?? 0}칸`;
+  const best = meta.getBest(setup);
+  $('mapHint').textContent = `${setup.size}×${setup.size} · ${MAP_SIZES[setup.size].rounds}장 · 사막 ${st.desert ?? 0}칸 · 성지 ${st.hill ?? 0}칸${best != null ? ` · 이 맵 최고 ${best}` : ''}`;
 }
 
 function renderMainStatus() {
@@ -195,6 +207,7 @@ function startFromMain(mode = 'new') {
     const veteran = meta.getHistory().length > 0;
     if (mode === 'tutorial') beginGame({ mode: 'tutorial' });
     else if (mode === 'daily') beginGame({ ...meta.dailyConfig(), veteran: true });
+    else if (challenge && mode === 'new') beginGame({ ...setup, mode: 'standard', veteran: true, canon: null, challenge: { target: challenge.target } });
     else beginGame({ ...setup, mode: 'standard', veteran, canon: veteran ? meta.getCanon()[0] ?? null : null });
   }, fx.motion.reduced ? 150 : 850);
 }
@@ -229,6 +242,7 @@ function beginGame(config) {
 }
 
 function renderSubtitle() {
+  if (state.config.challenge) { $('subtitle').textContent = `도전 · ${state.rows}×${state.cols} ${DIFFICULTY[state.config.difficulty].name} · 시드 ${state.config.seed}${state.config.challenge.target ? ` · 승점 ${state.config.challenge.target}을 넘어라` : ''}`; return; }
   if (state.config.daily) { $('subtitle').textContent = `오늘의 계시 · ${state.config.daily}${state.leader ? ` · ${ENEMY_LEADERS[state.leader].name}` : ''}`; return; }
   $('subtitle').textContent = state.tutorial ? '튜토리얼 · 첫 계시'
     : `${state.rows}×${state.cols} · 율법파 ${DIFFICULTY[state.config.difficulty].name} · 시드 ${state.config.seed}${state.leader ? ` · ${ENEMY_LEADERS[state.leader].name}` : ''}${state.judgement !== 'classic' ? ` · 심판 「${JUDGEMENTS[state.judgement].name}」` : ''}`;
@@ -540,6 +554,8 @@ function finishGame() {
   meta.pushHistory(summary);
   const fresh = meta.unlockAchievements(evaluateAchievements(summary));
   if (state.config.daily) meta.recordDaily(state.config.daily, { winner: state.winner, score: summary.score, rounds: state.round });
+  const standard = !state.tutorial && !state.config.daily && !state.config.challenge && state.config.veteran;
+  summary.newBest = standard && state.winner === 'player' && meta.setBest(state.config, summary.score[0]);
   checkOnboard(true);
   showEnd(summary, fresh, had);
 }
@@ -547,7 +563,9 @@ function finishGame() {
 function showEnd(summary, fresh, had) {
   const won = state.winner === 'player';
   const title = state.winner === 'draw' ? '무승부' : won ? '승리' : '패배';
-  const sub = `${state.winReason.replace(/ — 승점.*/, '')} · 승점 ${summary.score[0]} : ${summary.score[1]}`;
+  const ch = state.config.challenge;
+  const chText = ch ? (ch.target ? (won && summary.score[0] > ch.target ? ` · 도전 성공 (${summary.score[0]} > ${ch.target})` : ` · 도전 실패 — ${summary.score[0]} : ${ch.target}`) : '') : '';
+  const sub = `${state.winReason.replace(/ — 승점.*/, '')} · 승점 ${summary.score[0]} : ${summary.score[1]}${chText}`;
   const ep = epilogue(state);
   const scene = decisiveScene(state);
   const luck = diceLuck(state);
@@ -565,6 +583,7 @@ function showEnd(summary, fresh, had) {
       ${ep.quote ? `<p class="ep-quote">${esc(ep.quote)}</p>` : ''}
       <div class="ep-epithet">이 신은 「${esc(ep.epithet)}」${hasBatchim(ep.epithet) ? '으로' : '로'} 기억되었다.</div>
       ${fresh.length ? `<div class="ep-ach">새 구절이 성서에 기록되었다 — ${fresh.map((id) => `「${esc(achName(id))}」`).join(' ')}</div>` : ''}
+      ${summary.newBest ? `<div class="ep-ach best">새 기록 — 이 맵(시드 ${state.config.seed})에서 승점 ${summary.score[0]}</div>` : ''}
     </div>
     <div class="end-page" data-page="record" hidden>
       ${graph}
@@ -581,6 +600,7 @@ function showEnd(summary, fresh, had) {
   const o = fx.endScreen(won, title, sub, restart, {
     bodyHTML: body,
     buttons: [
+      { label: '시편 복사', keep: true, onClick: () => copyPsalm(summary) },
       { label: '같은 맵 다시', cls: 'btn-primary', onClick: restart },
       { label: '새 맵', onClick: () => { setup.seed = randomSeed(); saveSetup(); beginGame({ ...setup, mode: 'standard', veteran: true, canon: meta.getCanon()[0] ?? null }); } },
       { label: '메인 화면', onClick: () => showMain() },
@@ -599,6 +619,35 @@ function showEnd(summary, fresh, had) {
     b.onclick = () => { meta.addCanon({ text: b.dataset.text, doctrine: b.dataset.doc }); sfx.seal(); host.querySelectorAll('.canon').forEach((x) => { x.textContent = meta.getCanon().some((c) => c.text === x.dataset.text) ? '봉헌됨' : '봉헌'; }); };
   });
   return o;
+}
+
+// 시편 카드: 결정적 장면의 계시·대사제의 외침·결과·도전 링크를 텍스트로 복사한다
+async function copyPsalm(summary) {
+  const scene = decisiveScene(state);
+  const round = scene?.round ?? state.revelations.at(-1)?.round;
+  const rev = state.revelations.find((r) => r.round === round)?.text;
+  const cry = state.log.find((l) => l.round === round && l.side === 'priest')?.text;
+  const url = `${location.origin}${location.pathname}?seed=${state.config.seed}&size=${state.rows}&diff=${state.config.difficulty}&target=${summary.score[0]}`;
+  const won = state.winner === 'player' ? '승리' : state.winner === 'draw' ? '무승부' : '패배';
+  const text = [
+    `「계시록: 말씀의 전쟁」${round ? ` 제 ${round} 장` : ''}`,
+    rev ? `신: “${rev}”` : null,
+    cry ? `대사제: “${cry}”` : null,
+    scene ? `→ ${scene.text}` : null,
+    `${won} (${state.winReason.replace(/ — 승점.*/, '')}) · 승점 ${summary.score[0]} : ${summary.score[1]} · ${state.rows}×${state.cols} ${DIFFICULTY[state.config.difficulty].name}`,
+    `이 신은 「${summary.epithet}」${batchim(summary.epithet) ? '으로' : '로'} 기억되었다.`,
+    `같은 맵에 도전하기: ${url}`,
+  ].filter(Boolean).join('\n');
+  let ok = false;
+  try { await navigator.clipboard.writeText(text); ok = true; } catch {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.append(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch { /* 무시 */ }
+    ta.remove();
+  }
+  const b = [...document.querySelectorAll('.end-actions button')].find((x) => x.textContent.startsWith('시편'));
+  if (b) { b.textContent = ok ? '복사했다' : '복사 실패'; setTimeout(() => { b.textContent = '시편 복사'; }, 1800); }
+  sfx.page();
 }
 
 // 장별 승점 곡선 (SVG)
@@ -645,8 +694,17 @@ function showLibrary() {
   const kinds = {};
   for (const g of hist) if (g.winner === 'player') kinds[g.kind] = (kinds[g.kind] ?? 0) + 1;
   const kindName = { conquest: '점령', faith: '개종', cathedral: '대성당', score: '승점' };
+  const byDiff = ['easy', 'normal', 'hard'].map((d) => {
+    const g = hist.filter((x) => x.difficulty === d);
+    return g.length ? `<span>${difficultyName(d)} <b>${g.filter((x) => x.winner === 'player').length}</b>/${g.length}</span>` : '';
+  }).join('');
+  const avgRounds = hist.length ? (hist.reduce((a, g) => a + g.rounds, 0) / hist.length).toFixed(1) : 0;
+  const best = hist.filter((g) => g.winner === 'player').sort((a, b) => b.score[0] - a.score[0])[0];
+  const maxKind = Math.max(1, ...Object.values(kinds));
+  const bars = Object.entries(kindName).map(([k, n]) => `<div class="kbar"><span>${n}</span><i style="width:${((kinds[k] ?? 0) / maxKind) * 100}%"></i><b>${kinds[k] ?? 0}</b></div>`).join('');
   const stats = `<div class="lib-stats"><span><b>${hist.length}</b>판</span><span><b>${wins}</b>승</span><span>승률 <b>${hist.length ? Math.round((wins / hist.length) * 100) : 0}%</b></span>
-    ${Object.entries(kinds).map(([k, v]) => `<span>${kindName[k] ?? k} <b>${v}</b></span>`).join('')}</div>`;
+    ${byDiff}<span>평균 <b>${avgRounds}</b>장</span>${best ? `<span>최고 승점 <b>${best.score[0]}</b></span>` : ''}</div>
+    ${wins ? `<div class="kbars">${bars}</div>` : ''}`;
   const rows = hist.map((g, i) => `<details class="lib-row"><summary><span class="lr-date">${esc(g.date.slice(5, 10).replace('-', '/'))}</span>
       <span class="lr-res ${g.winner === 'player' ? 'win' : 'lose'}">${g.winner === 'player' ? '승리' : g.winner === 'draw' ? '무승부' : '패배'}</span>
       <span class="lr-meta">${g.size}×${g.size} · ${esc(difficultyName(g.difficulty))}${g.daily ? ' · 오늘의 계시' : ''} · ${g.rounds}장 · ${g.score[0]}:${g.score[1]}</span>
@@ -773,6 +831,7 @@ async function playback(before) {
   resolved.incomingEnemy = false;
   await fx.wait(350);
   let lastHidden = false;
+  let combo = 0;
   for (const log of resolved.logs) {
     if (!log.snap) continue;
     matView = view;
@@ -791,6 +850,14 @@ async function playback(before) {
     const banner = repeatHidden ? null : bannerFor(log, seen);
     if (banner && !fx.motion.skip) { fx.actionBanner(frameEl(), banner); await fx.wait(420); }
     if (repeatHidden) await fx.wait(120); else await playFx(log);
+    // 연속 성공 콤보: 우리 성공이 이어질수록 음이 오른다
+    if (log.side === 'player' && log.fx) {
+      const good = log.dice ? log.dice.win : ['gain', 'build', 'treasure', 'grace', 'streak', 'birth', 'cathedral', 'prophecy'].includes(log.fx.kind);
+      const bad = log.dice ? !log.dice.win : ['fail', 'blocked', 'loss', 'warn'].includes(log.fx.kind);
+      if (good) combo += 1; else if (bad) combo = 0;
+      if (good && combo >= 2 && !fx.motion.skip) sfx.coin(Math.min(7, combo + 2));
+      if (good && combo >= 3 && !fx.motion.skip && !fx.motion.reduced && t) fx.floatText($('board'), t, `×${combo}`, 'gold', -40);
+    }
     if (state.leader && log.side === 'player' && log.fx?.capital) leaderSay(leaderLine(state, 'capitalLow'));
     else if (state.leader && log.side === 'player' && (log.fx?.capture || log.fx?.convert)) leaderSay(leaderLine(state, 'villageLost'));
     matView = null;
@@ -952,12 +1019,22 @@ async function playFx(log) {
       const mine = log.side === 'player';
       const isAttack = e.kind === 'attack';
       const [l, r] = mine ? ['우리 신도', '율법파'] : ['율법파', '우리 신도'];
+      const d = log.dice;
+      let w = 0;
+      for (let x = 1; x <= 6; x++) for (let y = 1; y <= 6; y++) if (x + d.attackerBonus > y + d.defenderBonus) w++;
+      const odds = w / 36;
       await fx.rollDice(frameEl(), log.dice, {
-        leftLabel: `${l} · ${isAttack ? '공격' : '설교'}`, rightLabel: `${r} · ${isAttack ? '방어' : '버팀'}`,
+        leftLabel: `${l} · ${isAttack ? '공격' : '설교'} (승률 ${Math.round(odds * 100)}%)`, rightLabel: `${r} · ${isAttack ? '방어' : '버팀'}`,
         leftSide: log.side, rightSide: other(log.side),
         winText: isAttack ? (e.capital ? '수도를 쳤다' : e.capture ? '점령' : '승리') : '개종',
         loseText: isAttack ? '격퇴당했다' : '외면당했다',
       });
+      // 30% 아래에서 이기면 기적
+      if (mine && log.dice.win && odds < 0.3 && !fx.motion.skip) {
+        sfx.holy();
+        fx.flash('rgba(255,236,170,.6)', 700);
+        fx.floatText(svg, tile, '기적!', 'good', -26);
+      }
       if (isAttack && log.dice.win) {
         sfx.hit();
         fx.shake(frameEl(), 10);
@@ -1200,6 +1277,12 @@ function renderLaw(cur) {
   $('law').querySelectorAll('.card').forEach((c) => fx.attachTilt(c, 8));
 }
 
+// 판정 승률 (저주 말투면 공격 +1을 미리 반영)
+function oddsTag(a) {
+  const p = actionOdds(state, a, { curse: pending?.tone === 'curse' });
+  return p == null ? '' : `<span class="why odds ${p >= 0.5 ? 'good' : 'low'}" title="주사위 두 개(각 1~6)에 보너스를 더해 공격 쪽이 커야 이긴다">${Math.round(p * 100)}%</span>`;
+}
+
 // 선공: 율법파가 노리는 칸에 먼저 가면 막는다 (율법파 선공이면 빼앗긴다)
 function firstNote(tile) {
   if (!enemyIntent(state).some((x) => x.shown && x.tile === tile)) return '';
@@ -1346,7 +1429,7 @@ function renderAltar() {
     const short = (a) => esc(a.text.replace(/ \(.*\)$/, ''));
     const links = pending.links ?? {};
     const chips = [
-      ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${esc(a.text)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${firstNote(a.tile)}</span>`),
+      ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${esc(a.text)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${oddsTag(a)}${firstNote(a.tile)}</span>`),
       ...auto.map((a) => `<span class="order auto">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why" style="background:rgba(124,89,27,.12)">알아서</span></span>`),
       ...[...pending.dropped].map((k) => result.orders.find((a) => a.key === k)).filter(Boolean).map((a) => `<span class="order dropped" data-key="${esc(a.key)}" title="눌러서 되살리기">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why">뺌</span></span>`),
       ...rejected.map((r) => `<span class="order bad"><span class="t">${short(r.action)}</span><span class="why">${esc(r.reason)}</span></span>`),

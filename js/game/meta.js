@@ -100,3 +100,15 @@ export function exportAll() {
 export function importAll(obj) {
   for (const [k, v] of Object.entries(obj)) if (k.startsWith('gsg.') && typeof v === 'string') { try { localStorage.setItem(k, v); } catch { /* 무시 */ } }
 }
+
+// ---------- 시드별 개인 최고 기록 (승리한 판의 승점) ----------
+export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}`;
+export const getBest = (c) => get('gsg.best', {})[bestKey(c)] ?? null;
+export function setBest(c, score) {
+  const all = get('gsg.best', {});
+  const k = bestKey(c);
+  if (all[k] != null && all[k] >= score) return false;
+  all[k] = score;
+  set('gsg.best', all);
+  return true;
+}

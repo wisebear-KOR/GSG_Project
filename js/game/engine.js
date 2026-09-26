@@ -180,6 +180,24 @@ export const faithIncome = (state, side) => {
   return RULES.baseFaithIncome + Math.floor(s.pop / RULES.followersPerFaith) + (s.templeLevel - 1);
 };
 
+// 선교·공격의 보너스와 승률 (확인 화면 표시용 — resolveAction과 같은 계산)
+export function actionOdds(state, a, { curse = false } = {}) {
+  const side = a.side ?? 'player';
+  const s = state.sides[side]; const f = state.sides[other(side)];
+  const t = state.tileAt[a.tile];
+  let atk = 0; let def = 0;
+  if (a.type === 'attack') {
+    atk = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0) + superiority(s, f) + (side === 'player' ? (state.roundMods.attackBonus ?? (curse ? 1 : 0)) + (state.roundMods.pillar ?? 0) : 0);
+    def = (t.wall ? 2 : 0) + (t.building === 'capital' ? 1 : 0) + superiority(f, s);
+  } else if (a.type === 'preach') {
+    atk = (s.doctrine.peace >= 2 ? 1 : 0) + (s.doctrine.peace >= 4 ? 1 : 0) + (side === 'player' ? state.roundMods.tongues ?? 0 : 0);
+    def = (t.building === 'capital' ? 1 : 0) + (t.wall ? 1 : 0);
+  } else return null;
+  let w = 0;
+  for (let x = 1; x <= 6; x++) for (let y = 1; y <= 6; y++) if (x + atk > y + def) w++;
+  return w / 36;
+}
+
 // 신도 수가 상대보다 3명 이상 많으면 선교·공격 주사위 +1
 const superiority = (s, f) => (s.pop >= f.pop + RULES.superiority ? 1 : 0);
 
