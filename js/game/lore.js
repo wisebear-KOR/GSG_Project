@@ -33,6 +33,13 @@ export function frequentNoun(revelations) {
   return best?.[0] ?? null;
 }
 
+// 성구 인용: 최근 세 장의 계시와 겹치는 명사 (봉인된 말은 인용이 아니다)
+const CITE_STOP = new Set(['신도', '말씀', '백성', '부족', '율법파', '율법', '마을', '우리', '너희']);
+export function citedWords(state, text) {
+  const past = new Set(state.revelations.filter((r) => r.round >= state.round - 3 && r.round < state.round).flatMap((r) => nouns(r.text)));
+  return [...new Set(nouns(text))].filter((w) => past.has(w) && !CITE_STOP.has(w) && !state.bannedWords?.includes(w));
+}
+
 // 말투: 저주 > 축복 > 비유 > 명령
 export function detectTone(text) {
   if (/저주|멸하|망하리|벌하리|재앙/.test(text)) return 'curse';

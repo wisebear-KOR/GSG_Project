@@ -107,6 +107,14 @@ export const FIRST_HAND = ['lightning', 'rain', 'bounty'];
 // 신의 분노가 가득 차면 손에 들어오는 숨은 기적 (드래프트에 나오지 않는다)
 export const DOOM = { id: 'doom', name: '심판의 날', cost: 0, hidden: true, text: '율법파의 탑이 흔들리고(수도 -1) 한 사람이 쓰러진다. 분노가 가라앉는다.' };
 
+// 교리가 깊어지면 대사제의 말투가 바뀐다 (최고 교리 3칸: 먹빛, 4칸: 프롬프트 한 줄)
+export const DOCTRINE_VOICE = {
+  war:       { prompt: '말투: 짧고 거칠게, 불과 칼의 비유로.', prefix: '불이 말하노니,' },
+  peace:     { prompt: '말투: 부드럽고 따뜻하게, 빛과 물의 비유로.', prefix: '빛이 속삭이노니,' },
+  abundance: { prompt: '말투: 넉넉하고 흥겹게, 곡식과 잔치의 비유로.', prefix: '곳간이 노래하노니,' },
+  wisdom:    { prompt: '말투: 수수께끼처럼, 별과 안개의 비유로.', prefix: '수수께끼로 이르노니,' },
+};
+
 // 교리 대립: 한쪽이 오르면 반대쪽이 한 칸 흔들린다 (이미 얻은 특전 칸 아래로는 내려가지 않는다)
 export const OPPOSED = { peace: 'war', war: 'peace', abundance: 'wisdom', wisdom: 'abundance' };
 // 율법파가 지난 장의 말씀을 듣고 고르는 율법 카드

@@ -7,7 +7,7 @@ import {
   PRIESTS, PETITIONERS, PROPHECY, FIRST_HAND, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT,
 } from './data.js';
 import { generateMap, placeSites } from './mapgen.js';
-import { frequentNoun, hashPick } from './lore.js';
+import { frequentNoun, hashPick, citedWords } from './lore.js';
 
 export const SIDES = ['player', 'enemy'];
 export const other = (side) => (side === 'player' ? 'enemy' : 'player');
@@ -73,7 +73,7 @@ export function createState(config = DEFAULT_CONFIG) {
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
     priest: 'loyal', names: {}, lessons: [], petition: null, petitionIgnored: 0, prophecy: null,
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
-    judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
+    judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, oddUsed: false, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
     miracleUsed: false, reinterpretUsed: false,
     log: [], revelations: [], history: [], winner: null, winReason: '',
   };
@@ -542,7 +542,8 @@ export function chooseEvent(state, id) {
 
 // 계시 비용: 기본(30자 이하 1, 넘으면 2) + 봉인된 말을 쓰면 +1
 export function revelationCostFor(state, text) {
-  const base = text.trim().length > 30 ? 2 : 1;
+  // 지난 계시를 인용하면 길어도 1 (성구 인용 사슬)
+  const base = text.trim().length > 30 && !citedWords(state, text).length ? 2 : 1;
   return base + (state.bannedWords.some((w) => text.includes(w)) ? 1 : 0);
 }
 
@@ -744,7 +745,7 @@ export function hydrateState(obj) {
   state.tileAt = Object.fromEntries(state.tiles.map((t) => [t.id, t]));
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
   state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.petitionIgnored ??= 0; state.prophecy ??= null;
-  state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null;
+  state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null; state.oddUsed ??= false;
   state.grace ??= { round: 0, used: 0 }; state.roundMods ??= {}; state.miracleHand ??= [...FIRST_HAND]; state.miracleOffer ??= null; state.pendingSite ??= null; state.stats ??= { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 };
   return state;
 }

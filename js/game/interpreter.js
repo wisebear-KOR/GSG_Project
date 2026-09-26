@@ -3,7 +3,7 @@
 // orders/forbidden은 엔진의 행동 객체 목록이다.
 
 import { hasLanguageModel, createBaseSession, promptJSON } from '../llm.js';
-import { DOCTRINES, DOCTRINE, PRIESTS, TERRAIN } from './data.js';
+import { DOCTRINES, DOCTRINE, PRIESTS, TERRAIN, DOCTRINE_VOICE } from './data.js';
 import { nouns } from './lore.js';
 import { legalActions, actionLimit, tileName, villageCount, enemyIntent, josa, nextEvent } from './engine.js';
 
@@ -59,7 +59,7 @@ export function buildPrompt(state, revelation) {
 자원: 식량 ${p.food}, 목재 ${p.wood}, 돌 ${p.stone}, 신앙 ${p.faith}
 신도: ${p.pop}명 (이번 라운드 행동 가능 ${limit}회), 신전 ${p.templeLevel}단계, 마을 ${villageCount(state, 'player')}개
 율법파: 신도 ${e.pop}명, 마을 ${villageCount(state, 'enemy')}개, 수도 내구도 ${e.capitalHp}${threat ? `\n율법파의 의도: ${threat}` : ''}
-지난 계시: ${recent}${lessonLine(state)}${state.config.canon ? `\n이 부족의 경전: "${state.config.canon.text}"` : ''}${PRIESTS[state.priest]?.prompt ? `\n${PRIESTS[state.priest].prompt}` : ''}
+지난 계시: ${recent}${lessonLine(state)}${voiceOf(state, 4) ? `\n${DOCTRINE_VOICE[voiceOf(state, 4)].prompt}` : ''}${state.config.canon ? `\n이 부족의 경전: "${state.config.canon.text}"` : ''}${PRIESTS[state.priest]?.prompt ? `\n${PRIESTS[state.priest].prompt}` : ''}
 
 [가능한 행동]
 ${lines.join('\n')}
@@ -93,6 +93,13 @@ function lessonLine(state) {
   return `\n대사제가 깨달은 신의 말버릇: ${state.lessons.map((l) => `'${l.word}'=${lessonName(l)}`).join(', ')}`;
 }
 export const describeLesson = lessonName;
+
+// 가장 깊은 교리가 min칸 이상이면 그 교리 (사제의 말투)
+export function voiceOf(state, min = 3) {
+  const d = state.sides.player.doctrine;
+  const top = DOCTRINES.reduce((b, k) => (d[k] > d[b] ? k : b), 'wisdom');
+  return d[top] >= min ? top : null;
+}
 
 // 해석문 다듬기 (플레이테스트에서 34건 중 10건이 어색한 "도다"로 끝났다)
 // - 다른 문자(벵골 문자, 한자 등) 제거
@@ -217,7 +224,7 @@ export function interpretWithTablet(state, revelation) {
   const verbs = orders.map((a) => a.text.replace(/ \(.*\)$/, '')).join(', 그리고 ');
   return {
     interpretation: orders.length
-      ? `석판에 새겨진 말씀이도다. ${verbs}!`
+      ? `${voiceOf(state) ? DOCTRINE_VOICE[voiceOf(state)].prefix : '석판에 새겨진 말씀이도다.'} ${verbs}!`
       : '석판의 말씀이 흐릿하도다. 각자 할 일을 하라.',
     orders: orders.filter((a) => !forbidden.some((f) => f.key === a.key)),
     forbidden,

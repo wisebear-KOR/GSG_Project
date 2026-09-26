@@ -907,3 +907,18 @@ body.reduce-motion .site-mark { animation: none; }
 .pk-text { font: 16px/1.5 var(--font-body); }
 .perk-card.out { opacity: 0; transition: opacity .5s; }
 @keyframes perkFlip { from { transform: rotateY(90deg) scale(.7); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ---------- 2차 웨이브 C ---------- */
+.order[data-key] { cursor: pointer; }
+.order.dropped { opacity: .55; text-decoration: line-through; border-style: dashed; }
+.order.dropped .why { background: rgba(40, 20, 10, .12); }
+.rev-line u.lw.cite { background: none; border-bottom: 2px dotted #7a5bd0; font-weight: 600; }
+.cost-pill.cite { background: rgba(122, 91, 208, .25); }
+.quote.voice-war { color: #7a1f12; } .quote.voice-peace { color: #1f4f73; } .quote.voice-abundance { color: #5a4a0e; } .quote.voice-wisdom { color: #3a2a6e; font-style: italic; }
+.v-odd .v-stamp { color: #6a3fb0; }
+.suggest-row { display: none; flex-wrap: wrap; gap: 6px; align-items: center; margin: -2px 0 8px; }
+.suggest-row.show { display: flex; animation: fadeIn .5s ease both; }
+.sg-label { font: 11.5px var(--font-ui); color: var(--ink-faint); }
+.sg-chip { padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(124, 89, 27, .45); background: rgba(255, 250, 235, .6); font: 13px var(--font-body); color: var(--ink); cursor: pointer; }
+.sg-chip:hover { background: rgba(244, 196, 74, .3); }
+.sg-off { border: 0; background: none; color: var(--ink-faint); cursor: pointer; font-size: 12px; }

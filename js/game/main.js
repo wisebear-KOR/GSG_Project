@@ -13,11 +13,11 @@ import { renderBoard, tileToHost, markerToScreen } from './board.js';
 import { installArt } from './art.js';
 import { Tutorial } from './tutorial.js';
 import * as meta from './meta.js';
-import { leaderLine, nouns, detectTone, parseNaming, parseProphecy } from './lore.js';
+import { leaderLine, nouns, detectTone, parseNaming, parseProphecy, citedWords } from './lore.js';
 import {
   summarizeGame, epilogue, topRevelations, decisiveScene, diceLuck, evaluateAchievements, closestAchievement, ACHIEVEMENTS, difficultyName, doctrineName,
 } from './chronicle.js';
-import { llmStatus, prepareLLM, interpretWithLLM, interpretWithTablet, linkWords, extractLesson, describeLesson } from './interpreter.js';
+import { llmStatus, prepareLLM, interpretWithLLM, interpretWithTablet, linkWords, extractLesson, describeLesson, voiceOf } from './interpreter.js';
 import * as fx from './fx.js';
 import { sfx, soundOn, setSound, musicOn, setMusic, music, unlockAudio } from './sound.js';
 
@@ -407,15 +407,29 @@ async function interpret(text, job = runInterpretation(text), naming = pending?.
   const done = await job;
   const result = done.result;
   notice = done.notice ?? '';
-  const forbiddenKeys = result.forbidden.map((a) => a.key);
-  const { accepted, rejected } = validateOrders(state, 'player', result.orders, forbiddenKeys, result.doctrine);
-  const auto = autoFill(state, 'player', accepted, forbiddenKeys);
   pending = {
-    text, result, accepted, rejected, auto, fresh: true, naming,
-    tone: detectTone(text), links: linkWords(state, text, accepted), answered: petitionAnswered(state, text, accepted),
+    text, result, fresh: true, naming, dropped: new Set(),
+    tone: detectTone(text), cited: citedWords(state, text),
     prophecy: state.prophecy ? null : parseProphecy(text), seal: false,
   };
+  derivePending();
   await enterConfirm();
+}
+
+// 확인 화면의 파생값: 뺀 칩을 제외하고 다시 검증하고, 연결·청원·기이한 해석을 다시 계산한다
+function derivePending() {
+  const { text, result } = pending;
+  const forbiddenKeys = result.forbidden.map((a) => a.key);
+  const orders = result.orders.filter((a) => !pending.dropped.has(a.key));
+  const { accepted, rejected } = validateOrders(state, 'player', orders, forbiddenKeys, result.doctrine);
+  pending.accepted = accepted;
+  pending.rejected = rejected;
+  pending.auto = autoFill(state, 'player', accepted, forbiddenKeys);
+  pending.links = text ? linkWords(state, text, accepted) : {};
+  pending.answered = text ? petitionAnswered(state, text, accepted) : false;
+  // 기이한 해석: LLM이 계시의 어떤 낱말과도 잇지 못하는 행동을 골랐고, 석판과도 겹치지 않을 때 (판당 한 번)
+  pending.odd = !state.oddUsed && result.source === 'llm' && accepted.length > 0 && !Object.keys(pending.links).length
+    && !interpretWithTablet(state, text).orders.some((o) => accepted.some((a) => a.key === o.key));
 }
 
 async function enterConfirm() {
@@ -446,7 +460,7 @@ function silence() {
   pending = {
     text: null,
     result: { interpretation: '신께서 침묵하셨다. 신도들은 각자 일터로 향한다.', orders: [], forbidden: [], doctrine: null, source: 'silence' },
-    accepted: [], rejected: [], auto, fresh: true,
+    accepted: [], rejected: [], auto, fresh: true, dropped: new Set(), cited: [], links: {},
   };
   enterConfirm();
 }
@@ -494,6 +508,12 @@ async function accept() {
 
 // 해결 뒤: 청원 응답·이름 붙이기의 은총, 외면당한 청원 (로그에 남아 재생된다)
 function wordsAfter(pd) {
+  if (pd.odd && !state.oddUsed) {
+    state.oddUsed = true;
+    const said = nouns(pd.text)[0] ?? pd.text.slice(0, 8);
+    const heard = pd.accepted[0]?.text.replace(/ \(.*\)$/, '') ?? '다른 일';
+    grantGrace(state, 1, `신께서 '${said}'${batchim(said) ? '이라' : '라'} 하셨으나 사제는 '${heard}'로 들었다 — 기이한 해석`);
+  }
   const pt = state.petition;
   if (pt?.need) {
     if (pd.answered) { state.stats.petitions += 1; state.petitionIgnored = 0; grantGrace(state, 1, `${pt.from}의 청원에 응답했다`); }
@@ -714,13 +734,13 @@ function verdictOf(pd, logs) {
     if (good) { ok += 1; best ??= mine.find((l) => l.dice?.win) ?? mine[0]; }
   }
   const rate = ok / pd.accepted.length;
-  const grade = rate >= 0.7 ? 'full' : rate >= 0.3 ? 'half' : 'miss';
+  const grade = pd.odd ? 'odd' : rate >= 0.7 ? 'full' : rate >= 0.3 ? 'half' : 'miss';
   const word = Object.values(pd.links ?? {})[0] ?? pd.text.slice(0, 12);
   const deed = best ? best.text.replace(/^(신도들이|신도들의|우리 신도의)\s*/, '').replace(/\.$/, '') : '';
   const ira = `'${word}'${hasBatchim(word) ? '이라' : '라'}`;
   const text = grade === 'miss' ? `신께서 ${ira} 하셨으나, 말씀은 아직 이루어지지 않았다.`
     : `신께서 ${ira} 하셨고, ${deed}.`;
-  return { grade, text, stamp: { full: '성취', half: '반쯤', miss: '빗나감' }[grade] };
+  return { grade, text: grade === 'odd' ? `신께서 ${ira} 하셨으나 사제는 다르게 들었다. 그래도 ${deed || '무언가 이루어졌다'}.` : text, stamp: { full: '성취', half: '반쯤', miss: '빗나감', odd: '기이' }[grade] };
 }
 
 // ---------- 해결 재생 ----------
@@ -1301,7 +1321,7 @@ function renderAltar() {
     const petition = pt ? `<div class="petition" title="${pt.need ? '이 청원에 답하는 계시를 내리면 은총(신앙 +1)' : ''}"><b>${esc(pt.from)}</b>“${esc(pt.text)}”${pt.need ? '<span>답하면 은총 +1</span>' : ''}</div>` : '';
     const prophecyNote = state.prophecy ? `<div class="petition prophecy"><b>봉인된 예언</b>“${esc(PROPHECY.kinds[state.prophecy.kind].name)}” — ${state.prophecy.due - state.round + 1}장 남음</div>` : '';
     scroll = `<div class="scroll">
-      ${petition}${prophecyNote}
+      ${petition}${prophecyNote}<div class="suggest-row" id="suggestRow"></div>
       <div class="scroll-head"><h3>신의 말씀</h3>${ban}<small>제 ${state.round} 장 · 신도 행동 ${actionLimit(state, 'player')}회</small></div>
       <textarea maxlength="${REVELATION_MAX}" rows="2" placeholder="강물이 너희를 먹이리라…" aria-label="계시">${esc(draft)}</textarea>
       <div class="ink-meta"><span class="count">${draft.length} / ${REVELATION_MAX}</span>
@@ -1328,6 +1348,7 @@ function renderAltar() {
     const chips = [
       ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${esc(a.text)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${firstNote(a.tile)}</span>`),
       ...auto.map((a) => `<span class="order auto">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why" style="background:rgba(124,89,27,.12)">알아서</span></span>`),
+      ...[...pending.dropped].map((k) => result.orders.find((a) => a.key === k)).filter(Boolean).map((a) => `<span class="order dropped" data-key="${esc(a.key)}" title="눌러서 되살리기">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why">뺌</span></span>`),
       ...rejected.map((r) => `<span class="order bad"><span class="t">${short(r.action)}</span><span class="why">${esc(r.reason)}</span></span>`),
       ...result.forbidden.map((a) => `<span class="order forbid">⊘ <span class="t">${short(a)}</span><span class="why" style="background:rgba(40,20,10,.12)">${['attack', 'preach'].includes(a.type) ? '서원 · 지키면 은총' : '금지'}</span></span>`),
     ].join('');
@@ -1340,6 +1361,8 @@ function renderAltar() {
     if (text && pending.tone !== 'command') tags.push(`<span class="wtag tone-${pending.tone}" title="${esc(TONES[pending.tone].text)}">${TONES[pending.tone].name}의 말투 · ${esc(TONES[pending.tone].text)}</span>`);
     if (pending.answered) tags.push(`<span class="wtag ok">${esc(state.petition.from)}의 청원에 답함 · 은총</span>`);
     if (pending.naming) tags.push(`<span class="wtag name">이름 · ${esc(pending.naming.name)}</span>`);
+    if (pending.odd) tags.push('<span class="wtag tone-metaphor">기이한 해석 · 은총</span>');
+    if (pending.cited?.length) tags.push(`<span class="wtag">인용 · ${pending.cited.map((w) => `'${esc(w)}'`).join(' ')}</span>`);
     const opp = result.doctrine && state.config.veteran ? OPPOSED[result.doctrine] : null;
     if (opp && state.sides.player.doctrine[opp] > [6, 4, 2, 0].find((f) => state.sides.player.doctrine[opp] >= f)) tags.push(`<span class="wtag tone-curse">${DOCTRINE[opp].name} -1</span>`);
     const st = state.streak;
@@ -1349,9 +1372,9 @@ function renderAltar() {
     const priest = source === 'silence' ? '' : `${esc(PRIESTS[state.priest]?.name ?? '대사제')}`;
     scroll = `<div class="scroll">
       <div class="scroll-head"><h3>대사제의 해석</h3><small>${priest ? `${priest} · ` : ''}${src}${result.ms ? ` · ${(result.ms / 1000).toFixed(1)}초` : ''}${doc}</small></div>
-      ${text ? `<div class="rev-line">“${markWords(text, Object.values(links))}”</div>` : ''}
+      ${text ? `<div class="rev-line">“${markWords(text, Object.values(links), pending.cited)}”</div>` : ''}
       ${tags.length ? `<div class="wtags">${tags.join('')}</div>` : ''}
-      <div class="quote">${fresh ? '' : esc(result.interpretation)}</div>
+      <div class="quote${voiceOf(state) ? ` voice-${voiceOf(state)}` : ''}">${fresh ? '' : esc(result.interpretation)}</div>
       <div class="orders">${chips}</div>${seal}
       ${hint ? `<div class="hint">⚠ ${hint}</div>` : ''}${noticeHTML}</div>`;
     act = `<div class="act">
@@ -1375,6 +1398,7 @@ function renderAltar() {
   }
 
   altar.innerHTML = `${hand}<div class="scroll-wrap">${scroll}</div>${act}`;
+  scheduleSuggest();
   const kind = phase === 'resolved' || phase === 'over' ? 'playing' : phase;
   altar.classList.toggle('phase-in', kind !== lastAltarPhase);
   lastAltarPhase = kind;
@@ -1398,8 +1422,8 @@ function renderAltar() {
 }
 
 // 계시 원문에서 행동을 부른 낱말에 밑줄
-function markWords(text, words) {
-  const list = [...new Set(words)].filter(Boolean).sort((a, b) => b.length - a.length);
+function markWords(text, words, cited = []) {
+  const list = [...new Set([...words, ...cited])].filter(Boolean).sort((a, b) => b.length - a.length);
   if (!list.length) return esc(text);
   const re = new RegExp(list.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g');
   const done = new Set();
@@ -1407,7 +1431,8 @@ function markWords(text, words) {
   let last = 0;
   for (const m of text.matchAll(re)) {
     out += esc(text.slice(last, m.index));
-    out += done.has(m[0]) ? esc(m[0]) : `<u class="lw" data-w="${esc(m[0])}">${esc(m[0])}</u>`;
+    const cls = words.includes(m[0]) ? 'lw' : 'lw cite';
+    out += done.has(m[0]) ? esc(m[0]) : `<u class="${cls}" data-w="${esc(m[0])}">${esc(m[0])}</u>`;
     done.add(m[0]);
     last = m.index + m[0].length;
   }
@@ -1445,6 +1470,10 @@ function bindAltar() {
       pill.classList.toggle('banned', banned);
       a.querySelector('.ban-chip')?.classList.toggle('hit', banned);
       pill.classList.toggle('over', cost > state.sides.player.faith);
+      const cite = draft.trim().length > 30 && citedWords(state, draft).length;
+      pill.classList.toggle('cite', !!cite);
+      pill.querySelector('.c').textContent = cite ? `인용 · 신앙 ${cost}` : `신앙 ${cost}`;
+      if (draft.trim()) { clearTimeout(suggestTimer); $('suggestRow')?.classList.remove('show'); } else scheduleSuggest();
       scheduleHints();
     };
     ta.onkeydown = (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !document.querySelector('.choice-modal')) { e.preventDefault(); speak(); } };
@@ -1454,12 +1483,74 @@ function bindAltar() {
   on('.seal-btn', speak);
   on('.silence', silence);
   on('.accept', () => { sfx.click(); accept(); });
+  // 확인 칩을 눌러 그 행동을 빼거나 되살린다 (장당 두 개까지, 빈 자리는 신도들이 알아서)
+  if (phase === 'confirm' && pending) {
+    a.querySelectorAll('.order[data-key]').forEach((c) => {
+      c.onclick = () => {
+        // 해석문이 다 나오고 수락 버튼이 켜진 뒤에만
+        if (pending.incoming || a.querySelector('.accept')?.disabled) return;
+        const k = c.dataset.key;
+        if (pending.dropped.has(k)) pending.dropped.delete(k);
+        else if (pending.dropped.size < 2) pending.dropped.add(k);
+        else { notice = '한 장에 두 개까지만 뺄 수 있다.'; renderAltar(); return; }
+        notice = '';
+        sfx.lift();
+        derivePending();
+        renderBoardView();
+        renderAltar();
+      };
+    });
+  }
   const pbox = a.querySelector('.prophecy-box');
   if (pbox) pbox.onchange = () => { pending.seal = pbox.checked; sfx.seal?.(); pbox.blur(); };
   on('.again', () => { sfx.click(); reinterpret(); });
   on('.skip', () => { fx.motion.skip = true; });
   on('.next', () => { sfx.click(); newRound(); });
   on('.again-game', restart);
+}
+
+// ---------- 계시 제안 칩: 빈 두루마리가 8초 이어지면 두 가지를 넌지시 (처음 세 판, 끌 수 있음) ----------
+let suggestTimer = null;
+const suggestOn = () => !state.tutorial && meta.get('gsg.suggest', true) && meta.getHistory().length < 3;
+function scheduleSuggest() {
+  clearTimeout(suggestTimer);
+  if (phase !== 'speak' || !suggestOn() || draft.trim()) return;
+  suggestTimer = setTimeout(showSuggest, 8000);
+}
+function suggestions() {
+  const out = [];
+  const need = state.petition?.need;
+  const byNeed = { food: '강과 들판에서 먹을 것을 거두어라', wood: '숲에서 나무를 베어라', wall: '성벽을 쌓아 이웃의 칼을 막아라', village: '땅을 넓혀 새 마을을 세워라', pray: '신전에 모여 기도하라', explore: '안개 너머를 찾아 나서라' };
+  if (need) out.push(byNeed[need.gather ?? need.build ?? need.type]);
+  if (enemyIntent(state).some((a) => a.shown && a.type === 'attack')) out.push(byNeed.wall);
+  if (state.sides.player.faith <= RULES.lowFaith) out.push(byNeed.pray);
+  out.push(byNeed.village, byNeed.explore, '이웃에게 나의 말씀을 전하라');
+  return [...new Set(out.filter(Boolean))]
+    .filter((t) => !state.bannedWords.some((w) => t.includes(w)) && interpretWithTablet(state, t).orders.length)
+    .slice(0, 2);
+}
+function showSuggest() {
+  const row = $('suggestRow');
+  if (!row || phase !== 'speak' || draft.trim()) return;
+  const list = suggestions();
+  if (!list.length) return;
+  row.innerHTML = `<span class="sg-label">이렇게 말씀해 보시겠습니까</span>${list.map((t) => `<button type="button" class="sg-chip">${esc(t)}</button>`).join('')}<button type="button" class="sg-off" title="제안 끄기">✕</button>`;
+  row.classList.add('show');
+  row.querySelectorAll('.sg-chip').forEach((b) => { b.onclick = () => typeInto(b.textContent); });
+  row.querySelector('.sg-off').onclick = () => { meta.set('gsg.suggest', false); row.classList.remove('show'); row.innerHTML = ''; sfx.click(); };
+}
+async function typeInto(text) {
+  const ta = document.querySelector('.scroll textarea');
+  if (!ta) return;
+  $('suggestRow')?.classList.remove('show');
+  ta.value = '';
+  for (const ch of text) {
+    ta.value += ch;
+    if (ch.trim()) sfx.type();
+    await fx.wait(28);
+  }
+  ta.dispatchEvent(new Event('input'));
+  ta.focus();
 }
 
 // 계시를 쓰는 동안 석판 해석으로 말씀이 닿을 칸을 미리 흐리게 비춘다 (LLM의 결정과는 다를 수 있는 '예감')
