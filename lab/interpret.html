@@ -277,6 +277,39 @@ $('prepare').onclick = async () => {
 };
 
 // ---------- 실행 ----------
+// Chrome이 스키마를 거부(NotSupportedError)하면 기능을 하나씩 빼 가며 다시 시도한다.
+// 통한 형식은 버전·언어별로 기억해 다음 호출부터 바로 쓴다.
+const SCHEMA_VARIANTS = [
+  { name: '전체', unique: true, koDoctrine: true },
+  { name: 'uniqueItems 제거', unique: false, koDoctrine: true },
+  { name: '영어 교리값', unique: true, koDoctrine: false },
+  { name: '둘 다 제거', unique: false, koDoctrine: false },
+];
+const workingVariant = {};
+
+async function runPrompt(userPrompt, schemaFor, key, signal) {
+  const variants = workingVariant[key] ? [workingVariant[key]] : SCHEMA_VARIANTS;
+  let lastError;
+  for (const v of variants) {
+    // 같은 형식에서 UnknownError가 나면 한 번 다시 시도한다
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const s = await (await ensureBase()).clone({ signal });
+      try {
+        const out = await promptJSON(s, userPrompt, schemaFor(v), signal);
+        workingVariant[key] = v;
+        return { out, retried: attempt > 0, schemaVariant: v.name };
+      } catch (e) {
+        lastError = e;
+        if (e.name === 'AbortError') throw e;
+        if (e.name === 'NotSupportedError') break;
+      } finally {
+        s.destroy();
+      }
+    }
+  }
+  throw lastError;
+}
+
 // job: { revelation, eventId?, set } — 샘플에 사건이 지정돼 있으면 그 사건으로 실행한다
 async function interpret(job, signal) {
   const { revelation, set } = job;
@@ -287,30 +320,20 @@ async function interpret(job, signal) {
   const sample = findSample(revelation, eventId);
   let out;
   let retried = false;
+  let schemaVariant = null;
   if ($('mock').checked) {
     out = await mockInterpret(revelation, limit);
   } else {
     const userPrompt = buildUserPrompt({ lang, revelation, limit, eventId, version });
-    const schema = buildSchema(limit, version, lang);
-    // 모델이 가끔 UnknownError로 실패하므로 한 번 다시 시도한다
-    for (let attempt = 0; ; attempt++) {
-      const s = await (await ensureBase()).clone({ signal });
-      try {
-        out = await promptJSON(s, userPrompt, schema, signal);
-        break;
-      } catch (e) {
-        if (e.name === 'AbortError' || attempt >= 1) throw e;
-        retried = true;
-      } finally {
-        s.destroy();
-      }
-    }
+    ({ out, retried, schemaVariant } = await runPrompt(
+      userPrompt, (opts) => buildSchema(limit, version, lang, opts), `${version}|${lang}`, signal,
+    ));
   }
   const forbidden = out.data?.forbidden ?? [];
   const check = validateOrders(out.data?.orders, limit, forbidden);
   const doctrine = normalizeDoctrine(out.data?.doctrine);
   return {
-    revelation, lang, limit, eventId, version, set, observe: !!sample?.observe, mock: $('mock').checked, retried,
+    revelation, lang, limit, eventId, version, set, observe: !!sample?.observe, mock: $('mock').checked, retried, schemaVariant,
     interpretation: out.data?.interpretation ?? '',
     forbidden,
     orders: out.data?.orders ?? [],
@@ -342,7 +365,7 @@ async function runBatch(baseJobs) {
         results.push(await interpret(jobs[i], controller.signal));
       } catch (e) {
         if (e.name === 'AbortError') break;
-        results.push({ revelation: jobs[i].revelation, set: jobs[i].set, error: `${e.name}: ${e.message}`, orders: [], accepted: [], rejected: [], rating: null });
+        results.push({ revelation: jobs[i].revelation, set: jobs[i].set, version: $('version').value, lang: $('lang').value, error: `${e.name}: ${e.message}`, orders: [], accepted: [], rejected: [], rating: null });
       }
       render();
     }
@@ -451,6 +474,8 @@ function renderCard(r, index) {
       el('span', { className: 'tag', textContent: r.version ?? 'v1' }),
       r.observe ? el('span', { className: 'tag warn', textContent: '관찰' }) : '',
       r.retried ? el('span', { className: 'tag warn', textContent: '재시도' }) : '',
+      r.schemaVariant && r.schemaVariant !== '전체'
+        ? el('span', { className: 'tag warn', textContent: `스키마: ${r.schemaVariant}` }) : '',
       r.score ? el('span', { className: `tag ${r.score.intent ? 'ok' : 'bad'}`, textContent: r.score.intent ? '의도 ✓' : '의도 ✗' }) : '',
       r.doctrine ? el('span', {
         className: `tag ${r.score?.doctrine === false ? 'bad' : ''}`,

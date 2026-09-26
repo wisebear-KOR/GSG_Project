@@ -302,7 +302,9 @@ ${version === 'v4' ? `계시가 금지한 행동을 적고, 계시를 따르는 
   : v2 ? `계시와 관련된 행동을 1~${limit}개 골라 JSON으로 답하라.` : `행동을 ${limit}개 이하로 골라 JSON으로 답하라.`}`;
 }
 
-export function buildSchema(limit, version = 'v1', lang = 'ko') {
+// opts: Chrome의 스키마 제약이 지원하지 않는 기능을 끌 수 있게 한다
+// unique: uniqueItems 사용, koDoctrine: 한국어 프롬프트에서 교리를 한국어 값으로 받기
+export function buildSchema(limit, version = 'v1', lang = 'ko', opts = { unique: true, koDoctrine: true }) {
   const ids = ACTIONS.map((a) => a.id);
   const orders = { type: 'array', items: { type: 'string', enum: ids }, minItems: 1, maxItems: limit };
   if (version !== 'v4') {
@@ -321,9 +323,12 @@ export function buildSchema(limit, version = 'v1', lang = 'ko') {
     type: 'object',
     properties: {
       interpretation: { type: 'string', maxLength: 120 },
-      forbidden: { type: 'array', items: { type: 'string', enum: ids }, maxItems: 6, uniqueItems: true },
-      orders: { ...orders, uniqueItems: true },
-      doctrine: { type: 'string', enum: lang === 'en' ? DOCTRINES : DOCTRINES.map((d) => DOCTRINE_LABEL[d]) },
+      forbidden: { type: 'array', items: { type: 'string', enum: ids }, maxItems: 6, ...(opts.unique && { uniqueItems: true }) },
+      orders: { ...orders, ...(opts.unique && { uniqueItems: true }) },
+      doctrine: {
+        type: 'string',
+        enum: lang !== 'en' && opts.koDoctrine ? DOCTRINES.map((d) => DOCTRINE_LABEL[d]) : DOCTRINES,
+      },
     },
     required: ['interpretation', 'forbidden', 'orders', 'doctrine'],
   };
