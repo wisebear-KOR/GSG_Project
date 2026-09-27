@@ -1252,9 +1252,9 @@ input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-sele
 /* ---------- 메인 화면: 넓은 화면은 두 열 — 왼쪽 제목·시작, 오른쪽 설정 (시작 버튼이 첫 화면에 보이게) ---------- */
 .ms-hero > * { animation: fadeUp 1.1s cubic-bezier(.16, 1, .3, 1) both; }
 .ms-hero > :nth-child(2) { animation-delay: .12s; } .ms-hero > :nth-child(3) { animation-delay: .24s; } .ms-hero > :nth-child(4) { animation-delay: .34s; } .ms-hero > :nth-child(5) { animation-delay: .44s; }
-@media (min-width: 1100px) {
+@media (min-width: 1240px) {
   .main-screen { padding: 28px 40px; }
-  .ms-inner { max-width: 1240px; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 640px); column-gap: 56px;
+  .ms-inner { max-width: 1240px; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 600px); column-gap: 48px;
     grid-template-rows: 1fr auto auto auto auto 1fr auto auto;
     grid-template-areas: ". setup" "hero setup" "buttons setup" "awe setup" "status setup" ". setup" "links links" "foot foot"; }
   .ms-hero { grid-area: hero; }
@@ -1272,7 +1272,7 @@ input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-sele
   .ms-buttons .ms-start { min-width: 300px; }
   .ms-buttons .btn-ghost { min-width: 300px; }
 }
-@media (min-width: 1100px) {
+@media (min-width: 1240px) {
   .ms-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: min(460px, 100%); margin: 0 auto; }
   .ms-buttons > * { min-width: 0 !important; width: 100%; }
   .ms-buttons > .btn-primary { grid-column: 1 / -1; }
@@ -1298,3 +1298,15 @@ input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-sele
   background: #e8d6ab; box-shadow: 1px 1px 0 rgba(124, 89, 27, .55); }
 .ui-tip.below::after { bottom: auto; top: -6px; background: #f7ecd3; box-shadow: -1px -1px 0 rgba(124, 89, 27, .55); }
 body.reduce-motion .ui-tip { transition: none; }
+/* ---------- 율법파의 뜻: 붉은 명령서 카드 ---------- */
+.law-back.intent { display: block; text-align: left; padding: 10px 13px 11px; height: auto;
+  background: linear-gradient(165deg, rgba(104, 30, 20, .62), rgba(42, 14, 10, .78)); border: 1px solid rgba(224, 96, 72, .5);
+  box-shadow: inset 0 1px 0 rgba(255, 190, 170, .16), 0 8px 18px -8px rgba(0, 0, 0, .8); color: #f3ddd2; }
+.law-back.intent .kind { display: flex; align-items: center; gap: 6px; justify-content: flex-start; font: 700 11.5px var(--font-ui); letter-spacing: .14em; color: #ffb8a6; margin-bottom: 6px; }
+.law-back.intent .kind::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #e0503c; box-shadow: 0 0 8px #e0503c; }
+.law-back.intent ul { text-align: left; }
+.law-back.intent li { font: 13.5px/1.45 var(--font-body); color: #fbe9e0; }
+.law-back.intent .more { text-align: left; font: 11.5px var(--font-ui); color: rgba(243, 221, 210, .6); margin-top: 5px; }
+.law-back.intent li.it-none { color: rgba(243, 221, 210, .7); }
+.law-back.intent > * { width: 100%; margin-left: 0; margin-right: 0; box-sizing: border-box; }
+.ms-sub { white-space: nowrap; }
