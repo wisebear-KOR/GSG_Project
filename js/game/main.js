@@ -391,7 +391,7 @@ function tileTipHTML(cur, t) {
   const holy = t.id === state.holyId ? `성지 — 여기에 마을을 둔 쪽이 승점 +2${state.edictOn ? ', 율법 석판을 올리고 내린다' : ''}` : '';
   const marks = t.faithMarks ? `믿음의 표식 ${t.faithMarks.n}/2 — ${t.faithMarks.side === 'player' ? '한 번 더 전하면 우리 땅' : '율법파가 한 번 더 가르치면 넘어간다'}` : '';
   const intent = ['speak', 'thinking', 'confirm'].includes(phase) ? enemyIntent(state).find((a) => a.shown && a.tile === t.id) : null;
-  const threat = intent ? `율법파가 이번 장에 이곳을 노린다: ${enemyLabel(intent).replace(/\(.*\)$/, '')} — ${state.first === 'player' ? '선공이니 먼저 움직이면 막는다' : '율법파가 선공이라 먼저 가져간다'}` : '';
+  const threat = intent ? `율법파가 이번 장에 이곳을 노린다: ${enemyLabel(intent, 'what')} — ${state.first === 'player' ? '선공이니 먼저 움직이면 막는다' : '율법파가 선공이라 먼저 가져간다'}` : '';
   const cath = t.building === 'capital' && t.owner === 'player' && cur.sides.player.cathedral ? `대성당 ${cur.sides.player.cathedral}/3단계 — 율법파가 수도를 노린다` : '';
   return `<b>${esc(tileName(cur, t, 'player'))}</b><span>${[legend, owner, bld, gather, t.wall ? '성벽 — 방어 +2' : '', holy, cath, marks, threat].filter(Boolean).map(esc).join('<br>')}</span>`;
 }
@@ -1100,6 +1100,21 @@ function bindSettings(o) {
   };
 }
 
+// 선수를 빼앗긴 줄 여럿은 한 줄로 (리플레이는 칸마다 따로 보여준다)
+function mergeBlocked(logs) {
+  const out = [];
+  for (const l of logs) {
+    const m = l.fx?.kind === 'blocked' && /^(.+?) (.+)[을를] 상대에게 먼저 빼앗겨/.exec(l.text);
+    const prev = out[out.length - 1];
+    if (m && prev?.merged && prev.side === l.side) {
+      prev.names.push(m[2]);
+      prev.text = `${prev.who} ${prev.names.join(', ')}에서 선수를 빼앗겨 행동하지 못했다.`;
+    } else if (m) out.push({ ...l, merged: true, who: m[1], names: [m[2]] });
+    else out.push(l);
+  }
+  return out;
+}
+
 // ---------- 규칙서 ----------
 function showRules() {
   const sec = (title, items) => `<details class="rule-sec"${title === '한 장의 흐름' ? ' open' : ''}><summary>${title}</summary><ul>${items.map((x) => `<li>${x}</li>`).join('')}</ul></details>`;
@@ -1692,7 +1707,7 @@ function renderSeason() {
       <div class="face">
         <div class="kind">이번 계절</div>
         <div class="title">${svgUse(ev.choice ? 'e-prophet' : `e-${ev.id}`)}${esc(ev.name)}</div>
-        <div class="body">${esc(ev.text)}${ev.id === 'mira' && state.miraQuote ? `<br><i>“${esc(state.miraQuote)}”</i>` : ''}</div>
+        <div class="body" title="${esc(ev.text)}">${esc(ev.text)}${ev.id === 'mira' && state.miraQuote ? `<br><i>“${esc(state.miraQuote)}”</i>` : ''}</div>
         <div class="rule">${esc(ev.rule)}</div>
         ${state.eventChoice && phase === 'speak' ? seasonChoiceHTML() : ''}
       </div>
@@ -1814,7 +1829,7 @@ function oddsTag(a) {
 // 선공: 율법파가 노리는 칸에 먼저 가면 막는다 (율법파 선공이면 빼앗긴다)
 function firstNote(tile) {
   if (!enemyIntent(state).some((x) => x.shown && x.tile === tile)) return '';
-  return state.first === 'player' ? '<span class="why first">선공 — 율법파를 막는다</span>' : '<span class="why first bad">율법파 선공 — 빼앗긴다</span>';
+  return state.first === 'player' ? '<span class="why first" title="율법파도 이 칸을 노린다. 우리가 선공이라 먼저 차지해 막는다">선공 · 막음</span>' : '<span class="why first bad" title="율법파도 이 칸을 노린다. 율법파가 선공이라 먼저 가져간다">빼앗김</span>';
 }
 
 function scoreTip(cur, side) {
@@ -1832,8 +1847,7 @@ function lawBackHTML() {
   const lines = shown.map((a) => `<li class="it-${a.type}">${esc(enemyLabel(a))}</li>`).join('');
   return `<div class="law-back intent"><div class="kind">율법파의 뜻</div>
     <ul>${lines || '<li class="it-none">드러난 움직임이 없다</li>'}</ul>
-    ${hidden ? `<div class="more">그 밖에 ${hidden}가지는 보이지 않는다</div>` : ''}
-    <div class="more">율법 카드는 공개 단계에 뒤집힌다</div></div>`;
+    ${hidden ? `<div class="more">그 밖에 ${hidden}가지는 보이지 않는다</div>` : ''}</div>`;
 }
 
 // 율법파 지도자의 말풍선 (적 매트 머리 위)
@@ -1889,7 +1903,7 @@ function matHTML(cur, side) {
       const next = Object.entries(info.perks).find(([lv]) => d[k] < Number(lv));
       const got = Object.entries(info.perks).filter(([lv]) => d[k] >= Number(lv)).map(([, t]) => t);
       const perk = got.length ? `<b>✓ ${esc(got.map(perkText).join(', '))}</b>${next ? ` · ${next[0]}칸: ${esc(perkText(next[1]))}` : ''}` : next ? `${next[0]}칸: ${esc(perkText(next[1]))}` : '';
-      const streak = cur.streak?.doctrine === k ? `<span class="streak" title="같은 교리 세 장 연속이면 기적">${'●'.repeat(cur.streak.n)}${'○'.repeat(3 - cur.streak.n)}</span>` : '';
+      const streak = cur.streak?.doctrine === k ? `<span class="streak" title="같은 교리를 세 장 이어 말하면 작은 기적">연속 ${'●'.repeat(cur.streak.n)}${'○'.repeat(3 - cur.streak.n)}</span>` : '';
       return `<div class="dtrack"><span class="medal">${svgUse(`d-${k}`)}</span><div class="row"><span class="nm">${info.name}</span>${gems}${streak}</div><div class="perk-text">${perk}</div></div>`;
     }).join('')}</div>`;
   }
@@ -1963,7 +1977,7 @@ function renderAltar() {
     const source = result.source;
     const src = { llm: 'LLM', tablet: '석판', silence: '침묵' }[result.source];
     const doc = result.doctrine ? ` · ${DOCTRINE[result.doctrine].name}` : '';
-    const short = (a) => esc(a.text.replace(/ \(.*\)$/, ''));
+    const short = (a) => esc(actionLabel(a));
     const links = pending.links ?? {};
     const prev = previewGains(state, [...accepted, ...auto]);
     {
@@ -1981,8 +1995,8 @@ function renderAltar() {
       for (const k of Object.keys(extra)) prev.after[k] = Math.max(0, prev.after[k] + extra[k]);
     }
     const chips = [
-      ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${esc(a.text)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}${oddsTag(a)}${firstNote(a.tile)}</span>`),
-      ...auto.map((a) => `<span class="order auto">${meepleSvg('player')}<span class="t">${short(a)}</span>${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}<span class="why" style="background:rgba(124,89,27,.12)">알아서</span></span>`),
+      ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}" title="${esc(a.text)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${short(a)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}${oddsTag(a)}${firstNote(a.tile)}</span>`),
+      ...auto.map((a) => `<span class="order auto" title="${esc(a.text)}">${meepleSvg('player')}<span class="t">${short(a)}</span>${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}<span class="why" style="background:rgba(124,89,27,.12)">알아서</span></span>`),
       ...(pending.miracle ? [`<span class="order miracle${pending.dropped.has(pending.miracle.key) ? ' dropped' : ''}" data-key="${pending.miracle.key}" title="눌러서 빼기/되살리기">${svgUse(MIRACLE_ART[pending.miracle.id], 'mi', '0 0 48 48')}<span class="t">${esc(MIRACLES.find((m) => m.id === pending.miracle.id).name)}${pending.miracle.target ? ` → ${esc(tileName(state, state.tileAt[pending.miracle.target]))}` : ''}</span><span class="why">기적 · 신앙 ${pending.miracle.cost}</span></span>`] : []),
       ...[...pending.dropped].map((k) => result.orders.find((a) => a.key === k)).filter(Boolean).map((a) => `<span class="order dropped" data-key="${esc(a.key)}" title="눌러서 되살리기">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why">뺌</span></span>`),
       ...rejected.map((r) => `<span class="order bad"><span class="t">${short(r.action)}</span><span class="why">${esc(r.reason)}</span></span>`),
@@ -2018,7 +2032,7 @@ function renderAltar() {
       <div class="scroll-head"><h3>대사제의 해석</h3><small>${priest ? `${priest} · ` : ''}${src}${result.ms ? ` · ${(result.ms / 1000).toFixed(1)}초` : ''}${doc}</small></div>
       ${text ? `<div class="rev-line">“${markWords(text, Object.values(links), pending.cited)}”</div>` : ''}
       ${tags.length ? `<div class="wtags">${tags.join('')}</div>` : ''}
-      <div class="quote${voiceOf(state) ? ` voice-${voiceOf(state)}` : ''}">${fresh ? '' : esc(result.interpretation)}</div>
+      <div class="quote${voiceOf(state) ? ` voice-${voiceOf(state)}` : ''}" title="${esc(result.interpretation)}">${fresh ? '' : esc(result.interpretation)}</div>
       <div class="orders">${chips}</div>
       ${text || auto.length ? `<div class="preview" title="주사위로 정해지는 선교·공격·탐험, 율법파의 행동은 빼고 계산했다">예상 · ${['food', 'wood', 'stone', 'faith'].map((k) => `${RESOURCE_NAME[k]} ${p[k]}→<b class="${prev.after[k] > p[k] ? 'up' : prev.after[k] < p[k] ? 'down' : ''}">${prev.after[k]}</b>`).join(' · ')}</div>` : ''}${seal}${carve}
       ${hint ? `<div class="hint">⚠ ${hint}</div>` : ''}${noticeHTML}</div>`;
@@ -2029,12 +2043,12 @@ function renderAltar() {
       ${text && speakSnap && !state.reinterpretUsed && !state.tutorial ? '<button class="text-btn retract" type="button">말을 거두기 <kbd>Esc</kbd></button>' : ''}</div>`;
   } else {
     const shown = phase === 'playing' ? resolved.shown : resolved.logs;
-    const plan = resolved.enemyPlan.map(enemyLabel).join(' · ') || '없음';
+    const plan = resolved.enemyPlan.map((a) => enemyLabel(a)).join(', ') || '없음';
     const v = phase !== 'playing' ? resolved.verdict : null;
     scroll = `<div class="scroll">
       <div class="scroll-head"><h3>공개와 해결</h3><small>율법 「${esc(state.lawCard.name)}」</small></div>
       <div class="law-line">율법파 배치 — ${esc(plan)}</div>
-      <div class="chron">${shown.map((l, i) => logLine(l, phase === 'playing' && i === shown.length - 1)).join('')}</div>
+      <div class="chron">${mergeBlocked(shown).map((l, i, arr) => logLine(l, phase === 'playing' && i === arr.length - 1)).join('')}</div>
       ${v ? `<div class="verdict v-${v.grade}"><span class="v-stamp">${v.stamp}</span><span class="v-text">${esc(v.text)}</span></div>` : ''}
       ${phase === 'playing' ? '' : ledgerHTML(resolved.ledger)}</div>`;
     act = phase === 'playing'
@@ -2045,6 +2059,7 @@ function renderAltar() {
   }
 
   altar.innerHTML = `${hand}<div class="scroll-wrap">${scroll}</div>${act}`;
+  altar.dataset.phase = phase;
   scheduleSuggest();
   const kind = phase === 'resolved' || phase === 'over' ? 'playing' : phase;
   altar.classList.toggle('phase-in', kind !== lastAltarPhase);
@@ -2260,13 +2275,24 @@ function onKey(e) {
 }
 
 // 율법파 행동을 플레이어 시점으로 적는다 (안개 속 지형은 드러내지 않는다)
-function enemyLabel(a) {
-  const place = tileName(state, state.tileAt[a.tile], 'player');
+// 우리 신도의 행동을 짧게: "선교 · 율법파 마을 A2" (자세한 문장은 칩의 툴팁)
+function actionLabel(a) {
+  const place = tileName(state, state.tileAt[a.tile], 'player').replace(/\(([A-I]\d+)\)$/, ' $1');
+  const what = {
+    gather: `${RESOURCE_NAME[a.gather]} 거두기`, pray: '기도', preach: '선교', attack: '공격', explore: '탐험',
+    build: { village: '마을 세우기', wall: '성벽 쌓기', temple: '신전 높이기', cathedral: '대성당' }[a.build],
+  }[a.type];
+  return a.type === 'pray' || a.build === 'temple' || a.build === 'cathedral' ? what : `${what} · ${place}`;
+}
+
+// "식량 채집 · 율법파 마을 A2" (괄호를 겹치지 않는다). placeOnly/whatOnly로 반쪽만
+function enemyLabel(a, part = 'both') {
+  const place = tileName(state, state.tileAt[a.tile], 'player').replace(/\(([A-I]\d+)\)$/, ' $1');
   const what = {
     gather: `${RESOURCE_NAME[a.gather]} 채집`, pray: '기도', preach: '교화', attack: '공격', explore: '탐험',
     build: { village: '마을 건설', wall: '성벽 건설', temple: '신전 높이기', cathedral: '대성당' }[a.build],
   }[a.type];
-  return `${what}(${place})`;
+  return part === 'what' ? what : part === 'place' ? place : `${what} · ${place}`;
 }
 
 function logLine(l, fresh = false) {

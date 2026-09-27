@@ -134,8 +134,9 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
     if (intent) {
       g.append(el('polygon', { points: hexPoints(c, R - 4), class: `intent-ring it-${intent.type}` }));
       const b = el('g', { class: `intent-badge it-${intent.type}` });
-      b.append(el('circle', { cx: c.x - R * 0.5, cy: c.y - R * 0.55, r: 11 }));
-      b.append(use(INTENT_ICON[intent.type] ?? 'd-war', c.x - R * 0.5, c.y - R * 0.55, 15));
+      // 배지는 칸 안쪽 오른쪽 아래 (이웃 칸과 헷갈리지 않게)
+      b.append(el('circle', { cx: c.x + R * 0.46, cy: c.y + R * 0.36, r: 10 }));
+      b.append(use(INTENT_ICON[intent.type] ?? 'd-war', c.x + R * 0.46, c.y + R * 0.36, 14));
       g.append(b);
     }
     if (hints.includes(t.id)) g.append(el('polygon', { points: hexPoints(c, R - 3), class: 'hint-ring' }));

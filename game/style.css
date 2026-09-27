@@ -1079,3 +1079,30 @@ body.faith-crisis .vignette { background: radial-gradient(ellipse at center, tra
 .rule-sec summary { cursor: pointer; font: 400 18px var(--font-title); color: var(--gold-lo); }
 .rule-sec ul, .unlock-list { margin: 6px 0 4px; padding-left: 18px; display: grid; gap: 6px; font: 14px/1.6 var(--font-body); color: var(--ink); }
 .rule-sec em { font-style: normal; font: 600 11px var(--font-ui); color: #7a2016; background: rgba(163, 55, 42, .1); padding: 0 6px; border-radius: 999px; }
+
+/* ---------- 디테일: 율법파의 뜻 ---------- */
+.law-back.intent { height: auto; min-height: 72px; }
+.law-back.intent li { font-size: 12.5px; }
+.intent-ring.it-gather, .intent-ring.it-pray { stroke: rgba(210, 180, 140, .6); stroke-dasharray: 3 6; animation: none; }
+.intent-badge.it-gather circle, .intent-badge.it-pray circle { fill: #5e4a32; stroke: #e8d3a8; }
+.intent-ring.it-preach { stroke: rgba(160, 130, 230, .85); }
+.intent-badge.it-preach circle { fill: #3e2d6e; stroke: #cfc2ff; }
+.law-back.intent li.it-gather::before, .law-back.intent li.it-pray::before { background: #b89a6a; }
+.law-back.intent li.it-build::before { background: #d08a3a; }
+.streak { font: 600 10px var(--font-ui); letter-spacing: 0; white-space: nowrap; }
+
+/* ---------- 디테일: 확인 화면이 한눈에 ---------- */
+#altar[data-phase="confirm"] .scroll { height: 196px; }
+#altar[data-phase="confirm"] .quote { font-size: 16px; line-height: 1.5; margin: 4px 0 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+#altar[data-phase="confirm"] .order { font-size: 12.5px; padding: 3px 9px 3px 5px; }
+#altar[data-phase="confirm"] .order svg { width: 18px; height: 18px; }
+#altar[data-phase="confirm"] .rev-line { font-size: 14px; margin: 0 0 4px; }
+#altar[data-phase="confirm"] .wtags { margin-bottom: 2px; }
+@media (max-width: 720px) { #altar[data-phase="confirm"] .scroll { height: 180px; } }
+/* 오른쪽 기둥이 제단 아래로 가려지지 않게 */
+.side-col { gap: 10px; }
+.law-back.intent { padding: 8px 12px 9px; }
+.law-back.intent .kind { margin-bottom: 4px; }
+.law-back.intent ul { gap: 2px; }
+.law-back.intent .more { margin-top: 3px; }
+.side-col .season .card .body:not(:has(i)) { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
