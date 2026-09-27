@@ -587,7 +587,7 @@ export function endScreen(won, title, sub, onAgain, { againLabel = '다시 하�
     row.innerHTML = '';
     for (const b of buttons) {
       const el = document.createElement('button');
-      el.type = 'button'; el.className = b.cls ?? 'btn-ghost'; el.textContent = b.label;
+      el.type = 'button'; el.className = b.cls ?? 'btn-ghost'; el.textContent = b.label; if (b.title) el.title = b.title;
       el.onclick = () => { if (!b.keep) o.remove(); b.onClick?.(); };
       row.append(el);
     }

@@ -1106,3 +1106,8 @@ body.faith-crisis .vignette { background: radial-gradient(ellipse at center, tra
 .law-back.intent ul { gap: 2px; }
 .law-back.intent .more { margin-top: 3px; }
 .side-col .season .card .body:not(:has(i)) { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+/* hidden 속성이 display 규칙에 지지 않게 (잠긴 기능이 첫 판에 보이던 문제) */
+[hidden] { display: none !important; }
+/* 맵 미리보기: 세로로 늘어나며 가로로 넘치지 않게 */
+.ms-preview { align-self: start; width: 100%; box-sizing: border-box; }
+.section-label small.cap { font-size: 11px; opacity: .75; }

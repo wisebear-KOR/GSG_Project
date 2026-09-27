@@ -165,7 +165,8 @@ function bindSetup() {
   $('startTutorial').onclick = () => startFromMain('tutorial');
   $('optBless').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; meta.set('gsg.blessing', b.dataset.v || null); sfx.click(); renderSetup(); };
   $('optGod').oninput = () => { meta.set('gsg.god', { ...godOf(), name: $('optGod').value.trim().slice(0, 8) }); };
-  $('optSigil').innerHTML = Object.entries(SIGILS).map(([k, icon]) => `<button type="button" data-v="${k}" title="${k}">${svgUse(icon)}</button>`).join('');
+  const SIGIL_NAME = { light: '빛', sword: '칼', dove: '비둘기', grain: '이삭', eye: '눈', storm: '폭풍' };
+  $('optSigil').innerHTML = Object.entries(SIGILS).map(([k, icon]) => `<button type="button" data-v="${k}" title="${SIGIL_NAME[k]} 문장" aria-label="${SIGIL_NAME[k]} 문장">${svgUse(icon)}</button>`).join('');
   $('optSigil').querySelectorAll('button').forEach((b) => { b.onclick = () => { meta.set('gsg.god', { ...godOf(), sigil: b.dataset.v }); sfx.click(); renderSetup(); }; });
   $('startDaily').onclick = () => startFromMain('daily');
   $('openTrials').onclick = () => { sfx.page(); showTrials(); };
@@ -301,7 +302,9 @@ function renderSubtitle() {
   if (state.config.challenge) { $('subtitle').textContent = `도전 · ${state.rows}×${state.cols} ${DIFFICULTY[state.config.difficulty].name} · 시드 ${state.config.seed}${state.config.challenge.target ? ` · 승점 ${state.config.challenge.target}점을 넘어라` : ''}`; return; }
   if (state.config.daily) { $('subtitle').textContent = `오늘의 계시 · ${state.config.daily}${state.leader ? ` · ${ENEMY_LEADERS[state.leader].name}` : ''}`; return; }
   $('subtitle').textContent = state.tutorial ? '튜토리얼 · 첫 계시'
-    : `${state.rows}×${state.cols} · 율법파 ${DIFFICULTY[state.config.difficulty].name} · 시드 ${state.config.seed}${state.leader ? ` · ${ENEMY_LEADERS[state.leader].name}` : ''}${state.judgement !== 'classic' ? ` · 심판 「${JUDGEMENTS[state.judgement].name}」` : ''}`;
+    : `${state.rows}×${state.cols} · ${DIFFICULTY[state.config.difficulty].name}${state.judgement !== 'classic' ? ` · 심판 「${JUDGEMENTS[state.judgement].name}」` : ''}`;
+  // 전체 정보는 툴팁으로 (지도자 이름은 율법파 판에 이미 있다)
+  $('subtitle').title = state.tutorial ? '' : `맵 ${state.rows}×${state.cols} · 율법파 ${DIFFICULTY[state.config.difficulty].name} · 시드 ${state.config.seed}${state.leader ? ` · ${ENEMY_LEADERS[state.leader].name}` : ''}`;
 }
 
 function suggestRevelation(text) {
@@ -815,11 +818,11 @@ function showEnd(summary, fresh, had) {
   const o = fx.endScreen(won, title, sub, restart, {
     bodyHTML: body,
     buttons: [
-      { label: '시편 복사', cls: 'btn-ghost psalm', keep: true, onClick: () => copyPsalm(summary) },
-      { label: '같은 맵 다시', cls: 'btn-primary', onClick: restart },
-      { label: '새 맵', onClick: () => { setup.seed = randomSeed(); saveSetup(); beginGame({ ...setup, mode: 'standard', veteran: true, canon: meta.getCanon()[0] ?? null, god: godConfig(), legacy: legacyFor(setup.seed), blessing: blessingPick() }); } },
+      { label: '시편 복사', title: '이 판을 짧은 시로 적어 클립보드에 복사한다 (공유용)', cls: 'btn-ghost psalm', keep: true, onClick: () => copyPsalm(summary) },
+      { label: '같은 맵 다시', title: '같은 시드·설정으로 다시 시작', cls: 'btn-primary', onClick: restart },
+      { label: '새 맵', title: '설정은 그대로, 시드만 새로', onClick: () => { setup.seed = randomSeed(); saveSetup(); beginGame({ ...setup, mode: 'standard', veteran: true, canon: meta.getCanon()[0] ?? null, god: godConfig(), legacy: legacyFor(setup.seed), blessing: blessingPick() }); } },
       { label: '메인 화면', onClick: () => showMain() },
-      { label: '보드 보기' },
+      { label: '보드 보기', title: '이 창을 닫고 마지막 보드를 본다' },
     ],
   });
   const host = document.querySelector('.endscreen.rich');
@@ -1917,7 +1920,7 @@ function matHTML(cur, side) {
     ${mine && currentTask() ? `<div class="task-ribbon"><span>세라의 과제</span>${esc(currentTask().text)}<button class="task-x" type="button" title="과제 끄기">✕</button></div>` : ''}
     <div class="res-grid${mine ? '' : ' compact'}">${res}</div>${warnLine}
     ${!mine && cur.edictOn ? `<div class="edict-bar${s.edict >= edictMax(cur) - 2 ? ' danger' : ''}" title="피의 율법 ${(cur.bloodKills ?? 0) % 3}/3 — 우리가 칼로 셋을 쓰러뜨릴 때마다 석판 +1. 율법 석판이 ${edictMax(cur)}에 이르면 율법파가 이긴다. 오름: 율법파가 성지를 쥠(2막부터)·탑을 높임·신앙 10을 바침 / 내림: 우리가 성지를 쥠·번개로 탑을 침"><span>율법 석판</span><i><em style="width:${(s.edict / edictMax(cur)) * 100}%"></em></i><b>${s.edict}/${edictMax(cur)}</b></div>` : ''}
-    <div class="section-label"><span>신도</span><span>${s.pop} / ${cap}</span></div>
+    <div class="section-label"><span>신도</span><span title="신도 / 머물 자리 (3 + 마을마다 2). 자리가 차면 더 늘지 않는다${s.pop > cap ? " — 이미 넘친 신도는 떠나지 않는다" : ""}">${s.pop} <small class="cap">/ 자리 ${cap}</small></span></div>
     <div class="meeples">${meeples}</div>
     <div class="section-label"><span>세력</span></div>
     <div class="stats">
