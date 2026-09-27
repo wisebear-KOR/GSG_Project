@@ -1262,7 +1262,17 @@ async function showSiteChoice() {
   fx.floatText($('board'), tile, msg.split('.')[0], 'good');
   renderMats();
   renderAltar();
+  markScrollHints();
 }
+
+// 안에서 스크롤되는 기둥(부족 판·오른쪽 기둥)에 아래로 더 있으면 흐려지는 끝을 단다
+function markScrollHints() {
+  for (const el of document.querySelectorAll('.table > .mat, .table > .side-col')) {
+    if (!el.dataset.hint) { el.dataset.hint = '1'; el.addEventListener('scroll', () => markScrollHints(), { passive: true }); }
+    el.classList.toggle('more-below', el.scrollHeight > el.clientHeight + 4 && el.scrollTop + el.clientHeight < el.scrollHeight - 4);
+  }
+}
+window.addEventListener('resize', () => markScrollHints());
 
 // 판결문: 명령한 행동이 얼마나 이루어졌나
 function verdictOf(pd, logs) {
@@ -1697,9 +1707,32 @@ function renderTrack() {
   }
   nodes.push(`<span class="first" id="firstMark">${t('ui.track.first', { first: state.first })}</span>`);
   $('track').innerHTML = nodes.join('');
+  fitTopbar();
   const now = $('track').querySelector('.now');
-  if (now) $('firstMark').style.left = `${now.offsetLeft + now.offsetWidth / 2}px`;
+  if (now) {
+    // 가운데 맞춤이 트랙 끝을 넘으면 안쪽으로 당긴다 (첫 장·마지막 장에서 글자가 잘리지 않게)
+    const fm = $('firstMark'), half = fm.offsetWidth / 2, track = $('track');
+    const c = now.offsetLeft + now.offsetWidth / 2;
+    fm.style.left = `${Math.max(half, Math.min(track.scrollWidth - half, c))}px`;
+  }
 }
+
+// 상단바가 한 줄에 안 들어가면(긴 제목·14장 트랙·긴 번역) 장 트랙을 아랫줄로 내린다
+function fitTopbar() {
+  const bar = document.querySelector('.topbar');
+  if (!bar) return;
+  bar.classList.remove('two-row', 'compact');
+  if (window.innerWidth <= 720) return;
+  const r = (el) => el.getBoundingClientRect();
+  const brand = bar.querySelector('.brand'), tools = bar.querySelector('.tools'), track = $('track');
+  const over = () => bar.scrollWidth > bar.clientWidth + 1 || r(tools).right > r(bar).right + 1
+    || r(track).left < r(brand).right + 8 || r(track).right > r(tools).left - 8;
+  // 먼저 버튼 글자를 줄여 보고, 그래도 넘치면 장 트랙을 아랫줄로
+  if (over()) bar.classList.add('compact');
+  if (over()) bar.classList.add('two-row');
+}
+let topbarTimer = 0;
+window.addEventListener('resize', () => { clearTimeout(topbarTimer); topbarTimer = setTimeout(() => { if (state) renderTrack(); }, 120); });
 
 function renderSeason() {
   const ev = state.event;
@@ -1790,6 +1823,7 @@ function renderMats() {
   if (x) x.onclick = () => { meta.setOnboard({ ...meta.getOnboard(), off: true }); sfx.click(); renderMats(); };
   renderLaw(cur);
   document.querySelectorAll('.mat .n[data-from]').forEach((el) => fx.countUp(el, Number(el.dataset.from), Number(el.dataset.to)));
+  markScrollHints();
 }
 
 // 율법 카드: 공개 단계에 뒤집힌다
@@ -1903,7 +1937,7 @@ function matHTML(cur, side) {
       const got = Object.entries(info.perks).filter(([lv]) => d[k] >= Number(lv)).map(([, t]) => t);
       const perk = got.length ? `<b>✓ ${esc(got.map(perkText).join(', '))}</b>${next ? ` · ${t('ui.mat.nextPerk', { lv: next[0], text: esc(perkText(next[1])) })}` : ''}` : next ? t('ui.mat.nextPerk', { lv: next[0], text: esc(perkText(next[1])) }) : '';
       const streak = cur.streak?.doctrine === k ? `<span class="streak" title="${t('ui.mat.streakTip')}">${t('ui.mat.streak', { dots: `${'●'.repeat(cur.streak.n)}${'○'.repeat(3 - cur.streak.n)}` })}</span>` : '';
-      return `<div class="dtrack"><span class="medal">${svgUse(`d-${k}`)}</span><div class="row"><span class="nm">${info.name}</span>${gems}${streak}</div><div class="perk-text">${perk}</div></div>`;
+      return `<div class="dtrack"><span class="medal">${svgUse(`d-${k}`)}</span><div class="row"><span class="nm">${info.name}</span>${gems}</div><div class="perk-text">${streak}${perk}</div></div>`;
     }).join('')}</div>`;
   }
   return `

@@ -1128,7 +1128,7 @@ input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-sele
   .altar { position: relative; }
   #altar .scroll, #altar[data-phase="confirm"] .scroll { height: clamp(150px, 24vh, 196px); }
 }
-@media (min-width: 1181px) {
+@media (min-width: 721px) {
   #altar[data-phase="speak"] .scroll:has(> .petition, > .dilemma, > .suggest-row.show) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); grid-auto-rows: min-content; column-gap: 18px; align-content: start; }
   #altar[data-phase="speak"] .scroll:has(> .petition, > .dilemma, > .suggest-row.show) > :not(.compose) { grid-column: 1; }
   #altar[data-phase="speak"] .scroll:has(> .petition, > .dilemma, > .suggest-row.show) > .compose { grid-column: 2; grid-row: 1 / span 12; position: sticky; top: -14px; bottom: auto; margin: 0; padding: 0; background: none; }
@@ -1154,3 +1154,70 @@ input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-sele
 .ms-title { font-size: clamp(40px, 8vw, 84px); letter-spacing: .1em; padding-left: .1em; white-space: nowrap; word-break: keep-all; }
 .ms-sub { font-family: var(--font-display); letter-spacing: .42em; padding-left: .42em; }
 .brand h1 { white-space: nowrap; }
+/* 교리 보석: 45° 돌린 마름모는 실제 폭이 √2배라 간격을 그만큼 벌리고, 줄어들지 않게 한다 */
+.dtrack .row { gap: 8px; flex-wrap: nowrap; min-width: 0; }
+.dtrack .nm { width: auto; min-width: 34px; white-space: nowrap; margin-right: 2px; }
+.gem { flex: none; width: 13px; height: 13px; }
+.dtrack .perk-text .streak { margin: 0 6px 0 0; }
+/* 상단바가 넘칠 때(fitTopbar): 장 트랙을 아랫줄로 */
+.topbar.two-row { grid-template-columns: auto 1fr; gap: 4px 16px; padding-bottom: 2px; }
+.topbar.two-row .tools { justify-self: end; flex-wrap: wrap; justify-content: flex-end; }
+.topbar.two-row .track { grid-column: 1 / -1; order: 3; justify-self: center; padding-bottom: 22px; }
+/* 휴대폰: 제단이 화면 흐름 속에 있으니 발언 두루마리는 내용만큼 늘인다 (입력칸이 청원을 덮지 않게) */
+@media (max-width: 720px) {
+  #altar[data-phase="speak"] .scroll { height: auto; max-height: none; }
+  #altar[data-phase="speak"] .compose { position: static; margin: 4px 0 0; padding: 0; background: none; }
+}
+/* 두루마리 제목은 한 줄, 곁정보가 좁으면 아랫줄로 */
+.scroll-head { flex-wrap: wrap; row-gap: 2px; }
+.scroll-head h3 { white-space: nowrap; flex: none; }
+/* 확인 칩의 '← 말' 표시는 줄바꿈하지 않는다 */
+.order .word { white-space: nowrap; }
+/* 태블릿 폭: 오른쪽 버튼 칸이 버튼 폭만큼은 넓어지게 */
+@media (max-width: 1180px) and (min-width: 901px) {
+  .altar-inner { grid-template-columns: 190px minmax(0, 1fr) 180px; }
+}
+/* 좁은 태블릿(세로): 두루마리를 윗줄 전체로, 손패와 버튼은 아랫줄 */
+@media (max-width: 900px) and (min-width: 721px) {
+  .altar-inner { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "scroll scroll" "hand act"; gap: 10px 14px; padding: 12px 16px 10px; }
+  .scroll-wrap { grid-area: scroll; margin: 0 8px; }
+  .hand { grid-area: hand; height: 118px; justify-content: flex-start; padding-left: 16px; }
+  .act { grid-area: act; min-width: 170px; }
+}
+.act .btn-primary, .act .btn-ghost { max-width: 100%; }
+/* 종료 화면 버튼: 좁으면 여러 줄로 나누되 버튼 글자는 한 줄로 */
+.end-actions { flex-wrap: wrap; justify-content: center; }
+.end-actions button { white-space: nowrap; flex: 0 1 auto; }
+@media (max-width: 520px) { .end-actions { gap: 6px; } .end-actions button { flex: 1 1 calc(33% - 6px); min-width: 0; padding: 0 8px; } }
+/* 좁은 휴대폰: 상단은 문장(로고)만 남기고 제목 글자는 숨겨 도구 버튼이 한 줄에 들어가게 */
+@media (max-width: 480px) {
+  .topbar .brand h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tools { flex-wrap: nowrap; gap: 4px; }
+  .chip { height: 30px; padding: 0 8px; }
+  .chip.icon-only { width: 30px; }
+}
+/* 아주 좁은 휴대폰(≤380): 대사제 칩은 상태 점만, 버튼을 조금 더 작게 */
+@media (max-width: 380px) {
+  .topbar { padding-left: 10px; padding-right: 10px; }
+  .brand .sigil { width: 28px; height: 28px; }
+  .tools { gap: 3px; }
+  .chip { height: 28px; padding: 0 7px; }
+  .chip.icon-only { width: 28px; }
+  #ai b { display: none; }
+  #ai { padding: 0; width: 28px; justify-content: center; }
+}
+.season .next-season { margin-top: 8px; }
+/* 확인 칩: 좁으면 조각 단위로 줄을 넘기고, 조각 안의 글자는 꺾지 않는다 */
+.order { flex-wrap: wrap; max-width: 100%; row-gap: 2px; }
+.order > span { white-space: nowrap; }
+.topbar.compact .tools .label, .topbar.compact #ai .label { display: none; }
+.topbar.compact .tools { gap: 6px; }
+.topbar.compact .brand p { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 스크롤되는 기둥의 아래가 더 있음을 알린다 */
+.more-below { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); }
+/* 낮은 데스크톱 화면: 오른쪽 기둥은 이번 장에 당장 필요한 것(율법파의 뜻·계절)부터 */
+@media (min-width: 1181px) and (max-height: 860px) {
+  .table > .side-col { display: flex; flex-direction: column; }
+  .side-col > #law { order: 1; } .side-col > #season { order: 2; } .side-col > #matEnemy { order: 3; }
+}
+@media (min-width: 1181px) and (max-height: 860px) { .table > .side-col > * { flex-shrink: 0; } }
