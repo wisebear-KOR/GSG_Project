@@ -104,7 +104,7 @@ export default {
   'ui.reasonShort': (v) => v.reason.replace(/ — 승점.*/, ''),
   'ui.end.chWin': ' · 도전 성공 ({s} > {target})',
   'ui.end.chLose': ' · 도전 실패 — {s} : {target}',
-  'ui.end.sub': '{reason} · 승점 {a} : {b}{ch}',
+  'ui.end.sub': (v) => `${v.reason ? `${v.reason} · ` : ''}승점 ${v.a} : ${v.b}${v.ch ?? ''}`,
   'ui.end.tabStory': '역사가',
   'ui.end.tabRecord': '기록',
   'ui.end.tabBook': '경전',

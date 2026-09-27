@@ -796,3 +796,52 @@ export function perkReveal(host, { title, text, icon }) {
   later(() => card.classList.add('out'), motion.reduced ? 1600 : 2600);
   later(() => card.remove(), motion.reduced ? 2000 : 3100);
 }
+
+// ---------- 게임 톤의 툴팁: title 속성을 가로채 양피지 상자로 보여 준다 (마우스가 있는 기기만) ----------
+export function installTips() {
+  if (globalThis.matchMedia?.('(hover: none)').matches) return;
+  const tip = document.createElement('div');
+  tip.className = 'ui-tip';
+  tip.setAttribute('role', 'tooltip');
+  document.body.append(tip);
+  let cur = null;
+  let timer = 0;
+  const hide = () => { clearTimeout(timer); tip.classList.remove('show'); cur = null; };
+  const place = (el) => {
+    const r = el.getBoundingClientRect();
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    const x = Math.max(8, Math.min(innerWidth - tw - 8, r.left + r.width / 2 - tw / 2));
+    let y = r.top - th - 10;
+    const below = y < 8;
+    if (below) y = Math.min(innerHeight - th - 8, r.bottom + 10);
+    tip.style.left = `${x}px`;
+    tip.style.top = `${y}px`;
+    tip.style.setProperty('--ax', `${Math.max(12, Math.min(tw - 12, r.left + r.width / 2 - x))}px`);
+    tip.classList.toggle('below', below);
+  };
+  document.addEventListener('mouseover', (e) => {
+    const el = e.target.closest?.('[title], [data-tip]');
+    if (!el || el === cur) return;
+    if (el.hasAttribute('title')) {
+      const v = el.getAttribute('title');
+      el.removeAttribute('title');
+      if (!v) return;
+      el.dataset.tip = v;
+      // 글자 없는 아이콘 버튼은 title이 이름이었다 — 화면 읽기 프로그램을 위해 옮겨 둔다
+      if (!el.getAttribute('aria-label') && !el.textContent.trim()) el.setAttribute('aria-label', v);
+    }
+    hide();
+    cur = el;
+    timer = setTimeout(() => {
+      if (cur !== el || !el.isConnected || !el.dataset.tip) return;
+      tip.textContent = el.dataset.tip;
+      tip.classList.add('show');
+      place(el);
+    }, 260);
+  });
+  document.addEventListener('mouseout', (e) => { if (cur && !cur.contains(e.relatedTarget)) hide(); });
+  addEventListener('scroll', hide, true);
+  addEventListener('resize', hide);
+  document.addEventListener('mousedown', hide);
+  addEventListener('keydown', hide);
+}

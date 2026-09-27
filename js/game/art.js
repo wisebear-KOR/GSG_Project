@@ -7,7 +7,7 @@ const TERRAIN_GRAD = {
   mountain: ['#ddd2bf', '#a2927a', '#76654f'],
   river: ['#a9d9ec', '#5aa0c6', '#34729b'],
   hill: ['#f1dcef', '#bf9dbd', '#8f6d8c'],
-  fog: ['#efe4c9', '#e1d1ab', '#c9b388'],
+  fog: ['#8a8273', '#655d51', '#453f37'],
   desert: ['#f6dfa6', '#e2b86a', '#b8843e'],
 };
 
@@ -59,7 +59,7 @@ export const ART = `
     <path d="M0 6q4-4 8 0t8 0" fill="none" stroke="#8a5a1c" stroke-opacity=".28" stroke-width="1"/>
   </pattern>
   <pattern id="p-fog" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-    <path d="M0 0v6" stroke="#7c591b" stroke-opacity=".16" stroke-width="1"/>
+    <path d="M0 0v6" stroke="#f4e9cf" stroke-opacity=".06" stroke-width="1"/>
   </pattern>
 
   <filter id="f-shadow" x="-30%" y="-30%" width="160%" height="160%">
@@ -125,7 +125,7 @@ export const ART = `
     </g>
   </symbol>
   <symbol id="s-fog" viewBox="-30 -30 60 60">
-    <g fill="none" stroke="#7c591b" stroke-opacity=".38" stroke-width="1.3" stroke-linecap="round" class="fog-cloud">
+    <g fill="#f4e9cf" fill-opacity=".07" stroke="#f4e9cf" stroke-opacity=".34" stroke-width="1.3" stroke-linecap="round" class="fog-cloud">
       <path d="M-16 4c-5 0-6-7-1-8 0-6 8-8 11-3 3-5 12-3 11 3 5 0 6 7 0 8z"/>
       <path d="M-4-1c1-2 4-2 5 0M5 1c1-1.5 3-1.5 4 0"/>
     </g>

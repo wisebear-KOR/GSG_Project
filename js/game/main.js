@@ -107,6 +107,7 @@ function applyStaticText() {
 
 async function init() {
   applyStaticText();
+  fx.installTips();
   fx.ambient($('ambient'));
   applyA11y();
   const saved = meta.loadGame();
@@ -1948,16 +1949,16 @@ function matHTML(cur, side) {
     </div>
     ${mine && (cur.commandments?.length || cur.saints?.length) ? `<div class="vows-row">${(cur.commandments ?? []).map((c) => `<span class="cmd" title="${esc(COMMANDMENTS[c].text)}">「${esc(COMMANDMENTS[c].name)}」</span>`).join('')}${(cur.saints ?? []).map((x) => `<span class="saint" title="${x.kind === 'preacher' ? t('ui.mat.saintPreacher') : t('ui.mat.saintGuard')}">✦ ${esc(x.name)}</span>`).join('')}</div>` : ''}
     ${mine && currentTask() ? `<div class="task-ribbon"><span>${t('ui.mat.task')}</span>${esc(currentTask().text)}<button class="task-x" type="button" title="${t('ui.mat.taskOff')}">✕</button></div>` : ''}
-    <div class="res-grid${mine ? '' : ' compact'}">${res}</div>${warnLine}
+    <div class="res-grid${mine ? ' row4' : ' compact'}">${res}</div>${warnLine}
     ${!mine && cur.edictOn ? `<div class="edict-bar${s.edict >= edictMax(cur) - 2 ? ' danger' : ''}" title="${t('ui.mat.edictTip', { kills: (cur.bloodKills ?? 0) % 3, max: edictMax(cur) })}"><span>${t('ui.mat.edict')}</span><i><em style="width:${(s.edict / edictMax(cur)) * 100}%"></em></i><b>${s.edict}/${edictMax(cur)}</b></div>` : ''}
     <div class="section-label"><span>${t('ui.mat.pop')}</span><span title="${t('ui.mat.popTip', { over: s.pop > cap })}">${s.pop} <small class="cap">${t('ui.mat.cap', { cap })}</small></span></div>
     <div class="meeples">${meeples}</div>
     <div class="section-label"><span>${t('ui.mat.power')}</span></div>
     <div class="stats">
-      <div class="stat" title="${t('ui.mat.actTip', { per: RULES.followersPerAction })}">${svgUse('i-hand')}${t('ui.mat.act')}<b>${num(`${side}.act`, actionLimit(cur, side))}</b></div>
-      <div class="stat">${svgUse('i-temple')}${t('ui.mat.temple')}<b>${temple}</b></div>
-      <div class="stat">${svgUse('i-house')}${t('ui.mat.village')}<b>${num(`${side}.vil`, villageCount(cur, side))}</b></div>
-      <div class="stat">${t('ui.mat.capital')}<span class="hearts">${hearts}</span></div>
+      <div class="stat" title="${t('ui.mat.actTip', { per: RULES.followersPerAction })}">${svgUse('i-hand')}<b>${num(`${side}.act`, actionLimit(cur, side))}</b><span class="sl">${t('ui.mat.act')}</span></div>
+      <div class="stat">${svgUse('i-temple')}<b>${temple}</b><span class="sl">${t('ui.mat.temple')}</span></div>
+      <div class="stat">${svgUse('i-house')}<b>${num(`${side}.vil`, villageCount(cur, side))}</b><span class="sl">${t('ui.mat.village')}</span></div>
+      <div class="stat cap"><span class="hearts">${hearts}</span><span class="sl">${t('ui.mat.capital')}</span></div>
     </div>
     ${extra}`;
 }
@@ -1970,7 +1971,7 @@ function renderAltar() {
   const cards = [...state.miracleHand.map((id) => MIRACLES.find((m) => m.id === id)), ...(doomReady(state) ? [DOOM] : [])];
   const hand = `<div class="hand">${cards.map((m) => `
     <button class="mcard${targeting === m.id ? ' on' : ''}${m.hidden ? ' doom' : ''}" data-m="${m.id}" type="button" ${!canMiracle || state.miracleUsed || p.faith < miracleCost(state, m) ? 'disabled' : ''}>
-      <span class="cost">${miracleCost(state, m) < m.cost ? `<s>${m.cost}</s>${miracleCost(state, m)}` : m.cost}</span>${svgUse(MIRACLE_ART[m.id], 'art', '0 0 48 48')}<div class="nm">${m.name}</div>
+      <span class="cost${miracleCost(state, m) < m.cost ? ' cut' : ''}">${miracleCost(state, m)}</span>${miracleCost(state, m) < m.cost ? `<s class="was">${m.cost}</s>` : ''}${svgUse(MIRACLE_ART[m.id], 'art', '0 0 48 48')}<div class="nm">${m.name}</div>
       <span class="tip"><b>${m.name}</b> · ${t('ui.faithCost', { n: miracleCost(state, m) })}${state.wrath && !m.hidden ? t('ui.hand.wrath', { n: state.wrath, off: m.cost - miracleCost(state, m) }) : ''}<br>${esc(m.text)}${state.miracleUsed ? `<br><i>${t('ui.hand.used')}</i>` : ''}</span>
     </button>`).join('')}</div>`;
   const noticeHTML = notice ? `<div class="notice">${esc(notice)}</div>` : '';
