@@ -22,7 +22,7 @@ import {
 } from './chronicle.js';
 import { llmStatus, prepareLLM, interpretWithLLM, interpretWithTablet, linkWords, extractLesson, describeLesson, voiceOf } from './interpreter.js';
 import * as fx from './fx.js';
-import { t, lang } from './i18n.js';
+import { t, lang, LOCALES, setLang } from './i18n.js';
 import { sfx, soundOn, setSound, musicOn, setMusic, music, unlockAudio, volume, setVolume } from './sound.js';
 
 installArt();
@@ -1062,6 +1062,7 @@ function settingsHTML() {
     <section><h4>${t('ui.set.view')}</h4>
       <label>${t('ui.set.cb')} ${seg('cb', meta.get('gsg.a11y.cb', false) ? 'on' : 'off', [['off', t('ui.set.cbOff')], ['on', t('ui.set.cbOn')]])}</label>
       <label>${t('ui.set.zoom')} ${seg('zoom', meta.get('gsg.a11y.zoom', 1), [[1, t('ui.set.zoom1')], [1.1, t('ui.set.zoom2')], [1.2, t('ui.set.zoom3')]])}</label>
+      ${Object.keys(LOCALES).length > 1 ? `<label>${t('ui.set.lang')} ${seg('lang', lang, Object.entries(LOCALES))}</label>` : ''}
     </section>
     <section><h4>${t('ui.set.priest')}</h4>
       <p class="set-note">${aiUsable ? t('ui.set.aiState', { state: esc(aiState), llm: aiMode === 'llm' }) : t('ui.set.noAI')}</p>
@@ -1094,6 +1095,8 @@ function bindSettings(o) {
       if (k === 'suggest') meta.set('gsg.suggest', v === 'on');
       if (k === 'cb') meta.set('gsg.a11y.cb', v === 'on');
       if (k === 'zoom') meta.set('gsg.a11y.zoom', Number(v));
+      // 언어는 모듈을 읽을 때 정해지므로 저장하고 다시 읽는다 (진행 중인 판은 저장돼 있다)
+      if (k === 'lang') { if (v !== lang) { setLang(v); location.reload(); } return; }
       applyA11y();
       g.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
       renderTools(); renderMainStatus(); sfx.click();
@@ -1544,7 +1547,7 @@ async function playFx(log) {
       return fx.wait(600);
     }
     case 'edict': {
-      const up = /\+/.test(log.text.split('—')[0]);
+      const up = log.fx.up ?? /\+/.test(log.text.split('—')[0]); // 옛 저장본의 기록에는 fx.up이 없다
       if (tile) fx.floatText(svg, tile, up ? t('ui.fx.edictUp') : t('ui.fx.edictDown'), up ? 'bad' : 'good');
       (up ? sfx.fail : sfx.chime)();
       return fx.wait(600);

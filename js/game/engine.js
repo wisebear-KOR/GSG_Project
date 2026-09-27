@@ -876,7 +876,7 @@ export function raiseEdict(state, n, why) {
   const before = e.edict;
   e.edict = Math.max(0, Math.min(edictMax(state), e.edict + n));
   if (e.edict === before) return;
-  logEvent(state, 'enemy', t('log.edict', { plus: n > 0, d: e.edict - before, why, edict: e.edict, max: edictMax(state) }), null, { kind: 'edict', tile: capitalOf(state, 'enemy')?.id });
+  logEvent(state, 'enemy', t('log.edict', { plus: n > 0, d: e.edict - before, why, edict: e.edict, max: edictMax(state) }), null, { kind: 'edict', up: n > 0, tile: capitalOf(state, 'enemy')?.id });
   if (before < edictMax(state) - 2 && e.edict >= edictMax(state) - 2) logEvent(state, 'player', t('log.edictNear'), null, { kind: 'warn' });
 }
 function holyAndEdict(state) {

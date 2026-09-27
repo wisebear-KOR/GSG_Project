@@ -1150,3 +1150,7 @@ input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-sele
 /* 첫 기적 카드의 설명이 화면 왼쪽 밖으로 나가지 않게 */
 .mcard:first-child .tip { left: -6px; transform: none; }
 #sr { position: fixed; }
+/* 제목이 여섯 글자가 되어 크기를 줄이고 한 줄로 */
+.ms-title { font-size: clamp(40px, 8vw, 84px); letter-spacing: .1em; padding-left: .1em; white-space: nowrap; word-break: keep-all; }
+.ms-sub { font-family: var(--font-display); letter-spacing: .42em; padding-left: .42em; }
+.brand h1 { white-space: nowrap; }

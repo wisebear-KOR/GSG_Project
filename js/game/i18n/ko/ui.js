@@ -6,7 +6,7 @@ const DIRS = ['동', '북동', '북', '북서', '서', '남서', '남', '남동'
 
 export default {
   // ---------- 문서 ----------
-  'ui.doc.title': '계시록: 말씀의 전쟁',
+  'ui.doc.title': '말씀이 있으라 — Let There Be',
   'ui.doc.description': '말로만 세상을 움직이는 신. Chrome 내장 AI가 계시를 해석하는 보드게임풍 전략 게임.',
 
   // ---------- 메인 화면 ----------
@@ -137,7 +137,7 @@ export default {
   'ui.end.newMapTip': '설정은 그대로, 시드만 새로',
   'ui.end.main': '메인 화면',
   'ui.end.viewBoardTip': '이 창을 닫고 마지막 보드를 본다',
-  'ui.psalm.head': (v) => `「계시록: 말씀의 전쟁」${v.n ? ` 제 ${v.n} 장` : ''}`,
+  'ui.psalm.head': (v) => `「말씀이 있으라」${v.n ? ` 제 ${v.n} 장` : ''}`,
   'ui.psalm.god': (v) => `신: “${v.text}”`,
   'ui.psalm.priest': (v) => `대사제: “${v.text}”`,
   'ui.psalm.result': (v) => `${v.won} (${v.reason}) · 승점 ${v.a} : ${v.b} · ${v.rows}×${v.cols} ${v.diff}`,
@@ -221,6 +221,7 @@ export default {
   'ui.set.cb': '진영 무늬',
   'ui.set.cbOff': '색만',
   'ui.set.cbOn': '무늬 더하기',
+  'ui.set.lang': '언어 · Language',
   'ui.set.zoom': '글자 크기',
   'ui.set.zoom1': '보통',
   'ui.set.zoom2': '크게',
@@ -229,7 +230,7 @@ export default {
   'ui.set.aiState': (v) => `이 브라우저의 내장 AI 상태: ${v.state} · 지금 ${v.llm ? 'LLM으로 해석한다' : '석판(키워드)으로 해석한다'}`,
   'ui.set.noAI': '이 브라우저에는 내장 AI가 없어 석판(키워드) 해석기로 플레이한다. 데스크톱 Chrome에서 Gemini Nano를 켜면 대사제가 말을 알아듣는다.',
   'ui.set.about': '이 게임',
-  'ui.set.aboutText': '계시록: 말씀의 전쟁 · 규칙 판 {ruleset} · MIT License · Chrome 내장 AI(Prompt API)로 동작한다.',
+  'ui.set.aboutText': '말씀이 있으라 (Let There Be) · 규칙 판 {ruleset} · MIT License · Chrome 내장 AI(Prompt API)로 동작한다.',
   'ui.set.records': '기록',
   'ui.set.export': '기록 내보내기',
   'ui.set.import': '기록 가져오기',
@@ -557,7 +558,7 @@ export default {
   // 평화의 계시가 선교를 뜻하는가 (선교할 곳이 없을 때 안내)
   'kw.ui.preach': '이웃|율법|전하|설득',
   // ---------- index.html (data-i18n 훅) ----------
-  'ui.html.brand': '계시록',
+  'ui.html.brand': '말씀이 있으라',
   'ui.html.subtitle': '이웃의 불신자',
   'ui.html.trackAria': '라운드 진행',
   'ui.html.aiLabel': '대사제',
@@ -574,7 +575,7 @@ export default {
   'ui.html.law': '이번 율법',
   'ui.html.season': '이번 계절',
   'ui.html.mainScreen': '메인 화면',
-  'ui.html.msSub': '말씀의 전쟁',
+  'ui.html.msSub': 'LET THERE BE',
   'ui.html.lede': '너는 <b>말로만 세상을 움직이는 신</b>이다. 계시를 내리면 대사제가 그 뜻을 헤아려 신도들을 움직인다. 신 없이 율법대로만 사는 이웃과 겨루어 너의 말씀을 세상에 새겨라. 처음이라면 튜토리얼부터.',
   'ui.html.mapSize': '맵 크기',
   'ui.html.size4': '빠르게 <small>4×4 · 8장</small>',

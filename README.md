@@ -1,4 +1,6 @@
-# GSG Project
+# 말씀이 있으라 — Let There Be
+
+> 프로젝트 코드명 GSG. 제목을 정한 이유는 [docs/naming.md](docs/naming.md), 번역은 [docs/i18n.md](docs/i18n.md).
 
 Chrome 내장 AI(Prompt API, Gemma 4)로 신도들에게 계시를 내리는 보드게임풍 턴제 전략 게임.
 
