@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 -30 60 60" width="240" height="240">
+<defs>
+<filter id="f-shadow" x="-30%" y="-30%" width="160%" height="160%">
+    <feDropShadow dx="0" dy="3" stdDeviation="2.4" flood-color="#1a0e03" flood-opacity=".55"/>
+  </filter>
+<linearGradient id="g-gold" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#f7e3a1"/><stop offset=".45" stop-color="#c99a3b"/><stop offset=".7" stop-color="#8a6420"/><stop offset="1" stop-color="#e9cd7c"/>
+  </linearGradient>
+</defs>
+<g filter="url(#f-shadow)" stroke="#2a1d10" stroke-width="1.1" stroke-linejoin="round">
+      <path d="M-18 14h36v4h-36z" fill="#d9cbb0"/><path d="M-16 11h32v3h-32z" fill="#efe4cd"/>
+      <path d="M-13 11V-4h4v15zM-2 11V-4h4v15zM9 11V-4h4v15z" fill="#f8f0de"/>
+      <path d="M-17-4h34v-3h-34z" fill="#efe4cd"/><path d="M-19-7 0-19l19 12z" fill="#f8f0de"/>
+      <path d="M0-19v-9" stroke-width="1.4"/><path class="flag" d="M0-28l9 3-9 3z" fill="#3d6fb6"/>
+      <circle cx="0" cy="-11" r="2.4" fill="url(#g-gold)"/>
+    </g>
+</svg>

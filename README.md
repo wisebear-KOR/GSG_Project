@@ -1,6 +1,6 @@
 # 말씀이 있으라 — Let There Be
 
-> 프로젝트 코드명 GSG. 제목을 정한 이유는 [docs/naming.md](docs/naming.md), 번역은 [docs/i18n.md](docs/i18n.md).
+> 프로젝트 코드명 GSG. **모든 문서는 [docs/README.md](docs/README.md)** — 게임 명세(`docs/spec/`), Godot 이식 가이드(`docs/godot/`), 이식용 자료(`docs/export/`). 제목을 정한 이유는 [docs/naming.md](docs/naming.md), 번역은 [docs/i18n.md](docs/i18n.md).
 
 Chrome 내장 AI(Prompt API, Gemma 4)로 신도들에게 계시를 내리는 보드게임풍 턴제 전략 게임.
 
@@ -24,7 +24,8 @@ Chrome 내장 AI(Prompt API, Gemma 4)로 신도들에게 계시를 내리는 보
 - [`game/index.html`](game/index.html): 게임. `?ai=tablet`이면 LLM 없이 석판 해석기, `?seed=&size=&diff=&target=`은 도전 링크
 - [`check.html`](check.html): 브라우저가 내장 모델을 제어할 수 있는지 점검하는 페이지
 - [`lab/interpret.html`](lab/interpret.html): 계시를 해석해 가능한 행동 목록에서 행동을 고르는 대사제 LLM 실험 페이지
-- [`docs/DESIGN.md`](docs/DESIGN.md): 기획 문서
+- [`docs/README.md`](docs/README.md): 문서 목차 (명세 01~07, Godot 이식 가이드, 이식용 JSON·골든 테스트·SVG)
+- [`docs/DESIGN.md`](docs/DESIGN.md): 첫 기획 문서 (지금 규칙은 `docs/spec/02-rules.md`)
 - [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md): 해석기 프롬프트 실험 기록
 - [`docs/PLAYTEST-2026-09-27.md`](docs/PLAYTEST-2026-09-27.md): LLM 모드 4판 플레이테스트 보고서
 

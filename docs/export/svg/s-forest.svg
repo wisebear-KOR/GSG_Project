@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 -30 60 60" width="240" height="240">
+<defs>
+<filter id="f-soft" x="-30%" y="-30%" width="160%" height="160%">
+    <feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-color="#1a0e03" flood-opacity=".45"/>
+  </filter>
+</defs>
+<g filter="url(#f-soft)">
+      <g transform="translate(-10 3)"><rect x="-1.4" y="8" width="2.8" height="5" fill="#5a3b1e"/><path d="M0-14 9 0H4l7 9H-11l7-9h-5z" fill="#2f5a2a" stroke="#1d3a19" stroke-width="1"/></g>
+      <g transform="translate(10 5)"><rect x="-1.2" y="7" width="2.4" height="4.5" fill="#5a3b1e"/><path d="M0-12 8 0H3.6l6 8H-9.6l6-8H-8z" fill="#3b6b31" stroke="#1d3a19" stroke-width="1"/></g>
+      <g transform="translate(0 -4)"><rect x="-1.5" y="9" width="3" height="5.5" fill="#5a3b1e"/><path d="M0-16 10 0H4.5l8 10H-12.5l8-10H-10z" fill="#27502a" stroke="#16311a" stroke-width="1"/></g>
+    </g>
+</svg>

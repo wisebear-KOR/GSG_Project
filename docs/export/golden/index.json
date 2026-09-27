@@ -1,0 +1,95 @@
+{
+  "generator": "tools/golden.mjs",
+  "ruleset": 4,
+  "lang": "ko",
+  "games": [
+    {
+      "file": "tutorial-3x3.json",
+      "config": {"mode":"tutorial","size":5,"difficulty":"normal","seed":2026},
+      "rounds": 5,
+      "winner": "player",
+      "winKind": "tutorial",
+      "score": {"player":20,"enemy":18}
+    },
+    {
+      "file": "s4-easy-first.json",
+      "config": {"mode":"standard","size":4,"difficulty":"easy","seed":4101,"veteran":false},
+      "rounds": 8,
+      "winner": "enemy",
+      "winKind": "score",
+      "score": {"player":18,"enemy":26}
+    },
+    {
+      "file": "s5-normal-first.json",
+      "config": {"mode":"standard","size":5,"difficulty":"normal","seed":2026,"veteran":false},
+      "rounds": 12,
+      "winner": "player",
+      "winKind": "score",
+      "score": {"player":33,"enemy":29}
+    },
+    {
+      "file": "s5-hard-veteran.json",
+      "config": {"mode":"standard","size":5,"difficulty":"hard","seed":5303,"veteran":true},
+      "rounds": 8,
+      "winner": "enemy",
+      "winKind": "edict",
+      "score": {"player":26,"enemy":44}
+    },
+    {
+      "file": "s6-normal-veteran.json",
+      "config": {"mode":"standard","size":6,"difficulty":"normal","seed":6202,"veteran":true},
+      "rounds": 12,
+      "winner": "enemy",
+      "winKind": "score",
+      "score": {"player":21,"enemy":45}
+    },
+    {
+      "file": "s6-easy-veteran.json",
+      "config": {"mode":"standard","size":6,"difficulty":"easy","seed":6605,"veteran":true},
+      "rounds": 12,
+      "winner": "player",
+      "winKind": "score",
+      "score": {"player":38,"enemy":30}
+    },
+    {
+      "file": "s7-hard-first.json",
+      "config": {"mode":"standard","size":7,"difficulty":"hard","seed":7304,"veteran":false},
+      "rounds": 14,
+      "winner": "enemy",
+      "winKind": "score",
+      "score": {"player":55,"enemy":67}
+    },
+    {
+      "file": "s7-normal-veteran.json",
+      "config": {"mode":"standard","size":7,"difficulty":"normal","seed":7707,"veteran":true},
+      "rounds": 14,
+      "winner": "enemy",
+      "winKind": "score",
+      "score": {"player":39,"enemy":53}
+    },
+    {
+      "file": "s4-easy-first-war.json",
+      "config": {"mode":"standard","size":4,"difficulty":"easy","seed":404,"veteran":false},
+      "rounds": 6,
+      "winner": "player",
+      "winKind": "convertAll",
+      "score": {"player":27,"enemy":7}
+    },
+    {
+      "file": "s5-easy-first-war.json",
+      "config": {"mode":"standard","size":5,"difficulty":"easy","seed":202,"veteran":false},
+      "rounds": 9,
+      "winner": "player",
+      "winKind": "faith",
+      "score": {"player":39,"enemy":16}
+    },
+    {
+      "file": "s4-hard-veteran-asc4.json",
+      "config": {"mode":"standard","size":4,"difficulty":"hard","seed":4404,"veteran":true,"ascension":4,"blessing":"mason"},
+      "rounds": 6,
+      "winner": "enemy",
+      "winKind": "extinct",
+      "score": {"player":8,"enemy":33}
+    }
+  ]
+}

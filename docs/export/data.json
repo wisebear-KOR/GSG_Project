@@ -1,0 +1,1461 @@
+{
+  "$meta": {
+    "source": "js/game/data.js",
+    "generator": "tools/export-data.mjs",
+    "lang": "ko",
+    "ruleset": 4,
+    "conventions": [
+      "A function value is written as an object whose only key is \"$fn\" (its JS source text). Port the logic by hand; see docs/spec/03-data.md.",
+      "A RegExp value is written as an object with keys \"$re\" (source) and \"flags\"."
+    ],
+    "regexStringFields": [
+      "DILEMMAS[].choice[].tags",
+      "MIRA.choice[].tags",
+      "COMMANDMENTS.*.re"
+    ],
+    "plainWordFields": [
+      "SACRED_WORDS[].word"
+    ]
+  },
+  "ACTS": [
+    {
+      "name": "제1막 · 개척"
+    },
+    {
+      "name": "제2막 · 경쟁",
+      "text": "율법파가 칼을 갈기 시작한다 (성전 카드 한 장)"
+    },
+    {
+      "name": "제3막 · 심판",
+      "text": "평온한 계절은 더 오지 않는다"
+    }
+  ],
+  "ASCENSION": [
+    "율법파 시작 신도 +1",
+    "율법 석판 한계 -2",
+    "신의 분노가 차는 격차 6 → 8",
+    "3막에 율법파 행동 +1",
+    "은사 없이 시작"
+  ],
+  "AWE_LEVELS": [
+    20,
+    50,
+    100,
+    160,
+    240
+  ],
+  "AWE_TITLES": [
+    "이름 없는 신",
+    "속삭이는 신",
+    "불리는 신",
+    "섬김받는 신",
+    "두려운 신",
+    "영원한 신"
+  ],
+  "BLESSINGS": {
+    "preacher": {
+      "level": 1,
+      "name": "설교자의 은사",
+      "text": "처음 개종에 성공할 때까지 선교 주사위 +1"
+    },
+    "mason": {
+      "level": 2,
+      "name": "석공의 은사",
+      "text": "첫 신전을 높일 때 돌 -1"
+    },
+    "granary": {
+      "level": 3,
+      "name": "곳간의 은사",
+      "text": "시작 식량 +2"
+    },
+    "seer": {
+      "level": 4,
+      "name": "눈 밝은 자의 은사",
+      "text": "시작할 때 수도 둘레 3칸이 보인다"
+    }
+  },
+  "CAPITAL_HP": 3,
+  "CATHEDRAL": [
+    {
+      "name": "기초",
+      "cost": {
+        "stone": 4,
+        "wood": 4,
+        "faith": 4
+      }
+    },
+    {
+      "name": "벽",
+      "cost": {
+        "stone": 4,
+        "wood": 4,
+        "faith": 4
+      }
+    },
+    {
+      "name": "첨탑",
+      "cost": {
+        "stone": 3,
+        "wood": 3,
+        "faith": 5
+      }
+    }
+  ],
+  "COMMANDMENTS": {
+    "noSword": {
+      "name": "칼을 들지 말라",
+      "text": "공격할 수 없다. 대신 선교 주사위 +1",
+      "re": "(칼|싸우|공격|치지|쳐)[^.!?]*(말라|마라|않)"
+    },
+    "noExpand": {
+      "name": "땅을 넓히지 말라",
+      "text": "마을을 세울 수 없다. 대신 신전 돌 비용 -1",
+      "re": "(땅|마을|넓히)[^.!?]*(말라|마라|않)"
+    },
+    "sabbath": {
+      "name": "안식하라",
+      "text": "4장마다 행동 -2, 그 장의 기도는 두 배",
+      "re": "(안식|쉬어|쉬라|쉬리라)"
+    },
+    "noFamine": {
+      "name": "굶기지 말라",
+      "text": "굶주려 죽는 자가 없다. 대신 매 장 식량 -1",
+      "re": "(굶기지|굶주리지|굶지|배곯지)"
+    }
+  },
+  "COST": {
+    "village": {
+      "wood": 2,
+      "food": 1
+    },
+    "wall": {
+      "stone": 2
+    },
+    "temple": {
+      "$fn": "(level) => ({ stone: level * 2, wood: level + 1 })"
+    },
+    "cathedral": {
+      "stone": 11,
+      "wood": 11,
+      "faith": 13
+    }
+  },
+  "DESTINIES": {
+    "villages": {
+      "name": "넓히는 자",
+      "text": "8장까지 마을 넷",
+      "test": {
+        "$fn": "(st, v) => st.round <= 8 && v.villages >= 4"
+      }
+    },
+    "convert": {
+      "name": "부르는 자",
+      "text": "선교로 셋을 개종",
+      "test": {
+        "$fn": "(st) => st.stats.converted >= 3"
+      }
+    },
+    "ultimate": {
+      "name": "한길의 자",
+      "text": "교리 하나를 여섯 칸까지",
+      "test": {
+        "$fn": "(st) => Object.values(st.sides.player.doctrine).some((x) => x >= 6)"
+      }
+    },
+    "temple": {
+      "name": "쌓는 자",
+      "text": "6장까지 신전 3단계",
+      "test": {
+        "$fn": "(st) => st.round <= 6 && st.sides.player.templeLevel >= 3"
+      }
+    },
+    "feeder": {
+      "name": "먹이는 자",
+      "text": "끝까지 아무도 굶기지 않기",
+      "test": {
+        "$fn": "(st) => st.round >= st.maxRounds && !st.stats.starved"
+      }
+    },
+    "fortress": {
+      "name": "지키는 자",
+      "text": "끝까지 수도 내구도 3 지키기",
+      "test": {
+        "$fn": "(st) => st.round >= st.maxRounds && st.sides.player.capitalHp >= 3"
+      }
+    },
+    "sword": {
+      "name": "치는 자",
+      "text": "율법파의 땅 둘을 빼앗기",
+      "test": {
+        "$fn": "(st) => st.stats.captured >= 2"
+      }
+    },
+    "namer": {
+      "name": "부르는 이름",
+      "text": "땅 셋에 이름 붙이기",
+      "test": {
+        "$fn": "(st) => Object.keys(st.names ?? {}).length >= 3"
+      }
+    }
+  },
+  "DESTINY_POINTS": 5,
+  "DIFFICULTY": {
+    "easy": {
+      "name": "쉬움",
+      "enemyBonus": 0,
+      "enemyStart": {
+        "food": 3,
+        "wood": 1,
+        "stone": 0,
+        "faith": 2,
+        "pop": 3
+      }
+    },
+    "normal": {
+      "name": "보통",
+      "enemyBonus": 1,
+      "enemyStart": {
+        "food": 5,
+        "wood": 3,
+        "stone": 1,
+        "faith": 3,
+        "pop": 4
+      }
+    },
+    "hard": {
+      "name": "어려움",
+      "enemyBonus": 2,
+      "enemyStart": {
+        "food": 6,
+        "wood": 4,
+        "stone": 2,
+        "faith": 4,
+        "pop": 4
+      }
+    }
+  },
+  "DILEMMAS": [
+    {
+      "id": "refugees",
+      "name": "난민 행렬",
+      "text": "전쟁을 피한 난민이 문 앞에 섰다.",
+      "rule": "갈림길 — 버튼이나 계시로 답한다",
+      "choice": [
+        {
+          "id": "take",
+          "label": "받아들인다",
+          "text": "신도 +1, 식량 -2",
+          "tags": "받아|맞아|품어|들여|환영|받으라",
+          "gain": {
+            "food": -2
+          },
+          "pop": 1
+        },
+        {
+          "id": "send",
+          "label": "돌려보낸다",
+          "text": "신앙 -1",
+          "tags": "돌려|내쫓|쫓아|거절|막아",
+          "gain": {
+            "faith": -1
+          }
+        }
+      ]
+    },
+    {
+      "id": "pilgrims",
+      "name": "순례자",
+      "text": "먼 곳의 순례자들이 우리 신전을 찾아왔다.",
+      "rule": "갈림길 — 버튼이나 계시로 답한다",
+      "choice": [
+        {
+          "id": "host",
+          "label": "맞아들인다",
+          "text": "신앙 +2, 식량 -1",
+          "tags": "맞아|대접|먹이|환영|품어",
+          "gain": {
+            "faith": 2,
+            "food": -1
+          }
+        },
+        {
+          "id": "ignore",
+          "label": "지나보낸다",
+          "text": "아무 일도 없다",
+          "tags": "지나|보내|모른|돌려",
+          "gain": {}
+        }
+      ]
+    },
+    {
+      "id": "inquisitor",
+      "name": "율법 심문관",
+      "text": "율법파 심문관이 우리 마을을 캐묻고 다닌다.",
+      "rule": "갈림길 — 버튼이나 계시로 답한다",
+      "choice": [
+        {
+          "id": "expel",
+          "label": "쫓아낸다",
+          "text": "신앙 +1, 다음 장 율법파가 칼을 든다",
+          "tags": "쫓아|내쫓|몰아|꾸짖|벌하",
+          "gain": {
+            "faith": 1
+          },
+          "provoke": true
+        },
+        {
+          "id": "soothe",
+          "label": "달랜다",
+          "text": "식량 -2",
+          "tags": "달래|대접|먹이|평화|참아",
+          "gain": {
+            "food": -2
+          }
+        }
+      ]
+    },
+    {
+      "id": "schism",
+      "name": "신도들의 다툼",
+      "text": "신도들 사이에 말씀의 뜻을 두고 다툼이 났다.",
+      "rule": "갈림길 — 버튼이나 계시로 답한다",
+      "choice": [
+        {
+          "id": "side",
+          "label": "한쪽 편을 든다",
+          "text": "가장 깊은 교리 +1, 신도 -1",
+          "tags": "옳다|편을|따르라|벌하|내쫓",
+          "doctrine": 1,
+          "pop": -1
+        },
+        {
+          "id": "reconcile",
+          "label": "둘 다 달랜다",
+          "text": "신앙 -2",
+          "tags": "화해|달래|하나|함께|사랑",
+          "gain": {
+            "faith": -2
+          }
+        }
+      ]
+    },
+    {
+      "id": "merchant",
+      "name": "떠돌이 상인",
+      "text": "상인이 곡식을 받고 돌과 목재를 내놓는다.",
+      "rule": "갈림길 — 버튼이나 계시로 답한다",
+      "choice": [
+        {
+          "id": "trade",
+          "label": "곡식을 내준다",
+          "text": "식량 -3, 돌 +2, 목재 +2",
+          "tags": "바꾸|사고|팔|내주|거래",
+          "gain": {
+            "food": -3,
+            "stone": 2,
+            "wood": 2
+          }
+        },
+        {
+          "id": "pass",
+          "label": "보낸다",
+          "text": "아무 일도 없다",
+          "tags": "보내|거절|돌려",
+          "gain": {}
+        }
+      ]
+    },
+    {
+      "id": "healer",
+      "name": "역병 치료사",
+      "text": "약초를 든 치료사가 대가를 청한다.",
+      "rule": "갈림길 — 버튼이나 계시로 답한다",
+      "choice": [
+        {
+          "id": "pay",
+          "label": "대가를 치른다",
+          "text": "신앙 -2, 이번 장 아무도 잃지 않는다",
+          "tags": "치료|고치|낫|살리|치르",
+          "gain": {
+            "faith": -2
+          },
+          "ark": true
+        },
+        {
+          "id": "refuse",
+          "label": "거절한다",
+          "text": "아무 일도 없다",
+          "tags": "거절|돌려|보내",
+          "gain": {}
+        }
+      ]
+    }
+  ],
+  "DOCTRINE": {
+    "peace": {
+      "name": "평화",
+      "perks": {
+        "2": "선교 주사위 +1",
+        "4": "선교 주사위 +1 (누적)",
+        "6": "궁극 — 장이 끝날 때마다 이웃 율법파에게 말씀이 스며든다"
+      }
+    },
+    "war": {
+      "name": "전쟁",
+      "perks": {
+        "2": "공격 주사위 +1",
+        "4": "공격 주사위 +1 (누적)",
+        "6": "궁극 — 공격에 지면 신도 대신 신앙 2가 탄다"
+      }
+    },
+    "abundance": {
+      "name": "풍요",
+      "perks": {
+        "2": "식량 채집 +1",
+        "4": "인구 증가 비용 -1",
+        "6": "궁극 — 인구 한도 +2"
+      }
+    },
+    "wisdom": {
+      "name": "지혜",
+      "perks": {
+        "2": "기도 신앙 +1",
+        "4": "행동 수 +1",
+        "6": "궁극 — 매 장 다가올 계절 두 장 중 하나를 고른다"
+      }
+    }
+  },
+  "DOCTRINES": [
+    "peace",
+    "war",
+    "abundance",
+    "wisdom"
+  ],
+  "DOCTRINE_MAX": 6,
+  "DOCTRINE_VOICE": {
+    "war": {
+      "prompt": "말투: 짧고 거칠게, 불과 칼의 비유로.",
+      "prefix": "불이 말하노니,"
+    },
+    "peace": {
+      "prompt": "말투: 부드럽고 따뜻하게, 빛과 물의 비유로.",
+      "prefix": "빛이 속삭이노니,"
+    },
+    "abundance": {
+      "prompt": "말투: 넉넉하고 흥겹게, 곡식과 잔치의 비유로.",
+      "prefix": "곳간이 노래하노니,"
+    },
+    "wisdom": {
+      "prompt": "말투: 수수께끼처럼, 별과 안개의 비유로.",
+      "prefix": "수수께끼로 이르노니,"
+    }
+  },
+  "DOOM": {
+    "id": "doom",
+    "name": "심판의 날",
+    "cost": 0,
+    "hidden": true,
+    "text": "율법파의 탑이 흔들리고(수도 -1) 한 사람이 쓰러진다. 분노가 가라앉는다."
+  },
+  "EDICT_MAX": 12,
+  "ENEMY_LEADERS": {
+    "elder": {
+      "name": "장로 하르쿤",
+      "title": "율법의 문지기",
+      "desc": "율법을 고르게 지킨다",
+      "deck": {
+        "add": [],
+        "remove": []
+      },
+      "lines": {
+        "intro": [
+          "율법은 이미 새겨졌다. 신 따위의 말은 필요 없다.",
+          "우리는 돌에 새긴 것만 믿는다."
+        ],
+        "card": {
+          "any": [
+            "율법이 명하니 따른다.",
+            "새겨진 대로 할 뿐이다.",
+            "돌판은 굽지 않는다."
+          ]
+        },
+        "rebuttal": {
+          "war": [
+            "'{word}'라니. 칼을 부르는 신은 칼로 망한다.",
+            "분노하는 신이라… 율법은 흔들리지 않는다."
+          ],
+          "peace": [
+            "'{word}'? 달콤한 말로 율법을 녹일 수는 없다.",
+            "사랑을 말하는 자가 가장 먼저 배신한다."
+          ],
+          "abundance": [
+            "'{word}'를 바라는구나. 배부른 자는 율법을 잊는다.",
+            "곡식 창고가 신을 대신하지는 못한다."
+          ],
+          "wisdom": [
+            "'{word}'라니, 율법은 그런 것을 모른다.",
+            "안개 속을 헤매는 신이로군."
+          ],
+          "any": [
+            "'{word}'… 율법은 그런 말을 모른다."
+          ]
+        },
+        "villageLost": [
+          "마을 하나쯤이야. 율법은 사람보다 오래 간다.",
+          "빼앗긴 땅은 다시 새기면 된다."
+        ],
+        "capitalLow": [
+          "탑이 흔들린다… 그래도 율법은 무너지지 않는다!",
+          "돌판을 지켜라! 마지막 한 사람까지!"
+        ]
+      }
+    },
+    "iron": {
+      "name": "철의 대제사장 바락",
+      "title": "칼로 율법을 지키는 자",
+      "desc": "「성전」 카드를 한 장 더 든다 — 자주 쳐들어온다",
+      "deck": {
+        "add": [
+          "L5"
+        ],
+        "remove": []
+      },
+      "notOn": [
+        "easy"
+      ],
+      "lines": {
+        "intro": [
+          "칼이 곧 율법이다. 신도들을 지켜 보아라.",
+          "말로 싸우는 신이라, 우습구나."
+        ],
+        "card": {
+          "L5": [
+            "쳐라. 율법을 모르는 자들을.",
+            "칼끝이 곧 판결이다."
+          ],
+          "any": [
+            "칼을 갈며 기다린다.",
+            "지금은 쉬되, 곧 친다."
+          ]
+        },
+        "rebuttal": {
+          "war": [
+            "'{word}'? 좋다, 칼로 답해 주마.",
+            "싸움을 원하는구나. 우리가 먼저 간다."
+          ],
+          "peace": [
+            "'{word}'라니, 약한 자의 기도다.",
+            "평화는 이긴 자가 정한다."
+          ],
+          "any": [
+            "'{word}'… 칼 앞에서도 그 말을 하겠느냐."
+          ]
+        },
+        "villageLost": [
+          "피로 갚으리라.",
+          "빼앗은 땅은 곧 무덤이 되리라."
+        ],
+        "capitalLow": [
+          "물러서지 마라! 탑이 무너지면 율법도 끝이다!"
+        ]
+      }
+    },
+    "preacher": {
+      "name": "설교자 아모스",
+      "title": "율법을 가르치는 자",
+      "desc": "「교화」 카드를 한 장 더 든다 — 너의 신도를 빼앗으려 한다",
+      "deck": {
+        "add": [
+          "L7"
+        ],
+        "remove": [
+          "L2"
+        ]
+      },
+      "lines": {
+        "intro": [
+          "너의 신도들도 결국 율법을 배우게 되리라.",
+          "말에는 말로 답하겠다."
+        ],
+        "card": {
+          "L7": [
+            "이웃이여, 돌판의 말을 들으라.",
+            "신 없는 평안을 가르쳐 주마."
+          ],
+          "any": [
+            "율법을 외며 때를 기다린다."
+          ]
+        },
+        "rebuttal": {
+          "peace": [
+            "'{word}'라… 그 말, 우리 율법에도 있다.",
+            "너의 사랑은 조건이 붙어 있지."
+          ],
+          "war": [
+            "'{word}'를 외치는 신이라니, 신도들이 두려워하겠구나."
+          ],
+          "any": [
+            "'{word}'… 그 말을 돌판에 새길 수 있겠느냐?"
+          ]
+        },
+        "villageLost": [
+          "그 마을 사람들도 언젠가 돌아오리라."
+        ],
+        "capitalLow": [
+          "탑이 흔들려도 가르침은 남는다."
+        ]
+      }
+    },
+    "builder": {
+      "name": "건축가 네훔",
+      "title": "돌판을 쌓는 자",
+      "desc": "「개척」과 「경건」을 더 들고 「성전」은 없다 — 땅과 탑을 넓힌다",
+      "deck": {
+        "add": [
+          "L9",
+          "L6"
+        ],
+        "remove": [
+          "L5"
+        ]
+      },
+      "lines": {
+        "intro": [
+          "땅은 먼저 새긴 자의 것이다.",
+          "말은 흩어지지만 돌은 남는다."
+        ],
+        "card": {
+          "L9": [
+            "저 너머에도 돌판을 세워라."
+          ],
+          "L6": [
+            "탑을 한 층 더 올려라."
+          ],
+          "any": [
+            "돌을 나르고 또 나른다."
+          ]
+        },
+        "rebuttal": {
+          "abundance": [
+            "'{word}'? 우리 곳간이 더 크다."
+          ],
+          "any": [
+            "'{word}'라… 그 말로 벽 하나라도 쌓겠느냐."
+          ]
+        },
+        "villageLost": [
+          "다시 지으면 된다. 더 높이."
+        ],
+        "capitalLow": [
+          "탑의 돌 하나하나가 율법이다. 지켜라!"
+        ]
+      }
+    }
+  },
+  "EVENTS": [
+    {
+      "id": "calm",
+      "name": "평온한 계절",
+      "text": "평온한 계절이 이어진다.",
+      "rule": "특별한 효과 없음"
+    },
+    {
+      "id": "drought",
+      "name": "가뭄",
+      "text": "가뭄이 들어 곡식이 말라 가고 있다.",
+      "rule": "평원·강 식량 채집 -1"
+    },
+    {
+      "id": "harvest",
+      "name": "풍년",
+      "text": "풍년의 기운이 들판에 가득하다.",
+      "rule": "평원 식량 채집 +1"
+    },
+    {
+      "id": "plague",
+      "name": "역병",
+      "text": "역병이 돌아 양쪽 부족 모두 병자가 생겼다.",
+      "rule": "장이 끝날 때 양쪽 인구 -1"
+    },
+    {
+      "id": "threat",
+      "name": "율법파 집결",
+      "text": "율법파 신도들이 국경에 모여들고 있다.",
+      "rule": "이번 장 율법파 공격 +1"
+    },
+    {
+      "id": "prophet",
+      "name": "떠돌이 예언자",
+      "text": "떠돌이 예언자가 안개 속에 보물이 있다고 말했다.",
+      "rule": "탐험하면 반드시 보물 (신앙 +3)"
+    }
+  ],
+  "FEATURES": {
+    "oasis": {
+      "name": "오아시스",
+      "on": "desert",
+      "gather": "food",
+      "amount": 3
+    },
+    "quarry": {
+      "name": "채석장",
+      "on": "mountain",
+      "gather": "stone",
+      "amount": 3
+    }
+  },
+  "FESTIVALS": {
+    "2": "하지제",
+    "3": "추수제",
+    "last": "동지의 밤"
+  },
+  "FIRST_HAND": [
+    "lightning",
+    "rain",
+    "bounty"
+  ],
+  "GATHER_VERB": {
+    "food": "곡식을 거둔다",
+    "wood": "나무를 벤다",
+    "stone": "돌을 캔다",
+    "faith": "묵상한다"
+  },
+  "JUDGEMENTS": {
+    "classic": {
+      "name": "기본",
+      "text": "신도 2 · 마을 3 · 신전 2 · 수도 1",
+      "w": {
+        "pop": 2,
+        "village": 3,
+        "temple": 2,
+        "hp": 1
+      }
+    },
+    "wide": {
+      "name": "넓은 자",
+      "text": "마을 하나가 5점, 신도는 1점",
+      "w": {
+        "pop": 1,
+        "village": 5,
+        "temple": 2,
+        "hp": 1
+      }
+    },
+    "fertile": {
+      "name": "번성한 자",
+      "text": "신도 하나가 3점, 마을은 2점",
+      "w": {
+        "pop": 3,
+        "village": 2,
+        "temple": 1,
+        "hp": 1
+      }
+    },
+    "pious": {
+      "name": "경건한 자",
+      "text": "신전 단계가 3점, 신앙 3마다 1점",
+      "w": {
+        "pop": 2,
+        "village": 2,
+        "temple": 3,
+        "hp": 1,
+        "faith": 3
+      }
+    },
+    "steadfast": {
+      "name": "굳센 자",
+      "text": "수도 내구도가 3점, 성벽마다 1점",
+      "w": {
+        "pop": 2,
+        "village": 2,
+        "temple": 2,
+        "hp": 3,
+        "wall": 1
+      }
+    }
+  },
+  "LAW_CARDS": [
+    {
+      "id": "L1",
+      "name": "확장",
+      "text": "마을을 세우고, 나무를 모은다",
+      "rules": [
+        {
+          "type": "build",
+          "build": "village"
+        },
+        {
+          "type": "gather",
+          "gather": "wood"
+        },
+        {
+          "type": "gather",
+          "gather": "food"
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "name": "수확",
+      "text": "곡식을 거둔다",
+      "rules": [
+        {
+          "type": "gather",
+          "gather": "food"
+        },
+        {
+          "type": "gather",
+          "gather": "food"
+        },
+        {
+          "type": "pray"
+        }
+      ]
+    },
+    {
+      "id": "L3",
+      "name": "채석",
+      "text": "돌을 캐고 성벽을 쌓는다",
+      "rules": [
+        {
+          "type": "gather",
+          "gather": "stone"
+        },
+        {
+          "type": "build",
+          "build": "wall"
+        },
+        {
+          "type": "gather",
+          "gather": "wood"
+        }
+      ]
+    },
+    {
+      "id": "L4",
+      "name": "요새",
+      "text": "성벽을 쌓는다",
+      "rules": [
+        {
+          "type": "build",
+          "build": "wall"
+        },
+        {
+          "type": "gather",
+          "gather": "stone"
+        },
+        {
+          "type": "pray"
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "name": "성전",
+      "text": "신 없는 자들을 친다",
+      "rules": [
+        {
+          "type": "attack"
+        },
+        {
+          "type": "attack"
+        },
+        {
+          "type": "gather",
+          "gather": "food"
+        }
+      ]
+    },
+    {
+      "id": "L6",
+      "name": "경건",
+      "text": "율법을 외고 신전을 높인다",
+      "rules": [
+        {
+          "type": "pray"
+        },
+        {
+          "type": "build",
+          "build": "temple"
+        },
+        {
+          "type": "gather",
+          "gather": "food"
+        }
+      ]
+    },
+    {
+      "id": "L7",
+      "name": "교화",
+      "text": "이웃에게 율법을 가르친다",
+      "rules": [
+        {
+          "type": "preach"
+        },
+        {
+          "type": "preach"
+        },
+        {
+          "type": "pray"
+        }
+      ]
+    },
+    {
+      "id": "L8",
+      "name": "절제",
+      "text": "먹을 것을 모으고 신전을 높인다",
+      "rules": [
+        {
+          "type": "gather",
+          "gather": "food"
+        },
+        {
+          "type": "build",
+          "build": "temple"
+        },
+        {
+          "type": "build",
+          "build": "village"
+        }
+      ]
+    },
+    {
+      "id": "L9",
+      "name": "개척",
+      "text": "새 땅에 마을을 세운다",
+      "rules": [
+        {
+          "type": "build",
+          "build": "village"
+        },
+        {
+          "type": "build",
+          "build": "village"
+        },
+        {
+          "type": "gather",
+          "gather": "wood"
+        }
+      ]
+    },
+    {
+      "id": "L10",
+      "name": "검열",
+      "text": "신의 말 한마디를 봉인하고, 먹을 것을 모은다",
+      "ban": true,
+      "rules": [
+        {
+          "type": "gather",
+          "gather": "food"
+        },
+        {
+          "type": "gather",
+          "gather": "wood"
+        },
+        {
+          "type": "pray"
+        }
+      ]
+    }
+  ],
+  "MAP_SIZES": {
+    "4": {
+      "name": "빠르게",
+      "rounds": 8
+    },
+    "5": {
+      "name": "작게",
+      "rounds": 12
+    },
+    "6": {
+      "name": "보통",
+      "rounds": 12
+    },
+    "7": {
+      "name": "크게",
+      "rounds": 14
+    }
+  },
+  "MAX_ACTIONS": 6,
+  "MAX_COMMANDMENTS": 2,
+  "MAX_ROUNDS": 12,
+  "MAX_TEMPLE": 3,
+  "MIRA": {
+    "id": "mira",
+    "name": "분열의 예언자 미라",
+    "text": "이단 예언자 미라가 신의 옛 말씀을 비틀어 외치며 신도들을 모은다.",
+    "rule": "갈림길 — 버튼이나 계시로 답한다",
+    "special": true,
+    "choice": [
+      {
+        "id": "punish",
+        "label": "벌한다",
+        "text": "신도 -1, 신앙 +2",
+        "tags": "벌하|쫓아|내쫓|이단|거짓",
+        "gain": {
+          "faith": 2
+        },
+        "pop": -1
+      },
+      {
+        "id": "embrace",
+        "label": "품는다",
+        "text": "신앙 +1, 율법 석판 +1 (소문이 퍼진다)",
+        "tags": "품어|받아|들어|안아",
+        "gain": {
+          "faith": 1
+        },
+        "edict": 1
+      },
+      {
+        "id": "reconcile",
+        "label": "화해시킨다",
+        "text": "신앙 -2, 흔들림이 가라앉는다",
+        "tags": "화해|하나|용서|함께",
+        "gain": {
+          "faith": -2
+        },
+        "calm": true
+      }
+    ]
+  },
+  "MIRACLES": [
+    {
+      "id": "lightning",
+      "name": "번개",
+      "cost": 4,
+      "text": "율법파의 칸 하나에 번개. 성벽이 있으면 무너뜨리고, 없으면 신도 1명이 쓰러진다.",
+      "target": "enemy"
+    },
+    {
+      "id": "rain",
+      "name": "단비",
+      "cost": 3,
+      "text": "식량 +3. 이번 장의 가뭄을 없앤다."
+    },
+    {
+      "id": "bounty",
+      "name": "풍요",
+      "cost": 5,
+      "text": "목재 +2, 돌 +2."
+    },
+    {
+      "id": "manna",
+      "name": "만나",
+      "cost": 3,
+      "text": "하늘에서 양식이 내린다. 식량 +4."
+    },
+    {
+      "id": "ark",
+      "name": "방주",
+      "cost": 3,
+      "text": "이번 장에는 굶주림·역병·전투로 신도를 잃지 않는다."
+    },
+    {
+      "id": "tongues",
+      "name": "방언",
+      "cost": 3,
+      "text": "이번 장 선교 주사위 +1."
+    },
+    {
+      "id": "pillar",
+      "name": "불기둥",
+      "cost": 3,
+      "text": "이번 장 공격 주사위 +1. 우리 땅 둘레 3칸의 안개가 걷힌다."
+    },
+    {
+      "id": "revive",
+      "name": "부활",
+      "cost": 5,
+      "text": "쓰러진 신도 1명이 돌아온다 (인구 한도 안에서)."
+    }
+  ],
+  "MIRA_TWIST": {
+    "war": "칼을 버리라",
+    "peace": "칼을 들라",
+    "abundance": "곳간을 불태우라",
+    "wisdom": "눈을 감으라"
+  },
+  "MONTHS": [
+    "첫봄",
+    "한봄",
+    "늦봄",
+    "첫여름",
+    "한여름",
+    "늦여름",
+    "첫가을",
+    "한가을",
+    "늦가을",
+    "첫겨울",
+    "한겨울",
+    "늦겨울"
+  ],
+  "OPPOSED": {
+    "peace": "war",
+    "war": "peace",
+    "abundance": "wisdom",
+    "wisdom": "abundance"
+  },
+  "PETITIONERS": [
+    "농부 엘리",
+    "어부 도랑",
+    "목수 하닌",
+    "석공 브엘",
+    "과부 나오미",
+    "양치기 아벨",
+    "대장장이 무트",
+    "산파 시브라",
+    "늙은 사관 갈렙",
+    "소년 사무",
+    "방직공 레아",
+    "파수꾼 요압"
+  ],
+  "PLAYER_START": {
+    "food": 4,
+    "wood": 2,
+    "stone": 0,
+    "faith": 4,
+    "pop": 3
+  },
+  "PRIESTS": {
+    "loyal": {
+      "name": "충직한 사제 엘리",
+      "trait": "말씀을 곧이곧대로 받든다",
+      "prompt": ""
+    },
+    "literal": {
+      "name": "문자주의자 오르",
+      "trait": "말한 그대로만 한다",
+      "prompt": "대사제의 성향: 비유를 싫어하고 계시에 나온 낱말 그대로의 행동을 고른다."
+    },
+    "dreamer": {
+      "name": "몽상가 이펜",
+      "trait": "말씀의 숨은 뜻을 찾는다",
+      "prompt": "대사제의 성향: 계시를 비유로 읽기를 좋아하고, 숨은 뜻에 맞는 행동을 고른다."
+    },
+    "zealot": {
+      "name": "열혈 사제 테사",
+      "trait": "싸움과 선교에 앞장선다",
+      "prompt": "대사제의 성향: 뜻이 모호하면 율법파와 맞서는 행동(공격, 선교)을 먼저 떠올린다."
+    },
+    "cautious": {
+      "name": "신중한 사제 무트",
+      "trait": "부족을 먼저 지킨다",
+      "prompt": "대사제의 성향: 뜻이 모호하면 부족을 지키고 먹이는 행동(채집, 성벽, 기도)을 먼저 떠올린다."
+    }
+  },
+  "PROPHECY": {
+    "reward": {
+      "1": 4,
+      "2": 3,
+      "3": 2
+    },
+    "penalty": 2,
+    "kinds": {
+      "fall": {
+        "name": "율법파의 마을이 무너지리라",
+        "short": "적 마을 함락"
+      },
+      "capital": {
+        "name": "율법파의 탑이 흔들리리라",
+        "short": "적 수도 타격"
+      },
+      "pop": {
+        "name": "신도가 불어나리라",
+        "short": "신도 +2"
+      },
+      "convert": {
+        "name": "이웃이 말씀으로 돌아오리라",
+        "short": "개종 1명"
+      }
+    }
+  },
+  "REACT": {
+    "war": {
+      "cards": [
+        "L4",
+        "L3"
+      ],
+      "line": "전쟁을 말하더니… 성벽부터 쌓아라."
+    },
+    "peace": {
+      "cards": [
+        "L7"
+      ],
+      "line": "사랑을 말한다고? 우리에게도 가르칠 것이 있다."
+    },
+    "abundance": {
+      "cards": [
+        "L2",
+        "L9"
+      ],
+      "line": "곳간을 자랑하더니. 우리도 거두고 넓히리라."
+    },
+    "wisdom": {
+      "cards": [
+        "L6"
+      ],
+      "line": "신을 부르는 소리가 크구나. 율법을 더 높이 쌓아라."
+    },
+    "vow": {
+      "cards": [
+        "L5"
+      ],
+      "line": "칼을 거두었다고? 그 틈을 친다."
+    }
+  },
+  "RESOURCE_NAME": {
+    "food": "식량",
+    "wood": "목재",
+    "stone": "돌",
+    "faith": "신앙"
+  },
+  "REVELATION_MAX": 100,
+  "RULES": {
+    "followersPerAction": 4,
+    "followersPerFaith": 3,
+    "baseFaithIncome": 1,
+    "heresyGrace": 1,
+    "superiority": 3,
+    "lowFaith": 2,
+    "gracePerRound": 1,
+    "graceDoctrineBelow": 3,
+    "maxNames": 3
+  },
+  "RULESET": 4,
+  "SACRED_WORDS": [
+    {
+      "word": "무지개",
+      "clue": "비 뒤에 걸리는 일곱 빛의 다리"
+    },
+    {
+      "word": "등불",
+      "clue": "어둠 속에서 길을 비추는 작은 불"
+    },
+    {
+      "word": "씨앗",
+      "clue": "땅에 묻혀야 비로소 사는 것"
+    },
+    {
+      "word": "샘물",
+      "clue": "땅이 몰래 흘리는 맑은 눈물"
+    },
+    {
+      "word": "새벽",
+      "clue": "밤이 끝나는 자리"
+    },
+    {
+      "word": "소금",
+      "clue": "바다가 남기고 간 흰 것"
+    },
+    {
+      "word": "날개",
+      "clue": "새가 하늘을 붙잡는 손"
+    }
+  ],
+  "SIGILS": {
+    "light": "i-faith",
+    "sword": "d-war",
+    "dove": "d-peace",
+    "grain": "i-food",
+    "eye": "e-prophet",
+    "storm": "m-lightning"
+  },
+  "SITES": {
+    "nomads": {
+      "name": "떠도는 유목민",
+      "text": "안개 속에서 떠도는 유목민 무리를 만났다.",
+      "choice": [
+        {
+          "id": "take",
+          "label": "받아들인다",
+          "text": "신도 +1 (한도가 차 있으면 식량 +2)"
+        },
+        {
+          "id": "send",
+          "label": "축복해 보낸다",
+          "text": "신앙 +2"
+        }
+      ]
+    },
+    "altar": {
+      "name": "잊힌 제단",
+      "text": "이름 모를 신의 제단이 이끼에 덮여 있다.",
+      "gain": {
+        "faith": 3
+      }
+    },
+    "spring": {
+      "name": "말하는 샘",
+      "text": "샘물이 속삭이며 길을 알려 준다.",
+      "gain": {
+        "wood": 2,
+        "stone": 1
+      }
+    },
+    "bones": {
+      "name": "거인의 뼈",
+      "text": "거대한 뼈가 땅에 박혀 있다. 좋은 돌감이다.",
+      "gain": {
+        "stone": 3
+      }
+    },
+    "legacy": {
+      "name": "전생의 유적",
+      "text": "이름 잊힌 신의 제단이 무너져 있다.",
+      "gain": {
+        "faith": 2
+      }
+    }
+  },
+  "TERRAIN": {
+    "plain": {
+      "name": "평원",
+      "gather": "food",
+      "amount": 2
+    },
+    "forest": {
+      "name": "숲",
+      "gather": "wood",
+      "amount": 2
+    },
+    "mountain": {
+      "name": "산",
+      "gather": "stone",
+      "amount": 2
+    },
+    "river": {
+      "name": "강",
+      "gather": "food",
+      "amount": 1
+    },
+    "hill": {
+      "name": "성스러운 언덕",
+      "gather": "faith",
+      "amount": 1
+    },
+    "desert": {
+      "name": "사막",
+      "gather": null,
+      "amount": 0
+    }
+  },
+  "TONES": {
+    "command": {
+      "name": "명령",
+      "text": ""
+    },
+    "blessing": {
+      "name": "축복",
+      "text": "첫 채집 +1"
+    },
+    "curse": {
+      "name": "저주",
+      "text": "이번 장 공격 +1, 신앙 -1"
+    },
+    "metaphor": {
+      "name": "비유",
+      "text": "교리가 한 칸 더 오른다 (3칸 미만일 때)"
+    }
+  },
+  "TRIALS": {
+    "storm": {
+      "name": "폭풍의 주",
+      "desc": "너는 폭풍의 신이다. 번개가 싸고, 단비는 내릴 수 없다.",
+      "size": 5,
+      "difficulty": "normal",
+      "seed": 11101,
+      "intro": "하늘이 찢어지는 소리가 너의 목소리다. 비는 없다 — 번개뿐."
+    },
+    "earth": {
+      "name": "대지모",
+      "desc": "너는 대지의 어머니다. 백성이 쉽게 불어나지만 칼을 들 수 없다.",
+      "size": 6,
+      "difficulty": "normal",
+      "seed": 22202,
+      "intro": "너의 자식들은 칼을 모른다. 말과 빵으로 이겨라."
+    },
+    "sword": {
+      "name": "칼의 해",
+      "desc": "철의 대제사장 바락이 성전을 선포했다. 율법 덱에 「성전」이 두 장 더 있다.",
+      "size": 5,
+      "difficulty": "normal",
+      "seed": 33303,
+      "intro": "바락이 칼을 들었다. 올해는 피의 해가 될 것이다."
+    },
+    "cloister": {
+      "name": "침묵의 수도원",
+      "desc": "계시는 스무 자까지만 적을 수 있다.",
+      "size": 5,
+      "difficulty": "normal",
+      "seed": 44404,
+      "intro": "말이 적을수록 무겁다. 스무 자 안에 뜻을 담아라."
+    },
+    "last": {
+      "name": "마지막 예언자",
+      "desc": "여덟 장, 어려운 율법파가 둘 더 많은 채로 시작하고 분노가 첫 장부터 찬다.",
+      "size": 5,
+      "difficulty": "hard",
+      "seed": 55505,
+      "rounds": 8,
+      "intro": "늦었다. 율법은 이미 땅을 덮었다. 여덟 계절 안에 뒤집어라."
+    }
+  },
+  "TUTORIAL": {
+    "id": "tutorial",
+    "title": "튜토리얼 · 첫 계시",
+    "seed": 7,
+    "rounds": 5,
+    "map": [
+      [
+        "forest",
+        "V",
+        "E"
+      ],
+      [
+        "mountain",
+        "plain",
+        "river"
+      ],
+      [
+        "P",
+        "plain",
+        "forest"
+      ]
+    ],
+    "start": {
+      "player": {
+        "food": 5,
+        "wood": 3,
+        "stone": 1,
+        "faith": 6,
+        "pop": 3
+      },
+      "enemy": {
+        "food": 3,
+        "wood": 1,
+        "stone": 0,
+        "faith": 2,
+        "pop": 3
+      }
+    },
+    "enemyBonus": 0,
+    "events": [
+      "calm",
+      "calm",
+      "harvest",
+      "calm",
+      "prophet"
+    ],
+    "lawCards": [
+      "L2",
+      "L1",
+      "L6",
+      "L2",
+      "L8"
+    ]
+  },
+  "revelationCost": {
+    "$fn": "(text) => (text.trim().length > 30 ? 2 : 1)"
+  }
+}

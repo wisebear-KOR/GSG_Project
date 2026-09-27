@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="192" height="192">
+<defs>
+<linearGradient id="g-pillar" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff6c8"/><stop offset=".5" stop-color="#ffb347"/><stop offset="1" stop-color="#d9483a"/></linearGradient>
+</defs>
+<defs><linearGradient id="g-pillar" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff6c8"/><stop offset=".5" stop-color="#ffb347"/><stop offset="1" stop-color="#d9483a"/></linearGradient></defs><path d="M18 44c-2-10 2-16 0-26-1-6 3-10 6-14 3 4 7 8 6 14-2 10 2 16 0 26z" fill="url(#g-pillar)" stroke="#8a2a10" stroke-width="1.2"/><path d="M22 42c-1-8 2-12 1-20 0-3 1-5 1-7 1 2 2 4 1 7-1 8 2 12 1 20z" fill="#fff8e0"/>
+</svg>

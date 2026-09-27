@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 -30 60 60" width="240" height="240">
+<defs>
+
+</defs>
+<g fill="none" stroke="#e8f7ff" stroke-width="2.2" stroke-linecap="round" class="waves">
+      <path d="M-20-7q5-5 10 0t10 0 10 0 10 0" opacity=".85"/>
+      <path d="M-22 2q5-5 10 0t10 0 10 0 10 0 10 0" opacity=".7"/>
+      <path d="M-18 11q5-5 10 0t10 0 10 0 10 0" opacity=".55"/>
+    </g>
+</svg>
