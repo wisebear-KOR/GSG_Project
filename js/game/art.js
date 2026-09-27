@@ -77,7 +77,7 @@ export const ART = `
     <feComposite in="c" in2="SourceGraphic" operator="in"/>
   </filter>
 
-  <!-- 지형 장식 (viewBox -30 -30 60 60) -->
+  ${/* 지형 장식 (viewBox -30 -30 60 60) */ ''}
   <symbol id="s-plain" viewBox="-30 -30 60 60">
     <g stroke="#8b6414" stroke-width="1.6" stroke-linecap="round" fill="#e8c35a">
       <path d="M-9 14V-2M0 14V-6M9 14V-1" fill="none"/>
@@ -131,7 +131,7 @@ export const ART = `
     </g>
   </symbol>
 
-  <!-- 건물 -->
+  ${/* 건물 */ ''}
   <symbol id="s-temple" viewBox="-30 -30 60 60">
     <g filter="url(#f-shadow)" stroke="#2a1d10" stroke-width="1.1" stroke-linejoin="round">
       <path d="M-18 14h36v4h-36z" fill="#d9cbb0"/><path d="M-16 11h32v3h-32z" fill="#efe4cd"/>
@@ -158,12 +158,12 @@ export const ART = `
     </g>
   </symbol>
 
-  <!-- 미플 (클래식 실루엣) -->
+  ${/* 미플 (클래식 실루엣) */ ''}
   <symbol id="s-meeple" viewBox="-14 -16 28 30">
     <path d="M0-15a5.4 5.4 0 1 1 0 10.8A5.4 5.4 0 1 1 0-15zM-3.6-4.4h7.2c3 0 9.8 1 9.8 4.2 0 2.2-3.8 2.8-5.8 3.2L11.8 12h-8L0 6.6-3.8 12h-8L-8.4 3C-10.4 2.6-13.4 2-13.4-.2c0-3.2 6.8-4.2 9.8-4.2z"/>
   </symbol>
 
-  <!-- 자원·상태 아이콘 (viewBox 0 0 24 24) -->
+  ${/* 자원·상태 아이콘 (viewBox 0 0 24 24) */ ''}
   <symbol id="i-food" viewBox="0 0 24 24"><g stroke="#6b4a0e" stroke-width="1.3" stroke-linecap="round" fill="#e8c35a">
     <path d="M12 22V9M7 22c0-5 2-8 5-10M17 22c0-5-2-8-5-10" fill="none"/><ellipse cx="12" cy="5.5" rx="2.4" ry="4"/><ellipse cx="8.4" cy="9.5" rx="1.9" ry="3.3" transform="rotate(-35 8.4 9.5)"/><ellipse cx="15.6" cy="9.5" rx="1.9" ry="3.3" transform="rotate(35 15.6 9.5)"/></g></symbol>
   <symbol id="i-wood" viewBox="0 0 24 24"><g stroke="#3b2410" stroke-width="1.2">
@@ -178,11 +178,11 @@ export const ART = `
   <symbol id="i-house" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v10H4z" fill="#e9dcc0" stroke="#3b2410" stroke-width="1.2" stroke-linejoin="round"/><path d="M2.5 12 12 3.5 21.5 12" fill="none" stroke="#9c4a2a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><rect x="10" y="15" width="4" height="6" fill="#5a3b1e"/></symbol>
   <symbol id="i-temple" viewBox="0 0 24 24"><g stroke="#2a1d10" stroke-width="1.1" stroke-linejoin="round"><path d="M3 21h18v-2H3zM5 19V10M9.5 19V10M14.5 19V10M19 19V10" fill="#efe4cd"/><path d="M4 10h16V8.5H4zM2.5 8.5 12 3l9.5 5.5z" fill="#f8f0de"/></g></symbol>
 
-  <!-- 교리 문장 -->
+  ${/* 교리 문장 */ ''}
   <symbol id="d-peace" viewBox="0 0 24 24"><path d="M4 14c3 0 5-2 7-5 1.5-2.2 4-3.5 7-3-1 1-1.5 2-1.5 3.5 2 .5 3.5 1.5 4 3-2.5-.5-4.5 0-6 1.5-2 2.2-5 3.5-9 3.5z" fill="#f4f1e8" stroke="#3b3a36" stroke-width="1.1" stroke-linejoin="round"/><path d="M15 9.5l3 .3" stroke="#3b3a36"/><path d="M5 18c2 1 4 1 6 0" stroke="#6a8f4a" stroke-width="1.6" fill="none" stroke-linecap="round"/></symbol>
   <symbol id="d-war" viewBox="0 0 24 24"><g stroke="#2a1d10" stroke-width="1.1" stroke-linejoin="round"><path d="M5 3l11 11-2 2L3 5V3z" fill="#d9dde3"/><path d="M19 3 8 14l2 2L21 5V3z" fill="#c4c9d1"/><path d="M13 16l-2 2 3 3 2-2zM11 16l2 2-3 3-2-2z" fill="#8a5a2a"/></g></symbol>
   <symbol id="d-abundance" viewBox="0 0 24 24"><use href="#i-food"/></symbol>
-  <!-- 사건 문장 -->
+  ${/* 사건 문장 */ ''}
   <symbol id="e-calm" viewBox="0 0 24 24"><g stroke="#8a5a10" stroke-width="1.2"><circle cx="12" cy="12" r="5" fill="#ffd45a"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" stroke-linecap="round"/></g></symbol>
   <symbol id="e-drought" viewBox="0 0 24 24"><g stroke="#6b3a0e" stroke-width="1.2" stroke-linejoin="round"><circle cx="12" cy="8" r="4.5" fill="#ff9d3a"/><path d="M2 17h20v5H2z" fill="#c9955a"/><path d="M6 17l2 2-1 3M13 17l-1 2.5 2 2.5M18 17l-1.5 2 1 3" fill="none"/></g></symbol>
   <symbol id="e-harvest" viewBox="0 0 24 24"><use href="#i-food"/></symbol>
@@ -190,18 +190,18 @@ export const ART = `
   <symbol id="e-threat" viewBox="0 0 24 24"><g stroke="#3b0e08" stroke-width="1.2" stroke-linejoin="round"><path d="M5 2v20" stroke-width="1.8"/><path d="M5 3h14l-3 4.5 3 4.5H5z" fill="#b3392a"/><path d="M9 6.5h5M9 9h4" stroke="#ffd9cf"/></g></symbol>
   <symbol id="e-prophet" viewBox="0 0 24 24"><g stroke="#3b2410" stroke-width="1.2" stroke-linejoin="round"><path d="M2 12s4-6.5 10-6.5S22 12 22 12s-4 6.5-10 6.5S2 12 2 12z" fill="#f4ead4"/><circle cx="12" cy="12" r="3.6" fill="#5a86cf"/><circle cx="12" cy="12" r="1.5" fill="#1a1208"/><path d="M12 1.5v2M5 3.5l1.3 1.6M19 3.5l-1.3 1.6" stroke="#c9a24a" stroke-linecap="round"/></g></symbol>
 
-  <!-- 율법 석판 -->
+  ${/* 율법 석판 */ ''}
   <symbol id="s-tablet" viewBox="0 0 24 24"><g stroke="#1e130a" stroke-width="1.1" stroke-linejoin="round"><path d="M3 21V7a4.5 4.5 0 0 1 9 0v14z" fill="#9c938a"/><path d="M12 21V7a4.5 4.5 0 0 1 9 0v14z" fill="#8a8178"/><path d="M5 9h5M5 12h5M5 15h4M14 9h5M14 12h5M14 15h4" stroke="#3a3029"/></g></symbol>
 
-  <!-- 기적 카드 그림 -->
+  ${/* 기적 카드 그림 */ ''}
   <symbol id="m-lightning" viewBox="0 0 48 48"><path d="M8 18c0-6 5-10 11-9 2-4 7-6 11-4 5-2 11 2 11 8 4 1 6 5 5 8H6c-2-1-1-3 2-3z" fill="#5a6b8c" stroke="#1c2436" stroke-width="1.2"/><path d="M26 20 16 34h8l-4 12 14-17h-8l5-9z" fill="#ffe86b" stroke="#8a6a00" stroke-width="1.2" stroke-linejoin="round"/></symbol>
   <symbol id="m-rain" viewBox="0 0 48 48"><path d="M8 20c0-6 5-10 11-9 2-4 7-6 11-4 5-2 11 2 11 8 4 1 6 5 5 8H6c-2-1-1-3 2-3z" fill="#c9d8ea" stroke="#3b4a60" stroke-width="1.2"/><g stroke="#7ec3ff" stroke-width="2.4" stroke-linecap="round"><path d="M14 30l-2 6M22 30l-2 6M30 30l-2 6M38 30l-2 6M18 39l-2 6M26 39l-2 6M34 39l-2 6"/></g></symbol>
   <symbol id="m-bounty" viewBox="0 0 48 48"><path d="M6 14c10-2 22 2 30 14l6 10c-8 4-18 3-26-3S5 22 6 14z" fill="#c9954a" stroke="#4a2c10" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 16c3 8 10 16 20 19" fill="none" stroke="#7a4f22"/><circle cx="38" cy="30" r="5" fill="#d9483a" stroke="#4a1208"/><circle cx="31" cy="36" r="4.5" fill="#f2c14e" stroke="#6b4a0e"/><circle cx="40" cy="38" r="4" fill="#7fb34d" stroke="#2c4a14"/><use href="#i-food" x="26" y="18" width="14" height="14"/></symbol>
 
-  <!-- 문장 (게임 로고) -->
+  ${/* 문장 (게임 로고) */ ''}
   <symbol id="sigil" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="url(#g-gold)" stroke="#5a3b10" stroke-width="1.5"/><circle cx="24" cy="24" r="17.5" fill="#2a1c0f" stroke="#f4dc92" stroke-width="1"/><path d="M27 8 16 26h7l-3 14 12-19h-7l4-13z" fill="url(#g-gold)" stroke="#f7e3a1" stroke-width=".8" stroke-linejoin="round"/></symbol>
 
-  <!-- 튜토리얼 안내자: 사관 세라 -->
+  ${/* 튜토리얼 안내자: 사관 세라 */ ''}
   <symbol id="npc-sera" viewBox="0 0 64 64">
     <circle cx="32" cy="32" r="31.5" fill="url(#g-gold)"/>
     <circle cx="32" cy="32" r="28.5" fill="#2b1c10"/>
@@ -220,7 +220,7 @@ export const ART = `
     <path d="M47 55 55.5 33.5" stroke="#8a7a66" stroke-width=".5"/>
   </symbol>
 
-  <!-- 헤더 선 아이콘 (currentColor) -->
+  ${/* 헤더 선 아이콘 (currentColor) */ ''}
   <symbol id="u-music" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5" fill="currentColor"/><circle cx="17.5" cy="16" r="2.5" fill="currentColor"/></g></symbol>
   <symbol id="u-speaker" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" fill-opacity=".25"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></g></symbol>
   <symbol id="u-off" viewBox="0 0 24 24"><path d="M4 4l16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>

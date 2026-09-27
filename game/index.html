@@ -9,25 +9,34 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Song+Myung&family=Hahmlet:wght@400;500;600;700;800&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="style.css?v=202609271001">
+<link rel="stylesheet" href="style.css?v=202609271025">
 <!-- 배포 후 브라우저가 옛 모듈을 쓰지 않도록 버전을 붙인다 (올릴 때 v를 바꾼다) -->
 <script type="importmap">
 {
   "imports": {
-    "../js/game/art.js": "../js/game/art.js?v=202609271001",
-    "../js/game/board.js": "../js/game/board.js?v=202609271001",
-    "../js/game/chronicle.js": "../js/game/chronicle.js?v=202609271001",
-    "../js/game/data.js": "../js/game/data.js?v=202609271001",
-    "../js/game/engine.js": "../js/game/engine.js?v=202609271001",
-    "../js/game/fx.js": "../js/game/fx.js?v=202609271001",
-    "../js/game/interpreter.js": "../js/game/interpreter.js?v=202609271001",
-    "../js/game/lore.js": "../js/game/lore.js?v=202609271001",
-    "../js/game/main.js": "../js/game/main.js?v=202609271001",
-    "../js/game/mapgen.js": "../js/game/mapgen.js?v=202609271001",
-    "../js/game/meta.js": "../js/game/meta.js?v=202609271001",
-    "../js/game/sound.js": "../js/game/sound.js?v=202609271001",
-    "../js/game/tutorial.js": "../js/game/tutorial.js?v=202609271001",
-    "../js/llm.js": "../js/llm.js?v=202609271001"
+    "../js/game/art.js": "../js/game/art.js?v=202609271025",
+    "../js/game/board.js": "../js/game/board.js?v=202609271025",
+    "../js/game/chronicle.js": "../js/game/chronicle.js?v=202609271025",
+    "../js/game/data.js": "../js/game/data.js?v=202609271025",
+    "../js/game/engine.js": "../js/game/engine.js?v=202609271025",
+    "../js/game/fx.js": "../js/game/fx.js?v=202609271025",
+    "../js/game/i18n.js": "../js/game/i18n.js?v=202609271025",
+    "../js/game/i18n/ko.js": "../js/game/i18n/ko.js?v=202609271025",
+    "../js/game/i18n/ko/data.js": "../js/game/i18n/ko/data.js?v=202609271025",
+    "../js/game/i18n/ko/engine.js": "../js/game/i18n/ko/engine.js?v=202609271025",
+    "../js/game/i18n/ko/grammar.js": "../js/game/i18n/ko/grammar.js?v=202609271025",
+    "../js/game/i18n/ko/interp.js": "../js/game/i18n/ko/interp.js?v=202609271025",
+    "../js/game/i18n/ko/shell.js": "../js/game/i18n/ko/shell.js?v=202609271025",
+    "../js/game/i18n/ko/story.js": "../js/game/i18n/ko/story.js?v=202609271025",
+    "../js/game/i18n/ko/ui.js": "../js/game/i18n/ko/ui.js?v=202609271025",
+    "../js/game/interpreter.js": "../js/game/interpreter.js?v=202609271025",
+    "../js/game/lore.js": "../js/game/lore.js?v=202609271025",
+    "../js/game/main.js": "../js/game/main.js?v=202609271025",
+    "../js/game/mapgen.js": "../js/game/mapgen.js?v=202609271025",
+    "../js/game/meta.js": "../js/game/meta.js?v=202609271025",
+    "../js/game/sound.js": "../js/game/sound.js?v=202609271025",
+    "../js/game/tutorial.js": "../js/game/tutorial.js?v=202609271025",
+    "../js/llm.js": "../js/llm.js?v=202609271025"
   }
 }
 </script>
@@ -42,35 +51,35 @@
     <div class="brand">
       <svg class="sigil" aria-hidden="true"><use href="#sigil"/></svg>
       <div>
-        <h1>계시록</h1>
-        <p id="subtitle">이웃의 불신자</p>
+        <h1 data-i18n="ui.html.brand"></h1>
+        <p id="subtitle" data-i18n="ui.html.subtitle"></p>
       </div>
     </div>
-    <nav class="track" id="track" aria-label="라운드 진행"></nav>
+    <nav class="track" id="track" data-i18n-aria="ui.html.trackAria"></nav>
     <div class="tools">
-      <button class="chip" id="ai" type="button"><span class="dot"></span><span class="label">대사제</span> <b></b></button>
-      <button class="chip icon-only" id="music" type="button" title="배경음악"></button>
-      <button class="chip icon-only" id="sound" type="button" title="효과음"></button>
-      <button class="chip icon-only" id="motion" type="button" title="연출"></button>
-      <button class="chip" id="openChron" type="button"><svg class="u" viewBox="0 0 24 24"><use href="#u-scroll"/></svg><span class="label">연대기</span></button>
-      <button class="chip icon-only" id="rules" type="button" title="규칙서" aria-label="규칙서">?</button>
-      <button class="chip icon-only" id="settings" type="button" title="설정" aria-label="설정">⚙</button>
-      <button class="chip icon-only" id="home" type="button" title="메인 화면 (Esc)"><svg class="u" viewBox="0 0 24 24"><use href="#u-home"/></svg></button>
+      <button class="chip" id="ai" type="button"><span class="dot"></span><span class="label" data-i18n="ui.html.aiLabel"></span> <b></b></button>
+      <button class="chip icon-only" id="music" type="button" data-i18n-title="ui.html.musicTip"></button>
+      <button class="chip icon-only" id="sound" type="button" data-i18n-title="ui.html.soundTip"></button>
+      <button class="chip icon-only" id="motion" type="button" data-i18n-title="ui.html.motionTip"></button>
+      <button class="chip" id="openChron" type="button"><svg class="u" viewBox="0 0 24 24"><use href="#u-scroll"/></svg><span class="label" data-i18n="ui.html.chron"></span></button>
+      <button class="chip icon-only" id="rules" type="button" data-i18n-title="ui.html.rules" data-i18n-aria="ui.html.rules">?</button>
+      <button class="chip icon-only" id="settings" type="button" data-i18n-title="ui.html.settings" data-i18n-aria="ui.html.settings">⚙</button>
+      <button class="chip icon-only" id="home" type="button" data-i18n-title="ui.html.homeTip"><svg class="u" viewBox="0 0 24 24"><use href="#u-home"/></svg></button>
     </div>
   </header>
 
   <main class="table">
-    <aside class="mat mat-player" id="matPlayer" aria-label="우리 부족"></aside>
+    <aside class="mat mat-player" id="matPlayer" data-i18n-aria="ui.html.matPlayer"></aside>
     <section class="board-area">
       <div class="board-frame" id="boardFrame">
-        <svg id="board" role="img" aria-label="육각 보드"></svg>
+        <svg id="board" role="img" data-i18n-aria="ui.html.board"></svg>
         <div class="cloud-shadows" aria-hidden="true"><i></i><i></i><i></i></div>
       </div>
     </section>
     <div class="side-col">
-      <aside class="mat mat-enemy" id="matEnemy" aria-label="율법파"></aside>
-      <div class="law-slot" id="law" aria-label="이번 율법"></div>
-      <div class="season" id="season" aria-label="이번 계절"></div>
+      <aside class="mat mat-enemy" id="matEnemy" data-i18n-aria="ui.html.matEnemy"></aside>
+      <div class="law-slot" id="law" data-i18n-aria="ui.html.law"></div>
+      <div class="season" id="season" data-i18n-aria="ui.html.season"></div>
     </div>
   </main>
 
@@ -79,8 +88,8 @@
   </footer>
 </div>
 
-<aside class="drawer" id="chronicle" aria-label="연대기">
-  <h2>연대기 <button class="btn-ghost" id="closeChron" type="button" style="height:34px;color:var(--ink);border-color:rgba(124,89,27,.5)">닫기</button></h2>
+<aside class="drawer" id="chronicle" data-i18n-aria="ui.html.chron">
+  <h2><span data-i18n="ui.html.chron"></span> <button class="btn-ghost" id="closeChron" type="button" style="height:34px;color:var(--ink);border-color:rgba(124,89,27,.5)" data-i18n="ui.close"></button></h2>
   <div class="chron" id="chronBody"></div>
 </aside>
 <div id="stage" aria-hidden="true"></div>
@@ -88,82 +97,81 @@
 <div id="sr" class="sr-only" aria-live="polite"></div>
 
 <!-- 메인 화면: 시작 버튼을 누르는 순간 오디오를 열고 제1장으로 들어간다 -->
-<section class="main-screen" id="mainScreen" aria-label="메인 화면">
+<section class="main-screen" id="mainScreen" data-i18n-aria="ui.html.mainScreen">
   <div class="ms-inner">
     <svg class="ms-sigil" aria-hidden="true"><use href="#sigil"/></svg>
-    <h1 class="ms-title">계시록</h1>
-    <div class="ms-sub">말씀의 전쟁</div>
+    <h1 class="ms-title" data-i18n="ui.html.brand"></h1>
+    <div class="ms-sub" data-i18n="ui.html.msSub"></div>
     <div class="ms-rule"></div>
-    <p class="ms-lede">너는 <b>말로만 세상을 움직이는 신</b>이다. 계시를 내리면 대사제가 그 뜻을 헤아려 신도들을 움직인다.
-      신 없이 율법대로만 사는 이웃과 겨루어 너의 말씀을 세상에 새겨라. 처음이라면 튜토리얼부터.</p>
+    <p class="ms-lede" data-i18n-html="ui.html.lede"></p>
     <div class="ms-setup">
       <div class="ms-options">
         <div class="ms-field">
-          <span class="ms-label">맵 크기</span>
+          <span class="ms-label" data-i18n="ui.html.mapSize"></span>
           <div class="seg" id="optSize">
-            <button type="button" data-v="4">빠르게 <small>4×4 · 8장</small></button>
-            <button type="button" data-v="5">작게 <small>5×5 · 12장</small></button>
-            <button type="button" data-v="6">보통 <small>6×6 · 12장</small></button>
-            <button type="button" data-v="7">크게 <small>7×7 · 14장</small></button>
+            <button type="button" data-v="4" data-i18n-html="ui.html.size4"></button>
+            <button type="button" data-v="5" data-i18n-html="ui.html.size5"></button>
+            <button type="button" data-v="6" data-i18n-html="ui.html.size6"></button>
+            <button type="button" data-v="7" data-i18n-html="ui.html.size7"></button>
           </div>
         </div>
         <div class="ms-field">
-          <span class="ms-label">율법파</span>
+          <span class="ms-label" data-i18n="ui.html.enemy"></span>
           <div class="seg" id="optDiff">
-            <button type="button" data-v="easy">쉬움</button>
-            <button type="button" data-v="normal">보통</button>
-            <button type="button" data-v="hard">어려움</button>
+            <button type="button" data-v="easy" data-i18n="ui.html.easy"></button>
+            <button type="button" data-v="normal" data-i18n="ui.html.normal"></button>
+            <button type="button" data-v="hard" data-i18n="ui.html.hard"></button>
           </div>
           <small class="ms-hint" id="diffHint"></small>
           <div class="seg asc" id="optAsc" hidden></div>
         </div>
         <div class="ms-field" id="blessField" hidden>
-          <span class="ms-label">은사</span>
+          <span class="ms-label" data-i18n="ui.html.blessing"></span>
           <div class="seg blessings" id="optBless"></div>
           <small class="ms-hint" id="blessHint"></small>
         </div>
         <div class="ms-field">
-          <span class="ms-label">너의 이름과 문장</span>
+          <span class="ms-label" data-i18n="ui.html.godName"></span>
           <div class="seed-row">
-            <input id="optGod" type="text" maxlength="8" placeholder="이름 없는 신" aria-label="신의 이름">
+            <input id="optGod" type="text" maxlength="8" data-i18n-placeholder="ui.html.godPlaceholder" data-i18n-aria="ui.html.godAria">
           </div>
           <div class="seg sigils" id="optSigil"></div>
         </div>
         <div class="ms-field">
-          <span class="ms-label">맵 시드</span>
+          <span class="ms-label" data-i18n="ui.html.seed"></span>
           <div class="seed-row">
-            <input id="optSeed" type="number" min="1" max="999999" inputmode="numeric" aria-label="맵 시드">
-            <button class="chip" id="reseed" type="button" title="무작위 시드">주사위</button>
+            <input id="optSeed" type="number" min="1" max="999999" inputmode="numeric" data-i18n-aria="ui.html.seed">
+            <button class="chip" id="reseed" type="button" data-i18n-title="ui.html.reseedTip" data-i18n="ui.html.reseed"></button>
           </div>
           <small class="ms-hint" id="mapHint"></small>
         </div>
       </div>
-      <div class="ms-preview"><svg id="mapPreview" role="img" aria-label="맵 미리보기"></svg></div>
+      <div class="ms-preview"><svg id="mapPreview" role="img" data-i18n-aria="ui.html.mapPreview"></svg></div>
     </div>
     <div class="ms-buttons">
-      <button class="btn-primary ms-start" id="startGame" type="button">새 게임 시작 <kbd>Enter</kbd></button>
-      <button class="btn-ghost ms-tutorial" id="startTutorial" type="button">튜토리얼 <small>3×3 · 5장</small></button>
-      <button class="btn-ghost ms-daily" id="startDaily" type="button" hidden>오늘의 계시 <small id="dailyHint"></small></button>
-      <button class="btn-ghost ms-daily" id="openTrials" type="button" hidden>시련 <small id="trialHint"></small></button>
+      <button class="btn-primary ms-start" id="startGame" type="button" data-i18n-html="ui.html.startGame"></button>
+      <button class="btn-ghost ms-tutorial" id="startTutorial" type="button" data-i18n-html="ui.html.tutorial"></button>
+      <button class="btn-ghost ms-daily" id="startDaily" type="button" hidden><span data-i18n="ui.html.daily"></span> <small id="dailyHint"></small></button>
+      <button class="btn-ghost ms-daily" id="openTrials" type="button" hidden><span data-i18n="ui.html.trials"></span> <small id="trialHint"></small></button>
     </div>
     <div class="ms-awe" id="msAwe" hidden></div>
-    <div class="ms-status" id="msStatus"><span class="dot off"></span><span>대사제를 깨우는 중…</span></div>
+    <div class="ms-status" id="msStatus"><span class="dot off"></span><span data-i18n="ui.html.waking"></span></div>
     <div class="ms-links">
       <button class="chip" id="msMusic" type="button"></button>
       <button class="chip" id="msSound" type="button"></button>
       <button class="chip" id="msMotion" type="button"></button>
-      <button class="chip" id="msRules" type="button">? 규칙서</button>
-      <button class="chip" id="msSettings" type="button">⚙ 설정</button>
-      <button class="chip" id="msLibrary" type="button" hidden>서고</button>
-      <button class="chip" id="msBible" type="button" hidden>성서</button>
-      <a class="chip" href="../check.html">내장 AI 점검</a>
-      <a class="chip" href="../lab/interpret.html">해석기 실험실</a>
+      <button class="chip" id="msRules" type="button" data-i18n="ui.html.msRules"></button>
+      <button class="chip" id="msSettings" type="button" data-i18n="ui.html.msSettings"></button>
+      <button class="chip" id="msLibrary" type="button" hidden data-i18n="ui.html.library"></button>
+      <button class="chip" id="msBible" type="button" hidden data-i18n="ui.html.bible"></button>
+      <a class="chip" href="../check.html" data-i18n="ui.html.check"></a>
+      <a class="chip" href="../lab/interpret.html" data-i18n="ui.html.lab"></a>
       <a class="chip" href="https://github.com/wisebear-KOR/GSG_Project">GitHub</a>
     </div>
-    <p class="ms-foot">데스크톱 Chrome의 내장 AI(Prompt API)로 동작하며, 쓸 수 없으면 석판(키워드) 해석기로 플레이한다 · MIT License</p>
+    <p class="ms-foot" data-i18n="ui.html.foot"></p>
   </div>
 </section>
 
-<script type="module" src="../js/game/main.js?v=202609271001"></script>
+<script type="module" src="../js/game/main.js?v=202609271025"></script>
 </body>
 </html>

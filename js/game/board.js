@@ -1,4 +1,5 @@
 // 육각 보드 SVG 렌더링: 금테 액자 속 양피지 지도 위에 입체 타일을 올린다
+import { t as tr } from './i18n.js';
 const R = 48;                       // 육각 반지름
 const W = Math.sqrt(3) * R;         // 육각 가로
 const PAD = 34;                     // 액자 안쪽 여백
@@ -126,7 +127,7 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
     if (cath) for (let i = 0; i < 3; i++) g.append(el('circle', { cx: c.x - 12 + i * 12, cy: c.y + R * 0.5, r: 4, class: `cath-pip${i < cath ? ' on' : ''}` }));
     if (state.names?.[t.id] && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name' }, state.names[t.id]));
     else if (state.legends?.[t.id] && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name legend' }, state.legends[t.id].name));
-    else if (t.feature && !hidden && !t.building) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name feat' }, t.feature === 'oasis' ? '오아시스' : '채석장'));
+    else if (t.feature && !hidden && !t.building) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name feat' }, t.feature === 'oasis' ? tr('shell.feature.oasis') : tr('shell.feature.quarry')));
     if (t.faithMarks && !hidden) {
       // 믿음의 표식: 테두리의 절반(1/2)만큼 상대 색으로 물든다
       g.append(el('polygon', { points: hexPoints(c, R - 5), class: `faith-mark fm-${t.faithMarks.side}`, pathLength: 12, 'stroke-dasharray': `${6 * t.faithMarks.n} 12` }));

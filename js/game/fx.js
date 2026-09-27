@@ -1,6 +1,7 @@
 // 연출 도우미. 모든 대기는 wait()를 거치므로 빨리 감기(motion.skip)로 건너뛸 수 있다.
 import { tileCenter, tileToHost } from './board.js';
 import { sfx } from './sound.js';
+import { t } from './i18n.js';
 
 // 연출 설정: 기본은 화려하게. 줄이기를 고르면 브라우저에 저장한다.
 // (OS의 '애니메이션 줄이기'를 따르지 않는 이유: 연출이 게임의 핵심이라 기본으로 켜 두고 직접 끌 수 있게 한다)
@@ -231,7 +232,7 @@ export async function rollDice(host, d, { leftLabel, rightLabel, leftSide, right
     <div class="dice-panel">
       <div class="dice-row">
         <div class="dcol"><div class="dlabel"></div>${dieHTML(leftSide)}<div class="dtotal"></div></div>
-        <div class="vs">대</div>
+        <div class="vs">${t('shell.dice.vs')}</div>
         <div class="dcol"><div class="dlabel"></div>${dieHTML(rightSide)}<div class="dtotal"></div></div>
       </div>
       <div class="dresult"></div>
@@ -343,7 +344,7 @@ export async function stampSeal(scrollEl, sealEl) {
   // 인주 자국을 두루마리에 남긴다
   const mark = document.createElement('div');
   mark.className = 'stamp-mark';
-  mark.innerHTML = '<svg viewBox="0 0 24 24"><use href="#i-faith"/></svg><span>계시</span>';
+  mark.innerHTML = `<svg viewBox="0 0 24 24"><use href="#i-faith"/></svg><span>${t('shell.stamp')}</span>`;
   mark.style.left = `${at.x - r.left}px`; mark.style.top = `${at.y - r.top}px`;
   mark.style.setProperty('--rot', `${rot}deg`);
   scrollEl.append(mark);
@@ -565,7 +566,7 @@ function blessTiles(boardEl) {
 
 // ---------- 승패 ----------
 // opts.bodyHTML: 제목 아래 본문(종료 양피지), opts.buttons: [{ label, cls, onClick }]로 기본 버튼을 바꾼다
-export function endScreen(won, title, sub, onAgain, { againLabel = '다시 하기', closeLabel = '보드 보기', bodyHTML = '', buttons = null } = {}) {
+export function endScreen(won, title, sub, onAgain, { againLabel = t('shell.end.again'), closeLabel = t('shell.end.close'), bodyHTML = '', buttons = null } = {}) {
   (won ? sfx.win : sfx.lose)();
   const o = div(`endscreen ${won ? 'win' : 'lose'}${bodyHTML ? ' rich' : ''}`, `
     ${won ? '<div class="rays"></div>' : ''}
