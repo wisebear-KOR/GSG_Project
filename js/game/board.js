@@ -88,6 +88,7 @@ const INTENT_ICON = { attack: 'd-war', preach: 'd-peace', build: 'i-house', gath
 export function renderBoard(svg, state, { markers = [], highlight = [], hints = [], intents = [], onTileClick, selectable = [], focus = null } = {}) {
   const { width, height } = sizeOf(state.rows ?? 5, state.cols ?? 5);
   svg.setAttribute('viewBox', `0 0 ${width.toFixed(0)} ${height.toFixed(0)}`);
+  svg.closest('.board-area')?.style.setProperty('--board-ar', (width / height).toFixed(4));
   svg.replaceChildren();
   frame(svg, width, height);
 

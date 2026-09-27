@@ -1957,12 +1957,11 @@ function renderAltar() {
     const ev = state.event;
     const dilemma = ev.choice ? `<div class="dilemma"><span class="dl-head">${esc(ev.name)} · 갈림길</span>${ev.choice.map((o) => `<button type="button" class="dl-opt${(state.dilemmaPick ?? ev.choice[0].id) === o.id ? ' on' : ''}" data-opt="${o.id}" title="${esc(o.text)}"><b>${esc(o.label)}</b><small>${esc(o.text)}</small></button>`).join('')}<span class="dl-note">계시로 답해도 된다</span></div>` : '';
     scroll = `<div class="scroll">
-      ${petition}${prophecyNote}${sacredNote}${dilemma}<div class="suggest-row" id="suggestRow"></div>
-      <div class="scroll-head"><h3>신의 말씀</h3>${ban}<small>제 ${state.round} 장 · 신도 행동 ${actionLimit(state, 'player')}회</small></div>
+      ${petition}${prophecyNote}${sacredNote}${dilemma}<div class="suggest-row" id="suggestRow"></div>${noticeHTML}
+      <div class="compose"><div class="scroll-head"><h3>신의 말씀</h3>${ban}<small>제 ${state.round} 장 · 신도 행동 ${actionLimit(state, 'player')}회</small></div>
       <textarea maxlength="${revMax()}" rows="2" placeholder="강물이 너희를 먹이리라…" aria-label="계시">${esc(draft)}</textarea>
       <div class="ink-meta"><span class="count">${draft.length} / ${revMax()}</span>
-        <span class="cost-pill${cost > p.faith ? ' over' : ''}">${svgUse('i-faith')}<span class="c">신앙 ${cost}</span></span></div>
-      ${noticeHTML}</div>`;
+        <span class="cost-pill${cost > p.faith ? ' over' : ''}">${svgUse('i-faith')}<span class="c">신앙 ${cost}</span></span></div></div></div>`;
     act = `<div class="act"><button class="seal-btn" type="button" title="계시 내리기 (Ctrl+Enter)">${svgUse(SIGILS[state.config.god?.sigil] ?? 'i-faith')}<span>계시</span></button>
       <button class="text-btn silence" type="button">침묵하기 — 신도들이 알아서 일한다</button></div>`;
   } else if (phase === 'thinking') {

@@ -1111,3 +1111,42 @@ body.faith-crisis .vignette { background: radial-gradient(ellipse at center, tra
 /* 맵 미리보기: 세로로 늘어나며 가로로 넘치지 않게 */
 .ms-preview { align-self: start; width: 100%; box-sizing: border-box; }
 .section-label small.cap { font-size: 11px; opacity: .75; }
+/* 텍스트 선택 막기 (입력칸은 예외) */
+html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+
+/* ---------- 화면 비율 대응: 데스크톱은 한 화면에 딱 맞춘다 ---------- */
+/* 발언 단계: 입력칸은 늘 보이게 두루마리 바닥에 붙인다 */
+#altar[data-phase="speak"] .compose { position: sticky; bottom: -12px; z-index: 2; margin: 0 -30px -12px; padding: 4px 30px 12px;
+  background: linear-gradient(180deg, rgba(233, 216, 174, .92), #e6d3a6 14px); }
+@media (min-width: 1181px) {
+  .app { height: 100vh; height: 100dvh; min-height: 560px; grid-template-rows: auto minmax(0, 1fr) auto; }
+  .table { min-height: 0; height: 100%; container-type: size; align-items: stretch; padding-top: 10px; padding-bottom: 12px; }
+  .table > .mat, .table > .side-col { max-height: 100%; min-height: 0; align-self: start; overflow-y: auto; }
+  .side-col { scrollbar-width: thin; scrollbar-color: rgba(201,162,74,.4) transparent; padding-right: 2px; }
+  .board-area { align-self: center; max-width: min(100%, calc((100cqh - 8px) * var(--board-ar, 1.16))); min-width: 0; }
+  .altar { position: relative; }
+  #altar .scroll, #altar[data-phase="confirm"] .scroll { height: clamp(150px, 24vh, 196px); }
+}
+@media (min-width: 1181px) {
+  #altar[data-phase="speak"] .scroll:has(> .petition, > .dilemma, > .suggest-row.show) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); grid-auto-rows: min-content; column-gap: 18px; align-content: start; }
+  #altar[data-phase="speak"] .scroll:has(> .petition, > .dilemma, > .suggest-row.show) > :not(.compose) { grid-column: 1; }
+  #altar[data-phase="speak"] .scroll:has(> .petition, > .dilemma, > .suggest-row.show) > .compose { grid-column: 2; grid-row: 1 / span 12; position: sticky; top: -14px; bottom: auto; margin: 0; padding: 0; background: none; }
+  #altar[data-phase="speak"] .scroll > .dilemma { margin-top: 2px; }
+}
+/* 앱 열이 내용의 최소 폭으로 늘어나 태블릿 폭에서 오른쪽이 잘리던 문제 */
+.app { grid-template-columns: minmax(0, 1fr); }
+/* 태블릿 폭: 상단바를 두 줄로 (장 트랙은 아랫줄 전체) */
+@media (max-width: 1180px) and (min-width: 721px) {
+  .topbar { grid-template-columns: auto 1fr; gap: 6px 16px; padding: 12px 20px 4px; }
+  .tools { justify-self: end; flex-wrap: wrap; justify-content: flex-end; }
+  .tools .label { display: none; }
+  .track { grid-column: 1 / -1; order: 3; justify-self: center; padding-bottom: 22px; }
+}
+/* 낮은 가로 화면(휴대폰 가로): 제단이 보드를 덮지 않게 흐름 속에 둔다 */
+@media (max-height: 520px) {
+  .altar { position: relative; }
+}
+/* 첫 기적 카드의 설명이 화면 왼쪽 밖으로 나가지 않게 */
+.mcard:first-child .tip { left: -6px; transform: none; }
+#sr { position: fixed; }
