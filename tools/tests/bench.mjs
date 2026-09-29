@@ -70,6 +70,12 @@ console.log(`- 역전(중반 선두가 짐): ${pct(comeback.length, sm.length)}%
 console.log(`- 평균 길이: ${(sm.reduce((a, r) => a + r.res.r, 0) / sm.length).toFixed(1)}장`);
 const kinds = {}; for (const r of sm) kinds[`${r.res.w}:${r.res.k}`] = (kinds[`${r.res.w}:${r.res.k}`] ?? 0) + 1;
 console.log(`- 끝난 방식: ${Object.entries(kinds).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${pct(n, sm.length)}%`).join(' · ')}`);
+console.log('\n## 계시가 정한 행동 비중 (정책별: 계시 / 교리를 따른 자동 / 그 밖의 자동)');
+for (const [pol, rs] of group((r) => r.job.pol)) {
+  const sum = (f) => rs.reduce((a, r) => a + (f(r) ?? 0), 0);
+  const acc = sum((r) => r.res.pl.acc), auto = sum((r) => r.res.pl.auto), heed = sum((r) => r.res.pl.heeded), all = acc + auto || 1;
+  console.log(`- ${pol}: ${pct(acc, all)}% / ${pct(heed, all)}% / ${pct(auto - heed, all)}%`);
+}
 console.log('\n## 율법파 교전 (smart 상대, 난이도별)');
 for (const [d, rs] of group((r) => (r.job.pol === 'smart' ? r.job.cfg.difficulty : null))) {
   if (!d) continue;

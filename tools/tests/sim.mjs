@@ -222,7 +222,7 @@ export function runGame(cfg, policyName, botSeed, opts = {}) {
   const M = {
     w: null, k: null, r: 0, mr: state.maxRounds, h: [],
     en: { atkPlan: 0, atkCapPlan: 0, atkN: 0, atkW: 0, capture: 0, capHit: 0, prN: 0, prW: 0, turn: 0, blocked: 0 },
-    pl: { atkN: 0, atkW: 0, prN: 0, prW: 0, capHit: 0, blocked: 0, types: {} },
+    pl: { atkN: 0, atkW: 0, prN: 0, prW: 0, capHit: 0, blocked: 0, types: {}, acc: 0, auto: 0, heeded: 0 },
     neg: 0, edictMax: 0, wrathMax: 0, doom: 0, miracles: 0, silent: 0,
     legal: [], lim: [], plans: [], tiles: [], types: [], elimLim: [],
     pop: [], enPop: [],
@@ -249,6 +249,7 @@ export function runGame(cfg, policyName, botSeed, opts = {}) {
     const pd = doSpeak(state, sp.text, { reinterpret: !!sp.reinterpret, seal: !!sp.seal });
     if (!pd.text) M.silent++;
     for (const a of [...pd.accepted, ...pd.auto]) M.pl.types[a.type] = (M.pl.types[a.type] ?? 0) + 1;
+    M.pl.acc += pd.accepted.length; M.pl.auto += pd.auto.length; M.pl.heeded += pd.auto.filter((a) => a.heeded).length;
     // enemy plan targets before resolve
     const intent = E.planEnemy(state);
     for (const a of intent) if (a.type === 'attack') { M.en.atkPlan++; if (state.tileAt[a.tile].building === 'capital') M.en.atkCapPlan++; }

@@ -1247,7 +1247,7 @@ function resolveAction(state, a) {
         f.capitalHp -= 1;
         if (foe === 'player' && (f.cathedral ?? 0) >= 1) { f.cathedral -= 1; logEvent(state, side, t('log.cathedralFall', { part: CATHEDRAL[f.cathedral].name, stage: f.cathedral }), null, { tile: tl.id, kind: 'loss' }); }
         logEvent(state, side, t('log.attackCapital', { who: side, place, hp: f.capitalHp }), dice, { tile: tl.id, kind: 'attack', capital: true });
-        if (f.capitalHp <= 0) { state.winner = side; state.winReason = t('eng.win.capital'); state.winKind = 'capital'; }
+        if (f.capitalHp <= 0) { state.winner = side; state.winReason = t('eng.win.capital', { who: side }); state.winKind = 'capital'; }
         return;
       }
       tl.owner = side; tl.wall = false; tl.faithMarks = null;
@@ -1352,7 +1352,24 @@ export function scoreBreakdown(state, side) {
 export function score(state, side) { return scoreBreakdown(state, side).total; }
 
 // final: 마지막 장의 승점 판정까지 할지 (기적처럼 장 중간에 부를 때는 false)
+// 남은 자: 수도가 서 있는 한 부족은 사라지지 않는다. 신도가 모두 쓰러지면 수도가 한 번 맞은 것처럼 흔들리고(내구도 -1,
+// 대성당 한 단계) 한 명이 수도로 돌아온다. 그래서 전멸·전원 개종은 따로 이기는 길이 아니라 점령으로 가는 길이다
+function remnant(state) {
+  if (state.tutorial) return;
+  for (const side of ['player', 'enemy']) {
+    const s = state.sides[side]; const cap = capitalOf(state, side);
+    if (s.pop > 0 || !cap || s.capitalHp <= 0 || state.winner) continue;
+    s.capitalHp -= 1;
+    if (side === 'player' && (s.cathedral ?? 0) >= 1) s.cathedral -= 1;
+    logEvent(state, side, t('log.remnant', { who: side, hp: s.capitalHp }), null, { tile: cap.id, kind: 'loss' });
+    if (s.capitalHp > 0) s.pop = 1;
+    else { state.winner = other(side); state.winReason = t('eng.win.capital', { who: other(side) }); state.winKind = 'capital'; }
+  }
+}
+
 export function checkVictory(state, final = true) {
+  if (state.winner) return state.winner;
+  remnant(state);
   if (state.winner) return state.winner;
   const { player: p, enemy: e } = state.sides;
   if (p.pop <= 0 && e.pop <= 0) { state.winner = 'draw'; state.winReason = t('eng.win.draw'); state.winKind = 'bothExtinct'; return state.winner; }

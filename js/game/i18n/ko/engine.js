@@ -14,6 +14,7 @@ const streakHead = (v) => `말씀이 세 장 이어졌다 — ${v.doc}의 기적
 
 export default {
   'log.rally': '율법파가 결집한다 — 우리가 크게 앞서자 다음 장 율법파의 행동이 하나 늘고 칼을 먼저 든다.',
+  'log.remnant': (v) => `${tribe(v.who)}의 마지막 신도가 쓰러졌다 — ${v.hp > 0 ? `수도가 흔들리고(내구도 ${v.hp}) 한 명이 수도로 돌아온다.` : '수도가 무너졌다.'}`,
   'log.echo': '같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.',
   'log.attackRetreat': (v) => `율법파 원정대가 ${josa(v.place, '을', '를')} 넘지 못하고 물러났다 (율법파 식량 -1).`,
   'log.lawGuard': (v) => `율법파가 되풀이되는 ${v.kind === 'preach' ? '선교' : '칼'}에 맞서 율법을 굳혔다 — 다음 장 ${v.kind === 'preach' ? '선교' : '공격'} 방어 +${v.n}. 한 장 쉬면 풀린다.`,
@@ -102,7 +103,7 @@ export default {
   // ---------- 승패 사유 ----------
   'eng.win.doom': '적 수도 점령 (심판의 날)',
   'eng.win.cathedral': '대성당 완공',
-  'eng.win.capital': '적 수도 점령',
+  'eng.win.capital': (v) => (v?.who === 'enemy' ? '우리 수도 함락' : '적 수도 점령'),
   'eng.win.draw': '양쪽 부족이 모두 사라짐',
   'eng.win.convertAll': '율법파 전원 개종·소멸',
   'eng.win.edict': '율법 석판 완성',
