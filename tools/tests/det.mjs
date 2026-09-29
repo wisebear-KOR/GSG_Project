@@ -23,8 +23,11 @@ for (const diff of ['easy', 'normal', 'hard']) {
   const b = play(cfg, ['숲을 베어 마을을 세워라', '분노하라 쳐라']);
   const c = play(cfg, ['강물이 너희를 먹이리라', '이웃에게 전하라'], 3);
   const n = Math.min(a.seq.split(' ').length, b.seq.split(' ').length);
-  const same = a.seq.split(' ').slice(0, n).join() === b.seq.split(' ').slice(0, n).join();
-  console.log(diff, 'decks-independent-of-play:', same, '| save/restore identical:', a.seq === c.seq && a.end === c.end, '|', a.end);
+  // 사건 덱은 어느 난이도든 플레이와 무관하다. 율법 카드는 쉬움만 — 보통·어려움은 지난 계시를 듣고 맞서는 카드를 고른다(설계, 02 §4.3)
+  const part = (x, i) => x.split(' ').slice(0, n).map((p) => p.split('/')[i]).join();
+  const events = part(a.seq, 0) === part(b.seq, 0);
+  const laws = diff !== 'easy' || part(a.seq, 1) === part(b.seq, 1);
+  console.log(diff, 'decks-independent-of-play:', events && laws, '| save/restore identical:', a.seq === c.seq && a.end === c.end, '|', a.end);
 }
 const size = JSON.stringify(E.serializeState((() => { const s = E.createState({ size: 7, seed: 9 }); return s; })())).length;
 console.log('fresh save bytes (7x7):', size);
