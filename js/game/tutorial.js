@@ -119,6 +119,7 @@ export class Tutorial {
     this.el.querySelector('.npc-portrait').animate([{ transform: 'translateY(4px) scale(.96)' }, { transform: 'none' }], { duration: 300, easing: 'cubic-bezier(.34,1.56,.64,1)' });
     // 한 글자씩
     const token = (this.token = Symbol('line'));
+    this.typing = { token, full: line.text };
     text.textContent = '';
     for (const ch of line.text) {
       if (this.token !== token) return;
@@ -129,8 +130,15 @@ export class Tutorial {
   }
 
   next() {
-    // 글자가 아직 나오는 중이면 한 번에 다 보여 준다
+    // 글자가 아직 나오는 중이면 한 번에 다 보여 준다 (두 번째 누름에 다음 줄로)
     const text = this.el.querySelector('.npc-text');
+    if (this.typing && this.typing.token === this.token && text.textContent !== this.typing.full) {
+      this.token = null;
+      text.textContent = this.typing.full;
+      this.typing = null;
+      return;
+    }
+    this.typing = null;
     this.token = null;
     if (this.queue.length === 0) { this.hide(); if (this.phase === 'end') this.finish(); return; }
     text.textContent = '';

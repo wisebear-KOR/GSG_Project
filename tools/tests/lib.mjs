@@ -64,7 +64,7 @@ function interpret(state, text, naming) {
   const result = I.interpretWithTablet(state, text);
   const forbiddenKeys = result.forbidden.map((a) => a.key);
   const { accepted, rejected } = E.validateOrders(state, 'player', result.orders, forbiddenKeys, result.doctrine);
-  const auto = E.autoFill(state, 'player', accepted, forbiddenKeys);
+  const auto = E.autoFill(state, 'player', accepted, forbiddenKeys, result.doctrine);
   return {
     text, result, accepted, rejected, auto, naming, forbiddenKeys,
     tone: L.detectTone(text), links: I.linkWords(state, text, accepted), answered: E.petitionAnswered(state, text, accepted),

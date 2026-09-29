@@ -6,8 +6,9 @@ import {
   grantGrace, petitionAnswered, nameTile, applyTone, sealProphecy, takeMiracle, resolveSite,
   scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
-  canCarve, carveCommandment, updateLiturgy, findSacred, distance, previewGains, ultRound, draftRound,
+  canCarve, carveCommandment, findSacred, distance, previewGains, ultRound, draftRound,
   applySilence, markLegends, serializeState, hydrateState, monthOf, payDilemma, carvable,
+  isEcho, marchRange,
 } from './engine.js';
 import {
   DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, FESTIVALS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, TRIALS, ASCENSION, RULESET, LAW_CARDS, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
@@ -283,13 +284,18 @@ function startFromMain(mode = 'new') {
 }
 
 // 저장에서 불러온 판을 이어 간다
-function resumeLoaded() {
+async function resumeLoaded() {
   const at = loadedPhase;
   loadedPhase = null;
   resolved = null;
   renderSubtitle();
   music.start();
-  if (at === 'resolved') { newRound(); return; }
+  if (at === 'resolved') {
+    // 해결 뒤에 저장된 판: 풀리지 않은 유목민 선택이 있으면 먼저 묻는다
+    if (state.pendingSite) { phase = 'speak'; pending = null; render(); await showSiteChoice(); }
+    newRound();
+    return;
+  }
   phase = 'speak';
   pending = null;
   dealSeason = true;
@@ -349,6 +355,10 @@ function bindMain() {
       e.preventDefault();
       startFromMain($('resumeGame') ? 'resume' : 'new');
     }
+    // 목록 모달(규칙서·설정·서고…)은 Esc로 닫는다 — 그 아래로 메인 화면을 열지 않는다
+    const listM = document.querySelector('.list-modal');
+    if (e.key === 'Escape' && listM) { e.preventDefault(); (listM.querySelector('.list-head button') ?? listM.querySelector('button'))?.click(); return; }
+    if (e.key === 'Escape' && document.getElementById('chronicle')?.classList.contains('open')) { e.preventDefault(); $('closeChron')?.click(); return; }
     if (e.key === 'Escape' && phase === 'confirm' && document.querySelector('#altar .retract') && !document.querySelector('.choice-modal')) { e.preventDefault(); retract(); return; }
     if (e.key === 'Escape' && $('mainScreen').hidden && phase !== 'thinking' && phase !== 'playing' && !document.querySelector('.choice-modal:not(.list-modal)')) showMain();
   });
@@ -540,7 +550,10 @@ async function runInterpretation(text) {
     try {
       await prepareLLM((p) => { progress = p; if (phase === 'thinking') renderAltar(); });
       progress = null;
-      return { result: await interpretWithLLM(state, text) };
+      // 모델이 멈추면 해석 화면에 갇히지 않게 30초 뒤 석판으로 넘긴다 (모델 내려받기는 위에서 끝난 뒤)
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), 30000);
+      try { return { result: await interpretWithLLM(state, text, ctl.signal) }; } finally { clearTimeout(timer); }
     } catch (e) {
       return { result: interpretWithTablet(state, text), notice: t('ui.notice.llmFailed', { err: e.name }) };
     }
@@ -574,7 +587,7 @@ function derivePending() {
   const { accepted, rejected } = validateOrders(state, 'player', orders, forbiddenKeys, result.doctrine);
   pending.accepted = accepted;
   pending.rejected = rejected;
-  pending.auto = autoFill(state, 'player', accepted, [...forbiddenKeys, ...pending.dropped]);
+  pending.auto = autoFill(state, 'player', accepted, [...forbiddenKeys, ...pending.dropped], result.doctrine);
   pending.links = text ? linkWords(state, text, accepted) : {};
   pending.answered = text ? petitionAnswered(state, text, accepted) : false;
   pending.dilemma = text ? dilemmaByText(state, text) : null;
@@ -582,11 +595,6 @@ function derivePending() {
   pending.command = text && canCarve(state) ? parseCommandment(text, COMMANDMENTS) : null;
   if (pending.command && !carvable(state, pending.command)) pending.command = null;
   if (pending.command && state.commandments.includes(pending.command)) pending.command = null;
-  // 기이한 해석: 처음 해석(칩을 빼기 전)으로 한 번만 정한다 — LLM이 계시의 어떤 낱말과도 잇지 못하는 행동을 골랐고, 석판과도 겹치지 않을 때 (판당 한 번)
-  if (pending.odd === undefined) {
-    pending.odd = !state.oddUsed && result.source === 'llm' && accepted.length > 0 && !Object.keys(pending.links).length
-      && !interpretWithTablet(state, text).orders.some((o) => accepted.some((a) => a.key === o.key));
-  }
 }
 
 // 말한 대로 내리는 기적: 손에 있고, 이번 장에 아직 안 썼고, 신앙이 되면
@@ -712,9 +720,9 @@ async function accept() {
   if (pending.command && pending.carve && carveCommandment(state, pending.command)) {
     // 새긴 계명은 이번 장부터 지킨다. 빠진 자리는 신도들이 알아서 채운다
     const banned = { noSword: 'attack', noExpand: 'village' }[pending.command];
-    const kept = accepted.filter((a) => a.type !== banned && a.build !== banned);
+    const kept = accepted.filter((a) => !banned || (a.type !== banned && a.build !== banned));
     const fk = result.forbidden.map((a) => a.key);
-    plan = [...kept, ...autoFill(state, 'player', kept, fk)];
+    plan = [...kept, ...autoFill(state, 'player', kept, fk, result.doctrine)];
   }
   const ordered = plan.filter((a) => !a.auto);
   if (text) findSacred(state, text);
@@ -725,7 +733,7 @@ async function accept() {
   if (!state.winner && text) keepVows(state, result.forbidden, plan);
   if (!state.winner) wordsAfter(pending);
   // 교리는 해결이 끝난 뒤에 오른다: 확인 화면에 보인 수치 그대로 해결되도록
-  if (text) { recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0); updateLiturgy(state); }
+  if (text) recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0);
   if (pending.naming?.first && state.sides.player.doctrine.wisdom < RULES.graceDoctrineBelow) state.sides.player.doctrine.wisdom += 1;
   // 신학 노트: LLM이 석판 규칙에 없는 말버릇을 행동으로 읽었으면 배운다
   const lesson = text && result.source === 'llm' ? extractLesson(state, text, accepted) : null;
@@ -753,11 +761,6 @@ async function accept() {
 
 // 해결 뒤: 청원 응답·이름 붙이기의 은총, 외면당한 청원 (로그에 남아 재생된다)
 function wordsAfter(pd) {
-  if (pd.odd && !state.oddUsed) {
-    const said = nouns(pd.text)[0] ?? pd.text.slice(0, 8);
-    const heard = pd.accepted[0]?.text.replace(/ \(.*\)$/, '') ?? t('ui.grace.otherDeed');
-    if (grantGrace(state, 1, t('ui.grace.odd', { said, heard }))) state.oddUsed = true;
-  }
   const pt = state.petition;
   if (pt?.need) {
     if (pd.answered) { state.stats.petitions += 1; state.petitionIgnored = 0; grantGrace(state, 1, t('ui.grace.petition', { from: pt.from })); }
@@ -839,7 +842,7 @@ function showEnd(summary, fresh, had) {
     buttons: [
       { label: t('ui.end.psalm'), title: t('ui.end.psalmTip'), cls: 'btn-ghost psalm', keep: true, onClick: () => copyPsalm(summary) },
       { label: t('ui.end.again'), title: t('ui.end.againTip'), cls: 'btn-primary', onClick: restart },
-      { label: t('ui.end.newMap'), title: t('ui.end.newMapTip'), onClick: () => { setup.seed = randomSeed(); saveSetup(); beginGame({ ...setup, mode: 'standard', veteran: true, canon: meta.getCanon()[0] ?? null, god: godConfig(), legacy: legacyFor(setup.seed), blessing: blessingPick() }); } },
+      { label: t('ui.end.newMap'), title: t('ui.end.newMapTip'), onClick: () => { setup.seed = randomSeed(); saveSetup(); const asc = setup.difficulty === 'hard' ? Math.min(setup.ascension ?? 0, meta.ascensionOpen()) : 0; beginGame({ ...setup, ascension: asc, mode: 'standard', veteran: true, canon: meta.getCanon()[0] ?? null, god: godConfig(), legacy: legacyFor(setup.seed), blessing: asc >= 5 ? null : blessingPick() }); } },
       { label: t('ui.end.main'), onClick: () => showMain() },
       { label: t('ui.viewBoard'), title: t('ui.end.viewBoardTip') },
     ],
@@ -1154,7 +1157,8 @@ function blockedName(l) {
 function showRules() {
   const sec = (title, items, open = false) => `<details class="rule-sec"${open ? ' open' : ''}><summary>${title}</summary><ul>${items.map((x) => `<li>${x}</li>`).join('')}</ul></details>`;
   const html = `<div class="rules">
-    ${sec(t('ui.rules.flow'), [t('ui.rules.flow1'), t('ui.rules.flow2'), t('ui.rules.flow3'), t('ui.rules.flow4')], true)}
+    ${sec(t('ui.rules.core'), [t('ui.rules.core1'), t('ui.rules.core2'), t('ui.rules.core3'), t('ui.rules.core4'), t('ui.rules.core5')], true)}
+    ${sec(t('ui.rules.flow'), [t('ui.rules.flow1'), t('ui.rules.flow2'), t('ui.rules.flow3'), t('ui.rules.flow4')])}
     ${sec(t('ui.rules.win'), [t('ui.rules.win1'), t('ui.rules.win2'), t('ui.rules.win3'), t('ui.rules.win4'), t('ui.rules.win5')])}
     ${sec(t('ui.rules.faith'), [
       t('ui.rules.faith1', { perAction: RULES.followersPerAction, perFaith: RULES.followersPerFaith }),
@@ -1163,7 +1167,7 @@ function showRules() {
     ])}
     ${sec(t('ui.rules.doctrine'), [t('ui.rules.doctrine1'), t('ui.rules.doctrine2')])}
     ${sec(t('ui.rules.words'), [t('ui.rules.words1'), t('ui.rules.words2'), t('ui.rules.words3'), t('ui.rules.words4'), t('ui.rules.words5'), t('ui.rules.words6'), t('ui.rules.words7')])}
-    ${sec(t('ui.rules.enemy'), [t('ui.rules.enemy1'), t('ui.rules.enemy2')])}
+    ${sec(t('ui.rules.enemy'), [t('ui.rules.enemy1'), t('ui.rules.enemy2'), t('ui.rules.enemy3'), t('ui.rules.enemy4')])}
     ${sec(t('ui.rules.miracle'), [t('ui.rules.miracle1'), t('ui.rules.miracle2')])}
     ${sec(t('ui.rules.keys'), [t('ui.rules.keys1')])}
   </div>`;
@@ -1286,10 +1290,10 @@ function verdictOf(pd, logs) {
     if (good) { ok += 1; best ??= mine.find((l) => l.dice?.win) ?? mine[0]; }
   }
   const rate = ok / pd.accepted.length;
-  const grade = pd.odd ? 'odd' : rate >= 0.7 ? 'full' : rate >= 0.3 ? 'half' : 'miss';
+  const grade = rate >= 0.7 ? 'full' : rate >= 0.3 ? 'half' : 'miss';
   const word = Object.values(pd.links ?? {})[0] ?? pd.text.slice(0, 12);
   const deed = best ? t('ui.verdict.deed', { text: best.text }) : '';
-  const stamp = { full: t('ui.verdict.full'), half: t('ui.verdict.half'), miss: t('ui.verdict.miss'), odd: t('ui.verdict.odd') }[grade];
+  const stamp = { full: t('ui.verdict.full'), half: t('ui.verdict.half'), miss: t('ui.verdict.miss') }[grade];
   return { grade, text: t('ui.verdict.text', { grade, word, deed }), stamp };
 }
 
@@ -1641,6 +1645,7 @@ async function useMiracle(id) {
   // 기적 전 매트를 보여 주고, 토큰이 도착한 뒤에 숫자를 올린다
   const before = makeView(snapshot(state));
   const r = castMiracle(state, id);
+  if (r.ok) meta.markSeen('miracles', id);
   notice = r.ok ? '' : r.text;
   if (!r.ok) { sfx.fail(); setTimeout(() => document.querySelector(`.mcard[data-m="${id}"]`)?.classList.add('reject'), 30); }
   matView = r.ok ? before : null;
@@ -1658,6 +1663,7 @@ async function useMiracle(id) {
 async function onTileClick(id) {
   if (targeting !== 'lightning' || phase !== 'speak') return;
   const r = castMiracle(state, 'lightning', id);
+  if (r.ok) meta.markSeen('miracles', 'lightning');
   notice = r.ok ? '' : r.text;
   targeting = null;
   render();
@@ -1879,9 +1885,17 @@ function lawBackHTML() {
   const shown = all.filter((a) => a.shown);
   const hidden = all.length - shown.length;
   const lines = shown.map((a) => `<li class="it-${a.type}">${esc(enemyLabel(a))}</li>`).join('');
+  const g = state.lawGuard ?? {};
+  const notes = [
+    g.preach ? t('ui.law.guard', { kind: 'preach', n: Math.min(2, g.preach) }) : '',
+    g.attack ? t('ui.law.guard', { kind: 'attack', n: Math.min(2, g.attack) }) : '',
+    state.rally ? t('ui.law.rally') : '',
+    marchRange(state, 'enemy') ? t('ui.law.march', { n: marchRange(state, 'enemy') }) : '',
+  ].filter(Boolean);
   return `<div class="law-back intent"><div class="kind">${t('ui.law.intent')}</div>
     <ul>${lines || `<li class="it-none">${t('ui.law.none')}</li>`}</ul>
-    ${hidden ? `<div class="more">${t('ui.law.hidden', { n: hidden })}</div>` : ''}</div>`;
+    ${hidden ? `<div class="more">${t('ui.law.hidden', { n: hidden })}</div>` : ''}
+    ${notes.length ? `<div class="law-notes">${notes.map((x) => `<span>${x}</span>`).join('')}</div>` : ''}</div>`;
 }
 
 // 율법파 지도자의 말풍선 (적 매트 머리 위)
@@ -1991,6 +2005,7 @@ function renderAltar() {
       ${petition}${prophecyNote}${sacredNote}${dilemma}<div class="suggest-row" id="suggestRow"></div>${noticeHTML}
       <div class="compose"><div class="scroll-head"><h3>${t('ui.compose.title')}</h3>${ban}<small>${t('ui.compose.sub', { n: state.round, acts: actionLimit(state, 'player') })}</small></div>
       <textarea maxlength="${revMax()}" rows="2" placeholder="${t('ui.compose.placeholder')}" aria-label="${t('ui.seal.label')}">${esc(draft)}</textarea>
+      <div class="heard-line" id="heardLine" aria-live="polite">${heardHTML(draft)}</div>
       <div class="ink-meta"><span class="count">${draft.length} / ${revMax()}</span>
         <span class="cost-pill${cost > p.faith ? ' over' : ''}">${svgUse('i-faith')}<span class="c">${t('ui.faithCost', { n: cost })}</span></span></div></div></div>`;
     act = `<div class="act"><button class="seal-btn" type="button" title="${t('ui.seal.tip')}">${svgUse(SIGILS[state.config.god?.sigil] ?? 'i-faith')}<span>${t('ui.seal.label')}</span></button>
@@ -2029,7 +2044,7 @@ function renderAltar() {
     }
     const chips = [
       ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}" title="${esc(a.text)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${short(a)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}${oddsTag(a)}${firstNote(a.tile)}</span>`),
-      ...auto.map((a) => `<span class="order auto" title="${esc(a.text)}">${meepleSvg('player')}<span class="t">${short(a)}</span>${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}<span class="why" style="background:rgba(124,89,27,.12)">${t('ui.chip.auto')}</span></span>`),
+      ...auto.map((a) => `<span class="order auto${a.heeded ? ' heeded' : ''}" title="${esc(a.heeded ? t('ui.chip.heededTip', { text: a.text }) : a.text)}">${meepleSvg('player')}<span class="t">${short(a)}</span>${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}<span class="why" style="background:rgba(124,89,27,.12)">${a.heeded ? t('ui.chip.heeded') : t('ui.chip.auto')}</span></span>`),
       ...(pending.miracle ? [`<span class="order miracle${pending.dropped.has(pending.miracle.key) ? ' dropped' : ''}" data-key="${pending.miracle.key}" title="${t('ui.chip.toggleTip')}">${svgUse(MIRACLE_ART[pending.miracle.id], 'mi', '0 0 48 48')}<span class="t">${esc(MIRACLES.find((m) => m.id === pending.miracle.id).name)}${pending.miracle.target ? ` → ${esc(tileName(state, state.tileAt[pending.miracle.target]))}` : ''}</span><span class="why">${t('ui.chip.miracle', { n: pending.miracle.cost })}</span></span>`] : []),
       ...[...pending.dropped].map((k) => result.orders.find((a) => a.key === k)).filter(Boolean).map((a) => `<span class="order dropped" data-key="${esc(a.key)}" title="${t('ui.chip.restoreTip')}">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why">${t('ui.chip.dropped')}</span></span>`),
       ...rejected.map((r) => `<span class="order bad"><span class="t">${short(r.action)}</span><span class="why">${esc(r.reason)}</span></span>`),
@@ -2041,16 +2056,14 @@ function renderAltar() {
       : result.doctrine === 'peace' && !legal.some((a) => a.type === 'preach') && KW_PREACH.test(text ?? '')
         ? t('ui.hint.noPreachTarget') : null;
     const tags = [];
-    // 은총은 장당 하나: 서원 > 기이한 해석 > 청원 > 이름 순으로 첫 하나만 '은총'이라 적는다
+    // 은총은 장당 하나: 서원 > 청원 > 이름 순으로 첫 하나만 '은총'이라 적는다
     let graceShown = result.forbidden.some((a) => ['attack', 'preach'].includes(a.type));
     const grace = () => { if (graceShown) return ''; graceShown = true; return t('ui.tag.grace'); };
     if (text && pending.tone !== 'command') tags.push(`<span class="wtag tone-${pending.tone}" title="${esc(TONES[pending.tone].text)}">${t('ui.tag.tone', { name: TONES[pending.tone].name, text: esc(TONES[pending.tone].text) })}</span>`);
-    if (pending.odd) tags.push(`<span class="wtag tone-metaphor">${t('ui.tag.odd', { grace: grace() })}</span>`);
     if (pending.answered) tags.push(`<span class="wtag ok">${t('ui.tag.answered', { from: esc(state.petition.from), grace: grace() })}</span>`);
     if (pending.naming) tags.push(`<span class="wtag name">${t('ui.tag.naming', { name: esc(pending.naming.name) })}</span>`);
     if (pending.dilemma) tags.push(`<span class="wtag ok">${t('ui.tag.dilemma', { label: esc(state.event.choice.find((o) => o.id === pending.dilemma).label) })}</span>`);
 
-    if (state.liturgy && text?.includes(state.liturgy)) tags.push(`<span class="wtag ok">${t('ui.tag.liturgy', { text: esc(state.liturgy) })}</span>`);
     if (pending.cited?.length) tags.push(`<span class="wtag">${t('ui.tag.cited', { words: pending.cited.map(esc) })}</span>`);
     const opp = result.doctrine && state.config.veteran ? OPPOSED[result.doctrine] : null;
     if (opp && state.sides.player.doctrine[opp] > [6, 4, 2, 0].find((f) => state.sides.player.doctrine[opp] >= f)) tags.push(`<span class="wtag tone-curse">${DOCTRINE[opp].name} -1</span>`);
@@ -2071,7 +2084,7 @@ function renderAltar() {
       ${hint ? `<div class="hint">⚠ ${hint}</div>` : ''}${noticeHTML}</div>`;
     act = `<div class="act">
       <button class="btn-primary big accept" type="button" ${fresh ? 'disabled' : ''}>${t('ui.btn.accept')} <kbd>Enter</kbd></button>
-      <button class="btn-ghost again" type="button" ${!text || state.reinterpretUsed || p.faith < 1 ? 'disabled' : ''}>${t('ui.btn.again')} <kbd>R</kbd></button>
+      ${pending.result?.source === 'tablet' ? '' : `<button class="btn-ghost again" type="button" ${!text || state.reinterpretUsed || p.faith < 1 ? 'disabled' : ''}>${t('ui.btn.again')} <kbd>R</kbd></button>`}
       ${pending.prev ? `<button class="text-btn swap-reading" type="button">${t('ui.btn.swap')}</button>` : ''}
       ${text && speakSnap && !state.reinterpretUsed && !state.tutorial ? `<button class="text-btn retract" type="button">${t('ui.btn.retract')} <kbd>Esc</kbd></button>` : ''}</div>`;
   } else {
@@ -2165,9 +2178,12 @@ function bindAltar() {
       pill.classList.toggle('banned', banned);
       a.querySelector('.ban-chip')?.classList.toggle('hit', banned);
       pill.classList.toggle('over', cost > state.sides.player.faith);
+      const echo = isEcho(state, draft.trim());
+      pill.classList.toggle('echo', echo);
+      pill.title = echo ? t('ui.echo.tip') : '';
       const cite = draft.trim().length > 30 && citedWords(state, draft).length;
       pill.classList.toggle('cite', !!cite);
-      pill.querySelector('.c').textContent = cite ? t('ui.faithCostCited', { n: cost }) : t('ui.faithCost', { n: cost });
+      pill.querySelector('.c').textContent = cite ? t('ui.faithCostCited', { n: cost }) : echo ? t('ui.faithCostEcho', { n: cost }) : t('ui.faithCost', { n: cost });
       if (draft.trim()) { clearTimeout(suggestTimer); $('suggestRow')?.classList.remove('show'); } else scheduleSuggest();
       scheduleHints();
     };
@@ -2270,12 +2286,28 @@ async function typeInto(text) {
   ta.focus();
 }
 
+// 알아들은 말: 계시를 쓰는 동안 석판이 알아들은 낱말과 그 일을 보여 준다 (LLM 모드에서는 '예감')
+function heardHTML(text) {
+  if (!text?.trim()) return '';
+  const r = interpretWithTablet(state, text.trim());
+  const links = linkWords(state, text, r.orders);
+  if (r.orders.length) {
+    const parts = r.orders.map((a) => (links[a.key] ? t('ui.heard.pair', { word: esc(links[a.key]), kind: kindName(a) }) : kindName(a)));
+    return `${t(aiMode === 'llm' ? 'ui.heard.guess' : 'ui.heard.label')} ${parts.join(' · ')}`;
+  }
+  if (r.heard?.length) return t('ui.heard.cannot', { kinds: r.heard });
+  return t('ui.heard.none');
+}
+const kindName = (a) => t('ui.heard.kind', { type: a.type, build: a.build, res: a.gather ? RESOURCE_NAME[a.gather] : '' });
+
 // 계시를 쓰는 동안 석판 해석으로 말씀이 닿을 칸을 미리 흐리게 비춘다 (LLM의 결정과는 다를 수 있는 '예감')
 function scheduleHints() {
   clearTimeout(hintTimer);
   hintTimer = setTimeout(() => {
     if (phase !== 'speak') return;
     const text = draft.trim();
+    const line = $('heardLine');
+    if (line) line.innerHTML = heardHTML(text);
     const next = text ? [...new Set(interpretWithTablet(state, text).orders.map((a) => a.tile))].slice(0, 6) : [];
     if (next.join() === hintTiles.join()) return;
     if (next.some((t) => !hintTiles.includes(t))) sfx.hover();

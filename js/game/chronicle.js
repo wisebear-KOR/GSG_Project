@@ -15,6 +15,7 @@ export function outcomeKind(state) {
     case 'cathedral': return mine ? 'cathedral' : 'lost';
     case 'faith': case 'convertAll': return mine ? 'faith' : 'lost';
     case 'extinct': return 'extinct';
+    case 'edict': return mine ? 'score' : 'edict';
     default: return mine ? 'score' : 'outscored';
   }
 }
@@ -71,7 +72,7 @@ export function diceLuck(state) {
 // ---------- 에필로그: 후대 역사가의 기록 ----------
 const EPITHET = Object.fromEntries(DOCTRINES.map((d) => [d, t(`story.epithet.${d}`)]));
 const WIN_TEXT = Object.fromEntries(['conquest', 'faith', 'cathedral', 'score'].map((k) => [k, Object.fromEntries(DOCTRINES.map((d) => [d, t(`story.win.${k}.${d}`)]))]));
-const LOSE_TEXT = Object.fromEntries(['conquered', 'lost', 'outscored', 'extinct', 'draw'].map((k) => [k, t(`story.lose.${k}`)]));
+const LOSE_TEXT = Object.fromEntries(['conquered', 'lost', 'outscored', 'extinct', 'draw', 'edict'].map((k) => [k, t(`story.lose.${k}`)]));
 export function epilogue(state) {
   const kind = outcomeKind(state);
   const top = topDoctrine(state);

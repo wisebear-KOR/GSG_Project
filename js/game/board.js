@@ -165,10 +165,19 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
   svg.append(borders);
 
   const pieces = el('g', { class: 'pieces' });
+  // 한 칸에 같은 진영 미플이 여럿이면 부채꼴로 조금씩 벌려 그린다 (겹쳐서 하나로 보이지 않게)
+  const stack = new Map();
+  for (const m of markers) { const k = `${m.tile}|${m.side}`; stack.set(k, (stack.get(k) ?? 0) + 1); }
+  const seen = new Map();
   for (const m of markers) {
     const t = state.tileAt[m.tile];
     if (m.side === 'enemy' && !t.revealed) continue; // 안개 속 율법파는 보이지 않는다
-    const { x, y } = markerPos(t, m.side);
+    const k = `${m.tile}|${m.side}`;
+    const i = seen.get(k) ?? 0; seen.set(k, i + 1);
+    const n = stack.get(k);
+    const base = markerPos(t, m.side);
+    const x = base.x + (n > 1 ? (i - (n - 1) / 2) * 9 * (m.side === 'player' ? -1 : 1) : 0);
+    const y = base.y + (n > 1 ? i * 3 : 0);
     const g = el('g', { class: `meeple ${m.side}${m.dim ? ' dim' : ''}${m.drop ? ' drop' : ''}${m.incoming ? ' incoming' : ''}`, 'data-tile': m.tile, 'data-side': m.side });
     if (m.drop) g.style.animationDelay = `${(m.delay ?? 0) * 150}ms`;
     g.append(el('ellipse', { cx: x, cy: y + 13, rx: 10, ry: 3.2, class: 'meeple-shadow' }));

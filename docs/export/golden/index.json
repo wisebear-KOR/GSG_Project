@@ -9,7 +9,7 @@
       "rounds": 5,
       "winner": "player",
       "winKind": "tutorial",
-      "score": {"player":20,"enemy":18}
+      "score": {"player":18,"enemy":18}
     },
     {
       "file": "s4-easy-first.json",
@@ -17,23 +17,23 @@
       "rounds": 8,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":18,"enemy":26}
+      "score": {"player":18,"enemy":24}
     },
     {
       "file": "s5-normal-first.json",
       "config": {"mode":"standard","size":5,"difficulty":"normal","seed":2026,"veteran":false},
       "rounds": 12,
-      "winner": "player",
+      "winner": "enemy",
       "winKind": "score",
-      "score": {"player":33,"enemy":29}
+      "score": {"player":16,"enemy":40}
     },
     {
       "file": "s5-hard-veteran.json",
       "config": {"mode":"standard","size":5,"difficulty":"hard","seed":5303,"veteran":true},
-      "rounds": 8,
+      "rounds": 9,
       "winner": "enemy",
       "winKind": "edict",
-      "score": {"player":26,"enemy":44}
+      "score": {"player":25,"enemy":50}
     },
     {
       "file": "s6-normal-veteran.json",
@@ -41,15 +41,15 @@
       "rounds": 12,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":21,"enemy":45}
+      "score": {"player":19,"enemy":55}
     },
     {
       "file": "s6-easy-veteran.json",
       "config": {"mode":"standard","size":6,"difficulty":"easy","seed":6605,"veteran":true},
       "rounds": 12,
-      "winner": "player",
+      "winner": "enemy",
       "winKind": "score",
-      "score": {"player":38,"enemy":30}
+      "score": {"player":25,"enemy":34}
     },
     {
       "file": "s7-hard-first.json",
@@ -57,7 +57,7 @@
       "rounds": 14,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":55,"enemy":67}
+      "score": {"player":35,"enemy":47}
     },
     {
       "file": "s7-normal-veteran.json",
@@ -65,31 +65,31 @@
       "rounds": 14,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":39,"enemy":53}
+      "score": {"player":23,"enemy":67}
     },
     {
       "file": "s4-easy-first-war.json",
       "config": {"mode":"standard","size":4,"difficulty":"easy","seed":404,"veteran":false},
-      "rounds": 6,
+      "rounds": 8,
       "winner": "player",
-      "winKind": "convertAll",
-      "score": {"player":27,"enemy":7}
+      "winKind": "score",
+      "score": {"player":27,"enemy":11}
     },
     {
       "file": "s5-easy-first-war.json",
       "config": {"mode":"standard","size":5,"difficulty":"easy","seed":202,"veteran":false},
-      "rounds": 9,
+      "rounds": 6,
       "winner": "player",
       "winKind": "faith",
-      "score": {"player":39,"enemy":16}
+      "score": {"player":28,"enemy":11}
     },
     {
       "file": "s4-hard-veteran-asc4.json",
       "config": {"mode":"standard","size":4,"difficulty":"hard","seed":4404,"veteran":true,"ascension":4,"blessing":"mason"},
-      "rounds": 6,
+      "rounds": 8,
       "winner": "enemy",
-      "winKind": "extinct",
-      "score": {"player":8,"enemy":33}
+      "winKind": "score",
+      "score": {"player":21,"enemy":28}
     }
   ]
 }

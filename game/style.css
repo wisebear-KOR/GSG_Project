@@ -1310,3 +1310,13 @@ body.reduce-motion .ui-tip { transition: none; }
 .law-back.intent li.it-none { color: rgba(243, 221, 210, .7); }
 .law-back.intent > * { width: 100%; margin-left: 0; margin-right: 0; box-sizing: border-box; }
 .ms-sub { white-space: nowrap; }
+/* 알아들은 말 */
+.heard-line { min-height: 1.3em; margin-top: 2px; font: 12.5px/1.45 var(--font-ui); color: var(--ink-soft); }
+.heard-line b { color: #7a4a05; background: rgba(244, 196, 74, .28); border-radius: 3px; padding: 0 3px; font-weight: 700; }
+/* 율법파의 뜻: 굳음·결집·원정 */
+.law-back.intent .law-notes { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.law-back.intent .law-notes span { font: 600 11px var(--font-ui); padding: 1px 7px; border-radius: 999px; background: rgba(255, 184, 166, .16); color: #ffcfc2; border: 1px solid rgba(255, 184, 166, .3); }
+/* 되풀이 경고 */
+.cost-pill.echo { box-shadow: 0 0 0 1.5px #b3392a inset; }
+.cost-pill.echo .c { color: #b3392a; font-weight: 700; }
+.order.auto.heeded { box-shadow: 0 0 0 1px rgba(122, 74, 5, .45) inset; }

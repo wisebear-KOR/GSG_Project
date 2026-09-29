@@ -394,7 +394,8 @@ export const music = (() => {
     setMood(m) {
       mood = m;
       target = m === 'tension' ? 1 : 0;
-      if (m === 'end') { this.stop(); if (bus) { ramp(bus.music.gain, 0, 1.2); setTimeout(() => { if (musicOnFlag && bus) ramp(bus.music.gain, musicLevel(), 3); }, 6000); } }
+      // 판이 끝나면 잠깐 멈췄다가 조용한 곡으로 다시 흐른다 (종료 화면이 무음으로 남지 않게)
+      if (m === 'end') { this.stop(); if (bus) { ramp(bus.music.gain, 0, 1.2); setTimeout(() => { if (musicOnFlag && bus && mood === 'end') { mood = 'calm'; target = 0; this.start(); ramp(bus.music.gain, musicLevel(), 3); } }, 6000); } }
     },
     get mood() { return mood; },
   };

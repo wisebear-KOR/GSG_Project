@@ -61,24 +61,6 @@ export function parseCommandment(text, table) {
 }
 
 // 성언: 세 번 되풀이한 구절 (띄어쓰기 단위 한두 낱말, 글자 4~8자)
-const LITURGY_STRIP = kw('kw.liturgyStrip', 'g');
-export function findLiturgy(texts) {
-  const count = new Map();
-  for (const t of texts) {
-    const words = t.replace(LITURGY_STRIP, ' ').split(/\s+/).filter(Boolean);
-    const seen = new Set();
-    for (let i = 0; i < words.length; i++) {
-      for (const k of [1, 2]) {
-        const phrase = words.slice(i, i + k).join(' ');
-        const len = phrase.replace(/\s/g, '').length;
-        if (i + k <= words.length && len >= 4 && len <= 8 && !seen.has(phrase)) { seen.add(phrase); count.set(phrase, (count.get(phrase) ?? 0) + 1); }
-      }
-    }
-  }
-  let best = null;
-  for (const [p, n] of count) if (n >= 3 && (!best || p.length > best.length)) best = p;
-  return best;
-}
 
 // 말투: 저주 > 축복 > 비유 > 명령
 const TONE = { curse: kw('kw.tone.curse'), blessing: kw('kw.tone.blessing'), metaphor: kw('kw.tone.metaphor') };

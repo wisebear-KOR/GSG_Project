@@ -165,7 +165,7 @@ function speak(state, entry, rec) {
   const { accepted, rejected } = E.validateOrders(state, 'player', orders, forbiddenKeys, result.doctrine);
   pending.accepted = accepted;
   pending.rejected = rejected;
-  pending.auto = E.autoFill(state, 'player', accepted, [...forbiddenKeys, ...pending.dropped]);
+  pending.auto = E.autoFill(state, 'player', accepted, [...forbiddenKeys, ...pending.dropped], result.doctrine);
   pending.answered = E.petitionAnswered(state, text, accepted);
   pending.dilemma = E.dilemmaByText(state, text);
   pending.miracle = spokenMiracle(state, text);
@@ -217,9 +217,9 @@ function accept(state, pending, rec) {
   if (pending.command && pending.carve && E.carveCommandment(state, pending.command)) {
     rec.carved = pending.command;
     const banned = { noSword: 'attack', noExpand: 'village' }[pending.command];
-    const kept = accepted.filter((a) => a.type !== banned && a.build !== banned);
+    const kept = accepted.filter((a) => !banned || (a.type !== banned && a.build !== banned));
     const fk = result.forbidden.map((a) => a.key);
-    plan = [...kept, ...E.autoFill(state, 'player', kept, fk)];
+    plan = [...kept, ...E.autoFill(state, 'player', kept, fk, result.doctrine)];
   }
   const ordered = plan.filter((a) => !a.auto);
   if (text) E.findSacred(state, text);
@@ -232,7 +232,7 @@ function accept(state, pending, rec) {
   if (!state.winner && text) E.keepVows(state, result.forbidden, plan);
   if (!state.winner) wordsAfter(state, pending);
   // 교리는 해결이 끝난 뒤에 오른다
-  if (text) { E.recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0); E.updateLiturgy(state); }
+  if (text) { E.recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0); }
   if (pending.naming?.first && state.sides.player.doctrine.wisdom < D.RULES.graceDoctrineBelow) state.sides.player.doctrine.wisdom += 1;
   const last = state.history.at(-1);
   if (last) last.text = text;

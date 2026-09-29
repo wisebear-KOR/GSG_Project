@@ -5,7 +5,7 @@
 import { hasLanguageModel, createBaseSession, promptJSON } from '../llm.js';
 import { DOCTRINES, DOCTRINE, PRIESTS, TERRAIN, DOCTRINE_VOICE } from './data.js';
 import { nouns } from './lore.js';
-import { legalActions, actionLimit, tileName, villageCount, enemyIntent, nextEvent } from './engine.js';
+import { legalActions, actionLimit, tileName, villageCount, enemyIntent, nextEvent, gatherAmount } from './engine.js';
 import { t } from './i18n.js';
 
 // 실험 v5 프롬프트를 게임에 맞게 옮긴 것 (docs/EXPERIMENTS.md).
@@ -160,18 +160,32 @@ const kw = (key) => new RegExp(t(key));
 const TABLET_RULES = [
   { re: kw('kw.tablet.river'), match: (a, t) => a.type === 'gather' && t.terrain === 'river', doctrine: 'abundance' },
   { re: kw('kw.tablet.hill'), match: (a, t) => a.type === 'gather' && t.terrain === 'hill', doctrine: 'wisdom' },
-  { re: kw('kw.tablet.preach'), match: (a) => a.type === 'preach', doctrine: 'peace' },
-  { re: kw('kw.tablet.attack'), match: (a) => a.type === 'attack', doctrine: 'war' },
+  { kind: 'preach', re: kw('kw.tablet.preach'), match: (a) => a.type === 'preach', doctrine: 'peace' },
+  { kind: 'attack', re: kw('kw.tablet.attack'), match: (a) => a.type === 'attack', doctrine: 'war' },
   { re: kw('kw.tablet.rest'), match: (a) => a.type === 'pray', doctrine: 'peace' },
-  { re: kw('kw.tablet.wall'), match: (a) => a.build === 'wall', doctrine: 'war' },
+  { kind: 'wall', re: kw('kw.tablet.wall'), except: kw('kw.tablet.wallExcept'), match: (a) => a.build === 'wall', doctrine: 'war' },
   { re: kw('kw.tablet.food'), match: (a) => a.gather === 'food', doctrine: 'abundance' },
   { re: kw('kw.tablet.wood'), match: (a) => a.gather === 'wood', doctrine: 'abundance' },
   { re: kw('kw.tablet.stone'), match: (a) => a.gather === 'stone', doctrine: 'abundance' },
-  { re: kw('kw.tablet.village'), match: (a) => a.build === 'village', doctrine: 'abundance' },
-  { re: kw('kw.tablet.temple'), match: (a) => a.build === 'temple' || a.build === 'cathedral', doctrine: 'wisdom' },
+  { kind: 'village', re: kw('kw.tablet.village'), except: kw('kw.tablet.villageExcept'), match: (a) => a.build === 'village', doctrine: 'abundance' },
+  { kind: 'temple', re: kw('kw.tablet.temple'), except: kw('kw.tablet.templeExcept'), match: (a) => a.build === 'temple' || a.build === 'cathedral', doctrine: 'wisdom' },
   { re: kw('kw.tablet.pray'), match: (a) => a.type === 'pray', doctrine: 'wisdom' },
-  { re: kw('kw.tablet.explore'), match: (a) => a.type === 'explore', doctrine: 'wisdom' },
+  { kind: 'explore', re: kw('kw.tablet.explore'), match: (a) => a.type === 'explore', doctrine: 'wisdom' },
+  { re: kw('kw.tablet.gatherAny'), match: (a) => a.type === 'gather', doctrine: 'abundance', fallback: true },
 ];
+const MANY = kw('kw.many');
+const DONT_AND = kw('kw.dontAnd', 'g');
+const FEAR = kw('kw.fear');
+// "숲을 베지 말고 돌을 캐라" → "숲을 베지 마라, 돌을 캐라" / "두려워하지 말고 쳐라" → "두려워하 쳐라"
+const splitDont = (text) => text.replace(DONT_AND, (m, verb) => (FEAR.test(verb) ? `${verb} ` : t('kw.dontAndNeg', { verb })));
+// 같은 채집이면 더 많이 나오는 칸부터, 무엇을 거둘지 말하지 않았으면 가장 모자란 자원부터
+function rankMatches(state, rule, matches) {
+  if (!matches.length || matches[0].type !== 'gather') return matches;
+  const p = state.sides.player;
+  const need = (a) => (rule.fallback ? p[a.gather] ?? 0 : 0);
+  return matches.map((a, i) => ({ a, i, n: need(a), g: gatherAmount(state, 'player', state.tileAt[a.tile]) }))
+    .sort((x, y) => x.n - y.n || y.g - x.g || x.i - y.i).map((x) => x.a);
+}
 // "두려워하지 말고 쳐라"는 금지가 아니다 (두려워는 부정어가 아니다)
 const NEGATION = kw('kw.negation');
 const CLAUSE = kw('kw.clauseSplit');
@@ -188,19 +202,28 @@ export function interpretWithTablet(state, revelation) {
     match: (a) => a.type === l.type && (!l.gather || a.gather === l.gather) && (!l.build || a.build === l.build),
   }));
   const named = Object.entries(state.names ?? {}).map(([id, name]) => ({ re: new RegExp(name), doctrine: null, match: (a) => a.tile === id }));
-  for (const clause of revelation.split(CLAUSE)) {
+  const heard = [];
+  for (const clause of splitDont(revelation).split(CLAUSE)) {
     const negative = NEGATION.test(clause);
+    const many = MANY.test(clause) ? 2 : 1;
+    let gathered = false;
     for (const rule of [...named, ...learned, ...TABLET_RULES]) {
-      if (!rule.re.test(clause)) continue;
-      const matches = legal.filter((a) => rule.match(a, state.tileAt[a.tile]));
-      if (negative) forbidden.push(...matches);
-      else {
-        // 가능한 행동이 없는 규칙은 교리를 정하지 않는다 ("평화를 지켜라"가 성벽이 없어 전쟁이 되지 않게)
-        if (matches.length && rule.doctrine) doctrine ??= rule.doctrine;
-        for (const a of matches) {
-          if (orders.length < limit && !orders.some((o) => o.tile === a.tile)) orders.push(a);
-          break;
-        }
+      if (!rule.re.test(clause) || rule.except?.test(clause)) continue;
+      if (rule.fallback && gathered) continue;
+      const matches = rankMatches(state, rule, legal.filter((a) => rule.match(a, state.tileAt[a.tile])));
+      if (matches.some((a) => a.type === 'gather')) gathered = true;
+      if (negative) { forbidden.push(...matches); continue; }
+      // 알아들었으나 지금 할 수 없는 말 (닿는 율법파가 없다 등) — "흐릿하다"와 구별해 알려 준다
+      if (!matches.length && rule.kind) heard.push(rule.kind);
+      // 가능한 행동이 없는 규칙은 교리를 정하지 않는다 ("평화를 지켜라"가 성벽이 없어 전쟁이 되지 않게)
+      if (matches.length && rule.doctrine) doctrine ??= rule.doctrine;
+      let took = 0;
+      for (const a of matches) {
+        if (took >= many || orders.length >= limit) break;
+        if (orders.some((o) => o.tile === a.tile || o.key === a.key)) continue;
+        orders.push(a); took += 1;
+        // 규칙마다 첫 후보만 쓰던 동작은 양의 말이 없을 때 그대로 (골든과 같은 결과)
+        if (many === 1) break;
       }
     }
   }
@@ -208,7 +231,8 @@ export function interpretWithTablet(state, revelation) {
   return {
     interpretation: orders.length
       ? t('interp.tablet.say', { prefix: voiceOf(state) ? DOCTRINE_VOICE[voiceOf(state)].prefix : t('interp.tablet.prefix'), verbs })
-      : t('interp.tablet.blur'),
+      : heard.length ? t('interp.tablet.cannot', { kinds: [...new Set(heard)] }) : t('interp.tablet.blur'),
+    heard: [...new Set(heard)],
     orders: orders.filter((a) => !forbidden.some((f) => f.key === a.key)),
     forbidden,
     doctrine: doctrine ?? (forbidden.length ? 'peace' : null),
