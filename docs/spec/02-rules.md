@@ -1,8 +1,9 @@
 # 02. 규칙 — 엔진 명세
 
-> **기준**: 커밋 `8b91681` (2026-09-27). 코드와 이 문서가 다르면 코드가 기준이다.
+> **기준**: 커밋 `448f553` (2026-09-30). 코드와 이 문서가 다르면 코드가 기준이다.
+> 처음 쓴 때(`8b91681`) 뒤로 바뀐 규칙 — 율법파의 원정·칼·대체 마을·결집·퇴각과 되풀이에 굳는 율법(§4.9), 메아리(§14.8), 대성당의 마을 조건과 원정(§10), 포위(§3.8), 남은 자(§15.2), 승천 4(§16.4), 명령 검증 예산(§3.4), 뜻을 헤아린 기본 노동(§3.5), 갈림길 비용 하한(§7.2), 집 안 행동은 칸을 막지 않음(§3.7), 성언·기이한 해석 삭제 — 은 본문에 녹였고, 해결된 확인 사항은 §19에 표시했다.
 > 규칙의 원천은 `js/game/engine.js`(판정·해결), 표는 `js/game/data.js`, 맵은 `js/game/mapgen.js`다. 한 장 안에서 **엔진 함수를 부르는 순서**(계시 비용, 말한 기적, 말투, 갈림길 비용, 계명, 해결 뒤 은총 등)는 화면 컨트롤러 `js/game/main.js`가 정하므로 그것도 규칙으로 적는다.
-> 위치 표기: `engine.js:812` = `js/game/engine.js` 812행. `main.js`, `data.js`, `mapgen.js`, `lore.js`, `meta.js`도 같은 폴더.
+> 위치 표기: `engine.js:867` = `js/game/engine.js` 867행. `main.js`, `data.js`, `mapgen.js`, `lore.js`, `meta.js`도 같은 폴더.
 > 화면에 나오는 글은 모두 언어팩 키(`t('log.gather')` 등)로 찾는다. 이 문서의 한국어 이름은 `js/game/i18n/ko/*.js`의 값이다.
 >
 > 함께 읽을 문서: 계시에서 명령·말투·이름·예언을 뽑는 방법은 [05 해석기](05-interpreter.md), 상태 객체 전체·저장 형식·결정론 코드는 [04 구조](04-architecture.md), 표 스키마는 [03 데이터](03-data.md), 판 밖의 진행(경외·시련 별 기록·승천 해금)은 [07 진행](07-progression.md), 용어 대응은 [01 개요](01-overview.md#용어집-한국어--영어--코드).
@@ -39,7 +40,7 @@
 
 - 진영(side): `'player'`(우리 부족), `'enemy'`(율법파). `other(side)`는 반대쪽. `SIDES = ['player', 'enemy']` — **순회 순서도 이 순서**다(유지 단계 등).
 - 장 `state.round`: `createState` 직후 0, `startRound`가 1씩 올린다. 마지막 장은 `state.maxRounds`.
-- 행동 객체(`legalActions`가 만든다, `engine.js:365`):
+- 행동 객체(`legalActions`가 만든다, `engine.js:379`):
 
   | 필드 | 값 |
   |---|---|
@@ -51,6 +52,8 @@
   | `key` | `` `${type}:${tile}:${gather ?? build ?? ''}` `` 예: `gather:D2:food`, `pray:E2:`, `build:C1:village`, `attack:A4:` |
   | `text` | 설명문 (`eng.act.*`) — 해석기가 읽는다 |
   | `auto` | 기본 노동으로 채운 행동이면 `true` |
+  | `heeded` | 기본 노동 중 계시의 교리를 헤아려 고른 한 자리면 `true` (`auto`도 `true`, §3.5) |
+  | `crusade` | 율법파가 대성당 공사 중인 우리 수도를 거리와 무관하게 치는 원정 공격이면 `true` (§10). `key`는 보통 공격과 같다 |
 
   `key`는 금지 목록 대조, 이름 있는 신도의 해시(§13.1), 로그와 행동 연결에 쓰이므로 **문자열 그대로** 옮긴다.
 
@@ -104,9 +107,9 @@ hashPick(list, ...salts):
 | 기적 손패 | `'hand0'`·`'hand1'`·`'hand2'` + seed (§6.1) | `engine.js:146` |
 | 소명 순서 | 소명 id마다 `hashPick([0..9], seed, 'dest', id)` | `engine.js:120` |
 | 갈림길 셋 | 갈림길 id마다 `hashPick([0..96], seed, 'dil', id)` | `engine.js:153` |
-| 청원자 | `hashPick(PETITIONERS, seed, round, 'petitioner')` | `engine.js:583` |
-| 이름 있는 신도 | `hashPick(PETITIONERS, seed, action.key)` | `engine.js:235` |
-| 검열 대체어 | `hashPick(eng.banWords, seed, round)` | `engine.js:1244` |
+| 청원자 | `hashPick(PETITIONERS, seed, round, 'petitioner')` | `engine.js:626` |
+| 이름 있는 신도 | `hashPick(PETITIONERS, seed, action.key)` | `engine.js:239` |
+| 검열 대체어 | `hashPick(eng.banWords, seed, round)` | `engine.js:1310` |
 | 숨은 말 (오늘의 계시) | `hashPick(SACRED_WORDS, 'sacred', daily)` | `engine.js:84` |
 
 ### 0.4 정렬·반올림·자료 순서
@@ -161,7 +164,7 @@ hashPick(list, ...salts):
 | `hill` | 성스러운 언덕 | faith | 1 |
 | `desert` | 사막 | 없음 | 0 |
 
-영구 지형 `feature`는 지형의 채집을 **대신한다** (`yieldOf`, `engine.js:321`):
+영구 지형 `feature`는 지형의 채집을 **대신한다** (`yieldOf`, `engine.js:335`):
 
 | `feature` | 이름 | 놓이는 지형 | 채집 |
 |---|---|---|---|
@@ -243,6 +246,8 @@ hashPick(list, ...salts):
 | `rainActive` | `false` | 이번 장 단비 (가뭄 무효) |
 | `roundMods` | `{}` | 이번 장 보정: `gatherBonus`·`attackBonus`·`ark`·`tongues`·`pillar` |
 | `wrath` | 0 | 신의 분노 0~3 |
+| `lawGuard` | `{ preach:0, attack:0 }` | 되풀이에 굳는 율법 — 지난 장까지 계시로 연달아 명령한 선교·공격 장 수 (§4.9) |
+| `rally` | `false` | 율법파의 결집 (§4.9) |
 | `edictOn` | `!!veteran && !tutorial` | 율법 석판 사용 |
 | `holyId` | `null` | 성지 칸 id |
 | `destiny`, `destinyOffer` | `null` | 소명 |
@@ -258,15 +263,15 @@ hashPick(list, ...salts):
 | `petition`, `petitionIgnored` | `null`, 0 | 청원 |
 | `prophecy` | `null` | 봉인된 예언 |
 | `commandments` | `[]` | 영원한 계명 id |
-| `liturgy` | `null` | 성언 구절 |
+| `liturgy` | `null` | **쓰이지 않음** — 성언이 없어진 뒤 기본값과 불러오기 기본값만 남았다 |
 | `saints`, `deeds`, `fallen` | `[]`, `{}`, `[]` | 성인 |
 | `legends` | `{}` | 전설이 된 땅 (수치 효과 없음) |
 | `silentRun` | 0 | 연속 침묵 |
 | `bloodKills` | 0 | 플레이어 공격 승리 수 (석판) |
-| `oddUsed` | `false` | 기이한 해석 은총 (판당 1회) |
+| `oddUsed` | `false` | **쓰이지 않음** — 기이한 해석 은총이 없어진 뒤 기본값만 남았다 |
 | `sacred` | `daily`면 숨은 말, 아니면 `null` | |
 | `stats` | `{ converted:0, captured:0, miracles:0, prophecies:0, petitions:0 }` (+ 나중에 `starved`·`turned`·`vows`·`sacred`) | 소명·업적 |
-| `revelations` | `[]` | `{ round, text, doctrine }` |
+| `revelations` | `[]` | `{ round, text, doctrine }` (메아리면 `echo: true`가 붙는다, §14.8) |
 | `history` | `[]` | 장마다 `{ round, ps, es, res, text }` |
 | `log` | `[]` | 진행 기록 |
 | `winner`, `winReason`, `winKind` | `null`, `''`, `null` | §15 |
@@ -275,25 +280,31 @@ hashPick(list, ...salts):
 
 | 이름 | 식 | 위치 |
 |---|---|---|
-| `reach(side)` | 자기 수도에서 거리 ≤ 2, 자기 마을에서 거리 ≤ 1인 칸의 합집합. **순서**: `ownedTiles`(행 우선) 하나씩, 그 칸의 반경 안 칸을 `state.tiles` 순서로 훑어 처음 나온 순서대로 | `engine.js:207` |
-| `actionLimit(side)` | `limit = min(6, 2 + templeLevel + floor(pop/4) + bonus)`; 플레이어는 안식일이면 `limit = max(1, limit - 2)`; 결과 `max(0, min(limit, pop))` | `engine.js:217` |
-| 　`bonus` (율법파) | `enemyBonus + (승천 ≥ 4 && actOf == 3 ? 1 : 0)` | |
+| `reach(side)` | 자기 수도에서 거리 ≤ `2 + marchRange(side)`, 자기 마을에서 거리 ≤ 1인 칸의 합집합. **순서**: `ownedTiles`(행 우선) 하나씩, 그 칸의 반경 안 칸을 `state.tiles` 순서로 훑어 처음 나온 순서대로 | `engine.js:210` |
+| `marchRange(side)` | 율법파의 원정: `side == 'enemy' && !tutorial ? actOf − 1 : 0` → 수도의 손이 1막 2칸, 2막 3칸, 3막 4칸. 첫 판에도, 모든 난이도에서 (§4.9) | `engine.js:209` |
+| `actionLimit(side)` | `limit = min(6, 2 + templeLevel + floor(pop/4) + bonus)`; 플레이어는 안식일이면 `limit = max(1, limit - 2)`; 결과 `max(0, min(limit, pop))` | `engine.js:221` |
+| 　`bonus` (율법파) | `enemyBonus + (rally ? 1 : 0)` (결집, §4.9). 승천 4는 더 이상 행동 수를 늘리지 않는다 (§16.4) | `engine.js:223` |
 | 　`bonus` (플레이어) | `doctrine.wisdom >= 4 ? 1 : 0` | |
-| `popCap(side)` | `3 + 2 × 마을 수 + (hasUlt(side,'abundance') ? 2 : 0)` | `engine.js:204` |
-| `faithIncome(side)` | `1 + floor(pop/3) + (templeLevel - 1)` | `engine.js:229` |
-| `prayValue(side)` | `(2 + (wisdom >= 2 ? 1 : 0)) × (플레이어 && 안식일 ? 2 : 1)` | `engine.js:225` |
-| `isSabbath` | 계명 `sabbath`가 있고 `round % 4 == 0` | `engine.js:226` |
-| `gatherAmount(side, tile)` | §3.8 채집 | `engine.js:327` |
-| `buildCost(side, build)` | §3.8 건설 | `engine.js:304` |
-| `superiority(s, f)` | `s.pop >= f.pop + 3 ? 1 : 0` — **공격 판정에만** 쓰인다 | `engine.js:282` |
-| `preachBonus(side)` | §3.8 선교 | `engine.js:254` |
+| `popCap(side)` | `3 + 2 × 마을 수 + (hasUlt(side,'abundance') ? 2 : 0)` | `engine.js:206` |
+| `faithIncome(side)` | `1 + floor(pop/3) + (templeLevel - 1)` | `engine.js:233` |
+| `prayValue(side)` | `(2 + (wisdom >= 2 ? 1 : 0)) × (플레이어 && 안식일 ? 2 : 1)` | `engine.js:229` |
+| `isSabbath` | 계명 `sabbath`가 있고 `round % 4 == 0` | `engine.js:230` |
+| `gatherAmount(side, tile)` | §3.8 채집 | `engine.js:341` |
+| `buildCost(side, build)` | §3.8 건설 | `engine.js:318` |
+| `superiority(s, f)` | `s.pop >= f.pop + 3 ? 1 : 0` — **공격 판정에만** 쓰인다 | `engine.js:296` |
+| `preachBonus(side)` | §3.8 선교 | `engine.js:268` |
+| `siegeOf(side, tile)` | 포위: 플레이어가 율법파 **수도**를 칠 때만, 그 수도의 이웃 중 우리 소유 칸이 2개면 1, 3개 이상이면 2, 아니면 0 | `engine.js:259` |
+| `enemyZeal(side)` | 승천 4: `side == 'enemy' && ascension >= 4 && actOf == 3 ? 1 : 0` — 율법파 공격·선교 주사위에 더한다 | `engine.js:265` |
+| `lawGuardOf(side, type)` | 굳은 율법: `side == 'player' ? min(2, lawGuard[type]) : 0` — 우리 선교·공격에 맞서는 율법파 방어 보너스 (§4.9) | `engine.js:267` |
+| `cathedralVillages` | 대성당 다음 단계에 필요한 우리 마을 수 `= cathedral + 1` (§10) | `engine.js:205` |
+| `isEcho(text)` | 메아리 (§14.8) | `engine.js:730` |
 | `hasUlt(side, k)` | `side == 'player' && doctrine[k] >= 6 && round >= ultRound` | `engine.js:203` |
 | `ultRound` | 빠른 판 6, 아니면 8 (`ULT_ROUND`) | `engine.js:200` |
 | `draftRound` | 빠른 판 3, 아니면 5 | `engine.js:201` |
 | `wrathRound` | 시련 `last` 1, 빠른 판 3, 아니면 4 | `engine.js:202` |
-| `actOf` | §8 | `engine.js:908` |
-| `edictMax` | `12 - (승천 ≥ 2 ? 2 : 0)` | `engine.js:872` |
-| `holyOwner` | 성지 칸에 **마을**이 있으면 그 주인, 아니면 `null` | `engine.js:871` |
+| `actOf` | §8 | `engine.js:974` |
+| `edictMax` | `12 - (승천 ≥ 2 ? 2 : 0)` | `engine.js:938` |
+| `holyOwner` | 성지 칸에 **마을**이 있으면 그 주인, 아니면 `null` | `engine.js:937` |
 | `villageCount(side)` | `building == 'village' && owner == side`인 칸 수 | |
 
 `RULES` 상수 (`data.js:61`): `followersPerAction 4`, `followersPerFaith 3`, `baseFaithIncome 1`, `heresyGrace 1`, `superiority 3`, `lowFaith 2`, `gracePerRound 1`, `graceDoctrineBelow 3`, `maxNames 3`. 그 밖: `MAX_ACTIONS 6`, `MAX_TEMPLE 3`, `CAPITAL_HP 3`, `DOCTRINE_MAX 6`, `EDICT_MAX 12`, `DESTINY_POINTS 5`, `MAX_COMMANDMENTS 2`, `REVELATION_MAX 100`.
@@ -410,24 +421,25 @@ dealDeck(pool, n):   deck = []
 ### 3.0 전체 순서
 
 ```text
-[장 시작]  startRound                                              engine.js:500   (§3.1)
+[장 시작]  startRound                                              engine.js:543   (§3.1)
 [말하기]   플레이어 선택 — 순서 자유, 난수 없음                         (§3.2)
            소명(1장) · 기적 드래프트 · 지혜 궁극 계절 고르기 · 갈림길 버튼 · 기적 카드(번개는 목표 칸)
-[계시]     speak: 길이 검사 → 침묵 판정 → 비용 지불 → 이름 붙이기 → 해석   main.js:500    (§3.3)
-[확인]     validateOrders → autoFill → 청원·갈림길·말한 기적·계명·예언 판별 (상태 불변)  main.js:571
-           (선택) 칩 빼기 · 다시 해석(신앙 -1) · 말 거두기 · 예언 봉인 · 계명 새김 표시
-[확정]     accept                                                  main.js:690    (§3.6)
+[계시]     speak: 길이 검사 → 침묵 판정 → 비용 지불 → 이름 붙이기 → 해석   main.js:510    (§3.3)
+[확인]     validateOrders → autoFill(교리) → 청원·갈림길·말한 기적·계명·예언 판별 (상태 불변)  main.js:584
+           (선택) 칩 빼기 · 다시 해석(LLM 해석만, 신앙 -1) · 말 거두기 · 예언 봉인 · 계명 새김 표시
+[확정]     accept                                                  main.js:698    (§3.6)
             1 planEnemy   2 말한 기적   3 applyTone   4 (침묵) streak=null   5 payDilemma
             6 계명 새기기   7 findSacred   8 sealProphecy
-            9 resolveRound: 막기 → 6단계 해결 → 갈림길 결과 → upkeep → recordHistory
+            9 resolveRound: 막기(집 안 행동 제외) → 6단계 해결 → 갈림길 결과 → upkeep
+                            → updateLawGuard → recordHistory(분노·결집)
            10 applySilence  11 markLegends  12 keepVows  13 wordsAfter
-           14 recordRevelation → updateLiturgy   15 첫 이름 → 지혜 +1   16 신학 노트
+           14 recordRevelation(메아리면 교리 없음)   15 첫 이름 → 지혜 +1   16 신학 노트
 [재생 뒤]  유목민 선택(pendingSite) → 승자 있으면 끝, 없으면 다음 startRound
 ```
 
 ### 3.1 장 시작 `startRound`
 
-`engine.js:500-566`. 정확한 순서:
+`engine.js:543-609`. 정확한 순서:
 
 1. `round += 1`; `miracleUsed = false`; `reinterpretUsed = false`; `rainActive = false`.
 2. 계절 덱이 비었으면 `eventDeck = dealDeck(EVENTS, 6)` (**갈림길 없이**) — `rng.deck`.
@@ -451,7 +463,7 @@ dealDeck(pool, n):   deck = []
 
 ### 3.2 말하기 단계에서 할 수 있는 일
 
-화면이 `phase === 'speak'`일 때만(`main.js:1970`). 모두 난수가 없다.
+화면이 `phase === 'speak'`일 때만(`main.js:1984`). 모두 난수가 없다.
 
 | 무엇 | 함수 | 규칙 |
 |---|---|---|
@@ -463,41 +475,49 @@ dealDeck(pool, n):   deck = []
 
 ### 3.3 계시와 해석
 
-`speak()` (`main.js:500`):
+`speak()` (`main.js:510`):
 
 1. 글을 `trim`. 비었으면 아무 일 없음. 길이 > `REVELATION_MAX`(100; 시련 `cloister`는 20)면 거절.
 2. 글에 `[가-힣A-Za-z0-9]`(`kw.ui.speech`)가 하나도 없으면 **침묵**(§3.5 끝, §14.9)으로 처리한다(비용 없음).
-3. 비용 `revelationCostFor(text)` (§14.1). 신앙이 모자라면 거절(계시할 수 없음 — 침묵은 가능). 지불: `faith -= cost`.
+3. 비용 `revelationCostFor(text)` (§14.1 — 메아리면 +1). 신앙이 모자라면 거절(계시할 수 없음 — 침묵은 가능). 지불: `faith -= cost`.
 4. 이름 붙이기 `nameTile(parseNaming(text))` (§14.5) — 해석 **전에** 새긴다.
-5. 해석: LLM 또는 석판 → `{ interpretation, orders, forbidden, doctrine, source }`. `orders`·`forbidden`은 `legalActions('player')`의 원소, `doctrine`은 교리 키 또는 `null`. 방법은 [05 해석기](05-interpreter.md).
+5. 해석: LLM 또는 석판 → `{ interpretation, orders, forbidden, doctrine, source }`. `orders`·`forbidden`은 `legalActions('player')`의 원소, `doctrine`은 교리 키 또는 `null`. LLM이 30초 안에 답하지 않거나 실패하면 같은 계시를 석판으로 해석한다(`main.js:553-559`). 방법은 [05 해석기](05-interpreter.md).
 
-확인 화면 파생값 `derivePending` (`main.js:571`) — 상태를 바꾸지 않는다:
+확인 화면 파생값 `derivePending` (`main.js:584`) — 상태를 바꾸지 않는다:
 
 - `validateOrders(player, orders − 빠진 칩, forbidden keys, doctrine)` → `accepted`, `rejected`
-- `auto = autoFill(player, accepted, forbidden keys + 빠진 칩)`
+- `auto = autoFill(player, accepted, forbidden keys + 빠진 칩, doctrine)` — 교리가 있으면 한 자리를 그 뜻대로 (§3.5)
 - 청원 응답 여부, 글로 고른 갈림길, 말한 기적, 새길 수 있는 계명, 예언(없을 때만) 판별 — §14
 
-선택 행동: **다시 해석**(`faith >= 1`, 장당 한 번, `faith -= 1`, `reinterpretUsed = true`), **말 거두기**(계시 직전 상태로 되돌림, `reinterpretUsed = true`, veteran이면 `faith = max(0, faith-1)`; 튜토리얼에선 없음). 다시 해석과 말 거두기는 `reinterpretUsed`를 함께 쓴다.
+선택 행동: **다시 해석**(`faith >= 1`, 장당 한 번, `faith -= 1`, `reinterpretUsed = true`; 화면은 **LLM 해석일 때만** 이 단추를 보인다 — 석판 해석은 결정론이라 다시 해도 같다, `main.js:2087`), **말 거두기**(계시 직전 상태로 되돌림, `reinterpretUsed = true`, veteran이면 `faith = max(0, faith-1)`; 튜토리얼에선 없음). 다시 해석과 말 거두기는 `reinterpretUsed`를 함께 쓴다.
 
 ### 3.4 명령 검증 `validateOrders`
 
-`engine.js:403`. 입력 순서대로 하나씩:
+`engine.js:419-456`. 입력 순서대로 하나씩:
 
 ```text
 limit = actionLimit(side);  budget = {food, wood, stone, faith} 현재값;  pref = DOCTRINE_PREF[doctrine] ?? []
 for a in chosen:
   if a.key in forbidden:                         reject('계시가 금지'); continue
   cost = a.type == 'build' ? buildCost(side, a.build) : null
-  if cost and not canPay(budget, cost):          reject('자원 부족'); continue
+  if cost and not canPay(budget, cost):          reject('자원 부족'); continue      # 교체 전 예산으로 본다
   i = accepted에서 a.tile과 같은 칸의 첫 행동
   if i 있음:
-    if a.type in pref and accepted[i].type not in pref:  accepted[i] = a; reject(원래 것, '같은 장소 (교리에 맞는 행동 우선)')
-    else:                                                 reject(a, '같은 장소')
-    continue                                      # ← 교체해도 budget은 다시 계산하지 않는다 (§19)
+    keep = accepted[i]
+    if a.type in pref and keep.type not in pref:
+      budget += cost(keep)                       # 밀려날 행동의 건설 비용을 돌려받고
+      if cost and not canPay(budget, cost):      # 새 행동을 치를 수 없으면
+        budget -= cost(keep); reject(a, '자원 부족'); continue     # 되돌리고 새 행동을 거절
+      if cost: budget -= cost
+      accepted[i] = a; reject(keep, '같은 장소 (교리에 맞는 행동 우선)')
+    else:                                        reject(a, '같은 장소')
+    continue                                     # 교체는 행동 수를 늘리지 않으므로 limit 검사가 없다
   if len(accepted) >= limit:                      reject('행동 수 초과'); continue
   if cost: budget -= cost
   accepted.push(a)
 ```
+
+(예전에는 교체 때 예산을 다시 계산하지 않아 마을 둘이 함께 받아들여지고 해결 때 하나가 실패할 수 있었다 — `afab303`에서 고쳤다, §19-2.)
 
 `DOCTRINE_PREF`: `war → [attack, build]`, `peace → [preach, pray]`, `abundance → [gather, build]`, `wisdom → [pray, explore, build]`.
 
@@ -505,14 +525,24 @@ for a in chosen:
 
 ### 3.5 기본 노동 `autoFill`
 
-`engine.js:435`. 명령 뒤 남은 행동 수를 신도들이 채운다. 반환값에 `auto: true`.
+`autoFill(side, accepted, forbidden, doctrine = null)` (`engine.js:459-493`). 명령 뒤 남은 행동 수를 신도들이 채운다. 반환값에 `auto: true`.
 
 ```text
-limit = actionLimit(side);  used = accepted의 칸들
+limit = actionLimit(side);  used = accepted의 칸들;  filled = []
+# 1) 뜻을 헤아린 한 자리 (플레이어, 계시에 교리가 있을 때만)
+DOCTRINE_LABOR = { peace: [preach, pray], war: [attack, wall], abundance: [gather], wisdom: [explore, pray] }
+if side == player and doctrine and len(accepted) < limit:
+    legal = legalActions(side) 중 금지 아니고 칸 미사용인 것 (legalActions 순서)
+    for kind in DOCTRINE_LABOR[doctrine]:
+        if kind == gather: continue                 # 풍요는 아래 채집이 어차피 하므로 건너뛴다
+        cand = legal 중 (kind == wall ? build == wall : type == kind)
+               이고 (선교·공격이면 actionOdds(a) >= 0.5)
+        if cand: filled += cand[0] (heeded: true); used += 그 칸; break
+# 2) 예전과 같은 기본 노동
 order = ['food','wood','stone']을 현재 보유량 오름차순 안정 정렬
 pool  = legalActions(side) 중 gather이고 금지 아닌 것 (legalActions 순서)
 prayFirst = legalActions(side)의 pray (금지 아니면)
-if side == player and faith <= 2 and prayFirst and 그 칸 미사용 and len(accepted) < limit:
+if side == player and faith <= 2 and prayFirst and 그 칸 미사용 and len(accepted) + len(filled) < limit:
     filled += prayFirst
 for res in order + order:                           # 6번
     if len(accepted) + len(filled) >= limit: break
@@ -521,26 +551,29 @@ for res in order + order:                           # 6번
 if len(accepted)+len(filled) < limit and pray 있음 and 수도 칸 미사용: filled += pray
 ```
 
-**침묵**일 때 플레이어 계획 = `[pray(auto)] + autoFill(player, [pray])` (기도할 수 없으면 `autoFill(player, [])`) (`main.js:636`).
+- 헤아린 자리의 승률 문턱은 확인 화면 기준(`actionOdds`, 저주 보정은 아직 없음)이다. 성벽은 **현재 보유 자원**으로만 거른 `legalActions`에서 고르므로, 받아들인 건설이 돌을 먼저 쓰면 해결 때 자원 부족으로 실패할 수 있다(§19-19).
+- 헤아린 행동도 `auto`라서 되풀이에 굳는 율법(§4.9)의 셈에는 들지 않는다.
+- 율법파의 기본 노동(`planEnemy` 끝)과 **침묵**은 교리 없이 부르므로 헤아린 자리가 없다. 침묵일 때 플레이어 계획 = `[pray(auto)] + autoFill(player, [pray])` (기도할 수 없으면 `autoFill(player, [])`) (`main.js:644`).
+- 예: 5×5 보통 시드 2026, 1장 "기도하라"(지혜) → 명령 `pray:E2:`, 기본 노동 `explore:B1:`(헤아림) · `gather:C2:stone`.
 
 ### 3.6 확정 `accept`
 
-`main.js:690-735`. 엔진 호출 순서:
+`main.js:698-743`. 엔진 호출 순서:
 
 1. `enemyPlan = planEnemy(state)` — **말한 기적·말투·갈림길 비용보다 먼저** 정한다.
 2. 말한 기적(빼지 않았으면) `castMiracle(id, target)` (§6.2). 실패해도 계속.
 3. `applyTone(state, text ? tone : null)` (§14.4). 침묵이면 말투 보정을 모두 지운다.
 4. 침묵이면 `streak = null`.
 5. 갈림길 계절이면 `pick = 글로 고른 선택 ?? dilemmaPick ?? 첫 선택` → `payDilemma(pick)` (§7.2).
-6. `plan = accepted + auto`. 계명을 새기기로 했고 `carveCommandment` 성공이면 계획에서 금지된 행동을 빼고 `autoFill`로 다시 채운다 (§14.6, 버그 §19).
+6. `plan = accepted + auto`. 계명을 새기기로 했고 `carveCommandment` 성공이면 계획에서 그 계명이 금한 행동을 빼고 `autoFill(player, kept, forbidden, doctrine)`로 다시 채운다 (§14.6).
 7. 계시가 있으면 `findSacred(text)` (§14.10).
 8. 예언을 봉인했으면 `sealProphecy` (§14.7).
 9. `resolveRound(state, plan, enemyPlan)` (§3.7).
 10. 승자 없으면 `applySilence(state, !!text)` (§14.9).
 11. 승자 없고 계시 있으면 `markLegends` (§13.4).
 12. 승자 없고 계시 있으면 `keepVows(result.forbidden, plan)` (§14.3).
-13. 승자 없으면 `wordsAfter`: 기이한 해석 은총 → 청원 응답/외면 → 이름 은총 (§14.3).
-14. 계시 있으면 `recordRevelation(text, doctrine, tone == 'metaphor' ? 1 : 0)` (§5.1) → `updateLiturgy` (§14.8).
+13. 승자 없으면 `wordsAfter`: 청원 응답/외면 → 이름 은총 (§14.3).
+14. 계시 있으면 `recordRevelation(text, doctrine, tone == 'metaphor' ? 1 : 0)` (§5.1). 메아리면 교리가 오르지 않는다 (§14.8).
 15. 이번 장에 **첫 이름**을 붙였고 `wisdom < 3`이면 `wisdom += 1`.
 16. LLM 해석이면 신학 노트 추출 ([05](05-interpreter.md)) — 엔진 수치 없음.
 
@@ -548,28 +581,32 @@ if len(accepted)+len(filled) < limit and pray 있음 and 수도 칸 미사용: f
 
 ### 3.7 해결 `resolveRound`
 
-`engine.js:821-847`.
+`engine.js:867-896`.
 
-1. **동시 공개와 막기**: 선 진영(`state.first`) 계획의 칸 집합을 만든다. 후 진영 행동 중 그 집합에 든 칸을 노리는 것은 모두 **막힘**(`blocked`) — 해결하지 않고 `log.blocked`만 남긴다(난수 없음).
-   - 칸 기준이므로 **자기 수도에서 하는 기도·신전·대성당·성벽도 그 수도 칸을 차지한다.** 예: 홀수 장(플레이어 선)에 플레이어가 기도하면 같은 장 율법파의 우리 수도 공격·선교는 막힌다. 짝수 장에 율법파가 수도에서 기도·건설하면 우리의 율법파 수도 공격·선교가 막힌다. (의도 여부는 §19.)
+1. **동시 공개와 막기**: 선 진영(`state.first`) 계획에서 **집 안 행동을 뺀** 행동의 칸 집합을 만든다. 후 진영 행동 중 그 집합에 든 칸을 노리는 것은 모두 **막힘**(`blocked`) — 해결하지 않고 `log.blocked`만 남긴다(난수 없음).
+   - 집 안 행동 `home(a)` = `a.type == 'pray'` 또는 `a.type == 'build' && a.build in [temple, cathedral, wall]`. 제 수도·건물 안에서 하는 일이라 칸을 차지하지 않는다(`5b7a94f`). 그래서 선 진영이 수도에서 기도·신전·대성당을 하거나 수도·마을에 성벽을 올려도 같은 장 상대의 그 칸 공격·선교는 막히지 않고, 공격이 마지막 단계라 집 안 행동이 먼저 해결된 뒤 판정된다.
+   - 여전히 칸을 차지하는 선 진영 행동: 채집, 마을 건설, 탐험, 선교, 공격. 예: 짝수 장(율법파 선)에 율법파가 우리 마을을 공격하면 같은 장 우리가 그 마을에서 하는 채집은 막힌다.
+   - 후 진영의 집 안 행동은 여전히 막힐 수 있다(검사는 후 진영 행동의 종류를 보지 않는다). 예: 홀수 장에 우리가 율법파 **수도**를 공격·선교하면 같은 장 율법파의 수도 기도·신전·성벽이 막히고, 짝수 장에 율법파가 우리 수도를 치면(대성당 원정 포함) 우리 수도의 기도·신전·대성당·성벽이 막힌다 (§19-1).
 2. **6단계**: `PHASE_ORDER = [gather, build, pray, explore, preach, attack]`. 단계마다 선 진영의 그 종류 행동을 계획 순서대로, 그다음 후 진영. 막힌 행동과 `state.winner`가 정해진 뒤의 행동은 건너뛴다. 각 행동은 `resolveAction` (§3.8).
 3. `pendingDilemma`가 있고 승자가 없으면 `resolveDilemma(pendingDilemma, prepaid=true)` → `pendingDilemma = null` (§7.2).
 4. 승자가 없으면 `upkeep` (§3.10).
-5. `recordHistory` — **승자가 있어도** 부른다 (§3.11).
+5. `updateLawGuard(playerPlan)` — **승자가 있어도** 값은 바꾼다(기록은 승자가 없을 때만). 튜토리얼 제외 (§4.9).
+6. `recordHistory` — **승자가 있어도** 부른다 (§3.11).
 
 ### 3.8 행동별 규칙
 
-#### 합법 행동 `legalActions(side)` (`engine.js:359`)
+#### 합법 행동 `legalActions(side)` (`engine.js:373`)
 
 만드는 순서(= 목록 순서; 율법파 선택과 기본 노동이 이 순서를 쓴다):
 
-1. `reach(side)`의 칸마다(§1.7 순서; 플레이어는 `revealed` 아닌 칸 건너뜀):
+1. `reach(side)`의 칸마다(§1.7 순서 — 율법파는 원정 `marchRange`만큼 수도의 손이 길다; 플레이어는 `revealed` 아닌 칸 건너뜀):
    - **채집**: `yieldOf(칸).gather`가 있고, 상대 소유가 아니고, 수도가 아니면 `gather`.
    - **마을**: 주인·건물 없고, `canPay(현재 자원, {wood 2, food 1})`, (플레이어) 계명 `noExpand` 없음.
    - 상대 소유 칸이면 **선교**, 그리고 (플레이어) 계명 `noSword` 없고 시련 `earth`가 아니면 **공격**.
 2. 자기 소유 칸(행 우선) 중 건물이 있고 성벽이 없고 돌 2가 있으면 **성벽**.
-3. 자기 수도가 있으면 **기도**; `templeLevel < 3`이고 비용이 되면 **신전**; (플레이어만) `templeLevel == 3 && cathedral < 3`이고 비용이 되면 **대성당**.
-4. (플레이어만) **탐험**: `reach`의 칸마다 이웃(방향 순서) 중 `revealed`가 아니고 `reach`에 없는 칸 (처음 나온 순서, 중복 없음).
+3. (율법파만) **대성당 원정**: 우리 `cathedral >= 1`이고 우리 수도가 있고 1에서 우리 수도 공격이 아직 목록에 없으면(= reach 밖이면) `{ type:'attack', tile: 우리 수도, crusade: true }` (`engine.js:396-397`, §10).
+4. 자기 수도가 있으면 **기도**; `templeLevel < 3`이고 비용이 되면 **신전**; (플레이어만) `templeLevel == 3 && cathedral < 3 && 우리 마을 수 >= cathedralVillages`이고 비용이 되면 **대성당**.
+5. (플레이어만) **탐험**: `reach`의 칸마다 이웃(방향 순서) 중 `revealed`가 아니고 `reach`에 없는 칸 (처음 나온 순서, 중복 없음).
 
 #### 행동 요약
 
@@ -579,13 +616,13 @@ if len(accepted)+len(filled) < limit and pray 있음 and 수도 칸 미사용: f
 | 마을 `build village` | 양쪽 | reach 안의 빈 칸 | 목재 2, 식량 1 | 칸 소유 + 마을 | 없음 |
 | 성벽 `build wall` | 양쪽 | 자기 수도·마을 | 돌 2 | `wall = true` | 없음 |
 | 신전 `build temple` | 양쪽 | 자기 수도 | 돌 `2L`, 목재 `L+1` (`L` = 현재 단계) | 단계 +1; 율법파면 석판 +2 | 없음 |
-| 대성당 `build cathedral` | 플레이어 | 자기 수도 | §10 | 공사 +1; 3이면 승리 | 없음 |
+| 대성당 `build cathedral` | 플레이어 | 자기 수도 (마을 조건 §10) | §10 | 공사 +1; 3이면 승리 | 없음 |
 | 기도 `pray` | 양쪽 | 자기 수도 | — | 신앙 `+prayValue` | 없음 |
 | 탐험 `explore` | 플레이어 | reach 바로 바깥 안개 | — | 드러냄 + 보물 | 0~2회 |
 | 선교 `preach` | 양쪽 | reach 안 상대 칸 | — | 개종 판정 | 2회 |
-| 공격 `attack` | 양쪽 | reach 안 상대 칸 | — | 전투 판정 | 2회 |
+| 공격 `attack` | 양쪽 | reach 안 상대 칸 (율법파는 대성당 공사 중이면 우리 수도도) | — | 전투 판정 | 2회 |
 
-#### 채집 (`engine.js:1083`)
+#### 채집 (`engine.js:1144`)
 
 - 칸이 해결 시점에 상대 소유면 실패(`log.gatherFoe`). (채집이 첫 단계라 실제로는 일어나지 않는다.)
 - 양 `gatherAmount(side, tile)`:
@@ -601,7 +638,7 @@ if len(accepted)+len(filled) < limit and pray 있음 and 수도 칸 미사용: f
   ```
 - 플레이어 채집이 해결되면 `roundMods.gatherBonus = 0` → 축복 +1은 **이번 장 플레이어의 첫 채집 한 번**(선후와 계획 순서상 첫째).
 
-#### 건설 (`engine.js:1095`)
+#### 건설 (`engine.js:1156`)
 
 - 해결 시점에 `canPay(현재 자원, buildCost)`가 아니면 실패(`log.buildNoRes`). 채집이 먼저 해결되므로 이번 장 채집한 자원으로 지을 수 있다.
 - `buildCost`:
@@ -617,11 +654,11 @@ if len(accepted)+len(filled) < limit and pray 있음 and 수도 칸 미사용: f
 - 신전: `templeLevel >= 3`이면 **아무 기록 없이** 끝. 아니면 지불, `templeLevel += 1`, 율법파면 `raiseEdict(+2)`.
 - 대성당: 지불, `cathedral += 1`. `cathedral >= 3`이면 즉시 `winner = side`, `winKind = 'cathedral'` — 이후 행동은 해결되지 않는다.
 
-#### 기도 (`engine.js:1090`)
+#### 기도 (`engine.js:1151`)
 
 `faith += prayValue(side)`.
 
-#### 탐험 (`engine.js:1118`)
+#### 탐험 (`engine.js:1179`)
 
 ```text
 tile.revealed = true; 이웃 모두 revealed = true
@@ -633,12 +670,12 @@ else: 드러내기만
 
 드러난 발견지는 유지 단계의 `discoverSites`에서 발견된다.
 
-#### 선교 (`engine.js:1129`)
+#### 선교 (`engine.js:1190`)
 
 ```text
 if tile.owner != foe or foe.pop <= 0:  실패 기록, 난수 없음
 bonus = preachBonus(side)
-def   = (tile이 수도 ? 1 : 0) + (tile.wall ? 1 : 0)
+def   = (tile이 수도 ? 1 : 0) + (tile.wall ? 1 : 0) + lawGuardOf(side, 'preach')   # 굳은 율법 (우리 선교에만, §4.9)
 ra = d6(); rd = d6()                              # 공격측 먼저
 win = ra + bonus > rd + def                       # 동점은 실패
 if win:
@@ -650,34 +687,42 @@ if win:
                               (player면 stats.turned += 1, revealed = true)
 ```
 
-- `preachBonus`: 율법파 = `(peace>=2) + (peace>=4)`(늘 0). 플레이어 = `min(2, (peace>=2) + (peace>=4) + (계명 noSword) + (설교자 성인) + (은사 preacher이고 converted == 0)) + roundMods.tongues`. 방언은 상한 밖이다.
+- `preachBonus`: 율법파 = `(peace>=2) + (peace>=4) + enemyZeal`(교리는 늘 0이라 승천 4의 3막에만 +1). 플레이어 = `min(2, (peace>=2) + (peace>=4) + (계명 noSword) + (설교자 성인) + (은사 preacher이고 converted == 0)) + roundMods.tongues`. 방언은 상한 밖이다.
 - **선교에는 신도 수 우위(superiority)가 없다** (§19).
 - 믿음의 표식은 유지 단계에서 `round - faithMarks.round >= 2`면 하나 줄어든다 → 성공 뒤 **다음 두 장 안**에 다시 성공해야 넘어온다.
 - 수도 선교는 인구만 옮긴다.
 
-#### 공격 (`engine.js:1155`)
+#### 공격 (`engine.js:1216`)
 
 ```text
 if tile.owner != foe:  실패 기록, 난수 없음
 atk = (war>=2) + (war>=4) + superiority(side, foe)
     + (side == enemy and event == threat ? 1 : 0)
+    + enemyZeal(side)                                     # 승천 4, 3막 율법파 +1
+    + siegeOf(side, tile)                                 # 포위: 우리가 율법파 수도를 칠 때 +1/+2
     + (side == player ? roundMods.attackBonus(저주) + roundMods.pillar : 0)
 guardian = (foe == player and tile이 수도 and 수호자 성인 있음) ? 1 : 0
 def = (tile.wall ? 2 : 0) + (tile이 수도 ? 1 : 0) + superiority(foe, side) + guardian
+    + lawGuardOf(side, 'attack')                          # 굳은 율법 (우리 공격에만, §4.9)
 ra = d6(); rd = d6()
 win = ra + atk > rd + def                                 # 동점은 방어 승
 ```
+
+- **포위** `siegeOf` (`engine.js:259`): 율법파 수도의 이웃(최대 6칸) 중 우리 소유 칸(마을)이 2개면 +1, 3개 이상이면 +2. 율법파 공격·마을 공격에는 없다.
 
 패배(`!win`):
 1. 방어측이 우리 수도면 `deed('guard:' + round, 'guard')` (수호자 성인 후보, §13.2).
 2. 공격측이 전쟁 궁극(`hasUlt(side,'war')`, 플레이어만)이고 `faith >= 2`면 `faith -= 2`, 인구 손실 없음.
 3. 아니면 공격측이 플레이어이고 `roundMods.ark`면 손실 없음.
-4. 아니면 (플레이어면 `fallen(key)` — 그 이름의 성인은 순교) `side.pop = max(0, pop - 1)`.
+4. 아니면 공격측이 플레이어면 `fallen(key)` (그 이름의 성인은 순교).
+5. 공격측이 율법파이고 튜토리얼이 아니면 **퇴각**: `enemy.food = max(0, food − 1)`, 인구 손실 없음 (`log.attackRetreat`, §4.9).
+6. 그 밖(플레이어, 튜토리얼의 율법파)은 `side.pop = max(0, pop - 1)`.
 
 승리:
 1. 방어측이 플레이어이고 `roundMods.ark`가 아니면 `foe.pop = max(0, pop - 1)`. (방주면 인구는 지키지만 칸은 빼앗긴다.)
 2. 공격측이 플레이어면 `bloodKills += 1`; 3의 배수마다 `raiseEdict(+1)`.
-3. 수도면: `foe.capitalHp -= 1`. 방어측이 플레이어이고 `cathedral >= 2`면 `cathedral -= 1`. `capitalHp <= 0`이면 `winner = 공격측`, `winKind = 'capital'`. **수도는 빼앗기지 않는다.**
+3. 수도면: `foe.capitalHp -= 1`. 방어측이 플레이어이고 `cathedral >= 1`이면 `cathedral -= 1` (**어느 단계든** 한 단계 무너진다, 방주도 막지 못한다). `capitalHp <= 0`이면 `winner = 공격측`, `winKind = 'capital'`, `winReason = t('eng.win.capital', { who: 공격측 })`("적 수도 점령" / 율법파가 이기면 "우리 수도 함락"). **수도는 빼앗기지 않는다.**
+5. 1에서 방어측 인구가 0이 되어도 여기서는 끝나지 않는다 — 그 장 유지 단계 끝 `checkVictory`의 **남은 자**(§15.2)가 수도를 흔들고 한 명을 돌려보낸다.
 4. 마을이면: `owner = 공격측`, `wall = false`, `faithMarks = null`; 플레이어면 `stats.captured += 1`.
 
 ### 3.9 갈림길 결과
@@ -686,7 +731,7 @@ win = ra + atk > rd + def                                 # 동점은 방어 승
 
 ### 3.10 유지 `upkeep`
 
-`engine.js:1195-1266`. 정확한 순서:
+`engine.js:1261-1332`. 정확한 순서:
 
 ```text
 brokeFaith = player.faith <= 0                    # 수입이 들어오기 전에 본다
@@ -717,7 +762,7 @@ if brokeFaith:
     if player.faithless > 1 and player.pop > 1: player.pop -= 1; enemy.pop += 1    # 율법파로 이탈
     else: 경고만
 else: player.faithless = 0
-checkProphecy → holyAndEdict → checkDestiny → updateVision → discoverSites → checkVictory(final=true)
+checkProphecy → holyAndEdict → checkDestiny → updateVision → discoverSites → checkVictory(final=true)   # 남은 자가 먼저 돈다 (§15.2)
 ```
 
 - 검열 대상 `frequentNoun`은 지금까지의 계시(이번 장 계시는 아직 기록 전이라 빠짐)에서 명사별 "나온 계시 수"가 가장 많은 것, 동점은 먼저 나온 것. 명사 추출은 [05](05-interpreter.md).
@@ -725,11 +770,12 @@ checkProphecy → holyAndEdict → checkDestiny → updateVision → discoverSit
 
 ### 3.11 장 기록 `recordHistory`
 
-`engine.js:850`. `resolveRound` 끝에 항상:
+`engine.js:911-933`. `resolveRound` 끝에(`updateLawGuard` 다음) 항상:
 
 1. `history.push({ round, ps: score(player), es: score(enemy), res: 플레이어 자원·인구, text: null })` (확정 뒤 `text`를 채운다).
 2. `checkDestiny`.
 3. 튜토리얼이거나 승자가 있으면 끝. 아니면 **신의 분노** 갱신 (§6.4).
+4. 이어서 **율법파의 결집** 갱신 (§4.9): `round >= wrathRound && ps − es >= 8`이면 `rally = true`, 아니면 `ps − es <= 4`일 때 `rally = false`, 그 사이면 그대로. 새로 켜지면 `log.rally`.
 
 ### 3.12 해결 뒤 말의 장치
 
@@ -737,7 +783,7 @@ checkProphecy → holyAndEdict → checkDestiny → updateVision → discoverSit
 
 ### 3.13 다음 장
 
-재생이 끝나면 `pendingSite`가 있고 판이 끝나지 않았으면 유목민 선택(`resolveSite`, §13.3). 그다음 승자가 있으면 종료, 없으면 `startRound`. 승자가 **말하기 단계의 기적**으로 정해지면(심판의 날, 번개로 전원 소멸 등) 그 장은 확정·해결 없이 바로 끝난다.
+재생이 끝나면 `pendingSite`가 있고 판이 끝나지 않았으면 유목민 선택(`resolveSite`, §13.3). 그다음 승자가 있으면 종료, 없으면 `startRound`. 해결 뒤 상태(`'resolved'`)로 저장한 판을 불러와도 `pendingSite`가 있으면 다음 장 전에 유목민 선택을 먼저 묻는다(`resumeLoaded`, `main.js:287-298`). 승자가 **말하기 단계의 기적**으로 정해지면(심판의 날, 번개로 전원 소멸 등) 그 장은 확정·해결 없이 바로 끝난다.
 
 ---
 
@@ -745,7 +791,7 @@ checkProphecy → holyAndEdict → checkDestiny → updateVision → discoverSit
 
 ### 4.1 율법 카드
 
-`LAW_CARDS` (`data.js:271`). 카드마다 규칙 세 줄. 율법파는 카드의 세 줄을 **두 번** 차례로 시도한다.
+`LAW_CARDS` (`data.js:271`). 카드마다 규칙 세 줄. 율법파는 카드의 세 줄을 **두 번** 차례로 시도한다. 그 앞과 사이에 대성당 원정·결집·막마다 칼의 공격 규칙이 끼어든다(§4.4, §4.9).
 
 | id | 이름 | 규칙 1 | 규칙 2 | 규칙 3 | 비고 |
 |---|---|---|---|---|---|
@@ -769,7 +815,7 @@ checkProphecy → holyAndEdict → checkDestiny → updateVision → discoverSit
 
 ### 4.3 이번 장 카드 고르기
 
-`engine.js:531-554`. 장 시작 10~12단계.
+`engine.js:574-597`. 장 시작 10~12단계.
 
 1. `lawCard = lawDeck.pop()`.
 2. 들은 말 `heard`: `vowNext`가 있으면 `'vow'`, 아니면 **지난 장**(`round - 1`) 계시의 `doctrine`. 쉬움·튜토리얼은 반응하지 않는다.
@@ -782,26 +828,34 @@ checkProphecy → holyAndEdict → checkDestiny → updateVision → discoverSit
 
 ### 4.4 계획 `planEnemy`
 
-`engine.js:478`. 확정 1단계에서 한 번 계산하며(`enemyIntent` 표시도 같은 함수), 난수를 쓰지 않는다.
+`engine.js:516-540`. 확정 1단계에서 한 번 계산하며(`enemyIntent` 표시도 같은 함수), 난수를 쓰지 않는다.
 
 ```text
+ZEAL_ACT = { normal: 3, hard: 2 }                      # 쉬움은 없음
 limit = actionLimit(enemy);  pool = legalActions(enemy);  used = {};  plan = []
-rules = (player.cathedral >= 1 ? [{type:'attack', target:'capital'}] : []) + card.rules + card.rules
+rush  = player.cathedral >= 1 ? [{type:'attack', target:'capital'}] : []      # 대성당 원정 (§10)
+rally = state.rally ? [{type:'attack'}] : []                                  # 결집 (§4.9)
+act   = tutorial ? 1 : actOf
+tail  = act >= ZEAL_ACT[difficulty] ? [card.rules[0], {type:'attack'}, card.rules[1], card.rules[2]]
+                                    : card.rules                              # 막마다 칼 (§4.9)
+rules = rush + rally + tail + card.rules                                      # 두 번째 바퀴에는 칼이 없다
 for rule in rules:
     if len(plan) >= limit: break
     if rule.type in (attack, preach) and enemy.pop < 2: continue
     pick = pickForRule(rule, pool 중 칸 미사용)
+    if not pick and rule.type in (attack, preach) and not tutorial:
+        pick = pickForRule({type:'build', build:'village'}, pool 중 칸 미사용)   # 대체 마을 (§4.9)
     if pick: used += pick.tile; plan += pick
-plan += autoFill(enemy, plan)          # 부족한 자원 순 채집 → 남으면 기도
+plan += autoFill(enemy, plan)          # 교리 없음: 부족한 자원 순 채집 → 남으면 기도
 ```
 
-`pickForRule` (`engine.js:458`): 후보 = 종류(와 `gather`/`build`)가 맞는 행동.
-- `target: 'capital'`(대성당 돌진): 후보 중 수도 칸(= 우리 수도가 reach 안이어야)만, 없으면 없음.
+`pickForRule` (`engine.js:496`): 후보 = 종류(와 `gather`/`build`)가 맞는 행동.
+- `target: 'capital'`(대성당 원정): 후보 중 수도 칸만, 없으면 없음. 공사가 시작되면 `legalActions`에 원정 공격(§3.8 3단계)이 들어가므로 우리 수도는 거리와 무관하게 늘 후보다.
 - 공격·선교: 점수 `(마을 ? 0 : 2) + (성벽 ? 1 : 0)` 오름차순 안정 정렬의 첫째 → 성벽 없는 마을 → 성벽 있는 마을 → 수도.
 - 마을·성벽 건설: 우리 수도까지 거리 오름차순(안정)의 첫째 → 우리 쪽으로 뻗는다.
 - 그 밖(채집·기도·신전): `legalActions` 순서의 첫째.
 
-`pool`은 계획 시작 시점의 자원으로 한 번 만들고 예산을 나누지 않으므로, `L9`처럼 마을 둘을 계획해도 해결 때 자원이 모자라면 두 번째는 실패한다(§19).
+`pool`은 계획 시작 시점의 자원으로 한 번 만들고 예산을 나누지 않으므로, `L9`처럼 마을 둘을 계획하거나 대상 없는 공격·선교 규칙 여럿이 대체 마을로 바뀌면 해결 때 자원이 모자라 뒤의 마을이 실패한다(§19-12).
 
 율법파는 탐험하지 않고, 신앙 채집(언덕)도 하지 않는다(기본 노동은 식량·목재·돌만).
 
@@ -826,6 +880,8 @@ plan += autoFill(enemy, plan)          # 부족한 자원 순 채집 → 남으�
 | 시작 자원 | §1.5 | §1.5 | §1.5 |
 | 율법파의 뜻 공개 | 모든 행동 | 공격·선교·건설 | 공격만 |
 | 지난 말에 반응 | 없음 | 덱 위 셋에서 교체 | 두 장 중 위협적인 쪽 (반응은 동점 깨기 +2) |
+| 막마다 칼 `ZEAL_ACT` (§4.9) | 없음 | 3막부터 | 2막부터 |
+| 원정·대체 마을·결집·퇴각·굳은 율법 (§4.9) | 있음 | 있음 | 있음 |
 | 지도자 `iron` | 없음 | 있음 | 있음 |
 | 검열 카드 L10 (veteran) | 없음 | 있음 | 있음 |
 | 정경 교리 +1 | 적용 | 적용 | **없음** |
@@ -833,7 +889,7 @@ plan += autoFill(enemy, plan)          # 부족한 자원 순 채집 → 남으�
 
 ### 4.7 율법파의 뜻 `enemyIntent`
 
-`engine.js:687`. `planEnemy` 결과마다 `shown = 난이도 조건 && 그 칸이 revealed`. 튜토리얼은 쉬움처럼 전부. 청원 「위협」이 이것을 본다(§14.3).
+`engine.js:733`. `planEnemy` 결과마다 `shown = 난이도 조건 && 그 칸이 revealed`. 튜토리얼은 쉬움처럼 전부. 청원 「위협」이 이것을 본다(§14.3). 결집·굳은 율법·원정 거리는 행동이 아니라 상태라서 화면이 뜻 카드에 따로 적는다(`lawBackHTML`, [06](06-ui-ux.md)).
 
 ### 4.8 율법파의 살림
 
@@ -841,16 +897,49 @@ plan += autoFill(enemy, plan)          # 부족한 자원 순 채집 → 남으�
 - 율법파 신앙은 기도·수입으로만 쌓이고, 쓰는 곳은 **율법 석판**뿐: 유지 단계에 `faith >= 10`이면 `faith -= 10`, 석판 +1 (장당 한 번, `edictOn`일 때만; 꺼져 있으면 신앙이 그냥 쌓인다).
 - 율법파는 계시 비용·기적·교리·말투가 없다. 대성당을 짓지 않는다.
 
+### 4.9 율법파의 반격 — 원정·칼·대체 마을·결집·퇴각·굳은 율법
+
+`afab303`에서 더한 규칙. 모두 **튜토리얼에는 없고**, 첫 판·veteran 구분 없이 적용된다(칼만 난이도를 본다). 난수를 쓰지 않는다. 평가(`docs/EVALUATION-2026-09-30.md`) 뒤 벤치마크(`tools/tests/bench.mjs`)에서 보통 난이도 판 중 율법파가 한 번도 공격하지 않은 판이 54% → 8%로 줄었다.
+
+| 규칙 | 조건 | 효과 | 위치 |
+|---|---|---|---|
+| **원정** `marchRange` | 튜토리얼 제외 | 율법파 **수도**의 reach 반경 `2 + (actOf − 1)` → 1막 2칸, 2막 3칸, 3막 4칸. 마을 반경은 1 그대로. 채집·마을·선교·공격 후보가 모두 넓어진다 | `engine.js:209-218` |
+| **막마다 칼** `ZEAL_ACT` | 보통 3막부터, 어려움 2막부터 (쉬움 없음) | 첫 바퀴에서 카드 규칙 1 다음에 `{type:'attack'}` 한 줄 | `engine.js:516, 527-528` |
+| **대체 마을** | 튜토리얼 제외 | 공격·선교 규칙에 고를 대상이 없으면 그 자리에 우리 쪽으로 뻗는 마을 건설을 고른다. 신도가 2 미만이면 규칙 자체를 건너뛰므로 대체도 없다 | `engine.js:535` |
+| **결집** `rally` | 장 기록(§3.11)에서 `round >= wrathRound`이고 `ps − es >= 8`이면 켜지고, `ps − es <= 4`면 꺼진다 (그 사이는 유지; 튜토리얼·승자 있을 때는 갱신 없음) | 켜져 있는 동안 율법파 행동 수 +1, 계획의 원정 다음 맨 앞에 `{type:'attack'}` 한 줄. 새로 켜질 때 `log.rally` | `engine.js:928-933`, `223`, `529` |
+| **퇴각** | 율법파 공격 패배, 튜토리얼 제외 | 인구 대신 `food = max(0, food − 1)` (`log.attackRetreat`) | `engine.js:1233-1237` |
+| **굳은 율법** `lawGuard` | 튜토리얼 제외 | 아래 | `engine.js:899-908`, `267` |
+
+결집은 신의 분노(§6.4)의 거울이다: 분노는 우리가 6점(승천 3이면 8점) 이상 **뒤질** 때, 결집은 8점 이상 **앞설** 때 찬다.
+
+**되풀이에 굳는 율법** (`updateLawGuard`, `resolveRound`의 유지 단계 뒤·장 기록 앞):
+
+```text
+spoken = playerPlan 중 auto가 아닌 행동(= 계시로 받아들인 명령)의 type 집합
+for k in [preach, attack]:
+    before = lawGuard[k]
+    lawGuard[k] = k in spoken ? min(2, before + 1) : 0
+    if lawGuard[k] > before and not winner: log.lawGuard(k, n)      # fx.kind 'guard'
+lawGuardOf(player, k) = min(2, lawGuard[k])     # 우리 k 판정의 방어 보너스 (§3.8 선교·공격)
+```
+
+- 계시로 선교를 명령한 장 다음 장에 율법파의 선교 방어 +1, 두 장 연달아 명령하면 +2(최대). 명령하지 않은 장이 한 번 끼면 0으로 풀린다. 공격도 따로 같은 식.
+- 장 끝에 갱신하므로 **이번 장 판정에는 지난 장까지의 값**이 쓰인다. 명령이 막히거나 실패해도 센다. 기본 노동(뜻을 헤아린 선교·공격 포함, §3.5)과 침묵은 세지 않는다.
+- 해석기가 만든 명령만 보므로, 같은 뜻을 다른 낱말로 말해도 굳는다. 글 자체를 되풀이한 벌은 메아리(§14.8)가 따로 준다.
+- 메아리(§14.8)와 함께 들어가, 벤치마크에서 가장 센 한 줄 반복 스크립트의 승률이 100% → 33%로 내려갔다(`afab303` 커밋 기록).
+
 ---
 
 ## 5. 교리
 
 ### 5.1 오르는 법
 
-`recordRevelation(text, doctrine, extra)` (`engine.js:1312`), 확정 14단계.
+`recordRevelation(text, doctrine, extra)` (`engine.js:1395-1417`), 확정 14단계.
 
 ```text
 d = player.doctrine
+if isEcho(text):                                   # 메아리 (§14.8) — revelations에 아직 이번 계시가 없을 때 본다
+    revelations.push({round, text, doctrine, echo: true}); log.echo; return   # 교리·대립·연속 모두 없음
 if doctrine and d[doctrine] < 6: d[doctrine] += 1
 if doctrine and extra and d[doctrine] < 3: d[doctrine] = min(6, d[doctrine] + extra)    # 비유 말투 extra = 1
 revelations.push({round, text, doctrine})
@@ -864,7 +953,7 @@ streak = (streak.doctrine == doctrine) ? {doctrine, n+1} : {doctrine, n:1}
 if streak.n >= 3: streak = null; streakMiracle(doctrine)
 ```
 
-- 계시의 교리를 정하는 방법(석판 규칙·LLM)은 [05](05-interpreter.md). 해석 결과 `doctrine`은 키 하나 또는 `null`(석판 해석은 교리가 정해지지 않았는데 금지한 행동이 있으면 `peace`, `interpreter.js:214`; LLM은 한국어 교리 이름을 키로 바꾼다).
+- 계시의 교리를 정하는 방법(석판 규칙·LLM)은 [05](05-interpreter.md). 해석 결과 `doctrine`은 키 하나 또는 `null`(석판 해석은 교리가 정해지지 않았는데 금지한 행동이 있으면 `peace`, `interpreter.js:238`; LLM은 한국어 교리 이름을 키로 바꾼다).
 - 다른 교리 증가: 첫 이름 붙이기(지혜 +1, `wisdom < 3`일 때), 갈림길 「신도들의 다툼 — 편을 든다」(§7.2), 전생의 유적(§13.3), 정경·시련 `earth` 시작값(§1.5).
 - 대립으로는 이미 얻은 특전 칸(2·4·6) 아래로 내려가지 않는다.
 
@@ -888,7 +977,7 @@ if streak.n >= 3: streak = null; streakMiracle(doctrine)
 
 ### 5.4 연속 작은 기적 `streakMiracle`
 
-같은 교리 계시가 **세 장 연속**이면(교리 없는 계시·침묵이 끊는다) 한 번 일어나고 연속이 0으로 돌아간다 (`engine.js:1332`). 첫 판에도 있다.
+같은 교리 계시가 **세 장 연속**이면(교리 없는 계시·침묵이 끊는다) 한 번 일어나고 연속이 0으로 돌아간다 (`engine.js:1420`). 첫 판에도 있다. 메아리(§14.8)는 연속을 늘리지도 끊지도 않는다(`recordRevelation`이 연속 계산 전에 끝난다).
 
 | 교리 | 효과 |
 |---|---|
@@ -907,7 +996,7 @@ if streak.n >= 3: streak = null; streakMiracle(doctrine)
 
 | 기적 id | 이름 | 기본 비용 | 효과 |
 |---|---|---|---|
-| `lightning` | 번개 | 4 | 목표: 보이는 율법파 칸. 수도면 석판 −2. 성벽이 있으면 허물고, 없으면 율법파 인구 −1(최소 0). **수도 내구도는 줄지 않는다** |
+| `lightning` | 번개 | 4 | 목표: 보이는 율법파 칸. 수도면 석판 −2. 성벽이 있으면 허물고, 없으면 율법파 인구 −1(최소 0). **수도 내구도는 줄지 않는다** — 다만 마지막 신도를 쓰러뜨리면 곧이은 `checkVictory`의 남은 자(§15.2)가 율법파 수도를 −1 한다 |
 | `rain` | 단비 | 3 | 식량 +3, `rainActive = true` (이번 장 가뭄 무효) |
 | `bounty` | 풍요 | 5 | 목재 +2, 돌 +2 |
 | `manna` | 만나 | 3 | 식량 +4 |
@@ -924,12 +1013,12 @@ if streak.n >= 3: streak = null; streakMiracle(doctrine)
 
 ### 6.2 쓰기
 
-`castMiracle(id, target)` (`engine.js:700`).
+`castMiracle(id, target)` (`engine.js:746`).
 
 - 조건: 손패에 있음(심판의 날은 `doomReady`), `!miracleUsed`, `faith >= miracleCost`. 번개는 목표가 율법파 소유이고 `revealed`여야 한다.
 - 비용 `miracleCost = doom ? 0 : max(1, cost − wrath − (시련 storm && lightning ? 1 : 0))`.
 - 지불 → 효과 → `miracleUsed = true`, `stats.miracles += 1` → `checkVictory(final=false)`.
-- 쓰는 때: 말하기 단계의 카드(즉시), 또는 계시 속 말로 부른 **말한 기적**(확정 2단계, 말투·갈림길 비용보다 먼저). 말한 기적은 확인 화면에서 칩으로 뺄 수 있다. 말한 번개의 목표: 계시에 나온 이름 붙인 율법파 칸, 없으면 보이는 율법파 칸 중 마을 우선·우리 수도에서 가까운 순의 첫째 (`main.js:600`).
+- 쓰는 때: 말하기 단계의 카드(즉시), 또는 계시 속 말로 부른 **말한 기적**(확정 2단계, 말투·갈림길 비용보다 먼저). 말한 기적은 확인 화면에서 칩으로 뺄 수 있다. 말한 번개의 목표: 계시에 나온 이름 붙인 율법파 칸, 없으면 보이는 율법파 칸 중 마을 우선·우리 수도에서 가까운 순의 첫째 (`main.js:608`).
 
 ### 6.3 방주 `roundMods.ark`
 
@@ -980,18 +1069,21 @@ veteran 판에 셋이 계절 덱에 섞인다(§2.5; 첫 덱에만, 보충 덱�
 | `healer` | 역병 치료사 | `pay` 대가를 치른다 | 신앙 −2 | `ark`: 이번 장 방주 |
 | | | `refuse` 거절한다 | — | |
 
-**비용 치르기** `payDilemma(pick)` (확정 5단계, `engine.js:997`):
+**비용 치르기** `payDilemma(pick)` (확정 5단계, `engine.js:1055`):
 
 ```text
 o = 고른 선택 (없으면 첫 선택)
 if o.gain의 음수 항목 중 하나라도 보유량이 모자라면:
-    o = 음수 항목이 없는 첫 선택 ?? o      # 바뀌면 log.dilemmaFallback
-o.gain의 음수 항목을 지금 빼기 (0 아래로도 내려갈 수 있다 — §19)
+    affordable(x) = x.gain의 음수 항목을 모두 치를 수 있음
+    o = (음수 항목이 없는 첫 선택) ?? (affordable인 첫 선택, choice 순서) ?? o    # 바뀌면 log.dilemmaFallback
+for 음수 항목 (k, v): s[k] = max(0, s[k] + v)      # 가진 만큼만 치른다 — 자원이 음수가 되지 않는다
 if o.ark: roundMods.ark = true
 pendingDilemma = o.id
 ```
 
-**결과** `resolveDilemma(pick, prepaid=true)` (해결 뒤·유지 전, `engine.js:1014`):
+예: 「난민 행렬」(두 선택 모두 비용)에서 식량 1로 `take`를 고르면, 신앙이 1 이상이면 `send`로 바뀌고, 신앙도 0이면 `take` 그대로 식량을 0까지만 낸다(`afab303` 전에는 식량 −1이 되었다, §19-4).
+
+**결과** `resolveDilemma(pick, prepaid=true)` (해결 뒤·유지 전, `engine.js:1074`):
 
 ```text
 양수 gain 항목: s[k] = max(0, s[k] + v)
@@ -1040,7 +1132,11 @@ if o.ark:     roundMods.ark = true
 | 평온 없음 | veteran, 3막 첫 장 | 계절 덱에서 `calm` 제거 (§19: 보충 덱) |
 | 성지가 석판을 움직임 | `edictOn`, 2막부터 | §9 |
 | 미라 | veteran, 2막부터 | §7.3 |
-| 승천 4 | 3막 | 율법파 행동 +1 |
+| 원정 | 튜토리얼 제외 (첫 판에도) | 율법파 수도의 손 2막 +1칸, 3막 +2칸 (§4.9) |
+| 막마다 칼 | 보통 3막, 어려움 2막부터 (튜토리얼 제외) | 율법파 계획에 공격 한 줄 (§4.9) |
+| 승천 4 | 3막 | 율법파 공격·선교 주사위 +1 (`enemyZeal`) |
+
+예: 12장 판이면 원정 거리 `marchRange`는 1~3장 0, 4~7장 1, 8~12장 2.
 
 이름(`ACTS`): 제1막·개척, 제2막·경쟁, 제3막·심판. **절기**(2막 첫 장 「하지제」, 3막 첫 장 「추수제」, 마지막 장 「동지의 밤」)와 **달 이름**(`monthOf = MONTHS[min(11, floor((round−1)×12 / maxRounds))]`)은 장 제목 연출일 뿐 규칙 효과가 없다.
 
@@ -1050,7 +1146,7 @@ if o.ark:     roundMods.ark = true
 
 `edictOn = veteran && !tutorial`. 꺼져 있으면 `raiseEdict`는 아무것도 하지 않는다.
 
-`raiseEdict(n)` (`engine.js:873`): `edict = clamp(edict + n, 0, edictMax)`; 바뀌었으면 기록, `edictMax − 2`를 처음 넘으면 경고. **승패는 유지 단계의 `checkVictory`에서만** 본다.
+`raiseEdict(n)` (`engine.js:939`): `edict = clamp(edict + n, 0, edictMax)`; 바뀌었으면 기록, `edictMax − 2`를 처음 넘으면 경고. **승패는 유지 단계의 `checkVictory`에서만** 본다.
 
 | 원인 | 변화 | 시점 |
 |---|---|---|
@@ -1073,15 +1169,17 @@ if o.ark:     roundMods.ark = true
 
 플레이어만 짓는다. 신전 3단계에서 세 번에 나눠 올린다(합계 = 한 번에 짓던 비용 `돌 11·목재 11·신앙 13`).
 
-| 공사 | 이름 | 비용 (돌·목재·신앙) | 빠른 판 |
-|---|---|---|---|
-| 1 | 기초 | 4 · 4 · 4 | 3 · 3 · 3 |
-| 2 | 벽 | 4 · 4 · 4 | 3 · 3 · 3 |
-| 3 | 첨탑 | 3 · 3 · 5 | 3 · 3 · 4 |
+| 공사 | 이름 | 비용 (돌·목재·신앙) | 빠른 판 | 필요한 우리 마을 |
+|---|---|---|---|---|
+| 1 | 기초 | 4 · 4 · 4 | 3 · 3 · 3 | 1 |
+| 2 | 벽 | 4 · 4 · 4 | 3 · 3 · 3 | 2 |
+| 3 | 첨탑 | 3 · 3 · 5 | 3 · 3 · 4 | 3 |
 
-- 공사가 1 이상이면 율법파는 계획 맨 앞에 "우리 수도 공격"을 둔다(우리 수도가 reach 안일 때만 실제로 고른다).
-- 율법파 공격이 우리 수도를 치면(승리) `cathedral >= 2`일 때 공사 −1. 1단계는 무너지지 않는다.
+- **마을 조건**: 다음 단계를 올리려면 우리 마을이 `cathedralVillages = cathedral + 1`개 이상 있어야 한다(`legalActions`, `engine.js:401`). 마을을 잃으면 다음 단계가 합법 행동에서 빠진다(이미 올린 단계는 그대로).
+- **원정**: 공사가 1 이상이면 율법파의 `legalActions`에 우리 수도 공격이 **거리와 무관하게** 들어가고(`crusade: true`, `engine.js:396-397`), `planEnemy`가 그 공격을 계획 맨 앞에 둔다(율법파 신도가 2 이상이면). 선공 여부와 무관하게 공격 단계에서 판정되며, 막기 규칙(§3.7)은 보통 공격과 같다.
+- **무너짐**: 율법파 공격이 우리 수도를 치면(승리) `cathedral >= 1`일 때 공사 −1 — 기초까지 포함해 **어느 단계든** 무너진다(`engine.js:1248`). 방주는 막지 못한다. 우리 신도가 모두 쓰러져 남은 자(§15.2)가 수도를 흔들 때도 한 단계 무너진다.
 - 3단계 완공 즉시 승리(`cathedral`). 공사 단계마다 승점 +1.
+- 이 세 규칙은 `afab303`에서 더했다: 7×7에서 "신전을 높이 세우라" 한 줄만 되풀이해 이기던 판(92~100%)이 0%가 되었다(벤치마크 `tools/tests/bench.mjs`).
 
 ---
 
@@ -1108,7 +1206,7 @@ if o.ark:     roundMods.ark = true
 
 ## 12. 심판의 기준과 승점
 
-`scoreBreakdown(side)` (`engine.js:1269`). 합계 = Σ `n × w`.
+`scoreBreakdown(side)` (`engine.js:1335`). 합계 = Σ `n × w`.
 
 | 항목 | `n` | `w` |
 |---|---|---|
@@ -1142,7 +1240,7 @@ if o.ark:     roundMods.ark = true
 
 ### 13.2 성인
 
-`deed(key, kind)` (`engine.js:236`): `deeds[이름][kind] += 1`. 성인은 판에 최대 2명, 종류마다 1명.
+`deed(key, kind)` (`engine.js:240`): `deeds[이름][kind] += 1`. 성인은 판에 최대 2명, 종류마다 1명.
 
 | 성인 | 조건 | 효과 |
 |---|---|---|
@@ -1153,7 +1251,7 @@ if o.ark:     roundMods.ark = true
 
 ### 13.3 발견지
 
-`discoverSites` (`engine.js:771`): 유지 단계(시야 갱신 뒤)와 지혜 연속 기적 뒤. `state.tiles` 순서로 `revealed`이고 아직 `found`가 아닌 발견지마다:
+`discoverSites` (`engine.js:817`): 유지 단계(시야 갱신 뒤)와 지혜 연속 기적 뒤. `state.tiles` 순서로 `revealed`이고 아직 `found`가 아닌 발견지마다:
 
 | id | 이름 | 효과 |
 |---|---|---|
@@ -1164,7 +1262,7 @@ if o.ark:     roundMods.ark = true
 | `legacy` | 전생의 유적 | `config.legacy.doctrine`이 있고 그 교리 < 3이면 교리 +1, 아니면 신앙 +2 |
 
 - 선택이 필요한 유목민은 `pendingSite`에 칸을 두고, 이미 기다리는 유목민이 있으면 다음 유목민은 발견하지 않고 남겨 둔다(나중 장에 발견).
-- 유목민 선택은 그 장 재생이 끝난 뒤 한다(`resolveSite`, `main.js:1256`). 판이 끝난 장이면 하지 않는다.
+- 유목민 선택은 그 장 재생이 끝난 뒤 한다(`resolveSite`, `main.js:1260`). 판이 끝난 장이면 하지 않는다.
 - 발견지는 율법파와 무관하다(율법파는 발견하지 않는다).
 
 ### 13.4 전설이 된 땅
@@ -1179,24 +1277,25 @@ if o.ark:     roundMods.ark = true
 
 ### 14.1 계시 비용과 길이
 
-`revelationCostFor(text)` (`engine.js:680`):
+`revelationCostFor(text)` (`engine.js:723-727`):
 
 ```text
-base = (len(trim(text)) > 30 and 인용한 말 없음 and (성언이 없거나 text에 성언 없음)) ? 2 : 1
-cost = base + (봉인된 말 중 하나라도 text에 있으면 1 : 0)
+base = (len(trim(text)) > 30 and 인용한 말 없음) ? 2 : 1
+cost = base + (봉인된 말 중 하나라도 text에 있으면 1 : 0) + (isEcho(text) ? 1 : 0)
 ```
 
 - 길이 상한 100자(시련 `cloister` 20자). 비용은 계시할 때 먼저 낸다(§3.3).
-- **인용**(`citedWords`): 최근 세 장(`round−3 ≤ r < round`) 계시의 명사와 겹치는 명사(인용 제외어·봉인된 말 제외).
+- **인용**(`citedWords`): 최근 세 장(`round−3 ≤ r < round`) 계시의 명사와 겹치는 명사(인용 제외어·봉인된 말 제외). 메아리로 기록된 계시도 인용 대상이다.
+- **메아리** +1: §14.8. 예전의 성언 할인(세 번 쓴 구절은 길어도 1)은 되풀이를 벌하는 메아리와 어긋나 `afab303`에서 없앴다.
 - 다시 해석 신앙 −1, 말 거두기 veteran 신앙 −1 (§3.3).
 
 ### 14.2 은총 `grantGrace`
 
-`engine.js:570`. 청원·서원·이름·기이한 해석에서 오는 신앙은 **장당 합계 1**(`gracePerRound`). 장이 바뀌면 사용량을 0으로. 한도가 차면 0을 준다(기록도 없음).
+`engine.js:613`. 청원·서원·이름에서 오는 신앙은 **장당 합계 1**(`gracePerRound`). 장이 바뀌면 사용량을 0으로. 한도가 차면 0을 준다(기록도 없음).
 
-### 14.3 청원·서원·기이한 해석
+### 14.3 청원·서원
 
-**청원** `makePetition` (장 시작 16단계, `engine.js:581`): 아래 목록에서 **첫 번째로 참인** 것.
+**청원** `makePetition` (장 시작 16단계, `engine.js:624`): 아래 목록에서 **첫 번째로 참인** 것.
 
 | 순서 | 조건 | 필요 (`need`) |
 |---|---|---|
@@ -1213,9 +1312,7 @@ cost = base + (봉인된 말 중 하나라도 text에 있으면 1 : 0)
 
 **서원** `keepVows(forbidden, plan)` (확정 12단계): 해석이 금지한 행동 중 공격·선교 종류가 있으면 — 공격이 있으면 `vowNext = 'attack'`(다음 장 율법파 반응 `vow` → L5); 이번 계획에 그 종류가 하나도 없으면 은총 +1(`stats.vows += 1`).
 
-**기이한 해석** (LLM만, 판당 1회, `main.js:586`): 처음 해석이 명령을 냈는데 계시 낱말과 이어지는 게 하나도 없고 석판 해석과도 겹치지 않으면, `wordsAfter`에서 은총 +1 → `oddUsed = true`.
-
-`wordsAfter` 안의 순서: 기이한 해석 → 청원 → 이름. 은총 상한 때문에 앞의 것이 먼저 받는다(서원은 그보다 앞, 12단계).
+`wordsAfter` (`main.js:763-774`) 안의 순서: 청원 → 이름. 은총 상한 때문에 앞의 것이 먼저 받는다(서원은 그보다 앞, 12단계). 예전의 **기이한 해석** 은총(LLM 명령이 계시와 무관하면 판당 한 번 +1)은 숨은 규칙이라 `afab303`에서 없앴다(`state.oddUsed`는 쓰이지 않는 기본값으로만 남았다).
 
 ### 14.4 말투 `applyTone`
 
@@ -1245,7 +1342,7 @@ cost = base + (봉인된 말 중 하나라도 text에 있으면 1 : 0)
 | `sabbath` | 안식하라 | `round % 4 == 0`인 장: 행동 수 −2(최소 1), 기도 ×2 |
 | `noFamine` | 굶기지 말라 | 유지 단계 식량 −1 추가; 대신 굶주림으로 신도를 잃지 않음 |
 
-새긴 장의 계획 조정 (`main.js:712-718`): `banned = { noSword:'attack', noExpand:'village' }[id]`; `kept = accepted` 중 `type != banned && build != banned`; `plan = kept + autoFill(player, kept, forbidden)`. (`sabbath`·`noFamine`에서 생기는 문제는 §19.)
+새긴 장의 계획 조정 (`main.js:720-726`): `banned = { noSword:'attack', noExpand:'village' }[id]`; `kept = banned ? accepted 중 (type != banned && build != banned) : accepted 전부`; `plan = kept + autoFill(player, kept, forbidden, doctrine)`. `sabbath`·`noFamine`은 금하는 행동이 없어 명령이 그대로 남는다(예전에는 건설 외 명령이 모두 빠졌다 — `afab303`에서 고침, §19-3). 이 다시 채우기는 확인 화면에서 뺀 칩을 금지로 넘기지 않으므로, 뺀 칩이 기본 노동으로 되살아날 수 있다(§19-20).
 
 ### 14.7 예언
 
@@ -1260,9 +1357,21 @@ cost = base + (봉인된 말 중 하나라도 text에 있으면 1 : 0)
 
 이루면 신앙 +`{1:4, 2:3, 3:2}[rounds]`, `stats.prophecies += 1`. 아니고 `round >= due`면 신앙 −2(최소 0). 어느 쪽이든 예언은 사라진다.
 
-### 14.8 성언 `liturgy`
+### 14.8 메아리 `isEcho`
 
-veteran, 판당 하나. 확정 14단계 뒤 `updateLiturgy`: 모든 계시에서 한두 낱말·글자 4~8자 구절이 세 계시 이상에 나오면 그중 가장 긴 것(동점은 먼저 센 것)을 성언으로. 효과: 그 구절이 든 계시는 길어도 기본 비용 1.
+`engine.js:729-730`. 튜토리얼 제외, 첫 판에도 있다.
+
+```text
+plainWords(x) = String(x ?? '')에서 공백(\s)과 유니코드 문장부호(\p{P})를 모두 지운 것
+isEcho(text)  = !tutorial and text and plainWords(text) != ''
+                and plainWords(text) == plainWords(revelations.at(-1)?.text)
+```
+
+- 비교 대상은 **마지막으로 기록된 계시**다(바로 지난 장이 아니어도 된다 — 침묵한 장은 계시를 남기지 않는다). 띄어쓰기·마침표·쉼표·따옴표만 다른 글은 같은 글이다. 기호(`~` 같은 `\p{S}`)와 이모지는 지우지 않는다.
+- 효과: 계시 비용 +1(§14.1, 확인 화면의 비용 알약에 "되풀이"로 보인다), 그리고 `recordRevelation`이 `{…, echo: true}`만 기록하고 `log.echo`를 남긴 뒤 끝난다 — 교리 +1·비유 가속·교리 대립·연속(§5.1, §5.4)이 모두 없다. 해석·명령·말투·청원·이름·예언은 보통 계시와 같다.
+- 기록에는 해석의 `doctrine`이 그대로 남으므로 다음 장 율법파는 그 교리에 반응한다(§4.3).
+- 예: 5×5 보통 시드 2026, 1장 "기도하라"(비용 1, 지혜 0 → 1) 뒤 2장 "기도 하라."는 비용 2, 지혜는 1 그대로.
+- 예전의 **성언**(`liturgy`: 세 계시에 나온 구절은 길어도 비용 1)은 되풀이를 부추겨 `afab303`에서 없앴다. `findLiturgy`·`updateLiturgy`는 코드에서 지워졌고 `state.liturgy`는 기본값으로만 남았다.
 
 ### 14.9 침묵
 
@@ -1295,21 +1404,25 @@ veteran, 판당 하나. 확정 14단계 뒤 `updateLiturgy`: 모든 계시에서
 | `winKind` | `winner` | 조건 | 판정 위치 |
 |---|---|---|---|
 | `doom` | player | 심판의 날로 율법파 `capitalHp <= 0` | 기적 카드 (말하기 단계; 심판의 날은 말로 부를 수 없다) |
-| `capital` | 공격측 | 공격 승리로 상대 `capitalHp <= 0` | 공격 단계 즉시 |
-| `cathedral` | player | 대성당 공사 3 | 건설 단계 즉시 |
-| `bothExtinct` | `'draw'` | 양쪽 `pop <= 0` | `checkVictory` |
-| `convertAll` | player | 율법파 `pop <= 0` | `checkVictory` |
-| `edict` | enemy | `edictOn && edict >= edictMax` | `checkVictory` |
-| `extinct` | enemy | 우리 `pop <= 0` | `checkVictory` |
+| `capital` | 공격측 | 공격 승리로 상대 `capitalHp <= 0` (우리 쪽은 포위 +1/+2, 율법파는 대성당 원정으로 거리 무관 — §3.8, §10) | 공격 단계 즉시 |
+| `capital` | 신도가 모두 쓰러진 쪽의 **상대** | 남은 자가 수도를 흔들어 `capitalHp <= 0` (튜토리얼 제외) | `checkVictory` 처음 (§15.2) |
+| `cathedral` | player | 대성당 공사 3 (단계마다 마을 1·2·3) | 건설 단계 즉시 |
+| `bothExtinct` | `'draw'` | 양쪽 `pop <= 0` — **튜토리얼에서만** (남은 자) | `checkVictory` |
+| `convertAll` | player | 율법파 `pop <= 0` — **튜토리얼에서만** | `checkVictory` |
+| `edict` | enemy | `edictOn && edict >= edictMax` (연대기 결말 종류도 `edict` — [07](07-progression.md)) | `checkVictory` |
+| `extinct` | enemy | 우리 `pop <= 0` — **튜토리얼에서만** | `checkVictory` |
 | `faith` | player | 신앙 승리 | `checkVictory` |
 | `score` | 승점 높은 쪽 (**동점은 플레이어**) | 마지막 장 | `checkVictory(final)` |
 | `tutorial` | 〃 | 튜토리얼 마지막 장 | `checkVictory(final)` |
 
 ### 15.2 `checkVictory(final = true)`
 
-`engine.js:1289`. 이미 승자가 있으면 그대로.
+`engine.js:1370`. 이미 승자가 있으면 그대로.
 
 ```text
+if winner: return winner
+remnant()                              # 남은 자 (아래), 튜토리얼 제외
+if winner: return winner
 if p.pop <= 0 and e.pop <= 0:  draw / bothExtinct; return
 if e.pop <= 0:                         player / convertAll
 if no winner and edictOn and e.edict >= edictMax:  enemy / edict
@@ -1322,12 +1435,31 @@ if no winner and final and round >= maxRounds:
     winKind = tutorial ? 'tutorial' : 'score'
 ```
 
-부르는 곳: 유지 단계 끝(`final=true`), `castMiracle`(`final=false`), `streakMiracle`(`final=false`). 그래서 말하기 단계의 기적(번개·부활 등)이나 확정 뒤 연속 기적으로도 `convertAll`·`faith`·`extinct`가 날 수 있다. 공격·선교로 인구가 0이 되어도 판정은 그 장 유지 단계에서 한다.
+**남은 자** `remnant` (`engine.js:1357-1368`, `448f553`): 수도가 서 있는 한 부족은 사라지지 않는다.
+
+```text
+remnant():
+  if tutorial: return
+  for side in [player, enemy]:                         # 이 순서
+      s = sides[side];  cap = 그 진영 수도
+      if s.pop > 0 or not cap or s.capitalHp <= 0 or winner: continue
+      s.capitalHp -= 1
+      if side == player and s.cathedral >= 1: s.cathedral -= 1
+      log.remnant({who: side, hp: s.capitalHp})        # fx.kind 'loss', tile = 수도
+      if s.capitalHp > 0: s.pop = 1                     # 한 명이 수도로 돌아온다 (인구 한도·식량 무관)
+      else: winner = other(side); winKind = 'capital'; winReason = t('eng.win.capital', {who: winner})
+```
+
+- 그래서 튜토리얼이 아니면 `bothExtinct`·`convertAll`·`extinct`는 나오지 않는다(코드는 남아 있다 — 튜토리얼용). 전멸·전원 개종은 따로 이기는 길이 아니라 점령으로 가는 길이 된다: 커밋 기록에 따르면 smart 봇 판에서 갑작스러운 전멸 14%·전원 개종 8%가 사라지고 수도 점령 승리가 0% → 10%가 되었으며 승률은 그대로였다.
+- 양쪽이 같은 판정에서 0이면 플레이어 먼저 흔들린다. 플레이어 수도가 무너지면 율법파가 이기고 율법파 쪽은 보지 않는다.
+- 수도를 흔든 뒤 `pop = 1`이므로 같은 `checkVictory`의 신앙 승리(`p.pop >= 0.75 × total`, 인구 합 문턱)는 돌아온 한 명을 센다.
+
+부르는 곳: 유지 단계 끝(`final=true`), `castMiracle`(`final=false`), `streakMiracle`(`final=false`). 그래서 말하기 단계의 기적(번개 등)이나 확정 뒤 연속 기적(평화)으로 마지막 신도가 쓰러져도 **그 자리에서** 남은 자가 돈다(튜토리얼에서는 `convertAll`·`extinct`). 공격·선교·굶주림으로 인구가 0이 되어도 판정은 그 장 유지 단계에서 한다.
 
 ### 15.3 승리 뒤 처리
 
-- `resolveRound` 중 승자가 나면 남은 행동·갈림길 결과·유지를 건너뛴다. `recordHistory`는 부른다(분노 제외).
-- 확정 10~13단계는 승자가 있으면 건너뛴다. 14단계 `recordRevelation`은 계시를 기록하고 교리 +1까지만 한다(대립·연속 없음).
+- `resolveRound` 중 승자가 나면 남은 행동·갈림길 결과·유지를 건너뛴다. `updateLawGuard`(값만, 기록 없음)와 `recordHistory`는 부른다(분노·결집 제외).
+- 확정 10~13단계는 승자가 있으면 건너뛴다. 14단계 `recordRevelation`은 계시를 기록하고 교리 +1까지만 한다(대립·연속 없음; 메아리면 교리도 없음).
 
 ---
 
@@ -1346,14 +1478,14 @@ if no winner and final and round >= maxRounds:
 | `enemyBonus` | 0 |
 | 계절 순서 (1→5장) | calm, calm, harvest, calm, prophet |
 | 율법 카드 순서 (1→5장) | L2, L1, L6, L2, L8 (5장 시작에 덱이 1장이라 7장짜리 풀로 `dealDeck(…, 9)`를 밑에 보충 — `rng.deck` 소비) |
-| 없음 | 지도자, 발견지·영구 지형·성지, 율법 석판, 소명, 반응·두 장 비교, 신의 분노·심판의 날, veteran 기능 전부, 막 규칙 |
+| 없음 | 지도자, 발견지·영구 지형·성지, 율법 석판, 소명, 반응·두 장 비교, 신의 분노·심판의 날, veteran 기능 전부, 막 규칙, 율법파의 반격 전부(원정·칼·대체 마을·결집·퇴각·굳은 율법 — 튜토리얼의 율법파는 공격에 지면 신도를 잃는다), 메아리, 남은 자(튜토리얼은 전멸·전원 개종으로 끝날 수 있다) |
 | 율법파의 뜻 | 모두 공개 |
 | `quick` | 아니오 (3×3이지만 튜토리얼 제외) |
 | 끝 | 5장 유지 단계에서 승점 비교 → `winKind 'tutorial'` |
 
 ### 16.2 두 번째 판부터 (`config.veteran`)
 
-`veteran`은 서고에 끝낸 판이 하나라도 있으면 `true`(`main.js:270`). 오늘의 계시·시련은 늘 `true`, 도전 링크는 `v=0`이 아니면 `true`.
+`veteran`은 서고에 끝낸 판이 하나라도 있으면 `true`(`main.js:271`). 오늘의 계시·시련은 늘 `true`, 도전 링크는 `v=0`이 아니면 `true`.
 
 | 기능 | 첫 판 | veteran |
 |---|---|---|
@@ -1369,11 +1501,12 @@ if no winner and final and round >= maxRounds:
 | 교리 대립 | 없음 | 있음 |
 | 침묵 벌 (2번째 −1 신앙, 3번째부터 이탈) | 기록만 | 있음 |
 | 영원한 계명 | 없음 | 3장부터 |
-| 성언 | 없음 | 있음 |
 | 말 거두기 비용 | 무료 | 신앙 1 |
-| 정경·전생의 유적 (`main.js:281`) | 없음 | 일반 판에서 전달 |
+| 정경·전생의 유적 (`main.js:282`) | 없음 | 일반 판에서 전달 |
 
-veteran과 **무관하게** 있는 것: 지도자, 반응(쉬움 제외), 성지 승점 +2, 발견지·영구 지형, 신의 분노·심판의 날, 연속 기적, 성인, 청원·은총·서원, 말투, 이름, 예언, 인용 비용.
+(예전 표의 「성언」 줄은 성언이 없어져 뺐다.)
+
+veteran과 **무관하게** 있는 것: 지도자, 반응(쉬움 제외), 성지 승점 +2, 발견지·영구 지형, 신의 분노·심판의 날, 연속 기적, 성인, 청원·은총·서원, 말투, 이름, 예언, 인용 비용, 뜻을 헤아린 기본 노동, 메아리, 율법파의 반격(원정·칼·대체 마을·결집·퇴각·굳은 율법, §4.9), 대성당의 마을 조건·원정·무너짐, 포위.
 
 ### 16.3 난이도
 
@@ -1385,11 +1518,11 @@ veteran과 **무관하게** 있는 것: 지도자, 반응(쉬움 제외), 성지
 
 | 단계 | 문구 (`data.ascension`) | 코드 효과 |
 |---|---|---|
-| 1 | 율법파 시작 신도 +1 | 율법파 `pop +1`, **`food +4`** (`engine.js:159`) |
+| 1 | 율법파 시작 신도 +1, 식량 +4 | 율법파 `pop +1`, `food +4` (`engine.js:159`) |
 | 2 | 율법 석판 한계 −2 | `edictMax = 10` |
 | 3 | 신의 분노가 차는 격차 6 → 8 | 분노 증가 조건 `gap >= 8` |
-| 4 | 3막에 율법파 행동 +1 | `actionLimit` 율법파 bonus +1 (3막) |
-| 5 | 은사 없이 시작 | `config.blessing = null` (`main.js:281`) |
+| 4 | 3막에 율법파 공격·선교 주사위 +1 | `enemyZeal` (`engine.js:265`): 3막에 율법파 공격 `atk +1`, 선교 `preachBonus +1`. 예전의 "3막 행동 +1"은 평가에서 효과가 측정되지 않아(0/1,250판, `docs/EVALUATION-2026-09-30.md`) `afab303`에서 바꿨다 |
+| 5 | 은사 없이 시작 | `config.blessing = null` (`main.js:282`; 종료 화면 「새 땅」 단추도 같다, `main.js:845`) |
 
 ### 16.5 시련 `TRIALS`
 
@@ -1400,10 +1533,10 @@ veteran과 **무관하게** 있는 것: 지도자, 반응(쉬움 제외), 성지
 | `storm` | 폭풍의 주 | 5×5 · 보통 · 11101 | 12 | 손패 번개·풍요·불기둥 고정; 번개 비용 −1 추가; 드래프트에 단비 없음 |
 | `earth` | 대지모 | 6×6 · 보통 · 22202 | 12 | 풍요 1로 시작; 플레이어 공격 불가; 성장 비용 1; 소명 `sword` 없음; 계명 `noSword` 불가 |
 | `sword` | 칼의 해 | 5×5 · 보통 · 33303 | 12 | 지도자 `iron` 고정; 율법 풀에 L5 두 장 더 (기본 1 + iron 1 + 2 = 4장) |
-| `cloister` | 침묵의 수도원 | 5×5 · 보통 · 44404 | 12 | 계시 20자까지 (`main.js:1846`) |
+| `cloister` | 침묵의 수도원 | 5×5 · 보통 · 44404 | 12 | 계시 20자까지 (`main.js:1852`) |
 | `last` | 마지막 예언자 | 5×5 · 어려움 · 55505 | **8** | 율법파 `pop +2`, `food +8`; 신의 분노 1장부터 (`wrathRound = 1`). 5×5라 `quick`이 아니므로 궁극 8장(= 마지막 장), 드래프트 5장 |
 
-별(`main.js:966`): 지면 0; 이기고 승점 차 ≥ 20이거나 `maxRounds` 전에 끝냈으면 3; 차 ≥ 10이면 2; 아니면 1.
+별(`main.js:969`): 지면 0; 이기고 승점 차 ≥ 20이거나 `maxRounds` 전에 끝냈으면 3; 차 ≥ 10이면 2; 아니면 1.
 
 ### 16.6 오늘의 계시 (daily)
 
@@ -1411,11 +1544,11 @@ veteran과 **무관하게** 있는 것: 지도자, 반응(쉬움 제외), 성지
 
 ### 16.7 도전 링크 (challenge)
 
-URL `?seed=&size=&diff=&target=&v=` (`main.js:61`): 시드 `min(999999, floor(seed))`, 크기(없으면 5), 난이도(없으면 normal), `veteran = v != '0'`, `canon: null`, `challenge: { target }`. 소명 없음, 은사·유적·승천 없음. 결과 문구: 이기고 승점 > `target`이면 성공(규칙에는 영향 없음).
+URL `?seed=&size=&diff=&target=&v=` (`main.js:62`): 시드 `min(999999, floor(seed))`, 크기(없으면 5), 난이도(없으면 normal), `veteran = v != '0'`, `canon: null`, `challenge: { target }`. 소명 없음, 은사·유적·승천 없음. 결과 문구: 이기고 승점 > `target`이면 성공(규칙에는 영향 없음).
 
 ### 16.8 은사·정경·유적 (일반 판)
 
-일반 판(튜토리얼·오늘의 계시·도전·시련 제외)에서만 `main.js:281`이 넘긴다.
+일반 판(튜토리얼·오늘의 계시·도전·시련 제외)에서만 `main.js:282`이 넘긴다.
 
 | 무엇 | 효과 | 조건 |
 |---|---|---|
@@ -1436,14 +1569,14 @@ URL `?seed=&size=&diff=&target=&v=` (`main.js:61`): 시드 `min(999999, floor(se
 
 해결과 같은 식이어야 하는 표시 도우미. 상태를 바꾸지 않는다.
 
-- `actionOdds(action, {curse})` (`engine.js:264`): 선교·공격 승률 = `#{(x, y) ∈ 1..6² : x + atk > y + def} / 36`. 공격 `atk`는 저주를 `roundMods.attackBonus ?? (curse ? 1 : 0)`로 미리 반영한다. **표시용 식에는 율법파 집결(+1)과 수호자 성인(+1)이 빠져 있다**(플레이어 공격에는 무관, 율법파 공격 표시에만 차이).
-- `previewGains(plan)` (`engine.js:917`): 채집·기도 수입, 건설 비용, 장 끝 식량 `2 + 마을 − pop − (noFamine ? 1 : 0)`, 신앙 수입. 주사위·성장·역병은 빠진다. 화면은 여기에 축복(+1 첫 채집), 저주(신앙 −1), 말한 기적 비용과 즉시 수입, 갈림길 gain을 더해 보여 준다(`main.js:2016`).
+- `actionOdds(action, {curse})` (`engine.js:278-293`): 선교·공격 승률 = `#{(x, y) ∈ 1..6² : x + atk > y + def} / 36`. 공격 `atk`는 저주를 `roundMods.attackBonus ?? (curse ? 1 : 0)`로 미리 반영한다. 승천 4(`enemyZeal`), 포위(`siegeOf`), 굳은 율법(`lawGuardOf`, 선교·공격 모두)은 해결과 같게 들어 있다. **표시용 식에는 계절 「율법파 집결」(+1)과 수호자 성인(+1)이 빠져 있다**(플레이어 공격에는 무관, 율법파 공격 표시에만 차이). 뜻을 헤아린 기본 노동의 선교·공격 문턱(§3.5)도 이 값을 쓴다.
+- `previewGains(plan)` (`engine.js:983`): 채집·기도 수입, 건설 비용, 장 끝 식량 `2 + 마을 − pop − (noFamine ? 1 : 0)`, 신앙 수입. 주사위·성장·역병은 빠진다. 화면은 여기에 축복(+1 첫 채집), 저주(신앙 −1), 말한 기적 비용과 즉시 수입, 갈림길 gain을 더해 보여 준다(`main.js:2031`).
 
 ---
 
 ## 18. 검증 예시
 
-`node`로 `engine.js`를 직접 불러 얻은 값(커밋 `8b91681`). 골든 테스트 전체는 [이식 가이드](../godot/PORTING.md).
+`node`로 `engine.js`를 직접 불러 얻은 값(커밋 `8b91681`에서 얻고 `448f553`에서 A·B를 다시 확인해 같았다). 골든 테스트 전체는 [이식 가이드](../godot/PORTING.md).
 
 **A. `{ mode:'standard', size:5, difficulty:'normal', seed:2026 }` (첫 판)**
 
@@ -1471,30 +1604,47 @@ E  plain   P        mountain river    desert
 - 계절 덱 (밑 → 위): `harvest, calm, prophet, threat, drought, refugees, merchant, plague, healer, threat, plague, refugees, merchant, harvest, calm, healer, drought, prophet`.
 - 반응이 없는 진행에서 1~5장 계절 `prophet, drought, healer, calm, harvest`, 율법 `L9, L7, L3, L2, L6`; 5장 드래프트 후보 `[bounty, ark, rain]`, 그 뒤 `rng.deck = 1092896356`.
 
+**C. A와 같은 설정, 석판 해석으로 두 장 (`tools/tests/lib.mjs`의 `doSpeak`/`doAccept`, 커밋 `448f553`)**
+
+- 1장 "기도하라": 비용 1, 교리 `wisdom`, 명령 `pray:E2:`, 기본 노동 `explore:B1:`(뜻을 헤아림, `heeded`) · `gather:C2:stone`. 확정 뒤 지혜 0 → 1, `lawGuard = {preach:0, attack:0}`, `rally = false`.
+- 2장 "기도 하라.": `isEcho = true`, 비용 2 (다른 글 "기도하고 경배하라"는 1). 확정 뒤 지혜 1 그대로, `revelations[1] = { round:2, text:'기도 하라.', doctrine:'wisdom', echo:true }`.
+- `marchRange(enemy)`: 1~3장 0, 4~7장 1, 8~12장 2.
+
 ---
 
 ## 19. 확인 필요
 
-코드 그대로 옮기되, 의도인지 확인이 필요한 곳. 이식은 **현재 동작**을 재현해야 골든 테스트가 맞는다.
+코드 그대로 옮기되, 의도인지 확인이 필요한 곳. 이식은 **현재 동작**을 재현해야 골든 테스트가 맞는다. 번호는 처음 쓴 때(`8b91681`)와 같게 두고, 그 뒤 고친 항목은 ~~줄을 긋고~~ 고친 커밋을 적었다.
 
-1. **수도 칸 막기** (`engine.js:825`): 막기가 칸 단위라 선 진영이 자기 수도에서 기도·신전·성벽·대성당을 하면 같은 장 상대의 그 수도 공격·선교가 막힌다(실행 확인: 1장 플레이어 기도가 율법파의 E2 공격을 막음). 홀수 장엔 우리 수도가, 짝수 장엔 율법파 수도가 사실상 안전해질 수 있다.
-2. **검증의 교리 교체와 예산** (`engine.js:417-425`): 같은 칸에서 교리 우선 행동으로 바꿔도 예산을 다시 계산하지 않는다(원래 건설 비용은 빠진 채, 새 건설 비용은 안 빠짐). 실행 확인: 목재 2·식량 1에서 전쟁 교리로 `[gather:D2:food, build:D2:village, build:D1:village]`를 넣으면 마을 둘이 모두 받아들여지고, 해결 때 두 번째 마을이 자원 부족으로 실패한다.
-3. **안식일·굶기지 말라를 새긴 장** (`main.js:714-715`): `banned`가 `undefined`라 `a.build !== undefined`가 건설이 아닌 모든 명령에서 거짓 → 건설 외 명령이 전부 빠지고 기본 노동으로 다시 채워진다.
-4. **난민 행렬에 무료 선택이 없음**: 두 선택 모두 비용이 있어 `payDilemma`의 대체가 원래 선택을 그대로 쓰고, 식량·신앙이 **음수**가 될 수 있다(실행 확인: 식량 1에서 `take` → 식량 −1). 음수 식량은 유지 단계에서 굶주림으로 이어지고, 음수 동안 `canPay`가 막힌다.
+1. ~~**수도 칸 막기**: 선 진영이 자기 수도에서 기도·신전·성벽·대성당을 하면 같은 장 상대의 그 수도 공격·선교가 막혔다.~~ — **고침** `5b7a94f`: 집 안 행동(기도, 신전·대성당·성벽 건설)은 칸을 차지하지 않는다(§3.7, `engine.js:871-872`). **남은 비대칭**: 검사는 후 진영 행동의 종류를 보지 않으므로, 선 진영이 상대 수도를 공격·선교하면 같은 장 상대의 그 수도 기도·신전·성벽(·대성당)은 여전히 막힌다(실행 확인: 튜토리얼 1장 우리의 A3 공격이 율법파의 A3 기도를 막음). 마을의 성벽 건설도 같다.
+2. ~~**검증의 교리 교체와 예산**: 같은 칸에서 교리 우선 행동으로 바꿔도 예산을 다시 계산하지 않아 마을 둘이 함께 받아들여졌다.~~ — **고침** `afab303`: 교체 때 밀려난 행동의 비용을 돌려받고 새 행동의 비용을 다시 본다(§3.4, `engine.js:436-449`). 남은 점: 새 행동의 비용 검사가 교체 **전** 예산으로 먼저 한 번 걸러지므로, 밀려날 건설 비용을 돌려받아야만 치를 수 있는 건설은 교체되지 못하고 '자원 부족'으로 거절된다.
+3. ~~**안식일·굶기지 말라를 새긴 장**: `banned`가 `undefined`라 건설 외 명령이 전부 빠졌다.~~ — **고침** `afab303` (`main.js:723`, §14.6).
+4. ~~**난민 행렬에 무료 선택이 없음**: 대체가 원래 선택을 그대로 써서 식량·신앙이 음수가 될 수 있었다.~~ — **고침** `afab303`: 무료 선택 → 치를 수 있는 첫 선택 → 원래 선택(가진 만큼만, 0 하한) 순(§7.2, `engine.js:1061-1068`). 이제 갈림길로 자원이 음수가 되지 않는다. 남은 점: 치를 수 있는 선택은 `choice` 순서로 고르므로 플레이어가 고른 것과 다른 쪽이 된다(난민 `take`가 안 되면 `send`).
 5. **신도 수 우위** (`data.js:66` 주석 "선교·공격"): 코드는 공격에만 적용한다.
 6. **가뭄 문구** "평원·강 식량 채집 −1": 코드는 모든 식량 채집(오아시스 포함)에 적용한다.
 7. **성지 위치**: 4×4·7×7에서 성지가 `mapgen`의 가운데 언덕(`mid`)과 다르다. 7×7에서 성지가 발견지와 겹치거나, 성지 칸의 영구 지형만 지워져 대칭 칸에 짝 없는 오아시스·채석장이 남을 수 있다. `placeSites`/`placeLegacy`는 `mid`만 피하고 실제 성지는 피하지 않는다.
-8. **3막 보충 덱의 평온**: `startRound` 2단계 보충(`engine.js:505`)은 `calm`을 거르지 않는다. 3막에 덱이 바닥나면 평온이 다시 나올 수 있다(보통 덱이 넉넉해 실제로는 드물다).
+8. **3막 보충 덱의 평온**: `startRound` 2단계 보충(`engine.js:548`)은 `calm`을 거르지 않는다. 3막에 덱이 바닥나면 평온이 다시 나올 수 있다(보통 덱이 넉넉해 실제로는 드물다).
 9. **소명 장 문턱 고정**: 「넓히는 자」(8장까지)·「쌓는 자」(6장까지)는 8장짜리 판(4×4, 시련 `last`)에서도 같은 값이다.
 10. **인구 한도를 무시하는 이동**: 선교 성공, 평화 궁극, 신앙 바닥 이탈, 침묵 이탈은 한도를 보지 않는다(한도는 성장·부활·유목민·난민·평화 연속 기적만 막는다).
-11. **대성당 1단계는 무너지지 않음**: 수도 피격 시 `cathedral >= 2`일 때만 −1.
-12. **율법파 계획은 예산을 나누지 않음**: `L9`(마을·마을)처럼 같은 비용 행동을 둘 계획해 한쪽이 해결 때 실패할 수 있다.
-13. **유목민 선택과 저장**: 해결이 끝난 상태(`'resolved'`)로 저장·불러오면 `pendingSite` 선택 화면 없이 다음 장으로 가서, 그 유목민은 풀리지 않고 이후의 유목민 발견도 막힌다(`main.js:292`, `engine.js:775`).
+11. ~~**대성당 1단계는 무너지지 않음**~~ — **바꿈** `afab303`: 수도가 맞을 때마다 `cathedral >= 1`이면 한 단계 무너진다(§10).
+12. **율법파 계획은 예산을 나누지 않음**: `L9`(마을·마을)처럼 같은 비용 행동을 둘 계획해 한쪽이 해결 때 실패할 수 있다. `afab303` 뒤로는 대상 없는 공격·선교 규칙(칼·결집 포함)이 모두 **대체 마을**(§4.9)로 바뀌므로 한 계획에 마을이 셋 이상 들어가 뒤의 것이 실패하는 일이 더 잦다.
+13. ~~**유목민 선택과 저장**: 해결 뒤 상태로 저장·불러오면 유목민 선택 없이 다음 장으로 갔다.~~ — **고침** `afab303`: `resumeLoaded`가 먼저 묻는다(`main.js:293-296`, §3.13).
 14. **번개와 수도**: 율법파 수도에 번개를 쳐도 내구도는 줄지 않는다(석판 −2와 성벽/인구만).
-15. **승천 1의 식량 +4**가 문구에 없다.
-16. **방주**: 율법파 공격에 져도 인구는 지키지만 마을은 빼앗기고 수도 내구도는 준다. 신앙 바닥·침묵 이탈은 막지 않는다.
+15. ~~**승천 1의 식량 +4**가 문구에 없다.~~ — **고침** `afab303`: 문구가 "율법파 시작 신도 +1, 식량 +4".
+16. **방주**: 율법파 공격에 져도 인구는 지키지만 마을은 빼앗기고 수도 내구도와 대성당 단계는 준다. 신앙 바닥·침묵 이탈은 막지 않는다.
 17. **저주 말투**의 신앙 −1은 공격을 하지 않아도 낸다.
-18. **표시용 승률**(§17)은 율법파 집결·수호자 성인을 반영하지 않는다.
+18. **표시용 승률**(§17)은 계절 「율법파 집결」·수호자 성인을 반영하지 않는다(승천 4·포위·굳은 율법은 반영).
+
+`afab303`·`5b7a94f`에서 새로 생긴 확인 사항:
+
+19. **헤아린 성벽의 예산**: `autoFill`의 뜻을 헤아린 성벽(전쟁 교리)은 받아들인 건설의 비용을 빼지 않은 **현재 보유 자원**으로 고른다(`engine.js:465-474`). 받아들인 성벽·신전이 돌을 먼저 쓰면, 그 장 채집으로 채워지지 않는 한 헤아린 성벽은 해결 때 `log.buildNoRes`로 실패한다. (실행: 돌 2, 마을 하나에서 "성벽을 쌓아 지켜라" → 명령 `build:D2:wall`, 헤아림 `build:E2:wall` — 이 판은 채석장 채집 +3으로 둘 다 섰다.)
+20. **계명 새긴 장의 다시 채우기**: `accept`의 `autoFill(player, kept, forbidden, doctrine)`은 확인 화면에서 뺀 칩(`pending.dropped`)을 금지로 넘기지 않는다(`derivePending`은 넘긴다, `main.js:590` vs `725`). 뺀 칩이 기본 노동으로 되살아날 수 있다.
+21. **메아리의 기준**: 바로 지난 장이 아니라 **마지막으로 기록된 계시**와 비교한다(침묵을 끼워도 같은 글이면 메아리). 문장부호 `\p{P}`와 공백만 지우고 기호·이모지는 남긴다("쳐라~"와 "쳐라"는 다른 글). 메아리 계시도 `doctrine`을 기록하므로 율법파는 반응하고, 인용(§14.1) 대상도 된다. 연속(§5.4)은 늘지도 끊기지도 않는다.
+22. **굳은 율법의 셈**: 해석기가 만든 명령의 종류만 센다 — 막히거나 실패한 명령도 세고, 뜻을 헤아린 선교·공격(`auto`)은 세지 않는다. 그래서 교리만 평화·전쟁으로 두고 선교·공격 낱말 없이 말하면(예: 평화 교리를 부르는 다른 말) 헤아린 자리로 선교·공격을 하면서 굳음을 피할 수 있다(단, 헤아린 자리는 승률 50% 이상일 때만).
+23. **원정은 모든 후보를 넓힌다**: `marchRange`는 공격만이 아니라 율법파 수도의 `reach` 전체를 넓혀, 3막 율법파는 수도에서 4칸 떨어진 곳에 마을을 짓고 채집한다. 첫 판·쉬움에도 적용된다.
+24. **결집의 문턱**: 결집은 `wrathRound`(보통 4장)부터 켜질 수 있고, 켜진 뒤 4점 이하로 좁혀질 때까지 유지된다(분노처럼 한 장씩 오르내리지 않는 켜기·끄기). 튜토리얼과 승자가 난 장은 갱신하지 않는다.
+25. **죽은 코드·키**: `state.oddUsed`, `state.liturgy`(생성·불러오기 기본값만), 언어팩 `kw.liturgyStrip`, `log.liturgy`, `ui.tag.odd`, `ui.tag.liturgy`, `ui.grace.odd`, `ui.grace.otherDeed`, `ui.verdict.odd`가 남아 있다. `engine.js:1031`·`1040`, `lore.js:63`의 주석과 `main.js:582`의 주석(기이한 해석)도 없어진 장치를 말한다. 골든 구동기 `tools/golden.mjs`에도 `pending.odd`(175행)·`d.liturgy`(293행)가 남아 있다. 이식판은 옮기지 않아도 된다(저장 호환을 위해 필드를 읽어 버리는 정도).
+26. **남은 자와 결말 종류**(`448f553`): 튜토리얼 밖에서는 `extinct`·`convertAll`·`bothExtinct`에 닿지 않지만 `checkVictory`·`outcomeKind`·에필로그(`story.lose.extinct`·`draw`)·연대기에는 남아 있다. 남은 자로 돌아온 한 명은 인구 한도와 식량을 보지 않고, 굶주림·전투로 다시 0이 되면 다음 `checkVictory`에서 또 흔들린다(내구도가 0이 되면 점령). 번개는 수도 내구도를 직접 줄이지 못하지만(§19-14) 마지막 신도를 쓰러뜨리면 남은 자로 줄인다.
 
 ---
 
@@ -1509,22 +1659,26 @@ E  plain   P        mountain river    desert
 2. **난수 호출 순서가 곧 결과다.**
    - `rng.deck`: `createState`의 계절 덱 → 율법 덱; `startRound`의 계절 보충 → 율법 보충 → (3막 필터 뒤) 계절 보충 → 드래프트(최대 3회).
    - `rng.dice`: 해결 단계 순서(채집→건설→기도→탐험→선교→공격) × (선 → 후) × 계획 순서. 탐험 1회(실패) 또는 2회(보물), 예언자 계절 0회. 선교·공격은 공격측 `d6` 먼저, 방어측 다음. **전제가 깨진 행동(대상이 이미 상대 칸이 아님, 선교 대상 인구 0)과 막힌 행동은 난수를 쓰지 않는다.** 유지 단계 평화 궁극 2회(대상 있을 때만).
+   - `afab303`·`5b7a94f`의 새 규칙(원정·칼·대체 마을·결집·퇴각·굳은 율법·포위·승천 4·메아리·헤아린 노동·대성당 원정)은 **난수를 새로 쓰지 않는다.** 다만 계획이 바뀌고(율법파 공격이 늘고 집 안 행동이 더는 막히지 않음) 해결되는 선교·공격 수가 달라져 `rng.dice` 소비가 바뀌었다 — 그래서 골든 파일이 모두 새로 만들어졌다([이식 가이드](../godot/PORTING.md)).
    - 맵용 난수기 네 개는 서로 독립이고 상태에 저장하지 않는다.
 3. **안정 정렬**: JS `sort`는 안정 정렬이지만 GDScript `Array.sort_custom`은 **안정하지 않다**. 다음 정렬은 반드시 안정 정렬(병합 정렬, 또는 원래 인덱스를 2차 키로)로: 맵 다듬기 지형 집계, `rarest`, 자원 보장 칸, 기본 노동 자원 순서, 율법파 공격·선교 대상, 마을·성벽 거리, 이름 붙일 칸, 전쟁 연속 기적 성벽, 갈림길 셋, 소명(동점은 id), 성지(동점은 id).
 4. **삽입 순서**: `reach`(Map), 탐험 후보(Map), 맵 다듬기 `counts`, `names` 개수 — Godot `Dictionary`는 삽입 순서를 지키므로 그대로 쓰면 된다. `legalActions`의 목록 순서가 율법파 선택과 기본 노동을 정한다.
 5. **덱 위 = 배열 끝**. `pop_back()`으로 뽑는다. `dealDeck`은 새 섞음을 **앞에** 붙이고, 율법 덱 보충도 **앞에**(밑에) 붙인다. 2막 L5는 인덱스 `max(0, len−3)`에 `insert`.
-6. **확정 순서**(§3.6): 율법파 계획은 말한 기적·말투·갈림길 비용보다 **먼저** 계산한다. 은총·침묵 벌·교리 상승은 유지와 승패 판정 **뒤**다. 순서를 바꾸면 수치가 달라진다.
-7. **막기 규칙**은 칸 id 비교다(§3.7, §19-1). 수도 칸을 쓰는 기도·신전도 포함.
-8. **정수 연산**: `floor(pop/4)`, `floor(pop/3)`, `ceil(pop/2)` = `(pop + 1) / 2`(양수), `floor(m/4)`, `ceil(2m/3)` = `(2m + 2) / 3`, 대성당 빠른 판 `ceil(v×0.7)` = `(7v + 9) / 10`(→ 3·3·4), 신앙 승리 `p.pop >= total × 0.75` = `4 × p.pop >= 3 × total`. GDScript 정수 `/`는 0 쪽으로 자르고 JS `Math.floor`는 아래로 자른다. 인구·장 수는 음수가 없어 같지만, **신앙은 갈림길 비용으로 음수가 될 수 있으므로**(§19-4) 「경건한 자」 승점 `floor(faith/3)`은 음수에서도 아래로 자르는 나눗셈(`floori(faith / 3.0)` 등)으로 옮긴다.
+6. **확정 순서**(§3.6): 율법파 계획은 말한 기적·말투·갈림길 비용보다 **먼저** 계산한다. 은총·침묵 벌·교리 상승은 유지와 승패 판정 **뒤**다. `resolveRound` 안에서는 유지 → `updateLawGuard` → `recordHistory`(분노 → 결집) 순이고, 결집·굳은 율법은 **다음 장** 계획·판정에 쓰인다. 메아리 판정은 `recordRevelation`이 이번 계시를 기록하기 **전**에 한다. 순서를 바꾸면 수치가 달라진다.
+7. **막기 규칙**은 칸 id 비교다(§3.7, §19-1). 선 진영의 집 안 행동(기도, 신전·대성당·성벽 건설)은 칸 집합에서 **빼고**, 후 진영 행동은 종류와 무관하게 검사한다.
+8. **정수 연산**: `floor(pop/4)`, `floor(pop/3)`, `ceil(pop/2)` = `(pop + 1) / 2`(양수), `floor(m/4)`, `ceil(2m/3)` = `(2m + 2) / 3`, 대성당 빠른 판 `ceil(v×0.7)` = `(7v + 9) / 10`(→ 3·3·4), 신앙 승리 `p.pop >= total × 0.75` = `4 × p.pop >= 3 × total`. GDScript 정수 `/`는 0 쪽으로 자르고 JS `Math.floor`는 아래로 자른다. 인구·장 수·신앙은 이제 음수가 되지 않으므로(갈림길 비용도 0 하한, §19-4) 결과가 같다. 그래도 옛 저장(음수 신앙)을 불러올 수 있으니 「경건한 자」 승점 `floor(faith/3)`은 아래로 자르는 나눗셈(`floori(faith / 3.0)` 등)으로 옮기는 편이 안전하다.
 9. **맵 생성의 실수 비교**: `rarest`는 `count / LIMIT`(64비트 실수)로 정렬한다. 같은 리터럴(0.4, 0.34, 0.26, 0.22)과 같은 나눗셈을 쓰면 JS와 같다. 상한 `ceil(rows×cols×LIMIT)`은 §2.2 표 값을 상수로 넣는 편이 안전하다. `rnd() > 0.45`, `rand() < 0.5` 비교도 그대로.
 10. **`hashPick`**: 인자를 `str()`로 바꿔 `'|'`로 잇는다(정수 시드는 `"2026"`). 코드 포인트마다 첫 UTF-16 단위를 XOR — 이 게임의 문자열은 모두 BMP라 UTF-16 단위 순회와 같다. 결과는 `uint32(h) % len`. 인자 순서가 호출마다 다르다(§0.3 표).
-11. **0 하한**: `max(0, …)`로 막는 곳(공격 패배·승리 인구, 번개·심판의 날, 저주, 예언 실패, 침묵 2, 청원 외면, 전쟁 연속 기적, 갈림길 양수 적용)과 막지 않는 곳(`capitalHp -= 1` → `<= 0` 판정, 선교 `f.pop -= 1`(전제에서 `> 0` 확인), 율법파 신앙 −10(≥10 확인), `payDilemma` 비용 → 음수 가능)을 구분한다.
+11. **0 하한**: `max(0, …)`로 막는 곳(공격 패배·승리 인구, 율법파 퇴각 식량, 번개·심판의 날, 저주, 예언 실패, 침묵 2, 청원 외면, 전쟁 연속 기적, 갈림길 비용과 양수 적용)과 막지 않는 곳(`capitalHp -= 1` → `<= 0` 판정, 선교 `f.pop -= 1`(전제에서 `> 0` 확인), 율법파 신앙 −10(≥10 확인), 대성당 `cathedral -= 1`(`>= 1` 확인))을 구분한다.
 12. **유지 순서**: 신앙 바닥 판정(`brokeFaith`)은 루프 **전**. 진영 루프는 플레이어 → 율법파, 인구 0인 진영은 통째로 건너뛴다. 신앙 수입은 성장 **뒤** 인구로, 역병은 수입 **뒤**.
-13. **`checkVictory` 순서**: `bothExtinct` → `convertAll` → `edict` → `extinct`(가드 없이 덮어씀) → `faith` → 점수(동점 플레이어). 이미 승자면 아무것도 안 한다.
+13. **`checkVictory` 순서**: 이미 승자면 아무것도 안 한다 → 남은 자(플레이어 → 율법파, 튜토리얼 제외) → 승자가 났으면 끝 → `bothExtinct` → `convertAll` → `edict` → `extinct`(가드 없이 덮어씀) → `faith` → 점수(동점 플레이어). 남은 자는 상태를 바꾸므로(`capitalHp`, `cathedral`, `pop = 1`, 기록) `final=false` 호출에서도 돈다.
 14. **장별 초기화 위치**: `roundMods`는 장 시작 14단계에서 비우고, 말하기 단계 기적(방주·방언·불기둥)과 확정의 말투·갈림길이 다시 채운다. `grace`는 `round`가 다를 때 게으르게 초기화. `miracleUsed`·`reinterpretUsed`·`rainActive`는 장 시작 1단계.
 15. **축복 +1은 첫 채집 한 번**: 플레이어 채집 해결 때 `gatherBonus = 0`. 선후와 계획 순서상 첫 플레이어 채집이 받는다.
 16. **`hasUlt`는 장 수까지 본다**: 풍요 궁극의 인구 한도 +2, 지혜 궁극 선택 등은 6칸이어도 8장(빠른 판 6장)부터.
-17. **상태 기본값**: 불러오기(`hydrateState`, `engine.js:1053`)는 빠진 필드를 §1.6 기본값으로 채운다. 이식판 저장 형식도 같은 기본값을 둔다.
+17. **상태 기본값**: 불러오기(`hydrateState`, `engine.js:1113`)는 빠진 필드를 §1.6 기본값으로 채운다. 이식판 저장 형식도 같은 기본값을 둔다. `lawGuard`는 불러오기에서 `{preach:0, attack:0}`으로 채우고, `rally`는 채우지 않는다(없으면 거짓으로 읽히고 `updateLawGuard`가 처음 부를 때 `false`로 둔다).
 18. **칸 id는 한 글자 행 + 1부터 열**: `'ABCDEFGHI'`까지라 최대 9행. 성지·소명 동점 정렬의 문자열 비교는 대문자 한 글자 + 한 자리 숫자라 코드 포인트 비교와 같다.
 19. **플레이어만 안개**: `legalActions('player')`는 `revealed`를 보고, 율법파는 보지 않는다. 율법파의 뜻 표시는 난이도 조건과 `revealed`를 함께 본다.
-20. **글은 키로**: 로그·거부 사유·청원 문장 등은 모두 언어팩 키(`log.*`, `eng.*`)로 남기고, 정규식 키(`kw.*`)는 번역이 아니라 언어별로 새로 쓴다([05](05-interpreter.md), [i18n](../i18n.md)).
+20. **글은 키로**: 로그·거부 사유·청원 문장 등은 모두 언어팩 키(`log.*`, `eng.*`)로 남기고, 정규식 키(`kw.*`)는 번역이 아니라 언어별로 새로 쓴다([05](05-interpreter.md), [i18n](../i18n.md)). 새 로그 키: `log.rally`, `log.echo`, `log.attackRetreat`, `log.lawGuard`(`{kind, n}`).
+21. **메아리의 글 정규화**: JS `/[\s\p{P}]/gu`. JS의 `\s`는 유니코드 공백(NBSP `U+00A0`, 전각 공백 `U+3000`, `U+FEFF` 등)을 포함하지만 Godot `RegEx`(PCRE2)의 `\s`는 기본적으로 ASCII 공백만 잡는다. `[\s\p{Z}\x{FEFF}\p{P}]`처럼 유니코드 공백을 직접 넣어야 같다. `\p{P}`는 PCRE2도 같은 유니코드 범주다.
+22. **원정·결집의 상태 의존**: `reach`(따라서 `legalActions('enemy')`, `lawThreat`, 율법파의 뜻)는 `actOf`(장 수)와 대성당 단계에, 율법파 행동 수와 계획은 `state.rally`에 기대므로, 장 시작의 어려움 카드 비교(`lawThreat`)도 원정 거리가 반영된 목록으로 한다. 같은 순서로 계산해야 카드 선택이 같다.
+23. **대성당 원정 행동의 위치**: `legalActions('enemy')`에서 성벽 뒤·기도 앞에 들어간다(§3.8 3단계). 율법파 계획은 `target:'capital'`로 고르므로 위치가 결과를 바꾸지는 않지만, `enemyIntent`·`lawThreat`의 목록 순서와 `key`(`attack:<우리 수도>:`)는 같게 둔다.

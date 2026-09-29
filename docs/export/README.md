@@ -5,7 +5,7 @@
 | 파일 | 내용 | 만드는 스크립트 |
 |---|---|---|
 | [`data.json`](data.json) | `js/game/data.js`의 내보내기 54개 전부 (지형·비용·카드·교리·기적·난이도·튜토리얼 …). 글 칸은 한국어 언어팩에서 풀어 넣은 값 | `node tools/export-data.mjs` |
-| [`i18n-ko.json`](i18n-ko.json) | 한국어 언어팩 전체 1256키 (`ko.js`가 합치는 `ko/*.js` 병합본) | `node tools/export-data.mjs` |
+| [`i18n-ko.json`](i18n-ko.json) | 한국어 언어팩 전체 1292키 (`ko.js`가 합치는 `ko/*.js` 병합본, `448f553`) | `node tools/export-data.mjs` |
 | [`golden/`](golden/README.md) | 엔진 동등성 골든 벡터: 정해 둔 계시로 끝까지 둔 11판의 장별 기록 | `node tools/golden.mjs` |
 | `svg/` | 그림 심볼을 낱장 SVG로 (있다면) | `node tools/export-svg.mjs` |
 
@@ -44,14 +44,14 @@ node tools/golden.mjs        # golden/*.json
 
 | 값 모양 | 개수 | 쓰는 법 (`t(key, vars)`) |
 |---|---|---|
-| 문자열 | 1099 | `vars`가 있으면 `{이름}` 자리를 `vars[이름]`으로 바꾼다 (없는 이름은 그대로 둔다) |
+| 문자열 | 1125 | `vars`가 있으면 `{이름}` 자리를 `vars[이름]`으로 바꾼다 (없는 이름은 그대로 둔다) |
 | 문자열 배열 | 42 | 그대로 돌려준다 (대사 후보·달 이름·청원자·금칙어 목록 등) |
 | 객체 | 2 | 그대로 (`kw.nameable`: 이름 붙일 낱말 → 지형, `kw.prophecy.numbers`: 한/두/세 → 1/2/3) |
-| 함수 `{"$fn": …}` | 113 | `fn(vars ?? {})`의 반환 문자열. 손으로 옮겨야 한다 (아래) |
+| 함수 `{"$fn": …}` | 123 | `fn(vars ?? {})`의 반환 문자열. 손으로 옮겨야 한다 (아래) |
 
 - 빠진 키는 키 이름을 그대로 돌려준다 (`t('없는.키') === '없는.키'`).
-- `kw.*` 키(86개)는 **번역이 아니라** 계시를 읽는 정규식 원본·낱말 목록이다. 코드가 `new RegExp(t('kw.…'), 플래그)`로 만든다. 플래그는 코드에 있다: 대부분 없음, `g`(모두 바꾸기)는 `kw.liturgyStrip`(lore.js)과 `kw.clean.coord`·`kw.clean.dangling`·`kw.clean.afterVerb`·`kw.clean.stem`(interpreter.js) 다섯 개뿐. 배열 값 `kw.stop`·`kw.citeStop`·`kw.lessonStop`은 정규식이 아니라 낱말 집합이다.
-- 함수 값 113개: `ui.*` 58, `log.*` 39, `eng.*` 9, `interp.*` 6, `kw.*` 1. 인자는 늘 `v` 하나(변수 객체)이고 문자열을 돌려준다. 19개가 `josa`, 8개가 `batchim`을 부른다 — 둘 다 `js/game/i18n/ko/grammar.js`에 있다:
+- `kw.*` 키(94개)는 **번역이 아니라** 계시를 읽는 정규식 원본·낱말 목록이다. 코드가 `new RegExp(t('kw.…'), 플래그)`로 만든다. 플래그는 코드에 있다: 대부분 없음, `g`(모두 바꾸기)는 `kw.clean.coord`·`kw.clean.dangling`·`kw.clean.afterVerb`·`kw.clean.stem`(interpreter.js) 넷. `kw.dontAnd`는 코드가 `'g'`를 넘기지만 `interpreter.js`의 `kw` 도우미가 플래그를 버려 실제로는 플래그 없이 만들어진다(첫 번째만 바뀐다 — [05](../spec/05-interpreter.md)). `kw.liturgyStrip`은 성언이 없어진 뒤(`afab303`) 쓰이지 않는다. `kw.dontAndNeg`는 정규식이 아니라 금지 절을 만드는 **함수**다. 배열 값 `kw.stop`·`kw.citeStop`·`kw.lessonStop`은 정규식이 아니라 낱말 집합이다.
+- 함수 값 123개: `ui.*` 62, `log.*` 42, `eng.*` 10, `interp.*` 7, `kw.*` 2. 인자는 늘 `v` 하나(변수 객체)이고 문자열을 돌려준다. 20개가 `josa`, 8개가 `batchim`을 부른다 — 둘 다 `js/game/i18n/ko/grammar.js`에 있다:
 
 ```js
 // 받침이 있는가 (마지막 글자가 한글 음절이고 종성이 있으면 true)

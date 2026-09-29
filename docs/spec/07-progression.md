@@ -1,13 +1,13 @@
 # 07. 판 밖의 진행 — 저장 키 · 기록 · 경외 · 성서 · 오늘의 계시 · 시련 · 승천
 
 > 한 판(match) 밖에 남는 모든 것을 적는다. 상태 객체와 판 저장(이어하기)의 직렬화는 [04 §2.8](04-architecture.md), 판 안의 규칙은 [02](02-rules.md)에 있다.
-> 기준: 커밋 `8b91681` (2026-09-27). 코드가 기준이다. 인용은 `파일:줄` (`js/game/` 생략).
+> 기준: 커밋 `448f553` (2026-09-30; 처음 쓴 때는 `8b91681`). 코드가 기준이다. 인용은 `파일:줄` (`js/game/` 생략).
 
 ---
 
 ## 0. 한눈에
 
-판이 끝나면 `main.js`의 `finishGame()`(`main.js:775-794`)이 아래를 차례로 한다. 튜토리얼은 이 경로를 타지 않는다(§2).
+판이 끝나면 `main.js`의 `finishGame()`(`main.js:778-797`)이 아래를 차례로 한다. 튜토리얼은 이 경로를 타지 않는다(§2).
 
 ```mermaid
 flowchart TD
@@ -62,22 +62,22 @@ export function set(key, value) {
 | `gsg.ach` | JSON | `{ [업적 id]: 'YYYY-MM-DD' }` (`{}`) | `meta.unlockAchievements` (`meta.js:41-49`) | 성서, 종료 화면 | 업적 (§6) |
 | `gsg.daily` | JSON | `{ 'YYYY-MM-DD': { winner, score: [a, b], rounds } }` (`{}`) | `meta.recordDaily` (`meta.js:68-74`) | 메인 오늘 버튼 힌트 | 오늘의 계시 첫 시도 (§10) |
 | `gsg.canon` | JSON | `[{ text, doctrine }]`, 최신이 앞, 최대 3 (`[]`) | `meta.addCanon` (`meta.js:79-83`) | 새 판 설정 | 정경 (§8) |
-| `gsg.onboard` | JSON | `{ step: 0~4, off: bool }` (`{ step: 0, off: false }`) | `meta.setOnboard` | `currentTask` (`main.js:1204-1208`) | 세라의 과제 (§15) |
+| `gsg.onboard` | JSON | `{ step: 0~4, off: bool }` (`{ step: 0, off: false }`) | `meta.setOnboard` | `currentTask` (`main.js:1208-1212`) | 세라의 과제 (§15) |
 | `gsg.best` | JSON | `{ [bestKey]: 승점 }` (`{}`) | `meta.setBest` (`meta.js:108-115`) | 메인 맵 힌트, 종료 화면 | 시드별 최고 기록 (§13) |
 | `gsg.awe` | JSON | `{ awe: 정수 }` (`{ awe: 0 }`) | `meta.addAwe` (`meta.js:119-125`) | 메인 경외 막대, 은사 잠금 | 경외 (§5) |
 | `gsg.seen` | JSON | `{ events: [], laws: [], leaders: [], sites: [], miracles: [], commandments: [] }` (`{}`) | `meta.markSeen` (`meta.js:128-136`) | 도감 | 도감 (§7.2) |
 | `gsg.lexicon` | JSON | `{ [행동 키]: { first: 처음 문구 20자, n: 횟수 } }` (`{}`) | `meta.noteWords` (`meta.js:140-146`) | 어휘집 | 어휘집 (§7.3) |
 | `gsg.trials` | JSON | `{ [시련 id]: 별 0~3 }` (`{}`) | `meta.recordTrial` (`meta.js:151-157`) | 시련 목록, 메인 힌트 | 시련 (§11) |
 | `gsg.ascension` | JSON | 정수 0~5 (`0`) | `meta.openAscension` (`meta.js:167`) | 메인 승천 선택 | 승천 (§12) |
-| `gsg.setup` | JSON (직접) | `{ mode: 'standard', size, difficulty, seed, ascension? }` | `saveSetup` (`main.js:88`) | `loadSetup` (`main.js:81-87`) — 크기·난이도가 유효하고 seed > 0일 때만 | 메인 화면 새 게임 설정 |
-| `gsg.blessing` | JSON | 은사 id 또는 `null` | 메인 은사 버튼 (`main.js:184`) | `blessingPick` (`main.js:199`) | 고른 은사 (§5.3) |
-| `gsg.god` | JSON | `{ name: 최대 8자, sigil: SIGILS 키 }` (`{ name: '', sigil: 'light' }`) | 메인 이름 입력·상징 버튼 (`main.js:185-187`) | `godOf`, `godConfig` (`main.js:197, 208`) | 신의 이름과 상징 (§9) |
-| `gsg.speed` | JSON | `"1"` \| `"2"` \| `"instant"` (`"1"`) | 설정·재생 중 속도 버튼 (`main.js:1095, 2213`) | `main.js:75` | 재생 속도 |
-| `gsg.suggest` | JSON | bool (`true`) | 설정, 제안 칩 ✕ (`main.js:1096, 2252`) | `suggestOn` (`main.js:2226`) | 계시 제안 칩 |
-| `gsg.a11y.cb` | JSON | bool (`false`) | 설정 (`main.js:1097`) | `applyA11y` (`main.js:1042`) | 색각 무늬 |
-| `gsg.a11y.zoom` | JSON | `1` \| `1.1` \| `1.2` (`1`) | 설정 (`main.js:1098`) | `applyA11y` (`main.js:1043`) | 글자 크기 |
-| `gsg.unlockNote` | JSON | `true` | `showUnlockNote` (`main.js:1176`) | 같은 곳 | 두 번째 판 안내를 한 번만 (§16) |
-| `gsg.lastVisit` | JSON | ms 시각 | `renderWelcome` (`main.js:923`) | 같은 곳 | 복귀 인사 (§16) |
+| `gsg.setup` | JSON (직접) | `{ mode: 'standard', size, difficulty, seed, ascension? }` | `saveSetup` (`main.js:89`) | `loadSetup` (`main.js:82-88`) — 크기·난이도가 유효하고 seed > 0일 때만 | 메인 화면 새 게임 설정 |
+| `gsg.blessing` | JSON | 은사 id 또는 `null` | 메인 은사 버튼 (`main.js:185`) | `blessingPick` (`main.js:200`) | 고른 은사 (§5.3) |
+| `gsg.god` | JSON | `{ name: 최대 8자, sigil: SIGILS 키 }` (`{ name: '', sigil: 'light' }`) | 메인 이름 입력·상징 버튼 (`main.js:186-188`) | `godOf`, `godConfig` (`main.js:198, 209`) | 신의 이름과 상징 (§9) |
+| `gsg.speed` | JSON | `"1"` \| `"2"` \| `"instant"` (`"1"`) | 설정·재생 중 속도 버튼 (`main.js:1098, 2229`) | `main.js:76` | 재생 속도 |
+| `gsg.suggest` | JSON | bool (`true`) | 설정, 제안 칩 ✕ (`main.js:1099, 2268`) | `suggestOn` (`main.js:2242`) | 계시 제안 칩 |
+| `gsg.a11y.cb` | JSON | bool (`false`) | 설정 (`main.js:1100`) | `applyA11y` (`main.js:1045`) | 색각 무늬 |
+| `gsg.a11y.zoom` | JSON | `1` \| `1.1` \| `1.2` (`1`) | 설정 (`main.js:1101`) | `applyA11y` (`main.js:1046`) | 글자 크기 |
+| `gsg.unlockNote` | JSON | `true` | `showUnlockNote` (`main.js:1180`) | 같은 곳 | 두 번째 판 안내를 한 번만 (§16) |
+| `gsg.lastVisit` | JSON | ms 시각 | `renderWelcome` (`main.js:926`) | 같은 곳 | 복귀 인사 (§16) |
 | `gsg.lang` | **원문** | `'ko'` 등 | `setLang` (`i18n.js:47-49`) | `i18n.js:12` | 언어 |
 | `gsg.motion` | **원문** | `'reduced'` \| `'full'` | `fx.setReduced` (`fx.js:16`) | `fx.js:9` | 연출 줄이기 |
 | `gsg.sound` | **원문** | `'on'` \| `'off'` (없으면 켜짐) | `setSound` (`sound.js:26`) | `sound.js:10` | 효과음 |
@@ -90,7 +90,7 @@ export function set(key, value) {
 
 ## 2. 판이 끝날 때
 
-### 2.1 일반 판 (`finishGame`, `main.js:775-794`)
+### 2.1 일반 판 (`finishGame`, `main.js:778-797`)
 
 1. 튜토리얼이 아니면 `meta.clearSave()`.
 2. `summary = summarizeGame(state, { comeback, capitalFull })` — `comeback`: 이겼고 `history` 어느 장에서든 `es − ps ≥ 6`, `capitalFull`: 우리 수도 내구도가 3 그대로.
@@ -103,15 +103,15 @@ export function set(key, value) {
 9. `standard = !튜토리얼 && !오늘 && !도전 && !시련 && veteran` → 이겼으면 `summary.newBest = setBest(config, score[0])`.
 10. `checkOnboard(true)` → `showEnd(summary, fresh, had)`.
 
-기적으로 판이 끝나도(`endByMiracle`, `main.js:1668-1672`) 같은 `finishGame`을 탄다.
+기적으로 판이 끝나도(`endByMiracle`, `main.js:1674-1678`) 같은 `finishGame`을 탄다.
 
 ### 2.2 튜토리얼
 
-튜토리얼은 `finishGame`을 부르지 않는다. 판이 끝나면 `tutorial.on('end')` → 세라의 마지막 대사 → `endTutorial({ skipped })`(`main.js:335-340`): 건너뛰지 않았으면 업적 `tutorial`만 연다. 서고·경외·과제는 남지 않는다. 따라서 튜토리얼만 마친 사람은 아직 베테랑이 아니다(§16).
+튜토리얼은 `finishGame`을 부르지 않는다. 판이 끝나면 `tutorial.on('end')` → 세라의 마지막 대사 → `endTutorial({ skipped })`(`main.js:341-346`): 건너뛰지 않았으면 업적 `tutorial`만 연다. 서고·경외·과제는 남지 않는다. 따라서 튜토리얼만 마친 사람은 아직 베테랑이 아니다(§16).
 
 ---
 
-## 3. 판 요약 — 서고 항목 (`chronicle.js:91-104`)
+## 3. 판 요약 — 서고 항목 (`chronicle.js:92-105`)
 
 | 필드 | 타입 | 뜻 |
 |---|---|---|
@@ -123,7 +123,7 @@ export function set(key, value) {
 | `daily` | `'YYYY-MM-DD'` \| null | |
 | `winner` | `'player' \| 'enemy' \| 'draw'` | |
 | `kind` | string | `outcomeKind` (§4.1) |
-| `reason` | string | `winReason` (표시 문장) |
+| `reason` | string | `winReason` (표시 문장). 수도 점령은 `448f553`부터 승자 쪽에서 읽는다: 우리가 이기면 "적 수도 점령", 율법파가 이기면 "우리 수도 함락" (`eng.win.capital`이 `{who}`를 받는 함수) |
 | `score` | `[우리, 율법파]` | 마지막 승점 |
 | `rounds` | int | 끝난 장 |
 | `doctrine` | `{ peace, war, abundance, wisdom }` | 우리 교리 |
@@ -148,7 +148,7 @@ export function set(key, value) {
 
 모두 상태를 읽기만 하는 순수 함수다.
 
-### 4.1 결과 유형 `outcomeKind` (`chronicle.js:10-20`)
+### 4.1 결과 유형 `outcomeKind` (`chronicle.js:10-21`)
 
 `winner === 'draw'`면 `draw`. 아니면 `winKind`로:
 
@@ -158,13 +158,18 @@ export function set(key, value) {
 | `cathedral` | `cathedral` | `lost` |
 | `faith`, `convertAll` | `faith` | `lost` |
 | `extinct` | — | `extinct` |
-| 그 밖 (`score`, `edict`, `tutorial`) | `score` | `outscored` |
+| `edict` | (`score` — 율법 석판 승리는 늘 율법파라 실제로는 없다) | `edict` |
+| 그 밖 (`score`, `tutorial`) | `score` | `outscored` |
 
-### 4.2 가장 깊은 교리 `topDoctrine` (`chronicle.js:23-26`)
+**남은 자**(`448f553`, [02 §15.2](02-rules.md#152-checkvictoryfinal--true)): 튜토리얼이 아니면 한 진영의 신도가 모두 쓰러져도 수도가 서 있는 한 수도가 흔들리고(내구도 −1) 한 명이 돌아온다. 그래서 서고에 남는 판(튜토리얼 제외)에서는 `extinct`·`lost`(전원 개종 `convertAll`)·`draw`(`bothExtinct`)가 더는 나오지 않고, 그 자리를 수도 점령(`conquest`/`conquered`)이 대신한다. 표의 줄과 에필로그 본문은 튜토리얼과 옛 기록을 위해 남아 있다.
+
+율법 석판 패배는 `afab303` 전에는 `outscored`(승점에 밀림)로 분류되어 에필로그가 곳간 이야기를 했다. 이제 결말 종류 `edict`와 본문 `story.lose.edict`가 따로 있다. 판 요약의 `kind`(§3)와 진 판 칭호의 해시(`hashPick(forgottenEpithets, seed, kind)`)도 이 값을 쓰므로, 같은 시드의 석판 패배 칭호가 바뀌었을 수 있다.
+
+### 4.2 가장 깊은 교리 `topDoctrine` (`chronicle.js:24-27`)
 
 `DOCTRINES.reduce((best, k) => d[k] > d[best] ? k : best, 'wisdom')` — 시작값이 `wisdom`이고 **엄격히 클 때만** 바뀐다. 동점이면 `wisdom`이 이기고, 그다음은 `peace → war → abundance` 순으로 먼저 나온 쪽. 모두 0이면 `wisdom`.
 
-### 4.3 에필로그 `epilogue(state)` (`chronicle.js:75-88`)
+### 4.3 에필로그 `epilogue(state)` (`chronicle.js:76-89`)
 
 ```text
 kind = outcomeKind(state); top = topDoctrine(state); won = winner === 'player'
@@ -183,20 +188,20 @@ quote   = topRevelations(state, 1)[0]?.text ? t('story.quote', { text, round }) 
 | `story.epithet.peace` · `war` · `abundance` · `wisdom` | 말씀으로 이긴 자 · 칼을 든 신 · 곳간을 채운 신 · 안개를 걷은 신 |
 | `story.forgottenEpithets` (진 판, 해시 선택) | `['잊힌 신', '돌판 아래 잠든 신', '반쯤 기억된 신']` — 순서·개수를 바꾸면 같은 시드의 결과가 달라진다(`i18n/ko/story.js:2`) |
 | `story.win.{conquest,faith,cathedral,score}.{peace,war,abundance,wisdom}` | 16개 본문 (`i18n/ko/story.js:12-27`) |
-| `story.lose.{conquered,lost,outscored,extinct,draw}` | 5개 본문 (`i18n/ko/story.js:28-32`) |
+| `story.lose.{conquered,lost,outscored,edict,extinct,draw}` | 6개 본문 (`i18n/ko/story.js:28-33`). `edict`: "율법 석판의 마지막 줄이 새겨지자, 말씀은 돌 속에 갇혔다…" |
 | `story.quote` | `“{text}” — 제 {round} 장` |
 
 ### 4.4 회고 도구
 
 | 함수 | 줄 | 계산 |
 |---|---|---|
-| `topRevelations(state, n=3)` | `chronicle.js:29-35` | `history`의 장마다 `gain = (ps − 이전 ps) − (es − 이전 es)`. 첫 장의 "이전"은 자기 자신이라 0. 계시(`text`)가 있는 장만 남겨 `gain` 내림차순(안정 정렬) 앞 n개 `{ round, text, gain, verdict }` |
-| `decisiveScene(state)` | `chronicle.js:38-49` | 로그 중 `side`가 player·enemy인 줄에 가중치: `fx.capital` 5, `fx.capture`·`fx.convert` 3, 이긴 `preach` 2, `fx.kind ∈ {lightning, rain, bounty, bless}` 2. 가중치가 같으면 **나중 줄**(`>=`). `{ w, round, text, side, revelation: 그 장의 계시 }` 또는 null |
-| `diceLuck(state)` | `chronicle.js:52-69` | 우리(`side === 'player'`) 주사위 줄마다 기대 승률 `P_WIN[clamp(attackerBonus − defenderBonus, −8, 8)]`(두 d6에서 `a + d > b`인 비율)을 더하고 실제 승리 수와의 차 `{ n, luck = 실제 − 기대 }` |
-| `closestAchievement(summary, have)` | `chronicle.js:139-147` | 아직 없는 업적 중 `progress`가 있는 것의 `min(0.99, progress)`가 가장 큰 것 (0이면 제외) |
-| `scoreGraph(history)` | `main.js:891-902` | 장별 우리·율법파 승점 꺾은선 SVG, 판결이 `full`인 장에 점 |
+| `topRevelations(state, n=3)` | `chronicle.js:30-36` | `history`의 장마다 `gain = (ps − 이전 ps) − (es − 이전 es)`. 첫 장의 "이전"은 자기 자신이라 0. 계시(`text`)가 있는 장만 남겨 `gain` 내림차순(안정 정렬) 앞 n개 `{ round, text, gain, verdict }` |
+| `decisiveScene(state)` | `chronicle.js:39-50` | 로그 중 `side`가 player·enemy인 줄에 가중치: `fx.capital` 5, `fx.capture`·`fx.convert` 3, 이긴 `preach` 2, `fx.kind ∈ {lightning, rain, bounty, bless}` 2. 가중치가 같으면 **나중 줄**(`>=`). `{ w, round, text, side, revelation: 그 장의 계시 }` 또는 null |
+| `diceLuck(state)` | `chronicle.js:53-70` | 우리(`side === 'player'`) 주사위 줄마다 기대 승률 `P_WIN[clamp(attackerBonus − defenderBonus, −8, 8)]`(두 d6에서 `a + d > b`인 비율)을 더하고 실제 승리 수와의 차 `{ n, luck = 실제 − 기대 }` |
+| `closestAchievement(summary, have)` | `chronicle.js:140-148` | 아직 없는 업적 중 `progress`가 있는 것의 `min(0.99, progress)`가 가장 큰 것 (0이면 제외) |
+| `scoreGraph(history)` | `main.js:894-905` | 장별 우리·율법파 승점 꺾은선 SVG, 판결이 `full`인 장에 점 |
 
-### 4.5 종료 양피지 (`showEnd`, `main.js:796-859`)
+### 4.5 종료 양피지 (`showEnd`, `main.js:799-862`)
 
 | 탭 | 내용 |
 |---|---|
@@ -212,7 +217,7 @@ quote   = topRevelations(state, 1)[0]?.text ? t('story.quote', { text, round }) 
 
 ### 5.1 경외 (awe)
 
-- 판(튜토리얼 제외)이 끝날 때마다 `경외 += 우리 승점 + (이겼으면 10) + 새로 연 업적 수 × 3` (`main.js:788`). 진 판도, 오늘의 계시·도전·시련도 쌓인다. 음수는 더하지 않는다(`addAwe`의 `Math.max(0, n)`).
+- 판(튜토리얼 제외)이 끝날 때마다 `경외 += 우리 승점 + (이겼으면 10) + 새로 연 업적 수 × 3` (`main.js:791`). 진 판도, 오늘의 계시·도전·시련도 쌓인다. 음수는 더하지 않는다(`addAwe`의 `Math.max(0, n)`).
 - `addAwe(n, levels)`(`meta.js:119-125`) 반환: `{ awe, gained: n, levelBefore, level }`. 레벨 = `AWE_LEVELS.filter(x => awe >= x).length`.
 
 ### 5.2 레벨과 칭호 (`data.js:237, 244`)
@@ -226,23 +231,23 @@ quote   = topRevelations(state, 1)[0]?.text ? t('story.quote', { text, round }) 
 | 4 | 160 | 두려운 신 | 눈 밝은 자 |
 | 5 | 240 | 영원한 신 | (칭호만) |
 
-메인 화면 경외 막대(`#msAwe`, 경외가 0이면 숨김): `칭호 · 경외 N · 다음 은사/칭호까지 M`과 현재 레벨 구간의 진행률(`main.js:221-224`).
+메인 화면 경외 막대(`#msAwe`, 경외가 0이면 숨김): `칭호 · 경외 N · 다음 은사/칭호까지 M`과 현재 레벨 구간의 진행률(`main.js:222-225`).
 
 ### 5.3 은사 (blessing) (`data.js:238-243`)
 
 | id | 레벨 | 이름 | 효과 | 코드 |
 |---|---|---|---|---|
-| `preacher` | 1 | 설교자의 은사 | 처음 개종에 성공할 때까지(`stats.converted === 0`) 선교 주사위 +1 (교리·성인·계명과 합쳐 최대 +2 한도 안) | `engine.js:259-260` |
-| `mason` | 2 | 석공의 은사 | 신전 1→2단계 비용 돌 −1 | `engine.js:309` |
+| `preacher` | 1 | 설교자의 은사 | 처음 개종에 성공할 때까지(`stats.converted === 0`) 선교 주사위 +1 (교리·성인·계명과 합쳐 최대 +2 한도 안) | `engine.js:273-274` |
+| `mason` | 2 | 석공의 은사 | 신전 1→2단계 비용 돌 −1 | `engine.js:323` |
 | `granary` | 3 | 곳간의 은사 | 시작 식량 +2 | `engine.js:161` |
 | `seer` | 4 | 눈 밝은 자의 은사 | 1장까지 수도 둘레 시야 반경 3 (평소 2) | `engine.js:189` |
 
-- 고르기: 메인 화면 "은사" 칸(경외 레벨 1 이상일 때 보임)에서 `없음` 또는 열린 은사 하나 → `gsg.blessing`. `blessingPick()`은 저장된 은사가 현재 레벨로 열려 있을 때만 돌려준다(`main.js:199`).
-- 적용: **일반 새 게임과 종료 화면 "새 맵"에만** 넘긴다. 오늘의 계시·도전·시련·튜토리얼에는 넘기지 않는다. 승천 5 이상이면 일반 새 게임에서 null(`main.js:281`).
+- 고르기: 메인 화면 "은사" 칸(경외 레벨 1 이상일 때 보임)에서 `없음` 또는 열린 은사 하나 → `gsg.blessing`. `blessingPick()`은 저장된 은사가 현재 레벨로 열려 있을 때만 돌려준다(`main.js:200`).
+- 적용: **일반 새 게임과 종료 화면 "새 맵"에만** 넘긴다. 오늘의 계시·도전·시련·튜토리얼에는 넘기지 않는다. 승천 5 이상이면 null — 일반 새 게임(`main.js:282`)과 새 맵(`main.js:845`, `afab303`부터) 모두.
 
 ---
 
-## 6. 성서 — 업적 (`chronicle.js:107-137`)
+## 6. 성서 — 업적 (`chronicle.js:108-138`)
 
 `evaluateAchievements(summary)`는 각 `check(summary)`를 try/catch로 돌려 참인 id 목록을 돌려준다. 이미 가진 것을 뺀 새 id에 오늘 날짜(`dayKey`)를 붙여 `gsg.ach`에 넣는다(`meta.js:41-49`). 게임 안 보상은 없다(경외 +3만). 모두 25개.
 
@@ -274,13 +279,13 @@ quote   = topRevelations(state, 1)[0]?.text ? t('story.quote', { text, round }) 
 | `saint` | 성인의 시대 | `saints ≥ 1` | |
 | `lawgiver` | 돌에 새긴 말 | 이김 ∧ `commandments ≥ 1` | |
 
-화면: 메인 `성서 · a/25` 칩(서고가 비었고 업적도 없으면 숨김), 목록은 가진 것에 날짜, 없는 것은 흐리게(`showBible`, `main.js:1034-1038`). 종료 화면에 새 구절 이름과 가장 가까웠던 업적. (티켓 #023은 20개로 적었지만 코드는 25개다.)
+화면: 메인 `성서 · a/25` 칩(서고가 비었고 업적도 없으면 숨김), 목록은 가진 것에 날짜, 없는 것은 흐리게(`showBible`, `main.js:1037-1041`). 종료 화면에 새 구절 이름과 가장 가까웠던 업적. (티켓 #023은 20개로 적었지만 코드는 25개다.)
 
 ---
 
 ## 7. 서고 · 도감 · 어휘집
 
-### 7.1 서고 (`showLibrary`, `main.js:983-1007`)
+### 7.1 서고 (`showLibrary`, `main.js:986-1010`)
 
 메인 `서고 · N판` 칩(서고가 비면 숨김)으로 여는 목록 모달.
 
@@ -290,24 +295,24 @@ quote   = topRevelations(state, 1)[0]?.text ? t('story.quote', { text, round }) 
 
 ### 7.2 도감 (`gsg.seen`)
 
-`markSeen(kind, id)`는 처음 본 id만 배열 끝에 더한다(`meta.js:128-136`). 튜토리얼에서는 기록하지 않는다.
+`markSeen(kind, id)`는 처음 본 id만 배열 끝에 더한다(`meta.js:128-136`). 튜토리얼에서는 기록하지 않는다 — 부르는 쪽이 `!state.tutorial`로 거른다. 예외: 카드·번개로 쓴 기적(`main.js:1648`, `1666`)은 거르지 않아 튜토리얼에서도 남는다.
 
 | 분류 | 전체 목록 (표시 순) | 기록 시점 |
 |---|---|---|
-| `events` (계절) | `EVENTS` 6 + `DILEMMAS` 6 + `'mira'` = 13 | 장 시작(`main.js:471`), 이어하기(`299`), 지혜 궁극으로 바꾼 계절(`1755`) |
-| `laws` (율법) | `LAW_CARDS` 10 | 수락 뒤 이번 장 율법 카드(`737`) |
-| `leaders` (지도자) | `ENEMY_LEADERS` 4 | 장 시작(`471`) |
-| `sites` (발견) | `SITES` 5 (`nomads`·`altar`·`spring`·`bones`·`legacy`) | 수락 뒤 이미 찾은 발견지 전부(`739`) |
-| `miracles` (기적) | `MIRACLES` 8 (심판의 날 제외) | 수락 때 **계시로 말한 기적**만(`740`) — 카드로 쓴 기적은 기록되지 않는다 |
-| `commandments` (계명) | `COMMANDMENTS` 4 | 수락 뒤 새겨진 계명 전부(`738`) |
+| `events` (계절) | `EVENTS` 6 + `DILEMMAS` 6 + `'mira'` = 13 | 장 시작(`main.js:481`), 이어하기(`305`), 지혜 궁극으로 바꾼 계절(`1761`) |
+| `laws` (율법) | `LAW_CARDS` 10 | 수락 뒤 이번 장 율법 카드(`745`) |
+| `leaders` (지도자) | `ENEMY_LEADERS` 4 | 장 시작(`481`) |
+| `sites` (발견) | `SITES` 5 (`nomads`·`altar`·`spring`·`bones`·`legacy`) | 수락 뒤 이미 찾은 발견지 전부(`747`) |
+| `miracles` (기적) | `MIRACLES` 8 (심판의 날 제외) | 수락 때 계시로 말한 기적(`748`), 카드로 쓴 기적이 성공했을 때(`useMiracle` `1648`), 번개 목표를 골라 성공했을 때(`onTileClick` `1666`). 카드 기적 기록은 `afab303`에서 더했다 |
+| `commandments` (계명) | `COMMANDMENTS` 4 | 수락 뒤 새겨진 계명 전부(`746`) |
 
-못 본 것은 `?`로 표시하고 툴팁 "아직 보지 못했다"(`main.js:1013-1016`).
+못 본 것은 `?`로 표시하고 툴팁 "아직 보지 못했다"(`main.js:1016-1019`).
 
 ### 7.3 어휘집 (`gsg.lexicon`)
 
-수락할 때 계시가 있으면(`main.js:741-744`) 명령한 행동마다(자동 노동 제외) 키를 만들어 `noteWords(key, text)`: 처음이면 `{ first: text.slice(0, 20), n: 0 }`, 매번 `n += 1`. 말투가 명령이 아니면 `tone:<말투>`도 기록한다.
+수락할 때 계시가 있으면(`main.js:749-752`) 명령한 행동마다(자동 노동 제외) 키를 만들어 `noteWords(key, text)`: 처음이면 `{ first: text.slice(0, 20), n: 0 }`, 매번 `n += 1`. 말투가 명령이 아니면 `tone:<말투>`도 기록한다.
 
-키 15개(`main.js:1017-1022`): `gather:food`, `gather:wood`, `gather:stone`, `gather:faith`, `pray`, `explore`, `preach`, `attack`, `build:village`, `build:wall`, `build:temple`, `build:cathedral`, `tone:blessing`, `tone:curse`, `tone:metaphor`. 화면: `이름 — “처음 문구” ×n` 또는 `?`.
+키 15개(`main.js:1020-1025`): `gather:food`, `gather:wood`, `gather:stone`, `gather:faith`, `pray`, `explore`, `preach`, `attack`, `build:village`, `build:wall`, `build:temple`, `build:cathedral`, `tone:blessing`, `tone:curse`, `tone:metaphor`. 화면: `이름 — “처음 문구” ×n` 또는 `?`.
 
 판 안의 **신학 노트**(`state.lessons`, 최대 3)는 이것과 별개로 판마다 사라진다.
 
@@ -315,7 +320,7 @@ quote   = topRevelations(state, 1)[0]?.text ? t('story.quote', { text, round }) 
 
 ## 8. 정경 봉헌 (canon)
 
-- **봉헌**: 종료 양피지 "경전" 탭에서, 베테랑 판(튜토리얼 아님)이면 계시 줄마다 `봉헌` 버튼 → `addCanon({ text, doctrine: r.doctrine ?? 'wisdom' })`(`main.js:855-857`). 같은 문장은 중복 제거 후 맨 앞에 넣고 3개까지(`meta.js:79-83`). 버튼 글은 `봉헌`/`봉헌됨`.
+- **봉헌**: 종료 양피지 "경전" 탭에서, 베테랑 판(튜토리얼 아님)이면 계시 줄마다 `봉헌` 버튼 → `addCanon({ text, doctrine: r.doctrine ?? 'wisdom' })`(`main.js:858-860`). 같은 문장은 중복 제거 후 맨 앞에 넣고 3개까지(`meta.js:79-83`). 버튼 글은 `봉헌`/`봉헌됨`.
 - **적용**: 다음 **일반 새 게임**(베테랑)과 **새 맵**이 `getCanon()[0]`(가장 최근 봉헌)을 `config.canon`으로 넘긴다. 쓴다고 지워지지 않으므로 새로 봉헌할 때까지 같은 구절이 계속 적용된다.
 - **효과**: 엔진이 시작 교리 `canon.doctrine`을 +1(`engine.js:163`) — 오늘의 계시·어려움·튜토리얼은 제외. LLM 프롬프트에는 어려움에서도 "이 부족의 경전" 줄로 원문이 들어간다(`interpreter.js:44`).
 - `removeCanon(text)`(`meta.js:84`)은 있지만 화면에서 부르는 곳이 없다.
@@ -326,14 +331,14 @@ quote   = topRevelations(state, 1)[0]?.text ? t('story.quote', { text, round }) 
 
 ### 9.1 신 (`gsg.god`)
 
-메인 화면에서 이름(최대 8자)과 상징 6종을 고른다. 상징 → 아이콘: `light`→`i-faith`, `sword`→`d-war`, `dove`→`d-peace`, `grain`→`i-food`, `eye`→`e-prophet`, `storm`→`m-lightning`(`data.js:267`). `godConfig()`는 이름이 비었고 상징이 기본(`light`)이면 null(`main.js:208`).
+메인 화면에서 이름(최대 8자)과 상징 6종을 고른다. 상징 → 아이콘: `light`→`i-faith`, `sword`→`d-war`, `dove`→`d-peace`, `grain`→`i-food`, `eye`→`e-prophet`, `storm`→`m-lightning`(`data.js:267`). `godConfig()`는 이름이 비었고 상징이 기본(`light`)이면 null(`main.js:209`).
 
 쓰이는 곳: 인장 버튼 아이콘, LLM 프롬프트(`god`), 종료 화면 "기억된 이름", 시편, 판 요약 `god`, 다음 판 유적의 `god`. 일반 새 게임·새 맵·오늘의 계시·시련에 넘기고 **도전·튜토리얼에는 넘기지 않는다**.
 
 ### 9.2 전생의 유적 (legacy)
 
-- `legacyFor(seed)`(`main.js:201-207`): 서고에서 계시가 있는 판 중 **최근 3판**을 고르고 `past[seed % past.length]` 하나 → `{ quote: 그 판 계시 중 가운데(⌊len/2⌋) 것, epithet, god, doctrine: top }`. 서고가 비면 null.
-- 일반 새 게임(베테랑)과 새 맵에만 넘긴다. 엔진이 `placeLegacy`로 빈 칸 하나에 `site = { id: 'legacy' }`(`engine.js:103-105`), 발견하면 그 교리가 3 미만이면 +1, 아니면 신앙 +2와 "여기 {칭호} {신}이 “{말}”이라 말씀하셨다" 로그(`engine.js:779-785`).
+- `legacyFor(seed)`(`main.js:202-208`): 서고에서 계시가 있는 판 중 **최근 3판**을 고르고 `past[seed % past.length]` 하나 → `{ quote: 그 판 계시 중 가운데(⌊len/2⌋) 것, epithet, god, doctrine: top }`. 서고가 비면 null.
+- 일반 새 게임(베테랑)과 새 맵에만 넘긴다. 엔진이 `placeLegacy`로 빈 칸 하나에 `site = { id: 'legacy' }`(`engine.js:103-105`), 발견하면 그 교리가 3 미만이면 +1, 아니면 신앙 +2와 "여기 {칭호} {신}이 “{말}”이라 말씀하셨다" 로그(`engine.js:825-831`).
 
 ---
 
@@ -354,12 +359,12 @@ export function dailyConfig(date = new Date()) {
 
 - `hash`는 FNV-1a 32비트(부호 없는 값) — [04 §3.4](04-architecture.md). 같은 날짜면 누구나 같은 맵·덱. 예: `2026-09-27` → 시드 `887357`.
 - 날짜는 **기기의 로컬 시각**이다. 시간대가 다르면 같은 순간에 다른 "오늘"일 수 있다.
-- 시작(`main.js:272`): `beginGame({ ...dailyConfig(), veteran: true, god: godConfig() })`. 정경·유적·은사·승천은 넘기지 않는다. 엔진도 오늘의 계시에는 정경 수치를 적용하지 않는다.
+- 시작(`main.js:273`): `beginGame({ ...dailyConfig(), veteran: true, god: godConfig() })`. 정경·유적·은사·승천은 넘기지 않는다. 엔진도 오늘의 계시에는 정경 수치를 적용하지 않는다.
 - 지도자는 시드 해시로(부제에 표시), 두 번째 판 규칙은 모두 켜진다(`veteran: true`).
 
 ### 10.2 숨은 말
 
-오늘의 계시에만 `state.sacred = hashPick(SACRED_WORDS, 'sacred', day)`(`engine.js:84`). 제단에 "오늘의 숨은 말 — 단서 “…” (n글자)"가 뜬다(`main.js:1986`). 수락 때 계시 원문에 그 낱말이 **들어 있으면**(부분 문자열) 판당 한 번 `stats.sacred = 1`과 로그(`engine.js:983-988`) → 업적 `sacred`.
+오늘의 계시에만 `state.sacred = hashPick(SACRED_WORDS, 'sacred', day)`(`engine.js:84`). 제단에 "오늘의 숨은 말 — 단서 “…” (n글자)"가 뜬다(`main.js:2000`). 수락 때 계시 원문에 그 낱말이 **들어 있으면**(부분 문자열) 판당 한 번 `stats.sacred = 1`과 로그(`engine.js:1041-1046`) → 업적 `sacred`.
 
 | # | 낱말 | 단서 |
 |---|---|---|
@@ -373,8 +378,8 @@ export function dailyConfig(date = new Date()) {
 
 ### 10.3 기록과 화면
 
-- 메인 `오늘의 계시` 버튼은 서고에 한 판 이상 있을 때 보인다(`main.js:909`).
-- 힌트: 오늘 기록이 있으면 `오늘 승리/패배 · 이번 달 N일`, 없으면 `M월 D일 · 이번 달 N일`(`main.js:913-915`). "이번 달 N일" = `gsg.daily` 키 중 이번 달(`YYYY-MM`)로 시작하는 날 수(`meta.js:75`).
+- 메인 `오늘의 계시` 버튼은 서고에 한 판 이상 있을 때 보인다(`main.js:912`).
+- 힌트: 오늘 기록이 있으면 `오늘 승리/패배 · 이번 달 N일`, 없으면 `M월 D일 · 이번 달 N일`(`main.js:916-918`). "이번 달 N일" = `gsg.daily` 키 중 이번 달(`YYYY-MM`)로 시작하는 날 수(`meta.js:75`).
 - `recordDaily`는 **그날 첫 시도만** 저장한다(`meta.js:68-74`). 종료 화면 "다시 하기"로 같은 오늘의 계시를 다시 둘 수 있지만 기록은 바뀌지 않는다(서고·경외·업적은 쌓인다).
 - 부제: `오늘의 계시 · YYYY-MM-DD · 지도자`.
 
@@ -384,17 +389,17 @@ export function dailyConfig(date = new Date()) {
 
 ### 11.1 시련 다섯 (`data.js:250-261`)
 
-모두 고정 시드·`veteran: true`·신 이름 포함으로 시작하고(`main.js:954-965`), 시작 2.6초 뒤 지도자 말풍선으로 도입 글. 정경·유적·은사·승천은 없다. "비틀린 규칙"은 `config.trial`로 엔진이 강제한다.
+모두 고정 시드·`veteran: true`·신 이름 포함으로 시작하고(`main.js:957-968`), 시작 2.6초 뒤 지도자 말풍선으로 도입 글. 정경·유적·은사·승천은 없다. "비틀린 규칙"은 `config.trial`로 엔진이 강제한다.
 
 | id | 이름 | 맵 | 난이도 | 시드 | 장 | 비틀린 규칙 (코드) |
 |---|---|---|---|---|---|---|
-| `storm` | 폭풍의 주 | 5×5 | 보통 | 11101 | 12 | 손패 번개·풍요·불기둥 고정(`engine.js:143`), 번개 비용 −1(`697`), 드래프트에 단비 없음(`561`) |
-| `earth` | 대지모 | 6×6 | 보통 | 22202 | 12 | 풍요 1로 시작(`157`), 우리 공격 불가(`376`), 계명 `noSword` 새길 수 없음(`966`), 소명 `sword` 제외(`120`), 인구 증가 비용 1(`1213`) |
+| `storm` | 폭풍의 주 | 5×5 | 보통 | 11101 | 12 | 손패 번개·풍요·불기둥 고정(`engine.js:143`), 번개 비용 −1(`743`), 드래프트에 단비 없음(`604`) |
+| `earth` | 대지모 | 6×6 | 보통 | 22202 | 12 | 풍요 1로 시작(`157`), 우리 공격 불가(`390`), 계명 `noSword` 새길 수 없음(`1032`), 소명 `sword` 제외(`120`), 인구 증가 비용 1(`1279`) |
 | `sword` | 칼의 해 | 5×5 | 보통 | 33303 | 12 | 지도자 `iron` 고정(`137`), 율법 풀에 `L5`(성전) 두 장 추가(`181`) |
-| `cloister` | 침묵의 수도원 | 5×5 | 보통 | 44404 | 12 | 계시 최대 20자(`main.js:1846`) |
+| `cloister` | 침묵의 수도원 | 5×5 | 보통 | 44404 | 12 | 계시 최대 20자(`main.js:1852`) |
 | `last` | 마지막 예언자 | 5×5 | 어려움 | 55505 | 8 | 8장(`engine.js:74`), 율법파 신도 +2·식량 +8(`158`), 신의 분노가 1장부터(`202`) |
 
-### 11.2 별 (`trialStars`, `main.js:966-970`)
+### 11.2 별 (`trialStars`, `main.js:969-973`)
 
 - 지면 0. 이기면 `격차 = score[0] − score[1]`:
   - `격차 ≥ 20` **또는** `rounds < maxRounds`(마지막 장 전에 끝남) → 3
@@ -421,7 +426,7 @@ export const weeklyIndex = (n, date = new Date()) => hash(`gsg:week:${isoWeek(da
 
 ### 11.4 화면
 
-메인 `시련` 버튼(서고 한 판 이상, `main.js:910`) → 목록 모달(`showTrials`, `main.js:934-953`): 이름(이번 주 딱지)·설명·`★☆☆ · 크기 · 장 수`, 아래에 별 규칙 안내. 부제: `시련 「이름」 · 크기 · 장`.
+메인 `시련` 버튼(서고 한 판 이상, `main.js:913`) → 목록 모달(`showTrials`, `main.js:937-956`): 이름(이번 주 딱지)·설명·`★☆☆ · 크기 · 장 수`, 아래에 별 규칙 안내. 부제: `시련 「이름」 · 크기 · 장`.
 
 ---
 
@@ -431,17 +436,17 @@ export const weeklyIndex = (n, date = new Date()) => hash(`gsg:week:${isoWeek(da
 
 | 단계 | 안내 문구 | 실제 효과 | 코드 |
 |---|---|---|---|
-| 1 | 율법파 시작 신도 +1 | 율법파 신도 +1, **식량 +4** | `engine.js:159` |
-| 2 | 율법 석판 한계 −2 | `edictMax` 12 → 10 | `engine.js:872` |
-| 3 | 신의 분노가 차는 격차 6 → 8 | 분노가 오르는 승점 격차 8 | `engine.js:862` |
-| 4 | 3막에 율법파 행동 +1 | 3막에서 율법파 행동 한도 +1 | `engine.js:219` |
-| 5 | 은사 없이 시작 | 일반 새 게임에서 은사를 넘기지 않음 | `main.js:281` |
+| 1 | 율법파 시작 신도 +1, 식량 +4 | 율법파 신도 +1, 식량 +4 | `engine.js:159` |
+| 2 | 율법 석판 한계 −2 | `edictMax` 12 → 10 | `engine.js:938` |
+| 3 | 신의 분노가 차는 격차 6 → 8 | 분노가 오르는 승점 격차 8 | `engine.js:923` |
+| 4 | 3막에 율법파 공격·선교 주사위 +1 | 3막에서 율법파 공격 `atk +1`, 선교 `preachBonus +1` (`enemyZeal`). `afab303` 전에는 "3막 율법파 행동 +1"이었다 | `engine.js:265` |
+| 5 | 은사 없이 시작 | 일반 새 게임과 새 맵에서 은사를 넘기지 않음 | `main.js:282`, `845` |
 
 ### 12.2 열기와 고르기
 
-- **열기**: 이겼고 어려움이며 시련·오늘의 계시·도전이 아니면 `openAscension(현재 승천 + 1)`(`main.js:787`). 저장값보다 클 때만 올리고 최대 5(`meta.js:167`). 베테랑 여부는 보지 않는다.
-- **고르기**: 메인 화면에서 난이도를 어려움으로 두고 열린 단계가 1 이상이면 `기본 · 승천 1 … 승천 k` 버튼이 뜬다(`main.js:225-230`). 어려움이 아니면 `setup.ascension`을 0으로 되돌린다. 난이도 힌트가 `승천 n — 제약1 · 제약2 …`(누적 목록)로 바뀐다.
-- **넘기기**: 일반 새 게임은 `ascension: difficulty === 'hard' ? setup.ascension : 0`(`main.js:281`). 기록 키(§13)와 판 요약에 남고 업적 `ascend`의 조건이 된다.
+- **열기**: 이겼고 어려움이며 시련·오늘의 계시·도전이 아니면 `openAscension(현재 승천 + 1)`(`main.js:790`). 저장값보다 클 때만 올리고 최대 5(`meta.js:167`). 베테랑 여부는 보지 않는다.
+- **고르기**: 메인 화면에서 난이도를 어려움으로 두고 열린 단계가 1 이상이면 `기본 · 승천 1 … 승천 k` 버튼이 뜬다(`main.js:226-231`). 어려움이 아니면 `setup.ascension`을 0으로 되돌린다. 난이도 힌트가 `승천 n — 제약1 · 제약2 …`(누적 목록)로 바뀐다.
+- **넘기기**: 일반 새 게임은 `ascension: difficulty === 'hard' ? setup.ascension : 0`(`main.js:282`). 종료 화면 "새 맵"은 `asc = difficulty === 'hard' ? min(setup.ascension, ascensionOpen()) : 0`을 넘기고 `asc >= 5`면 은사를 넣지 않는다(`main.js:845`). 기록 키(§13)와 판 요약에 남고 업적 `ascend`의 조건이 된다.
 
 ---
 
@@ -452,7 +457,7 @@ export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}${c.ascension 
 ```
 
 - 예: `5-normal-2026-r4`, `5-hard-123-a2-r4`.
-- **기록 조건**: 튜토리얼·오늘의 계시·도전·시련이 아니고 **베테랑**이며 **이긴** 판(`main.js:790-791`). 값은 우리 승점. 기존 값보다 클 때만 바꾼다(같으면 그대로, false).
+- **기록 조건**: 튜토리얼·오늘의 계시·도전·시련이 아니고 **베테랑**이며 **이긴** 판(`main.js:793-794`). 값은 우리 승점. 기존 값보다 클 때만 바꾼다(같으면 그대로, false).
 - **표시**: 메인 맵 힌트 끝에 `이 맵 최고 N`(현재 `setup`으로 `getBest`), 종료 화면 "새 기록 — 이 맵(시드 S)에서 승점 N".
 - `RULESET`이 바뀌면 키가 달라져 예전 기록과 비교하지 않는다(§17.1).
 
@@ -460,7 +465,7 @@ export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}${c.ascension 
 
 ## 14. 도전 링크와 시편
 
-### 14.1 도전 링크 `?seed=&size=&diff=&target=&v=` (`main.js:61-70, 273-280`)
+### 14.1 도전 링크 `?seed=&size=&diff=&target=&v=` (`main.js:62-71, 274-281`)
 
 | 파라미터 | 해석 |
 |---|---|
@@ -475,7 +480,7 @@ export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}${c.ascension 
 - 부제 `도전 · 크기 난이도 · 시드 S · 승점 N점을 넘어라`. 종료 부제에 `도전 성공 (s > target)` — **이기고 승점이 목표보다 커야** 성공 — 또는 `도전 실패 — s : target`(목표가 있을 때만).
 - 도전 판은 최고 기록·승천 열기에서 빠지지만 서고·경외·업적은 쌓인다.
 
-### 14.2 시편 복사 (`copyPsalm`, `main.js:862-888`)
+### 14.2 시편 복사 (`copyPsalm`, `main.js:865-891`)
 
 종료 화면 버튼. 결정적 장면의 장(없으면 마지막 계시의 장)을 골라 여러 줄 텍스트를 클립보드에 복사한다(실패하면 숨긴 textarea + `execCommand('copy')`):
 
@@ -495,7 +500,7 @@ export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}${c.ascension 
 
 ## 15. 사관 세라의 과제 (onboarding)
 
-튜토리얼이 아닌 판의 우리 매트 머리에 리본으로 뜨는 과제 넷(`main.js:1197-1215`). `gsg.onboard = { step, off }`.
+튜토리얼이 아닌 판의 우리 매트 머리에 리본으로 뜨는 과제 넷(`main.js:1201-1219`). `gsg.onboard = { step, off }`.
 
 | step | 과제 | 완료 조건 | 달성 칭찬 |
 |---|---|---|---|
@@ -504,7 +509,7 @@ export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}${c.ascension 
 | 2 | 교리 하나를 두 칸까지 쌓으소서 | 어떤 교리든 ≥ 2 | 이제 이기실 차례 |
 | 3 | 한 판을 이기소서 | 판이 끝났고(`end`) 우리가 이김 | (판 끝이라 말풍선 없음) |
 
-- 확인 시점: 해결 재생 뒤(`main.js:1387`), 기적 성공 뒤(`1653`), 판 끝(`finishGame`, `end = true`).
+- 확인 시점: 해결 재생 뒤(`main.js:1391`), 기적 성공 뒤(`1658`), 판 끝(`finishGame`, `end = true`).
 - 한 번 확인에 **한 단계만** 오른다. 판 중이면 세라 말풍선(`matSay`)으로 칭찬하고 매트를 다시 그린다.
 - ✕ 버튼이면 `off: true`로 끈다. `step ≥ 4`면 사라진다. 첫 판부터(튜토리얼을 안 해도) 뜬다.
 
@@ -514,7 +519,7 @@ export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}${c.ascension 
 
 ### 16.1 "베테랑" — 두 번째 판부터 켜지는 것
 
-`veteran = 서고에 판이 하나 이상`(`main.js:270`). 튜토리얼은 서고에 남지 않으므로 세지 않는다. 오늘의 계시·시련·새 맵은 늘 베테랑, 도전은 링크의 `v`를 따른다.
+`veteran = 서고에 판이 하나 이상`(`main.js:271`). 튜토리얼은 서고에 남지 않으므로 세지 않는다. 오늘의 계시·시련·새 맵은 늘 베테랑, 도전은 링크의 `v`를 따른다.
 
 | 영역 | 베테랑이면 | 코드 |
 |---|---|---|
@@ -525,26 +530,26 @@ export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}${c.ascension 
 | 기적 손패 | 번개/단비 하나 + 해시 둘 | `engine.js:144-149` |
 | 두 갈래 사건 셋 | 사건 덱에 섞음 | `engine.js:153` |
 | 검열 카드 `L10` | 보통·어려움 율법 풀에 | `engine.js:178` |
-| 세 막 규칙 | 2막 성전 카드 삽입, 3막 평온 제거, 막 문구 | `engine.js:508-512`, `main.js:481` |
-| 분열의 예언자 미라 | 2막부터 조건이 맞으면 한 번 | `engine.js:517` |
-| 기적 드래프트 | 3·5장 | `engine.js:560` |
-| 침묵 벌칙 | 두 번째 신앙 −1, 세 번째부터 신도 이탈 | `engine.js:942` |
-| 영원한 계명 · 성언 · 교리 대립 | 켜짐 | `engine.js:967, 976, 1322` |
-| 말 거두기 | 신앙 1 (첫 판은 무료) | `main.js:681` |
-| 정경 봉헌 버튼 · 정경 적용 · 유적 | 켜짐 | `main.js:281, 809` |
-| 최고 기록 | 기록됨 | `main.js:790` |
+| 세 막 규칙 | 2막 성전 카드 삽입, 3막 평온 제거, 막 문구 | `engine.js:551-555`, `main.js:491` |
+| 분열의 예언자 미라 | 2막부터 조건이 맞으면 한 번 | `engine.js:560` |
+| 기적 드래프트 | 3·5장 | `engine.js:603` |
+| 침묵 벌칙 | 두 번째 신앙 −1, 세 번째부터 신도 이탈 | `engine.js:1008` |
+| 영원한 계명 · 교리 대립 | 켜짐 (성언은 `afab303`에서 없앴다) | `engine.js:1033, 1410` |
+| 말 거두기 | 신앙 1 (첫 판은 무료) | `main.js:689` |
+| 정경 봉헌 버튼 · 정경 적용 · 유적 | 켜짐 | `main.js:282, 812` |
+| 최고 기록 | 기록됨 | `main.js:793` |
 
-메인 화면: 서고·성서·오늘의 계시·시련 버튼은 서고에 판이 있을 때 보인다(`renderMetaLinks`, `main.js:905-918`).
+메인 화면: 서고·성서·오늘의 계시·시련 버튼은 서고에 판이 있을 때 보인다(`renderMetaLinks`, `main.js:908-921`).
 
-**두 번째 판 안내**(`showUnlockNote`, `main.js:1174-1184`): 새 판을 시작하고 0.4초 뒤, `gsg.unlockNote`가 없고 서고가 **정확히 1판**이며 튜토리얼이 아니면 한 번 목록 모달을 띄운다: 율법 석판과 성지 / 심판의 기준과 소명 / 대사제의 성향·기적 드래프트·두 갈래 사건·세 막 / 교리 대립·영원한 계명·성언·검열 / 정경 봉헌·오늘의 계시·시련.
+**두 번째 판 안내**(`showUnlockNote`, `main.js:1178-1188`): 새 판을 시작하고 0.4초 뒤, `gsg.unlockNote`가 없고 서고가 **정확히 1판**이며 튜토리얼이 아니면 한 번 목록 모달을 띄운다: 율법 석판과 성지 / 심판의 기준과 소명 / 대사제의 성향·기적 드래프트·두 갈래 사건·세 막 / 교리 대립·영원한 계명·검열 / 정경 봉헌·오늘의 계시·시련 (`ui.unlock.1`~`5`; 넷째 줄의 「성언」은 `afab303`에서 뺐다).
 
-**종료 화면 "새 맵"**(`main.js:842`): 새 시드를 뽑아 `setup`에 저장하고 `{ ...setup, mode: 'standard', veteran: true, canon: getCanon()[0], god, legacy: legacyFor(새 시드), blessing: blessingPick() }`. 방금 끝난 판이 오늘의 계시·시련·도전이었어도 메인 화면 설정으로 일반 판을 연다.
+**종료 화면 "새 맵"**(`main.js:845`): 새 시드를 뽑아 `setup`에 저장하고 `{ ...setup, ascension: asc, mode: 'standard', veteran: true, canon: getCanon()[0], god, legacy: legacyFor(새 시드), blessing: asc >= 5 ? null : blessingPick() }` (`asc`는 §12.2). 방금 끝난 판이 오늘의 계시·시련·도전이었어도 메인 화면 설정으로 일반 판을 연다.
 
-### 16.2 복귀 인사 (`renderWelcome`, `main.js:921-931`)
+### 16.2 복귀 인사 (`renderWelcome`, `main.js:924-934`)
 
 메인 화면을 띄울 때마다 `gsg.lastVisit`를 지금으로 바꾼다. 그 전 방문이 **3일 이상** 전이고 서고가 있으면 한 줄: `다시 오셨군요. 지난 판 — 크기 승패, n장, 승점 a : b. 「칭호」 (· 이어하던 판이 있다.)`.
 
-### 16.3 계시 제안 칩 (`main.js:2224-2271`)
+### 16.3 계시 제안 칩 (`main.js:2240-2287`)
 
 speak 단계에서 두루마리가 **8초** 동안 비어 있으면 제안 두 개를 띄운다. 조건: 튜토리얼 아님, `gsg.suggest`가 참, **서고가 3판 미만**. 후보는 청원의 필요·율법파 공격 예고(성벽)·신앙 부족(기도)·마을·탐험·선교 순이고, 봉인된 말이 든 것과 석판이 아무 명령도 못 읽는 것을 뺀다. 누르면 한 글자씩 입력된다. ✕는 영구히 끈다.
 
@@ -558,11 +563,11 @@ speak 단계에서 두루마리가 **8초** 동안 비어 있으면 제안 두 �
 
 ### 17.2 `SAVE_VERSION`
 
-`SAVE_VERSION = 1`(`engine.js:1042`), 이어하기 키 `gsg.save.v1`. 규칙 판과 무관하다. 새 필드는 저장 형식을 바꾸지 않고 `hydrateState` 기본값으로 흡수한다 — [04 §2.8](04-architecture.md).
+`SAVE_VERSION = 1`(`engine.js:1102`), 이어하기 키 `gsg.save.v1`. 규칙 판과 무관하다. 새 필드는 저장 형식을 바꾸지 않고 `hydrateState` 기본값으로 흡수한다 — [04 §2.8](04-architecture.md).
 
 ---
 
-## 18. 기록 내보내기 · 가져오기 · 지우기 (`main.js:1108-1130`, `meta.js:91-103`)
+## 18. 기록 내보내기 · 가져오기 · 지우기 (`main.js:1111-1133`, `meta.js:91-103`)
 
 | 동작 | 하는 일 |
 |---|---|
@@ -580,8 +585,8 @@ speak 단계에서 두루마리가 **8초** 동안 비어 있으면 제안 두 �
 
 | 경로 | veteran | 정경 | 신 | 유적 | 은사 | 승천 | 소명 | 서고·경외·업적 | 최고 기록 | 승천 열기 | 기타 기록 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 일반 새 게임 (`main.js:281`) | 서고 > 0 | 베테랑이면 첫 정경 | ✓ | 베테랑이면 | 승천 5 미만이면 | 어려움이면 설정값 | 베테랑이면 | ✓ | 베테랑·승리 | 어려움·승리 | |
-| 새 맵 (종료 화면) | true | 첫 정경 | ✓ | ✓ | ✓ (승천 무관) | `setup` 값 그대로 | ✓ | ✓ | 승리 | 어려움·승리 | |
+| 일반 새 게임 (`main.js:282`) | 서고 > 0 | 베테랑이면 첫 정경 | ✓ | 베테랑이면 | 승천 5 미만이면 | 어려움이면 설정값 | 베테랑이면 | ✓ | 베테랑·승리 | 어려움·승리 | |
+| 새 맵 (종료 화면, `main.js:845`) | true | 첫 정경 | ✓ | ✓ | 승천 5 미만이면 | 어려움이면 `min(설정값, 열린 단계)`, 아니면 0 | ✓ | ✓ | 승리 | 어려움·승리 | |
 | 다시 하기 | 같은 `config` | | | | | | | 원래 모드대로 | | | |
 | 오늘의 계시 | true | — | ✓ | — | — | — | ✓ | ✓ | — | — | `gsg.daily` 첫 시도 |
 | 도전 링크 | `v` | — | — | — | — | — | — | ✓ | — | — | 종료 부제 성공/실패 |
@@ -592,9 +597,9 @@ speak 단계에서 두루마리가 **8초** 동안 비어 있으면 제안 두 �
 
 ## 확인 필요
 
-- **새 맵 버튼의 은사·승천**: `{ ...setup, …, blessing: blessingPick() }`라서 `setup.ascension`이 5여도 은사가 붙고(일반 새 게임과 다르다), `setup.ascension`이 어려움이 아닌 난이도와 함께 남아 있으면 그대로 넘어갈 수 있다(`renderSetup`이 돌아야 0으로 정리된다). 의도인지 불명.
-- **도감의 기적**: 카드를 눌러 쓴 기적은 `markSeen('miracles')`를 부르지 않고, 계시로 말한 기적만 기록된다(`main.js:740`). 카드로만 기적을 쓰는 플레이어는 도감의 기적 칸이 차지 않는다.
-- **율법 석판 패배의 유형**: `winKind === 'edict'`는 `outcomeKind`에서 `outscored`(승점에 밀림)로 분류되어, 에필로그가 "마지막 계절이 저물 때, 율법파의 곳간이 더 컸다"가 된다. 별도 문구가 없다.
+- ~~**새 맵 버튼의 은사·승천**: 승천 5여도 은사가 붙고, 어려움이 아닌 난이도에 승천이 남아 넘어갈 수 있었다.~~ — **고침** `afab303`(`main.js:845`, §12.2). 남은 차이: 일반 새 게임(`main.js:282`)은 `setup.ascension`을 열린 단계로 자르지 않는다(설정 화면이 이미 정리한 값을 믿는다).
+- ~~**도감의 기적**: 카드를 눌러 쓴 기적은 기록되지 않았다.~~ — **고침** `afab303`(`main.js:1648`, `1666`, §7.2). 튜토리얼에서도 이 두 곳은 `markSeen`을 부른다(수락 때 기록은 튜토리얼을 거른다) — 그래서 튜토리얼에서 카드로 쓴 기적이 도감에 남는다.
+- ~~**율법 석판 패배의 유형**: `edict` 패배가 `outscored`로 분류되어 곳간 에필로그가 나왔다.~~ — **고침** `afab303`: 결말 종류 `edict`와 `story.lose.edict`(§4.1, §4.3).
 - **업적 `tutorial`의 `check`**: 요약에 `tutorial` 필드가 없어 영원히 거짓이다. 실제로는 `endTutorial`이 직접 연다. 이식 때 둘 중 하나로 정리할 것.
 - **정경이 소모되지 않음**: 봉헌한 첫 구절이 새로 봉헌할 때까지 모든 일반 판에 계속 적용된다. 티켓 #026의 "판마다 적용은 1개"와 맞지만, 한 번 쓰고 사라지는 설계였는지는 적혀 있지 않다. `removeCanon`은 화면에서 쓰이지 않는다.
 - **시편 링크의 `size`**는 `state.rows`다(정사각 맵이라 같다).

@@ -121,7 +121,12 @@
 | `name` | 문자열 | 단계 이름 (`data.cathedral.<i>.name`) |
 | `cost` | 비용 객체 | 이 단계의 비용 |
 
-비용: 4/4/4, 4/4/4, 3/3/5 (돌/목재/신앙 — 합계가 `COST.cathedral`과 같다). 빠른 판(4×4)은 각 값 `ceil(v × 0.7)`. 셋째 단계를 지으면 즉시 승리(`winKind: 'cathedral'`). 공사가 시작되면 율법파가 수도부터 친다 (`planEnemy`의 rush).
+비용: 4/4/4, 4/4/4, 3/3/5 (돌/목재/신앙 — 합계가 `COST.cathedral`과 같다). 빠른 판(4×4)은 각 값 `ceil(v × 0.7)`. 셋째 단계를 지으면 즉시 승리(`winKind: 'cathedral'`).
+
+표에 없는 규칙 (engine, [02 §10](02-rules.md#10-대성당)):
+- 다음 단계에는 우리 마을이 `cathedralVillages = cathedral + 1`개(1·2·3) 있어야 한다 (`legalActions`).
+- 공사가 시작되면 율법파의 합법 행동에 우리 수도 공격이 거리와 무관하게 들어가고(`crusade: true`), `planEnemy`가 그것을 맨 앞에 둔다(rush).
+- 율법파가 우리 수도를 치면 어느 단계든 한 단계 무너진다(`cathedral >= 1`).
 
 ### PLAYER_START · DIFFICULTY
 
@@ -177,7 +182,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 ### ASCENSION
 
-어려움에서 이기면 열리는 승천 1~5단계의 **설명 글** 5줄 (main 설정 화면). 효과는 engine이 `config.ascension` 값으로 적용한다: ≥1 율법파 신도 +1·식량 +4, ≥2 율법 석판 한계 −2(`edictMax`), ≥3 분노가 차는 격차 6→8, ≥4 3막에 율법파 행동 +1, 5 은사 없이 시작(main).
+어려움에서 이기면 열리는 승천 1~5단계의 **설명 글** 5줄 (main 설정 화면, 언어팩 배열 `data.ascension`): "율법파 시작 신도 +1, 식량 +4" · "율법 석판 한계 -2" · "신의 분노가 차는 격차 6 → 8" · "3막에 율법파 공격·선교 주사위 +1" · "은사 없이 시작". 효과는 engine이 `config.ascension` 값으로 적용한다: ≥1 율법파 신도 +1·식량 +4, ≥2 율법 석판 한계 −2(`edictMax`), ≥3 분노가 차는 격차 6→8, ≥4 3막에 율법파 공격·선교 주사위 +1(`enemyZeal` — 예전의 "3막 율법파 행동 +1"을 `afab303`에서 바꿨다), 5 은사 없이 시작(main — 설정 화면과 종료 화면 「새 땅」 모두). 1단계 글의 "식량 +4"와 4단계 글은 `afab303`에서 코드에 맞게 고쳤다.
 
 ---
 
@@ -231,7 +236,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 행 10: L1 확장(마을·목재·식량), L2 식량·식량·기도, L3 돌·성벽·목재, L4 성벽·돌·기도, L5 공격·공격·식량, L6 기도·신전·식량, L7 선교·선교·기도, L8 식량·신전·마을, L9 마을·마을·목재, L10 식량·목재·기도(검열).
 
-- engine `planEnemy`: `rules = [rush?, ...card.rules, ...card.rules]`. `rush`는 표에 없는 합성 규칙 `{type: 'attack', target: 'capital'}` (우리 대성당 공사가 시작되면). 공격·선교는 율법파 신도가 2 이상일 때만. 남는 행동은 `autoFill`.
+- engine `planEnemy`: `rules = [rush?, rally?, ...tail, ...card.rules]`. 표에 없는 합성 규칙이 셋 끼어든다 — `rush` `{type: 'attack', target: 'capital'}`(우리 대성당 공사가 시작되면), `rally` `{type: 'attack'}`(율법파 결집 중), 그리고 `tail`은 막마다 칼(`ZEAL_ACT`: 보통 3막·어려움 2막부터)이면 `[rules[0], {type: 'attack'}, rules[1], rules[2]]`, 아니면 `card.rules`. 공격·선교는 율법파 신도가 2 이상일 때만, 대상이 없으면(튜토리얼 제외) 우리 쪽으로 마을을 짓는다. 남는 행동은 `autoFill`. 자세한 것은 [02 §4.4·§4.9](02-rules.md#44-계획-planenemy).
 - `lawPool`: 튜토리얼은 L5·L7·L10 제외. 검열 L10은 두 번째 판 + 보통 이상. 지도자 `deck.remove`/`deck.add`를 적용 (add는 **한 장 더** — 같은 id가 두 번 들어갈 수 있다). 두 번째 판 2막 첫 장에는 (풀에 L5가 있으면) L5 한 장을 덱 끝에서 네 번째 자리(`splice(len − 3, 0, L5)` — 다음에 뽑을 세 장 바로 밑)에 끼운다.
 - `lawThreat`(어려움의 두 장 비교): 실제로 할 수 있는 규칙마다 가중치 attack 3, preach 2, build 2, pray 1, gather 1.
 
@@ -442,7 +447,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `heresyGrace` | 1 | 신앙 0으로 버틸 수 있는 장 수, 그다음 장부터 신도가 율법파로 떠난다 (`upkeep`) |
 | `superiority` | 3 | 신도가 이만큼 많으면 선교·공격 주사위 +1 |
 | `lowFaith` | 2 | 이 이하이면 자동 노동이 기도를 먼저 하고 신앙 청원이 나온다 (`autoFill`, `makePetition`) |
-| `gracePerRound` | 1 | 청원·이름·서원·기이한 해석으로 받는 은총 신앙의 장당 한도 (`grantGrace`) |
+| `gracePerRound` | 1 | 청원·이름·서원으로 받는 은총 신앙의 장당 한도 (`grantGrace`) |
 | `graceDoctrineBelow` | 3 | 비유·첫 이름·전생의 유적의 교리 가속은 그 교리가 이 값보다 낮을 때만 (`recordRevelation`, main, `discoverSites`) |
 | `maxNames` | 3 | 판당 이름 수 (`nameTile`) |
 
@@ -459,7 +464,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `MAX_COMMANDMENTS` | 2 | 판당 계명 수 |
 | `REVELATION_MAX` | 100 | 계시 글자 수 상한 (main `revMax`; 시련 `cloister`는 20) |
 | `MAX_ROUNDS` | 12 | **쓰이지 않는다** (`createState`는 `MAP_SIZES`가 없을 때 숫자 12를 직접 쓴다) |
-| `RULESET` | 4 | 규칙 판 번호. 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`) |
+| `RULESET` | 4 | 규칙 판 번호. 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). **확인 필요**: `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)의 큰 규칙 변경 뒤에도 4 그대로라, 그 전에 세운 최고 기록과 새 판이 같은 키로 비교된다 |
 
 ---
 
@@ -471,7 +476,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 |---|---|---|
 | `COST.temple` | `(level) => ({ stone: level * 2, wood: level + 1 })` | `func temple_cost(level: int) -> Dictionary: return {"stone": level * 2, "wood": level + 1}` |
 | `DESTINIES.<id>.test` (8개) | `(st, v) => …` — 예 `villages`: `(st, v) => st.round <= 8 && v.villages >= 4` | id → `Callable(state, v) -> bool` 표. `ultimate`는 `Object.values(st.sides.player.doctrine).some((x) => x >= 6)`, `namer`는 `Object.keys(st.names ?? {}).length >= 3`처럼 상태 필드를 직접 읽으므로 04의 상태 필드 이름을 따른다 |
-| `revelationCost` (최상위) | `(text) => (text.trim().length > 30 ? 2 : 1)` | 쓰이지 않는다. 실제 비용은 engine `revelationCostFor`: 30자를 넘어도 지난 계시를 인용하거나(`citedWords`) 성언을 쓰면 1, 봉인된 말을 쓰면 +1 |
+| `revelationCost` (최상위) | `(text) => (text.trim().length > 30 ? 2 : 1)` | 쓰이지 않는다. 실제 비용은 engine `revelationCostFor`: 30자를 넘어도 지난 계시를 인용하면(`citedWords`) 1, 봉인된 말을 쓰면 +1, 지난 계시를 그대로 되풀이하면(메아리 `isEcho`) +1 |
 
 글자 수(`length`)는 JS 문자열 길이(UTF-16 단위)다. 한글 음절은 한 단위이므로 Godot `String.length()`와 같다.
 
