@@ -707,7 +707,6 @@
       "log": [
         {"side":"god","text":"“율법파에게 재앙을! 그들의 수도를 쳐라”","ui":true},
         {"side":"priest","text":"석판에 새겨진 말씀이도다. 율법파 마을(A2)을 공격한다!","ui":true},
-        {"side":"enemy","text":"율법파는 우리 마을(A1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"A1"}},
         {
           "side": "player",
           "text": "신도들이 강(C2)에서 식량을 2 얻었다.",
@@ -733,6 +732,13 @@
           "dice": {"attacker":5,"attackerBonus":2,"defender":2,"defenderBonus":1,"win":true},
           "fx": {"kind":"attack","tile":"A2","capture":true},
           "act": "attack:A2:"
+        },
+        {
+          "side": "enemy",
+          "text": "율법파 원정대가 우리 마을(A1)을 넘지 못하고 물러났다 (율법파 식량 -1).",
+          "dice": {"attacker":3,"attackerBonus":0,"defender":5,"defenderBonus":3,"win":false},
+          "fx": {"kind":"attack","tile":"A1"},
+          "act": "attack:A1:"
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
@@ -762,7 +768,7 @@
           "doctrine": {"peace":0,"war":3,"abundance":2,"wisdom":0}
         },
         "enemy": {
-          "food": 2,
+          "food": 1,
           "wood": 5,
           "stone": 0,
           "faith": 18,
@@ -784,7 +790,7 @@
         "silentRun": 0,
         "legends": {"A2":"분노의 마을"},
         "stats": {"converted":0,"captured":1,"miracles":0,"prophecies":0,"petitions":2},
-        "rng": {"deck":1916553955,"dice":-127881990},
+        "rng": {"deck":1916553955,"dice":-759717660},
         "winner": null,
         "winKind": null
       }
@@ -833,7 +839,7 @@
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 마을(A2)을 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":3,"attackerBonus":0,"defender":5,"defenderBonus":1,"win":false},
+          "dice": {"attacker":5,"attackerBonus":0,"defender":4,"defenderBonus":1,"win":false},
           "fx": {"kind":"attack","tile":"A2"},
           "act": "attack:A2:"
         },
@@ -860,7 +866,7 @@
           "doctrine": {"peace":0,"war":4,"abundance":2,"wisdom":0}
         },
         "enemy": {
-          "food": 2,
+          "food": 1,
           "wood": 5,
           "stone": 0,
           "faith": 20,
@@ -882,7 +888,7 @@
         "silentRun": 0,
         "legends": {"A2":"분노의 마을"},
         "stats": {"converted":0,"captured":1,"miracles":0,"prophecies":0,"petitions":2},
-        "rng": {"deck":1916553955,"dice":-759717660},
+        "rng": {"deck":1916553955,"dice":-1391553330},
         "winner": "player",
         "winKind": "score"
       }

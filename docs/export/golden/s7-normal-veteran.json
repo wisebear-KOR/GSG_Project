@@ -1737,7 +1737,6 @@
       "log": [
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
         {"side":"priest","text":"곳간이 노래하노니, 우리 신전(G2)에 성벽을 쌓는다!","ui":true},
-        {"side":"enemy","text":"율법파는 우리 신전(G2)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"G2"}},
         {
           "side": "player",
           "text": "신도들이 평원(G1)에서 식량을 2 얻었다.",
@@ -1765,6 +1764,13 @@
           "fx": {"kind":"gain","tile":"A6","gain":{"faith":2}},
           "act": "pray:A6:"
         },
+        {
+          "side": "enemy",
+          "text": "율법파가 우리 신전(G2)을 쳤다! 수도 내구도 2.",
+          "dice": {"attacker":5,"attackerBonus":1,"defender":2,"defenderBonus":3,"win":true},
+          "fx": {"kind":"attack","tile":"G2","capital":true},
+          "act": "attack:G2:"
+        },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법 석판 +1 — 율법파가 경건을 돌에 새겼다 (7/12).","fx":{"kind":"edict","tile":"A6","up":true}},
@@ -1773,17 +1779,17 @@
       ],
       "digest": {
         "player": {
-          "food": 1,
+          "food": 2,
           "wood": 12,
           "stone": 12,
-          "faith": 43,
-          "pop": 3,
+          "faith": 42,
+          "pop": 2,
           "templeLevel": 2,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 0,
-          "score": 20,
+          "score": 15,
           "faithless": 0,
           "doctrine": {"peace":2,"war":1,"abundance":5,"wisdom":2}
         },
@@ -1841,7 +1847,7 @@
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":2,"vows":1,"starved":1},
-        "rng": {"deck":-106831468,"dice":503960983},
+        "rng": {"deck":-106831468,"dice":-127874687},
         "winner": null,
         "winKind": null
       }
@@ -1853,7 +1859,7 @@
       "first": "enemy",
       "act": 3,
       "reacted": "war",
-      "petition": {"from":"늙은 사관 갈렙","need":{"type":"gather","gather":"food"}},
+      "petition": {"from":"늙은 사관 갈렙","need":{"type":"build","build":"wall"}},
       "revelation": "신전에서 기도하라",
       "cost": 1,
       "tone": "command",
@@ -1861,9 +1867,9 @@
       "accepted": ["pray:G2:"],
       "rejected": [],
       "petitionAnswered": false,
-      "auto": ["explore:E4:","gather:G1:food"],
+      "auto": ["explore:E4:"],
       "enemyPlan": ["gather:A4:stone","attack:G2:","build:E1:wall","gather:B3:wood","gather:A5:stone","build:E2:wall"],
-      "plan": ["pray:G2:","explore:E4:","gather:G1:food"],
+      "plan": ["pray:G2:","explore:E4:"],
       "ordered": ["pray:G2:"],
       "log": [
         {"side":"god","text":"“신전에서 기도하라”","ui":true},
@@ -1887,15 +1893,14 @@
           "fx": {"kind":"gain","tile":"A5","gain":{"stone":2}},
           "act": "gather:A5:stone"
         },
-        {
-          "side": "player",
-          "text": "신도들이 평원(G1)에서 식량을 3 얻었다.",
-          "fx": {"kind":"gain","tile":"G1","gain":{"food":3}},
-          "act": "gather:G1:food"
-        },
         {"side":"enemy","text":"율법파가 율법파 마을(E1)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"E1"},"act":"build:E1:wall"},
         {"side":"enemy","text":"율법파가 율법파 마을(E2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"E2"},"act":"build:E2:wall"},
-        {"side":"player","text":"안개 지대(E4)를 탐험했다. 안개가 걷혔다.","fx":{"kind":"explore","tile":"E4"},"act":"explore:E4:"},
+        {
+          "side": "player",
+          "text": "안개 지대(E4)를 탐험해 돌을 2 찾았다.",
+          "fx": {"kind":"treasure","tile":"E4","gain":{"stone":2}},
+          "act": "explore:E4:"
+        },
         {
           "side": "player",
           "text": "목수 하닌이 성인으로 추앙받는다 — 수호자 성인 (수도 방어 +1).",
@@ -1905,15 +1910,15 @@
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 신전(G2)을 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":2,"attackerBonus":1,"defender":2,"defenderBonus":3,"win":false},
+          "dice": {"attacker":1,"attackerBonus":1,"defender":5,"defenderBonus":3,"win":false},
           "fx": {"kind":"attack","tile":"G2"},
           "act": "attack:G2:"
         },
+        {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"player","text":"역병으로 우리 부족 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"역병으로 율법파 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"enemy","text":"율법 석판 +1 — 율법파가 경건을 돌에 새겼다 (8/12).","fx":{"kind":"edict","tile":"A6","up":true}},
-        {"side":"player","text":"소명을 이루었다 — 「지키는 자」 끝까지 수도 내구도 3 지키기. 승점 +5.","fx":{"kind":"prophecy","tile":"G2"}},
         {
           "side": "player",
           "text": "거인의 뼈 — 거대한 뼈가 땅에 박혀 있다. 좋은 돌감이다. 돌 +3.",
@@ -1923,17 +1928,17 @@
       ],
       "digest": {
         "player": {
-          "food": 3,
+          "food": 1,
           "wood": 12,
-          "stone": 15,
-          "faith": 45,
+          "stone": 17,
+          "faith": 44,
           "pop": 2,
           "templeLevel": 2,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 0,
-          "score": 23,
+          "score": 15,
           "faithless": 0,
           "doctrine": {"peace":2,"war":1,"abundance":5,"wisdom":3}
         },
@@ -1989,10 +1994,10 @@
         "streak": {"doctrine":"war","n":1},
         "silentRun": 0,
         "commandments": ["sabbath"],
-        "destiny": {"id":"fortress","done":true},
+        "destiny": {"id":"fortress","done":false},
         "saints": [{"name":"목수 하닌","kind":"guardian"}],
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":2,"vows":1,"starved":1},
-        "rng": {"deck":-106831468,"dice":1703691126},
+        "rng": {"deck":-106831468,"dice":-1391546027},
         "winner": "enemy",
         "winKind": "score"
       }
@@ -2002,16 +2007,15 @@
     "rounds": 14,
     "winner": "enemy",
     "winKind": "score",
-    "winReason": "14장 종료 — 승점 23 : 67",
-    "score": {"player":23,"enemy":67},
+    "winReason": "14장 종료 — 승점 15 : 67",
+    "score": {"player":15,"enemy":67},
     "breakdown": {
       "player": [
         {"key":"pop","n":2,"w":2},
         {"key":"village","n":0,"w":2},
         {"key":"temple","n":2,"w":2},
-        {"key":"hp","n":3,"w":3},
-        {"key":"wall","n":1,"w":1},
-        {"key":"destiny","n":1,"w":5}
+        {"key":"hp","n":2,"w":3},
+        {"key":"wall","n":1,"w":1}
       ],
       "enemy": [
         {"key":"pop","n":12,"w":2},
@@ -2034,8 +2038,8 @@
       {"round":10,"ps":27,"es":49},
       {"round":11,"ps":25,"es":53},
       {"round":12,"ps":17,"es":61},
-      {"round":13,"ps":20,"es":65},
-      {"round":14,"ps":23,"es":67}
+      {"round":13,"ps":15,"es":65},
+      {"round":14,"ps":15,"es":67}
     ],
     "revelations": [
       {"round":1,"doctrine":null},

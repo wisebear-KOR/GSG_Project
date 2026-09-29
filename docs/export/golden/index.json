@@ -23,9 +23,9 @@
       "file": "s5-normal-first.json",
       "config": {"mode":"standard","size":5,"difficulty":"normal","seed":2026,"veteran":false},
       "rounds": 12,
-      "winner": "enemy",
+      "winner": "player",
       "winKind": "score",
-      "score": {"player":16,"enemy":40}
+      "score": {"player":30,"enemy":22}
     },
     {
       "file": "s5-hard-veteran.json",
@@ -41,7 +41,7 @@
       "rounds": 12,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":19,"enemy":55}
+      "score": {"player":11,"enemy":60}
     },
     {
       "file": "s6-easy-veteran.json",
@@ -49,7 +49,7 @@
       "rounds": 12,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":25,"enemy":34}
+      "score": {"player":26,"enemy":34}
     },
     {
       "file": "s7-hard-first.json",
@@ -65,7 +65,7 @@
       "rounds": 14,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":23,"enemy":67}
+      "score": {"player":15,"enemy":67}
     },
     {
       "file": "s4-easy-first-war.json",
@@ -89,7 +89,7 @@
       "rounds": 8,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":21,"enemy":28}
+      "score": {"player":21,"enemy":34}
     }
   ]
 }

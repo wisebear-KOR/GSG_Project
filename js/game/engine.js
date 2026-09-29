@@ -867,8 +867,10 @@ const PHASE_ORDER = ['gather', 'build', 'pray', 'explore', 'preach', 'attack'];
 export function resolveRound(state, playerPlan, enemyPlan) {
   const first = state.first;
   const plans = { player: playerPlan, enemy: enemyPlan };
-  // 같은 칸을 양쪽이 고르면 선 플레이어가 차지한다
-  const firstTiles = new Set(plans[first].map((a) => a.tile));
+  // 같은 칸을 양쪽이 고르면 선 플레이어가 차지한다. 다만 제 수도·건물 안에서 하는 일(기도, 신전·대성당·성벽)은
+  // 칸을 차지하는 일이 아니다 — 수도에서 기도만 해도 상대의 수도 공격이 막히던 구멍을 닫는다
+  const home = (a) => a.type === 'pray' || (a.type === 'build' && ['temple', 'cathedral', 'wall'].includes(a.build));
+  const firstTiles = new Set(plans[first].filter((a) => !home(a)).map((a) => a.tile));
   const blocked = new Set();
   for (const a of plans[other(first)]) {
     if (firstTiles.has(a.tile)) {
