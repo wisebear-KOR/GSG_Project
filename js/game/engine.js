@@ -77,9 +77,9 @@ export function createState(config = DEFAULT_CONFIG) {
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
     priest: 'loyal', names: {}, lessons: [], petition: null, petitionIgnored: 0, prophecy: null,
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
-    judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, oddUsed: false, lawGuard: { preach: 0, attack: 0 }, rally: false,
+    judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, lawGuard: { preach: 0, attack: 0 }, rally: false,
     edictOn: !!cfg.veteran && !tutorial, destiny: null, destinyOffer: null, holyId: null,
-    commandments: [], liturgy: null, saints: [], deeds: {}, fallen: [], silentRun: 0, legends: {},
+    commandments: [], saints: [], deeds: {}, fallen: [], silentRun: 0, legends: {},
     miraDone: false, miraQuote: null, bloodKills: 0, pendingDilemma: null,
     sacred: cfg.daily ? hashPick(SACRED_WORDS, 'sacred', cfg.daily) : null, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
     miracleUsed: false, reinterpretUsed: false,
@@ -456,7 +456,8 @@ export function validateOrders(state, side, chosen, forbidden = [], doctrine = n
 }
 
 // 계시와 무관하게 남은 신도가 하는 기본 노동: 신앙이 바닥나면 기도부터, 그다음 가장 부족한 자원 채집
-const DOCTRINE_LABOR = { peace: ['preach', 'pray'], war: ['attack', 'wall'], abundance: ['gather'], wisdom: ['explore', 'pray'] };
+// 풍요는 따로 두지 않는다 — 모자란 자원을 거두는 기본 노동이 곧 풍요의 뜻이다
+const DOCTRINE_LABOR = { peace: ['preach', 'pray'], war: ['attack', 'wall'], wisdom: ['explore', 'pray'] };
 export function autoFill(state, side, accepted, forbidden = [], doctrine = null) {
   const limit = actionLimit(state, side);
   const s = state.sides[side];
@@ -465,10 +466,13 @@ export function autoFill(state, side, accepted, forbidden = [], doctrine = null)
   // 신도들은 계시의 뜻을 헤아려 남은 손 하나를 그 뜻대로 쓴다 (선교·공격은 이길 만할 때만)
   if (side === 'player' && doctrine && DOCTRINE_LABOR[doctrine] && accepted.length < limit) {
     const legal = legalActions(state, side).filter((a) => !forbidden.includes(a.key) && !used.has(a.tile));
+    // 성벽은 받아들인 건설을 치르고 남은 돌로 따진다
+    const left = { ...s };
+    for (const a of accepted) if (a.type === 'build') pay(left, buildCost(state, side, a.build));
     for (const kind of DOCTRINE_LABOR[doctrine]) {
-      const cand = legal.filter((a) => (kind === 'wall' ? a.build === 'wall' : a.type === kind && a.type !== 'build'))
+      const cand = legal.filter((a) => (kind === 'wall' ? a.build === 'wall' && canPay(left, COST.wall) : a.type === kind && a.type !== 'build'))
         .filter((a) => !['preach', 'attack'].includes(a.type) || actionOdds(state, a) >= 0.5);
-      if (kind === 'gather' || !cand.length) continue;
+      if (!cand.length) continue;
       const pick = cand[0];
       used.add(pick.tile); leading.push({ ...pick, auto: true, heeded: true });
       break;
@@ -868,12 +872,13 @@ export function resolveRound(state, playerPlan, enemyPlan) {
   const first = state.first;
   const plans = { player: playerPlan, enemy: enemyPlan };
   // 같은 칸을 양쪽이 고르면 선 플레이어가 차지한다. 다만 제 수도·건물 안에서 하는 일(기도, 신전·대성당·성벽)은
-  // 칸을 차지하는 일이 아니다 — 수도에서 기도만 해도 상대의 수도 공격이 막히던 구멍을 닫는다
+  // 칸을 차지하는 일이 아니고, 막히지도 않는다 — 수도에서 기도만 해도 상대의 수도 공격이 막히던 구멍을 닫고,
+  // 거꾸로 상대가 선으로 우리 수도를 쳐도 우리 기도·신전·성벽은 그대로 한다 (양쪽이 같다)
   const home = (a) => a.type === 'pray' || (a.type === 'build' && ['temple', 'cathedral', 'wall'].includes(a.build));
   const firstTiles = new Set(plans[first].filter((a) => !home(a)).map((a) => a.tile));
   const blocked = new Set();
   for (const a of plans[other(first)]) {
-    if (firstTiles.has(a.tile)) {
+    if (firstTiles.has(a.tile) && !home(a)) {
       blocked.add(a);
       logEvent(state, a.side, t('log.blocked', { who: a.side, place: tileName(state, state.tileAt[a.tile], 'player') }), null, { tile: a.tile, kind: 'blocked' });
     }
@@ -929,7 +934,7 @@ function recordHistory(state) {
   const wasRally = state.rally;
   if (state.round >= wrathRound(state) && ps - es >= 8) state.rally = true;
   else if (ps - es <= 4) state.rally = false;
-  if (state.rally && !wasRally) logEvent(state, 'enemy', t('log.rally'), null, { kind: 'wrath', tile: capitalOf(state, 'enemy')?.id });
+  if (state.rally && !wasRally) logEvent(state, 'enemy', t('log.rally'), null, { kind: 'rally', tile: capitalOf(state, 'enemy')?.id });
 }
 
 // ---------- 율법 석판과 성지 ----------
@@ -1028,7 +1033,7 @@ export function markLegends(state, text, doctrine, orders, logs) {
   return made;
 }
 
-// ---------- 영원한 계명, 성언, 숨은 말 ----------
+// ---------- 영원한 계명, 숨은 말 ----------
 export const carvable = (state, id) => !(state.config.trial === 'earth' && id === 'noSword');
 export const canCarve = (state) => state.config.veteran && !state.tutorial && state.round >= 3 && state.commandments.length < MAX_COMMANDMENTS;
 export function carveCommandment(state, id) {
@@ -1037,7 +1042,7 @@ export function carveCommandment(state, id) {
   logEvent(state, 'player', t('log.commandment', { name: COMMANDMENTS[id].name, text: COMMANDMENTS[id].text }), null, { kind: 'commandment', tile: capitalOf(state, 'player')?.id });
   return true;
 }
-// 성언은 계시가 쌓일 때 찾는다 (두 번째 판부터, 판당 하나)
+// 숨은 말: 계시에 그 낱말이 들어가면 찾는다 (판당 하나)
 export function findSacred(state, text) {
   if (!state.sacred || state.stats.sacred || !text?.includes(state.sacred.word)) return false;
   state.stats.sacred = 1;
@@ -1123,11 +1128,11 @@ export function hydrateState(obj) {
   state.tileAt = Object.fromEntries(state.tiles.map((t) => [t.id, t]));
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
   state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.petitionIgnored ??= 0; state.prophecy ??= null;
-  state.lawGuard ??= { preach: 0, attack: 0 };
-  state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null; state.oddUsed ??= false;
+  state.lawGuard ??= { preach: 0, attack: 0 }; state.rally ??= false;
+  state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null;
   state.edictOn ??= false; state.dilemmaPick ??= null; state.winKind ??= null;
   state.silentRun ??= 0; state.legends ??= {}; state.miraDone ??= false; state.pendingDilemma ??= null; state.miraQuote ??= null; state.bloodKills ??= 0;
-  state.commandments ??= []; state.liturgy ??= null; state.saints ??= []; state.deeds ??= {}; state.fallen ??= []; state.sacred ??= null; state.destiny ??= null; state.destinyOffer ??= null; state.holyId ??= null;
+  state.commandments ??= []; state.saints ??= []; state.deeds ??= {}; state.fallen ??= []; state.sacred ??= null; state.destiny ??= null; state.destinyOffer ??= null; state.holyId ??= null;
   for (const sd of Object.values(state.sides)) { sd.cathedral ??= 0; sd.edict ??= 0; }
   state.grace ??= { round: 0, used: 0 }; state.roundMods ??= {}; state.miracleHand ??= [...FIRST_HAND]; state.miracleOffer ??= null; state.pendingSite ??= null; state.stats ??= { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 };
   return state;

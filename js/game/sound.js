@@ -392,10 +392,13 @@ export const music = (() => {
     },
     stop() { clearInterval(timer); timer = null; },
     setMood(m) {
+      const wasEnd = mood === 'end';
       mood = m;
       target = m === 'tension' ? 1 : 0;
       // 판이 끝나면 잠깐 멈췄다가 조용한 곡으로 다시 흐른다 (종료 화면이 무음으로 남지 않게)
       if (m === 'end') { this.stop(); if (bus) { ramp(bus.music.gain, 0, 1.2); setTimeout(() => { if (musicOnFlag && bus && mood === 'end') { mood = 'calm'; target = 0; this.start(); ramp(bus.music.gain, musicLevel(), 3); } }, 6000); } }
+      // 6초가 지나기 전에 새 판을 열면 내려 둔 음량을 되돌린다
+      else if (wasEnd && musicOnFlag && bus) { this.start(); ramp(bus.music.gain, musicLevel(), 1.5); }
     },
     get mood() { return mood; },
   };

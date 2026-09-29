@@ -5,7 +5,7 @@
 import { hasLanguageModel, createBaseSession, promptJSON } from '../llm.js';
 import { DOCTRINES, DOCTRINE, PRIESTS, TERRAIN, DOCTRINE_VOICE } from './data.js';
 import { nouns } from './lore.js';
-import { legalActions, actionLimit, tileName, villageCount, enemyIntent, nextEvent, gatherAmount } from './engine.js';
+import { legalActions, actionLimit, tileName, villageCount, enemyIntent, nextEvent, gatherAmount, cathedralVillages } from './engine.js';
 import { t } from './i18n.js';
 
 // 실험 v5 프롬프트를 게임에 맞게 옮긴 것 (docs/EXPERIMENTS.md).
@@ -156,7 +156,7 @@ export async function interpretWithLLM(state, revelation, signal) {
 
 // ---------- 석판 해석기 (키워드) ----------
 // 장소가 드러난 규칙을 먼저 둔다 (강물 → 강가 채집). match(a, tile)
-const kw = (key) => new RegExp(t(key));
+const kw = (key, flags) => new RegExp(t(key), flags);
 const TABLET_RULES = [
   { re: kw('kw.tablet.river'), match: (a, t) => a.type === 'gather' && t.terrain === 'river', doctrine: 'abundance' },
   { re: kw('kw.tablet.hill'), match: (a, t) => a.type === 'gather' && t.terrain === 'hill', doctrine: 'wisdom' },
@@ -190,6 +190,16 @@ function rankMatches(state, rule, matches) {
 const NEGATION = kw('kw.negation');
 const CLAUSE = kw('kw.clauseSplit');
 
+// 알아들었으나 할 수 없는 까닭: 계명·시련이 막았으면 그것을, 아니면 종류만 (언어팩이 문장으로 바꾼다)
+function cannotWhy(state, kind) {
+  const cmd = state.commandments ?? [];
+  if (kind === 'attack' && cmd.includes('noSword')) return 'attack:law';
+  if (kind === 'attack' && state.config.trial === 'earth') return 'attack:earth';
+  if (kind === 'village' && cmd.includes('noExpand')) return 'village:law';
+  if (kind === 'temple' && state.sides.player.templeLevel >= 3 && villageCount(state, 'player') < cathedralVillages(state)) return 'temple:villages';
+  return kind;
+}
+
 export function interpretWithTablet(state, revelation) {
   const legal = legalActions(state, 'player');
   const limit = actionLimit(state, 'player');
@@ -214,7 +224,7 @@ export function interpretWithTablet(state, revelation) {
       if (matches.some((a) => a.type === 'gather')) gathered = true;
       if (negative) { forbidden.push(...matches); continue; }
       // 알아들었으나 지금 할 수 없는 말 (닿는 율법파가 없다 등) — "흐릿하다"와 구별해 알려 준다
-      if (!matches.length && rule.kind) heard.push(rule.kind);
+      if (!matches.length && rule.kind) heard.push(cannotWhy(state, rule.kind));
       // 가능한 행동이 없는 규칙은 교리를 정하지 않는다 ("평화를 지켜라"가 성벽이 없어 전쟁이 되지 않게)
       if (matches.length && rule.doctrine) doctrine ??= rule.doctrine;
       let took = 0;
@@ -222,7 +232,7 @@ export function interpretWithTablet(state, revelation) {
         if (took >= many || orders.length >= limit) break;
         if (orders.some((o) => o.tile === a.tile || o.key === a.key)) continue;
         orders.push(a); took += 1;
-        // 규칙마다 첫 후보만 쓰던 동작은 양의 말이 없을 때 그대로 (골든과 같은 결과)
+        // 양의 말이 없으면 규칙마다 비어 있는 첫 후보 하나만 쓴다
         if (many === 1) break;
       }
     }

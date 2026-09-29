@@ -264,6 +264,8 @@ const CASES = [
   ['우리는 아직 세상의 절반도 모르니 모험을 떠나라', ['explore'], []],
   ['신께 가까이 가고 싶은 이들이 많으니 예배당을 지어라', ['build:temple'], []],
   ['도적떼가 몰려온다 하니 요새를 견고히 쌓아 올려라', ['build:wall'], []],
+  // '~지 말고'가 둘 — 둘 다 금지
+  ['숲을 베지 말고 기도하지 말고 돌을 캐라', ['gather:stone', 'forbid:gather:wood', 'forbid:pray'], ['gather:wood', 'pray']],
 ];
 
 const kindOf = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);

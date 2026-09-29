@@ -579,7 +579,7 @@ async function interpret(text, job = runInterpretation(text), naming = pending?.
   await enterConfirm();
 }
 
-// 확인 화면의 파생값: 뺀 칩을 제외하고 다시 검증하고, 연결·청원·기이한 해석을 다시 계산한다
+// 확인 화면의 파생값: 뺀 칩을 제외하고 다시 검증하고, 연결·청원을 다시 계산한다
 function derivePending() {
   const { text, result } = pending;
   const forbiddenKeys = result.forbidden.map((a) => a.key);
@@ -721,7 +721,7 @@ async function accept() {
     // 새긴 계명은 이번 장부터 지킨다. 빠진 자리는 신도들이 알아서 채운다
     const banned = { noSword: 'attack', noExpand: 'village' }[pending.command];
     const kept = accepted.filter((a) => !banned || (a.type !== banned && a.build !== banned));
-    const fk = result.forbidden.map((a) => a.key);
+    const fk = [...result.forbidden.map((a) => a.key), ...pending.dropped];
     plan = [...kept, ...autoFill(state, 'player', kept, fk, result.doctrine)];
   }
   const ordered = plan.filter((a) => !a.auto);
@@ -1591,6 +1591,11 @@ async function playFx(log) {
       fx.flash('rgba(160,30,20,.35)', 600);
       if (home) fx.floatText(svg, home, t('ui.fx.wrath'), 'bad');
       return fx.wait(700);
+    case 'rally':
+    case 'guard':
+      sfx.fail();
+      if (tile) { fx.ring(svg, tile, '#ff9f8e', true); fx.floatText(svg, tile, t(e.kind === 'rally' ? 'ui.fx.rally' : 'ui.fx.guard'), 'bad'); }
+      return fx.wait(700);
     case 'bless':
       sfx.holy();
       if (tile) { fx.ring(svg, tile, '#ffe28a', true); fx.sparks(tileToHost(svg, null, tile), 24, ['#fff6d0', '#ffd98a']); fx.floatText(svg, tile, e.label ?? t('ui.fx.bless'), 'good'); }
@@ -1645,7 +1650,7 @@ async function useMiracle(id) {
   // 기적 전 매트를 보여 주고, 토큰이 도착한 뒤에 숫자를 올린다
   const before = makeView(snapshot(state));
   const r = castMiracle(state, id);
-  if (r.ok) meta.markSeen('miracles', id);
+  if (r.ok && !state.tutorial) meta.markSeen('miracles', id);
   notice = r.ok ? '' : r.text;
   if (!r.ok) { sfx.fail(); setTimeout(() => document.querySelector(`.mcard[data-m="${id}"]`)?.classList.add('reject'), 30); }
   matView = r.ok ? before : null;
@@ -1663,7 +1668,7 @@ async function useMiracle(id) {
 async function onTileClick(id) {
   if (targeting !== 'lightning' || phase !== 'speak') return;
   const r = castMiracle(state, 'lightning', id);
-  if (r.ok) meta.markSeen('miracles', 'lightning');
+  if (r.ok && !state.tutorial) meta.markSeen('miracles', 'lightning');
   notice = r.ok ? '' : r.text;
   targeting = null;
   render();
@@ -1993,8 +1998,8 @@ function renderAltar() {
   let act = '';
 
   if (phase === 'speak') {
-    const cost = draft.trim() ? revelationCostFor(state, draft) : 0;
-    const ban = state.bannedWords.length ? `<span class="ban-chip" title="${t('ui.ban.tip')}">${t('ui.ban.chip', { word: esc(state.bannedWords[0]) })}</span>` : '';
+    const cp = costPill(draft);
+    const ban = state.bannedWords.length ? `<span class="ban-chip${cp.cls.banned ? ' hit' : ''}" title="${t('ui.ban.tip')}">${t('ui.ban.chip', { word: esc(state.bannedWords[0]) })}</span>` : '';
     const pt = state.petition;
     const petition = pt ? `<div class="petition" title="${pt.need ? t('ui.petition.tip') : ''}"><b>${esc(pt.from)}</b>${t('ui.quoted', { text: esc(pt.text) })}${pt.need ? `<span>${t('ui.petition.reward')}</span>` : ''}</div>` : '';
     const sacredNote = state.sacred && !state.stats.sacred ? `<div class="petition prophecy"><b>${t('ui.sacred.title')}</b>${t('ui.sacred.clue', { clue: esc(state.sacred.clue), n: state.sacred.word.length })}</div>` : '';
@@ -2007,7 +2012,7 @@ function renderAltar() {
       <textarea maxlength="${revMax()}" rows="2" placeholder="${t('ui.compose.placeholder')}" aria-label="${t('ui.seal.label')}">${esc(draft)}</textarea>
       <div class="heard-line" id="heardLine" aria-live="polite">${heardHTML(draft)}</div>
       <div class="ink-meta"><span class="count">${draft.length} / ${revMax()}</span>
-        <span class="cost-pill${cost > p.faith ? ' over' : ''}">${svgUse('i-faith')}<span class="c">${t('ui.faithCost', { n: cost })}</span></span></div></div></div>`;
+        <span class="cost-pill${Object.entries(cp.cls).filter(([, on]) => on).map(([k]) => ` ${k}`).join('')}" title="${cp.title}">${svgUse('i-faith')}<span class="c">${cp.label}</span></span></div></div></div>`;
     act = `<div class="act"><button class="seal-btn" type="button" title="${t('ui.seal.tip')}">${svgUse(SIGILS[state.config.god?.sigil] ?? 'i-faith')}<span>${t('ui.seal.label')}</span></button>
       <button class="text-btn silence" type="button">${t('ui.silence.btn')}</button></div>`;
   } else if (phase === 'thinking') {
@@ -2084,7 +2089,7 @@ function renderAltar() {
       ${hint ? `<div class="hint">⚠ ${hint}</div>` : ''}${noticeHTML}</div>`;
     act = `<div class="act">
       <button class="btn-primary big accept" type="button" ${fresh ? 'disabled' : ''}>${t('ui.btn.accept')} <kbd>Enter</kbd></button>
-      ${pending.result?.source === 'tablet' ? '' : `<button class="btn-ghost again" type="button" ${!text || state.reinterpretUsed || p.faith < 1 ? 'disabled' : ''}>${t('ui.btn.again')} <kbd>R</kbd></button>`}
+      ${aiMode !== 'llm' ? '' : `<button class="btn-ghost again" type="button" ${!text || state.reinterpretUsed || p.faith < 1 ? 'disabled' : ''}>${t('ui.btn.again')} <kbd>R</kbd></button>`}
       ${pending.prev ? `<button class="text-btn swap-reading" type="button">${t('ui.btn.swap')}</button>` : ''}
       ${text && speakSnap && !state.reinterpretUsed && !state.tutorial ? `<button class="text-btn retract" type="button">${t('ui.btn.retract')} <kbd>Esc</kbd></button>` : ''}</div>`;
   } else {
@@ -2162,6 +2167,18 @@ function drawLinks() {
   }
 }
 
+// 계시 비용 알약: 되풀이 > 인용 > 보통 순으로 하나만 적는다 (그리기와 입력 갱신이 같은 값을 쓴다)
+function costPill(text) {
+  const d = text.trim();
+  const cost = d ? revelationCostFor(state, text) : 0;
+  const echo = isEcho(state, d);
+  const cite = !echo && d.length > 30 && citedWords(state, text).length > 0;
+  const banned = state.bannedWords.some((w) => text.includes(w));
+  const cls = { over: cost > state.sides.player.faith, echo, cite, banned };
+  const label = echo ? t('ui.faithCostEcho', { n: cost }) : cite ? t('ui.faithCostCited', { n: cost }) : t('ui.faithCost', { n: cost });
+  return { cost, cls, label, title: echo ? t('ui.echo.tip') : '' };
+}
+
 function bindAltar() {
   const a = $('altar');
   a.querySelectorAll('.mcard').forEach((b) => { b.onclick = () => useMiracle(b.dataset.m); });
@@ -2171,19 +2188,12 @@ function bindAltar() {
     const pill = a.querySelector('.cost-pill');
     ta.oninput = () => {
       draft = ta.value;
-      const cost = draft.trim() ? revelationCostFor(state, draft) : 0;
       count.textContent = `${draft.length} / ${revMax()}`;
-      pill.querySelector('.c').textContent = t('ui.faithCost', { n: cost });
-      const banned = state.bannedWords.some((w) => draft.includes(w));
-      pill.classList.toggle('banned', banned);
-      a.querySelector('.ban-chip')?.classList.toggle('hit', banned);
-      pill.classList.toggle('over', cost > state.sides.player.faith);
-      const echo = isEcho(state, draft.trim());
-      pill.classList.toggle('echo', echo);
-      pill.title = echo ? t('ui.echo.tip') : '';
-      const cite = draft.trim().length > 30 && citedWords(state, draft).length;
-      pill.classList.toggle('cite', !!cite);
-      pill.querySelector('.c').textContent = cite ? t('ui.faithCostCited', { n: cost }) : echo ? t('ui.faithCostEcho', { n: cost }) : t('ui.faithCost', { n: cost });
+      const cp = costPill(draft);
+      for (const [k, on] of Object.entries(cp.cls)) pill.classList.toggle(k, on);
+      a.querySelector('.ban-chip')?.classList.toggle('hit', cp.cls.banned);
+      pill.title = cp.title;
+      pill.querySelector('.c').textContent = cp.label;
       if (draft.trim()) { clearTimeout(suggestTimer); $('suggestRow')?.classList.remove('show'); } else scheduleSuggest();
       scheduleHints();
     };

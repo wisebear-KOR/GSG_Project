@@ -1874,7 +1874,6 @@
       "log": [
         {"side":"god","text":"“신전에서 기도하라”","ui":true},
         {"side":"priest","text":"곳간이 노래하노니, 신전에서 기도한다!","ui":true},
-        {"side":"player","text":"신도들은 우리 신전(G2)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"G2"}},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(A4)에서 돌을 2 얻었다.",
@@ -1895,6 +1894,12 @@
         },
         {"side":"enemy","text":"율법파가 율법파 마을(E1)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"E1"},"act":"build:E1:wall"},
         {"side":"enemy","text":"율법파가 율법파 마을(E2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"E2"},"act":"build:E2:wall"},
+        {
+          "side": "player",
+          "text": "신도들이 기도해 신앙을 3 얻었다.",
+          "fx": {"kind":"gain","tile":"G2","gain":{"faith":3}},
+          "act": "pray:G2:"
+        },
         {
           "side": "player",
           "text": "안개 지대(E4)를 탐험해 돌을 2 찾았다.",
@@ -1931,7 +1936,7 @@
           "food": 1,
           "wood": 12,
           "stone": 17,
-          "faith": 44,
+          "faith": 47,
           "pop": 2,
           "templeLevel": 2,
           "capitalHp": 2,

@@ -915,7 +915,6 @@ body.reduce-motion .site-mark { animation: none; }
 .rev-line u.lw.cite { background: none; border-bottom: 2px dotted #7a5bd0; font-weight: 600; }
 .cost-pill.cite { background: rgba(122, 91, 208, .25); }
 .quote.voice-war { color: #7a1f12; } .quote.voice-peace { color: #1f4f73; } .quote.voice-abundance { color: #5a4a0e; } .quote.voice-wisdom { color: #3a2a6e; font-style: italic; }
-.v-odd .v-stamp { color: #6a3fb0; }
 .suggest-row { display: none; flex-wrap: wrap; gap: 6px; align-items: center; margin: -2px 0 8px; }
 .suggest-row.show { display: flex; animation: fadeIn .5s ease both; }
 .sg-label { font: 11.5px var(--font-ui); color: var(--ink-faint); }

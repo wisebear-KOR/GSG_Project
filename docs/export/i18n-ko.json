@@ -17,7 +17,7 @@
     "$fn": "(v) => ({ gather: `${v.res} 채집`, pray: '기도', explore: '탐험', preach: '선교', attack: '공격',\n    build: ({ village: '마을 건설', wall: '성벽', temple: '신전 높이기', cathedral: '대성당' })[v.build] ?? '건설' })[v.type] ?? v.type"
   },
   "ui.heard.cannot": {
-    "$fn": "(v) => `뜻은 알아들었으나 지금은 할 수 없다 — ${v.kinds.map((k) => ({ preach: '선교(닿는 율법파 땅이 없다)', attack: '공격(닿는 율법파 땅이 없다)', wall: '성벽(자원이 모자라다)', village: '마을(자원이나 빈 땅이 없다)', temple: '신전(자원이 모자라다)', explore: '탐험(닿는 안개가 없다)' })[k] ?? k).join(', ')}`"
+    "$fn": "(v) => `뜻은 알아들었으나 지금은 할 수 없다 — ${v.kinds.map((k) => ({ 'attack:law': '공격(계명이 칼을 금한다)', 'attack:earth': '공격(이 시련에서는 칼을 들 수 없다)', 'village:law': '마을(계명이 넓히기를 금한다)', 'temple:villages': '대성당(마을이 모자라다)', preach: '선교(닿는 율법파 땅이 없다)', attack: '공격(닿는 율법파 땅이 없다)', wall: '성벽(자원이 모자라다)', village: '마을(자원이나 빈 땅이 없다)', temple: '신전(자원이 모자라다)', explore: '탐험(닿는 안개가 없다)' })[k] ?? k).join(', ')}`"
   },
   "ui.heard.none": "아직 알아들은 말이 없다 — 곡식·나무·돌·마을·성벽·기도·안개·이웃·쳐라 같은 말을 넣어 보라",
   "ui.doc.title": "말씀이 있으라 — Let There Be",
@@ -125,10 +125,6 @@
   },
   "ui.log.leaderSaid": {
     "$fn": "(v) => `${v.name}: “${v.line}”`"
-  },
-  "ui.grace.otherDeed": "다른 일",
-  "ui.grace.odd": {
-    "$fn": "(v) => `신께서 '${v.said}'${batchim(v.said) ? '이라' : '라'} 하셨으나 사제는 '${v.heard}'${batchim(v.heard) ? '으로' : '로'} 들었다 — 기이한 해석`"
   },
   "ui.grace.petition": {
     "$fn": "(v) => `${v.from}의 청원에 응답했다`"
@@ -369,7 +365,7 @@
   "ui.rules.miracle1": "기적은 장당 하나. 5장에 새 기적을 고른다 <em>두 번째 판부터</em>.",
   "ui.rules.miracle2": "승점이 6점 넘게 뒤지면 <b>신의 분노</b>가 차올라 기적이 싸지고, 가득 차면 「심판의 날」.",
   "ui.rules.keys": "단축키",
-  "ui.rules.keys1": "Ctrl+Enter 계시 · Enter 수락/다음 장 · R 다시 해석 · Esc 말을 거두기/메인 화면 · Space 빨리 감기 · Alt+1~5 기적 · L 연대기",
+  "ui.rules.keys1": "Ctrl+Enter 계시 · Enter 수락/다음 장 · R 다시 해석(대사제) · Esc 말을 거두기/메인 화면 · Space 빨리 감기 · Alt+1~5 기적 · L 연대기",
   "ui.unlock.title": "두 번째 판부터 열리는 것",
   "ui.unlock.1": "<b>율법 석판</b> — 율법파가 채우면 진다. 가운데 성지를 쥐어 막아라.",
   "ui.unlock.2": "<b>심판의 기준</b>과 <b>소명</b> — 판마다 승점 공식과 이룰 목표가 달라진다.",
@@ -403,7 +399,6 @@
   "ui.verdict.full": "성취",
   "ui.verdict.half": "반쯤",
   "ui.verdict.miss": "빗나감",
-  "ui.verdict.odd": "기이",
   "ui.announce.ledger": {
     "$fn": "(v) => `이번 장 결산: ${v.rows.map((r) => `${r.label} ${r.d > 0 ? '+' : ''}${r.d}`).join(', ') || '변화 없음'}. 승점 ${v.score >= 0 ? '+' : ''}${v.score}.`"
   },
@@ -487,6 +482,8 @@
   "ui.fx.edictDown": "석판 −",
   "ui.fx.legend": "전설",
   "ui.fx.wrath": "신의 분노",
+  "ui.fx.rally": "율법파 결집",
+  "ui.fx.guard": "율법이 굳다",
   "ui.fx.bless": "기적",
   "ui.fx.site": "무언가를 만났다",
   "ui.fx.warn": "신도들이 흔들린다",
@@ -587,11 +584,9 @@
   "ui.hint.noPreachTarget": "아직 말씀을 전할 율법파가 닿는 곳에 없다. 영토를 넓혀야 한다.",
   "ui.tag.grace": " · 은총",
   "ui.tag.tone": "{name}의 말투 · {text}",
-  "ui.tag.odd": "기이한 해석{grace}",
   "ui.tag.answered": "{from}의 청원에 답함{grace}",
   "ui.tag.naming": "이름 · {name}",
   "ui.tag.dilemma": "이 사건에 대한 뜻 · {label}",
-  "ui.tag.liturgy": "성언 「{text}」",
   "ui.tag.cited": {
     "$fn": "(v) => `인용 · ${v.words.map((w) => `'${w}'`).join(' ')}`"
   },
@@ -866,7 +861,6 @@
   "log.edictNear": "율법 석판이 거의 완성되었다! 성지를 쥐거나 탑을 쳐서 막아야 한다.",
   "log.destiny": "소명을 이루었다 — 「{name}」 {text}. 승점 +{n}.",
   "log.commandment": "영원한 계명을 새겼다 — 「{name}」. {text}.",
-  "log.liturgy": "성언이 생겼다 — 「{phrase}」. 이 구절은 이제 신앙 1로 전해진다.",
   "log.sacred": {
     "$fn": "(v) => `숨은 말 「${v.word}」${batchim(v.word) ? '을' : '를'} 찾았다! 성서에 새겨진다.`"
   },
@@ -1481,7 +1475,7 @@
     "$fn": "(v) => `${v.prefix} ${v.verbs.join(', 그리고 ')}!`"
   },
   "interp.tablet.cannot": {
-    "$fn": "(v) => `석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — ${v.kinds.map((k) => ({ preach: '선교(닿는 율법파 땅이 없다)', attack: '공격(닿는 율법파 땅이 없다)', wall: '성벽(자원이 모자라거나 둘러쌀 곳이 없다)', village: '마을(자원이나 빈 땅이 없다)', temple: '신전(자원이 모자란다)', explore: '탐험(닿는 안개가 없다)' })[k] ?? k).join(', ')}. 나머지는 각자 할 일을 하라.`"
+    "$fn": "(v) => `석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — ${v.kinds.map((k) => ({ 'attack:law': '공격(계명이 칼을 금한다)', 'attack:earth': '공격(이 시련에서는 칼을 들 수 없다)', 'village:law': '마을(계명이 넓히기를 금한다)', 'temple:villages': '대성당(마을이 모자라다)', preach: '선교(닿는 율법파 땅이 없다)', attack: '공격(닿는 율법파 땅이 없다)', wall: '성벽(자원이 모자라거나 둘러쌀 곳이 없다)', village: '마을(자원이나 빈 땅이 없다)', temple: '신전(자원이 모자란다)', explore: '탐험(닿는 안개가 없다)' })[k] ?? k).join(', ')}. 나머지는 각자 할 일을 하라.`"
   },
   "interp.tablet.blur": "석판의 말씀이 흐릿하도다. 각자 할 일을 하라.",
   "interp.leaderLine": {
@@ -1565,7 +1559,6 @@
     "우리",
     "너희"
   ],
-  "kw.liturgyStrip": "[^가-힣\\s]",
   "kw.miracle.lightning": "번개|벼락|불을 내려|불벼락",
   "kw.miracle.rain": "단비|비를 내려|비가 내리|비를 부어",
   "kw.miracle.bounty": "풍요를 내려|넘치게 하",
@@ -1703,7 +1696,7 @@
   "tut.speak1.4": "처음이니 이렇게 말씀해 보시지.",
   "tut.speak1.4.suggest": "강물이 너희를 먹이리라",
   "tut.confirm1.0": "대사제가 말씀을 헤아렸네. 번호가 붙은 신도는 계시를 따르는 자, \"알아서\"는 남은 신도가 스스로 하는 일이지.",
-  "tut.confirm1.1": "해석이 마음에 들지 않으면 신앙 1을 내고 다시 해석시킬 수 있네. 이번엔 수락하고 공개하시게.",
+  "tut.confirm1.1": "원치 않는 일은 칩을 눌러 뺄 수 있네. 이번엔 수락하고 공개하시게.",
   "tut.resolved1.0": "율법파도 같은 때에 움직였네. 오른쪽 율법 카드에 적힌 순서대로만 행동하는 자들이지.",
   "tut.resolved1.1": "매 장의 사건은 이 계절 카드에 나온다네. 대사제도 사건을 보고 말씀을 헤아리지.",
   "tut.resolved1.2": "다음 장으로 넘어가 보세.",

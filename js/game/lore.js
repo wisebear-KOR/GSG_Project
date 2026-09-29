@@ -60,8 +60,6 @@ export function parseCommandment(text, table) {
   return null;
 }
 
-// 성언: 세 번 되풀이한 구절 (띄어쓰기 단위 한두 낱말, 글자 4~8자)
-
 // 말투: 저주 > 축복 > 비유 > 명령
 const TONE = { curse: kw('kw.tone.curse'), blessing: kw('kw.tone.blessing'), metaphor: kw('kw.tone.metaphor') };
 export function detectTone(text) {

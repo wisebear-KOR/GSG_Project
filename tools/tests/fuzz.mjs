@@ -171,8 +171,9 @@ export function playGame(cfg, botSeed, { policy = 'random', hydrate = true, chec
             const cap = 3 + 2 * vc + (E.hasUlt({ ...state, sides: l.snap.sides }, l.side, 'abundance') ? 2 : 0);
             if (l.snap.sides[l.side].pop > cap) flag('growth>cap', `${l.side} pop ${l.snap.sides[l.side].pop} > cap ${cap} after birth`, R);
           }
-          if (l.snap && l.snap.sides.enemy.pop <= 0 && !state.winner) flag('enemy-extinct-no-win', `enemy pop hit 0 mid-round (${l.text}) but game continued; enemy pop now ${state.sides.enemy.pop}`, R);
         }
+        // 남은 자: 판이 이어지면 장 끝에 어느 쪽도 신도 0으로 남지 않는다 (수도가 흔들리고 한 명이 돌아온다)
+        for (const side of ['player', 'enemy']) if (!state.winner && !state.tutorial && state.sides[side].pop <= 0) flag('extinct-no-remnant', `${side} pop 0 at round end but game continued`, R);
         if (R >= state.maxRounds && !state.winner) flag('no-winner-at-max', `round ${R}`, R);
         for (const l of newLogs) {
           if (typeof l.text !== 'string' || !l.text.trim()) flag('log-empty', JSON.stringify(l).slice(0, 120), R);

@@ -1421,7 +1421,6 @@
         {"side":"god","text":"“번개를 내려 율법파를 벌하라”","ui":true},
         {"side":"priest","text":"곳간이 노래하노니, 율법파 마을(D1)을 공격한다!","ui":true},
         {"side":"player","text":"⚡ 번개가 율법파 마을(D1)에 떨어져 율법파 1명이 쓰러졌다.","fx":{"kind":"lightning","tile":"D1"}},
-        {"side":"player","text":"신도들은 우리 마을(C2)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"C2"}},
         {"side":"player","text":"신도들은 우리 마을(C1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"C1"}},
         {
           "side": "enemy",
@@ -1441,10 +1440,11 @@
           "fx": {"kind":"gain","tile":"B2","gain":{"food":3}},
           "act": "gather:B2:food"
         },
+        {"side":"player","text":"신도들이 우리 마을(C2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"C2"},"act":"build:C2:wall"},
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 마을(C2)을 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":1,"attackerBonus":1,"defender":2,"defenderBonus":1,"win":false},
+          "dice": {"attacker":1,"attackerBonus":1,"defender":2,"defenderBonus":3,"win":false},
           "fx": {"kind":"attack","tile":"C2"},
           "act": "attack:C2:"
         },
@@ -1477,7 +1477,7 @@
         "player": {
           "food": 21,
           "wood": 16,
-          "stone": 9,
+          "stone": 7,
           "faith": 31,
           "pop": 7,
           "templeLevel": 2,
@@ -1513,7 +1513,7 @@
           "E2": "capital",
           "E3": "village"
         },
-        "walls": ["A4","C1","D2","E2"],
+        "walls": ["A4","C1","C2","D2","E2"],
         "revealed": "1110011110111111111111111",
         "holyOwner": null,
         "wrath": 1,

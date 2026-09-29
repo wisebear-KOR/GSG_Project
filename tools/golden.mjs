@@ -172,7 +172,6 @@ function speak(state, entry, rec) {
   pending.command = E.canCarve(state) ? L.parseCommandment(text, D.COMMANDMENTS) : null;
   if (pending.command && !E.carvable(state, pending.command)) pending.command = null;
   if (pending.command && state.commandments.includes(pending.command)) pending.command = null;
-  pending.odd = false; // 기이한 해석은 LLM 해석에만 (result.source === 'llm')
   return pending;
 }
 
@@ -290,7 +289,6 @@ function digest(state) {
   if (Object.keys(state.names).length) d.names = { ...state.names };
   if (Object.keys(state.legends).length) d.legends = Object.fromEntries(Object.entries(state.legends).map(([k, v]) => [k, v.name]));
   if (state.commandments.length) d.commandments = [...state.commandments];
-  if (state.liturgy) d.liturgy = state.liturgy;
   if (state.prophecy) d.prophecy = { kind: state.prophecy.kind, rounds: state.prophecy.rounds, due: state.prophecy.due };
   if (state.destiny) d.destiny = { ...state.destiny };
   if (state.saints.length) d.saints = state.saints.map((x) => ({ ...x }));

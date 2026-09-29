@@ -185,7 +185,6 @@ export default {
   // 소명·계명·성언·숨은 말
   'log.destiny': '소명을 이루었다 — 「{name}」 {text}. 승점 +{n}.',
   'log.commandment': '영원한 계명을 새겼다 — 「{name}」. {text}.',
-  'log.liturgy': '성언이 생겼다 — 「{phrase}」. 이 구절은 이제 신앙 1로 전해진다.',
   'log.sacred': (v) => `숨은 말 「${v.word}」${batchim(v.word) ? '을' : '를'} 찾았다! 성서에 새겨진다.`,
 
   // 침묵

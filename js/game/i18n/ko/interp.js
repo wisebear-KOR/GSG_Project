@@ -63,7 +63,7 @@ ${v.event}${v.choice ? `\n이번 사건의 갈림길: ${v.choice}` : ''}${v.next
   'interp.tablet.prefix': '석판에 새겨진 말씀이도다.',
   // prefix: 머리말(교리 말투 또는 위 문장), verbs: 행동 문구 목록
   'interp.tablet.say': (v) => `${v.prefix} ${v.verbs.join(', 그리고 ')}!`,
-  'interp.tablet.cannot': (v) => `석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — ${v.kinds.map((k) => ({ preach: '선교(닿는 율법파 땅이 없다)', attack: '공격(닿는 율법파 땅이 없다)', wall: '성벽(자원이 모자라거나 둘러쌀 곳이 없다)', village: '마을(자원이나 빈 땅이 없다)', temple: '신전(자원이 모자란다)', explore: '탐험(닿는 안개가 없다)' })[k] ?? k).join(', ')}. 나머지는 각자 할 일을 하라.`,
+  'interp.tablet.cannot': (v) => `석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — ${v.kinds.map((k) => ({ 'attack:law': '공격(계명이 칼을 금한다)', 'attack:earth': '공격(이 시련에서는 칼을 들 수 없다)', 'village:law': '마을(계명이 넓히기를 금한다)', 'temple:villages': '대성당(마을이 모자라다)', preach: '선교(닿는 율법파 땅이 없다)', attack: '공격(닿는 율법파 땅이 없다)', wall: '성벽(자원이 모자라거나 둘러쌀 곳이 없다)', village: '마을(자원이나 빈 땅이 없다)', temple: '신전(자원이 모자란다)', explore: '탐험(닿는 안개가 없다)' })[k] ?? k).join(', ')}. 나머지는 각자 할 일을 하라.`,
   'interp.tablet.blur': '석판의 말씀이 흐릿하도다. 각자 할 일을 하라.',
 
   // ---------- 율법파 지도자 대사 ----------
@@ -134,7 +134,6 @@ ${v.event}${v.choice ? `\n이번 사건의 갈림길: ${v.choice}` : ''}${v.next
   // 성구 인용에서 뺄 낱말
   'kw.citeStop': ['신도', '말씀', '백성', '부족', '율법파', '율법', '마을', '우리', '너희'],
   // 성언: 글자가 아닌 것을 지운다
-  'kw.liturgyStrip': String.raw`[^가-힣\s]`,
 
   // 말한 대로 내리는 기적
   'kw.miracle.lightning': '번개|벼락|불을 내려|불벼락',
