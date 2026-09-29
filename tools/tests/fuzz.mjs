@@ -106,7 +106,8 @@ export function playGame(cfg, botSeed, { policy = 'random', hydrate = true, chec
         const r2 = E.castMiracle(state, mir[0], mir[1]);
         if (r.ok && r2.ok) flag('miracle-twice', `${mir[0]} cast twice in one round`, R);
         modsBefore = { ...state.roundMods };
-        if (r.ok && state.winner) flag('winner-before-resolve', `castMiracle(${mir[0]}) ended game in speak phase of round ${R}/${state.maxRounds}: ${state.winReason}`, R);
+        // 번개로 끝나는 판은 UI가 받는 정상 경로(endByMiracle)다 — 그 밖의 기적이 판을 끝내면 이상
+        if (r.ok && state.winner && mir[0] !== 'lightning') flag('winner-before-resolve', `castMiracle(${mir[0]}) ended game in speak phase of round ${R}/${state.maxRounds}: ${state.winReason}`, R);
       }
       if (checks && intentStart !== keysOf(E.enemyIntent(state))) stat.intentDriftAfterMiracle += 1;
       if (state.winner && mir?.[0] === 'lightning') break; // UI ends the game only on lightning; other miracles fall through to a voided resolve
