@@ -1320,3 +1320,13 @@ body.reduce-motion .ui-tip { transition: none; }
 .cost-pill.echo { box-shadow: 0 0 0 1.5px #b3392a inset; }
 .cost-pill.echo .c { color: #b3392a; font-weight: 700; }
 .order.auto.heeded { box-shadow: 0 0 0 1px rgba(122, 74, 5, .45) inset; }
+/* ---------- 휴대폰: 보드 바로 아래에 제단 — 계시를 쓰려고 부족 판을 지나 내려가지 않게 ---------- */
+@media (max-width: 720px) {
+  .app { display: flex; flex-direction: column; }
+  .table { display: contents; }
+  .topbar { order: 0; }
+  .table > .board-area { order: 1; margin: 4px 12px 10px; width: auto; }
+  .altar { order: 2; position: relative; bottom: auto; margin-bottom: 12px; }
+  .table > .mat-player { order: 3; margin: 0 12px 12px; }
+  .table > .side-col { order: 4; margin: 0 12px 16px; }
+}
