@@ -30,6 +30,7 @@
 | [tickets/](tickets/README.md) | 재미를 위한 101 티켓 (완료 96 · 폐기 5): 기능마다 설계 이유와 관점별 검토 기록, 웨이브별 검토 요약 |
 | [EXPERIMENTS.md](EXPERIMENTS.md) | 대사제(LLM) 프롬프트 실험 기록 |
 | [PLAYTEST-2026-09-27.md](PLAYTEST-2026-09-27.md) | LLM 모드 4판 플레이테스트 보고서 |
+| [EVALUATION-2026-09-30.md](EVALUATION-2026-09-30.md) | 보드게임 장르 평가: 독립 평가자 셋의 채점(평균 54.7/100), 지배 전략·오토마·해석 이해력 데이터, 개선 순위 |
 | [i18n.md](i18n.md) | 언어팩 구조, 새 언어 더하는 법, 언어별로 새로 써야 하는 키 |
 | [naming.md](naming.md) | 제목 후보 12개와 결정 이유 |
 
