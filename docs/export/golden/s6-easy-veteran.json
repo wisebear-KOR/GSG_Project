@@ -814,7 +814,7 @@
         "revealed": "111000111100111110111110111111111110",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"wisdom","n":2},
+        "streak": null,
         "silentRun": 0,
         "destiny": {"id":"fortress","done":false},
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":1,"petitions":2},

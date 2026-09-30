@@ -950,6 +950,13 @@ function readUs(state, round) {
   return r3.length === 3 && !!r3[0].doctrine && r3.every((x) => x.doctrine === r3[0].doctrine) && r3[0].round === round - 2;
 }
 // 이번 장 계시를 받은 뒤라면: 다음 장에 율법파가 대비할 만큼 (확인 화면·봇이 미리 본다)
+// 이번 계시를 내리면 율법파가 읽는가 (확인 화면이 미리 알린다): 되풀이이거나, 지난 두 장을 이어서 같은 교리로 말했고 이번도 그 교리
+export function wouldRead(state, text, doctrine) {
+  if (state.tutorial || !text) return false;
+  if (isEcho(state, text)) return true;
+  const r = state.revelations; const a = r.at(-1); const b = r.at(-2);
+  return !!doctrine && a?.doctrine === doctrine && b?.doctrine === doctrine && a.round === state.round - 1 && b.round === state.round - 2;
+}
 export const braceAhead = (state) => (state.tutorial || !readUs(state, state.round) ? 0 : Math.min(2, (state.lawGuard ?? 0) + 1));
 function braceLaw(state) {
   if (state.tutorial) return;
@@ -1448,7 +1455,7 @@ export function recordRevelation(state, text, doctrine, extra = 0, spoken = spok
   const sig = spoken.sig || undefined;
   if (spoken.echo) {
     state.revelations.push({ round: state.round, text, doctrine, echo: true, sig });
-    if (doctrine) state.streak = state.streak?.doctrine === doctrine ? { doctrine, n: Math.min(3, state.streak.n + 1) } : { doctrine, n: 1 };
+    state.streak = !doctrine ? null : state.streak?.doctrine === doctrine ? { doctrine, n: Math.min(3, state.streak.n + 1) } : { doctrine, n: 1 };
     logEvent(state, 'player', t('log.echo'), null, { kind: 'doctrine' });
     return;
   }

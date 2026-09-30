@@ -8,7 +8,7 @@ import {
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
   canCarve, carveCommandment, findSacred, distance, previewGains, ultRound, draftRound,
   applySilence, markLegends, serializeState, hydrateState, monthOf, payDilemma, carvable,
-  isEcho, spokenOf, marchRange, unlocked, MODULES,
+  isEcho, spokenOf, wouldRead, marchRange, unlocked, MODULES,
 } from './engine.js';
 import {
   DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, FESTIVALS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, TRIALS, ASCENSION, RULESET, LAW_CARDS, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
@@ -1980,7 +1980,7 @@ function matHTML(cur, side) {
       const next = Object.entries(info.perks).find(([lv]) => d[k] < Number(lv));
       const got = Object.entries(info.perks).filter(([lv]) => d[k] >= Number(lv)).map(([, t]) => t);
       const perk = got.length ? `<b>✓ ${esc(got.map(perkText).join(', '))}</b>${next ? ` · ${t('ui.mat.nextPerk', { lv: next[0], text: esc(perkText(next[1])) })}` : ''}` : next ? t('ui.mat.nextPerk', { lv: next[0], text: esc(perkText(next[1])) }) : '';
-      const streak = cur.streak?.doctrine === k ? `<span class="streak" title="${t('ui.mat.streakTip')}">${t('ui.mat.streak', { dots: `${'●'.repeat(cur.streak.n)}${'○'.repeat(3 - cur.streak.n)}` })}</span>` : '';
+      const streak = !cur.tutorial && cur.streak?.doctrine === k ? `<span class="streak" title="${t('ui.mat.streakTip')}">${t('ui.mat.streak', { dots: `${'●'.repeat(cur.streak.n)}${'○'.repeat(3 - cur.streak.n)}` })}</span>` : '';
       return `<div class="dtrack"><span class="medal">${svgUse(`d-${k}`)}</span><div class="row"><span class="nm">${info.name}</span>${gems}</div><div class="perk-text">${streak}${perk}</div></div>`;
     }).join('')}</div>`;
   }
@@ -2095,8 +2095,8 @@ function renderAltar() {
 
     const opp = result.doctrine && unlocked(state, 4) ? OPPOSED[result.doctrine] : null;
     if (opp && state.sides.player.doctrine[opp] > [6, 4, 2, 0].find((f) => state.sides.player.doctrine[opp] >= f)) tags.push(`<span class="wtag tone-curse">${DOCTRINE[opp].name} -1</span>`);
-    const st = state.streak;
-    if (result.doctrine && st?.doctrine === result.doctrine && st.n >= 2) tags.push(`<span class="wtag warn">${t('ui.tag.streak', { name: DOCTRINE[result.doctrine].name })}</span>`);
+    // 율법파가 이 말씀을 읽을지 미리 알린다 (되풀이이거나 같은 교리 세 장째)
+    if (wouldRead(state, text, result.doctrine)) tags.push(`<span class="wtag warn">${isEcho(state, text) ? t('ui.tag.readEcho') : t('ui.tag.streak', { name: DOCTRINE[result.doctrine].name })}</span>`);
     const carve = pending.command ? `<label class="seal-prophecy carve"><input type="checkbox" class="carve-box" ${pending.carve ? 'checked' : ''}>
       ${t('ui.carve', { name: esc(COMMANDMENTS[pending.command].name), text: esc(COMMANDMENTS[pending.command].text) })}</label>` : '';
     const seal = pending.prophecy ? `<label class="seal-prophecy"><input type="checkbox" class="prophecy-box" ${pending.seal ? 'checked' : ''}>

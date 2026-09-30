@@ -12,7 +12,7 @@ export default {
   'ui.law.rally': '결집: 행동 +1, 공격 먼저',
   'ui.law.march': (v) => `원정: 수도의 손 +${v.n}칸`,
   'ui.faithCostEcho': '신앙 {n} · 되풀이',
-  'ui.echo.tip': '지난 계시와 같은 말, 또는 지난 두 계시와 같은 일들 — 되풀이된 말씀은 무뎌진다 (신앙 +1, 교리가 오르지 않는다)',
+  'ui.echo.tip': '지난 계시와 같은 말, 또는 지난 두 계시와 같은 일들 — 되풀이된 말씀은 무뎌진다 (신앙 +1, 교리가 오르지 않는다). 율법파도 읽고 대비한다 (다음 장 선교·공격 방어 +1)',
   // 알아들은 말 (발언 두루마리 아래)
   'ui.heard.label': '알아들은 말 —',
   'ui.priestIntro': (v) => `이번 판의 대사제는 ${v.trait}.`,
@@ -525,6 +525,7 @@ export default {
   'ui.tag.naming': '이름 · {name}',
   'ui.tag.dilemma': '이 사건에 대한 뜻 · {label}',
   'ui.tag.streak': '{name} 세 장째 — 율법파가 읽는다',
+  'ui.tag.readEcho': '되풀이 — 율법파가 읽는다 (다음 장 선교·공격 방어 +1)',
   'ui.carve': '영원한 계명으로 새긴다 — 「{name}」 {text} (되돌릴 수 없다)',
   'ui.sealProphecy': '예언으로 봉인 — “{name}” {n}장 안에 이루어지면 신앙 +{reward}, 빗나가면 -{penalty}',
   'ui.priest': '대사제',
