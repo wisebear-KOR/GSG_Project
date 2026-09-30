@@ -108,7 +108,7 @@ export default {
   'eng.win.convertAll': '율법파 전원 개종·소멸',
   'eng.win.edict': '율법 석판 완성',
   'eng.win.extinct': '신도가 모두 사라짐',
-  'eng.win.faith': '신앙 승리 (인구의 3/4이 신도)',
+  'eng.win.faith': '신앙 승리 (인구의 3/4이 신도, 선교로 데려온 이들과 함께)',
   'eng.win.tutorial': '튜토리얼 완료 — 승점 {ps} : {es}',
   'eng.win.rounds': '{n}장 종료 — 승점 {ps} : {es}',
 
@@ -175,7 +175,7 @@ export default {
   'log.blocked': (v) => `${topic(v.who)} ${josa(v.place, '을', '를')} 상대에게 먼저 빼앗겨 행동하지 못했다.`,
 
   // 신의 분노
-  'log.wrathFull': '신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다.',
+  'log.wrathFull': (v) => (v?.doom === false ? '신의 분노가 가득 찼다 — 기적이 가장 싸다.' : '신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다 (판에 한 번).'),
   'log.wrath': '신의 분노가 차오른다 ({n}/3) — 기적이 {n}만큼 싸진다.',
 
   // 율법 석판 (plus: 올랐는가, d: 실제 변화량)

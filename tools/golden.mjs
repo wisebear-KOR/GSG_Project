@@ -150,6 +150,7 @@ function speak(state, entry, rec) {
   // 화면은 신앙이 모자라면 인장을 받지 않는다. 골든 구동기는 이때 침묵으로 넘긴다
   if (p.faith < cost) { rec.silent = true; rec.unaffordable = cost; return silence(state); }
   rec.cost = cost;
+  const spoken = E.spokenOf(state, text);
   p.faith -= cost;
   // 이름 붙이기는 해석 전에 새긴다 (새 이름이 석판 규칙에 들어간다)
   const naming = E.nameTile(state, L.parseNaming(text));
@@ -158,7 +159,7 @@ function speak(state, entry, rec) {
   const pending = {
     text, result, naming, dropped: new Set(),
     tone: L.detectTone(text), prophecy: state.prophecy ? null : L.parseProphecy(text),
-    seal: !!entry.seal, carve: !!entry.carve,
+    seal: !!entry.seal, carve: !!entry.carve, spoken,
   };
   const forbiddenKeys = result.forbidden.map((a) => a.key);
   const orders = result.orders.filter((a) => !pending.dropped.has(a.key));
@@ -231,7 +232,7 @@ function accept(state, pending, rec) {
   if (!state.winner && text) E.keepVows(state, result.forbidden, plan);
   if (!state.winner) wordsAfter(state, pending);
   // 교리는 해결이 끝난 뒤에 오른다
-  if (text) { E.recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0); }
+  if (text) { E.recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0, pending.spoken); }
   if (pending.naming?.first && state.sides.player.doctrine.wisdom < D.RULES.graceDoctrineBelow) state.sides.player.doctrine.wisdom += 1;
   const last = state.history.at(-1);
   if (last) last.text = text;

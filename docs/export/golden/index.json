@@ -17,7 +17,7 @@
       "rounds": 8,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":18,"enemy":24}
+      "score": {"player":16,"enemy":24}
     },
     {
       "file": "s5-normal-first.json",
@@ -57,7 +57,7 @@
       "rounds": 14,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":25,"enemy":55}
+      "score": {"player":37,"enemy":49}
     },
     {
       "file": "s7-normal-veteran.json",
@@ -65,7 +65,7 @@
       "rounds": 14,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":15,"enemy":67}
+      "score": {"player":15,"enemy":69}
     },
     {
       "file": "s4-easy-first-war.json",
@@ -78,10 +78,10 @@
     {
       "file": "s5-easy-first-war.json",
       "config": {"mode":"standard","size":5,"difficulty":"easy","seed":202,"veteran":false},
-      "rounds": 6,
+      "rounds": 12,
       "winner": "player",
-      "winKind": "faith",
-      "score": {"player":28,"enemy":11}
+      "winKind": "score",
+      "score": {"player":39,"enemy":9}
     },
     {
       "file": "s4-hard-veteran-asc4.json",

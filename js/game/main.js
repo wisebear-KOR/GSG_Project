@@ -8,7 +8,7 @@ import {
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
   canCarve, carveCommandment, findSacred, distance, previewGains, ultRound, draftRound,
   applySilence, markLegends, serializeState, hydrateState, monthOf, payDilemma, carvable,
-  isEcho, marchRange,
+  isEcho, spokenOf, marchRange,
 } from './engine.js';
 import {
   DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, FESTIVALS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, TRIALS, ASCENSION, RULESET, LAW_CARDS, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
@@ -517,7 +517,7 @@ async function speak() {
   const cost = revelationCostFor(state, text);
   const p = state.sides.player;
   if (p.faith < cost) { notice = t('ui.notice.noFaith', { cost, have: p.faith }); sfx.fail(); renderAltar(); rejectFx(); return; }
-  speakSnap = { state: JSON.stringify(serializeState(state)), text, cost };
+  speakSnap = { state: JSON.stringify(serializeState(state)), text, cost, spoken: spokenOf(state, text) };
   p.faith -= cost;
   draft = '';
   hintTiles = [];
@@ -733,7 +733,7 @@ async function accept() {
   if (!state.winner && text) keepVows(state, result.forbidden, plan);
   if (!state.winner) wordsAfter(pending);
   // 교리는 해결이 끝난 뒤에 오른다: 확인 화면에 보인 수치 그대로 해결되도록
-  if (text) recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0);
+  if (text) recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0, speakSnap?.spoken ?? spokenOf(state, text));
   if (pending.naming?.first && state.sides.player.doctrine.wisdom < RULES.graceDoctrineBelow) state.sides.player.doctrine.wisdom += 1;
   // 신학 노트: LLM이 석판 규칙에 없는 말버릇을 행동으로 읽었으면 배운다
   const lesson = text && result.source === 'llm' ? extractLesson(state, text, accepted) : null;
@@ -1871,9 +1871,10 @@ function oddsTag(a) {
   return p == null ? '' : `<span class="why odds ${p >= 0.5 ? 'good' : 'low'}" title="${t('ui.odds.tip')}">${Math.round(p * 100)}%</span>`;
 }
 
-// 선공: 율법파가 노리는 칸에 먼저 가면 막는다 (율법파 선공이면 빼앗긴다)
-function firstNote(tile) {
-  if (!enemyIntent(state).some((x) => x.shown && x.tile === tile)) return '';
+// 선공: 율법파가 노리는 칸에 먼저 가면 막는다 (율법파 선공이면 빼앗긴다). 집 안 일(기도·신전·대성당·성벽)은 막지도 막히지도 않는다
+const homeAct = (a) => a.type === 'pray' || (a.type === 'build' && ['temple', 'cathedral', 'wall'].includes(a.build));
+function firstNote(a) {
+  if (homeAct(a) || !enemyIntent(state).some((x) => x.shown && x.tile === a.tile && !homeAct(x))) return '';
   return state.first === 'player' ? `<span class="why first" title="${t('ui.first.blockTip')}">${t('ui.first.block')}</span>` : `<span class="why first bad" title="${t('ui.first.lostTip')}">${t('ui.first.lost')}</span>`;
 }
 
@@ -2048,7 +2049,7 @@ function renderAltar() {
       for (const k of Object.keys(extra)) prev.after[k] = Math.max(0, prev.after[k] + extra[k]);
     }
     const chips = [
-      ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}" title="${esc(a.text)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${short(a)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}${oddsTag(a)}${firstNote(a.tile)}</span>`),
+      ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}" title="${esc(a.text)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${short(a)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}${oddsTag(a)}${firstNote(a)}</span>`),
       ...auto.map((a) => `<span class="order auto${a.heeded ? ' heeded' : ''}" title="${esc(a.heeded ? t('ui.chip.heededTip', { text: a.text }) : a.text)}">${meepleSvg('player')}<span class="t">${short(a)}</span>${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}<span class="why" style="background:rgba(124,89,27,.12)">${a.heeded ? t('ui.chip.heeded') : t('ui.chip.auto')}</span></span>`),
       ...(pending.miracle ? [`<span class="order miracle${pending.dropped.has(pending.miracle.key) ? ' dropped' : ''}" data-key="${pending.miracle.key}" title="${t('ui.chip.toggleTip')}">${svgUse(MIRACLE_ART[pending.miracle.id], 'mi', '0 0 48 48')}<span class="t">${esc(MIRACLES.find((m) => m.id === pending.miracle.id).name)}${pending.miracle.target ? ` → ${esc(tileName(state, state.tileAt[pending.miracle.target]))}` : ''}</span><span class="why">${t('ui.chip.miracle', { n: pending.miracle.cost })}</span></span>`] : []),
       ...[...pending.dropped].map((k) => result.orders.find((a) => a.key === k)).filter(Boolean).map((a) => `<span class="order dropped" data-key="${esc(a.key)}" title="${t('ui.chip.restoreTip')}">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why">${t('ui.chip.dropped')}</span></span>`),

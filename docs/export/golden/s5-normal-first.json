@@ -1406,7 +1406,7 @@
       "act": 3,
       "petition": {"from":"석공 브엘","need":{"type":"build","build":"wall"}},
       "revelation": "번개를 내려 율법파를 벌하라",
-      "cost": 1,
+      "cost": 2,
       "tone": "command",
       "tablet": {"orders":["attack:D1:"],"forbidden":[],"doctrine":"war","interpretation":"곳간이 노래하노니, 율법파 마을(D1)을 공격한다!"},
       "accepted": ["attack:D1:"],
@@ -1471,6 +1471,7 @@
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
+        {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"철의 대제사장 바락: “싸움을 원하는구나. 우리가 먼저 간다.”","ui":true}
       ],
       "digest": {
@@ -1478,7 +1479,7 @@
           "food": 21,
           "wood": 16,
           "stone": 7,
-          "faith": 31,
+          "faith": 30,
           "pop": 7,
           "templeLevel": 2,
           "capitalHp": 3,
@@ -1487,7 +1488,7 @@
           "villages": 3,
           "score": 30,
           "faithless": 0,
-          "doctrine": {"peace":1,"war":3,"abundance":4,"wisdom":3}
+          "doctrine": {"peace":1,"war":2,"abundance":4,"wisdom":3}
         },
         "enemy": {
           "food": 9,

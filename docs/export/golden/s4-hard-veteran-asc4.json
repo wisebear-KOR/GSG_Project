@@ -628,7 +628,7 @@
           "text": "율법파가 되풀이되는 칼에 맞서 율법을 굳혔다 — 다음 장 공격 방어 +1. 한 장 쉬면 풀린다.",
           "fx": {"kind":"guard","tile":"A3"}
         },
-        {"side":"player","text":"신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다.","fx":{"kind":"wrath","tile":"D2"}},
+        {"side":"player","text":"신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다 (판에 한 번).","fx":{"kind":"wrath","tile":"D2"}},
         {"side":"leader","text":"철의 대제사장 바락: “'율법파'? 좋다, 칼로 답해 주마.”","ui":true}
       ],
       "digest": {
@@ -919,7 +919,7 @@
       "act": 3,
       "petition": {"from":"대장장이 무트","need":{"type":"build","build":"wall"}},
       "revelation": "율법파의 마을을 쳐라",
-      "cost": 1,
+      "cost": 2,
       "tone": "command",
       "tablet": {"orders":["attack:B2:"],"forbidden":[],"doctrine":"war","interpretation":"불이 말하노니, 율법파 마을(B2)을 공격한다!"},
       "accepted": ["attack:B2:"],
@@ -986,6 +986,7 @@
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법 석판 +1 — 율법파가 경건을 돌에 새겼다 (6/10).","fx":{"kind":"edict","tile":"A3","up":true}},
+        {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"철의 대제사장 바락: “싸움을 원하는구나. 우리가 먼저 간다.”","ui":true}
       ],
       "digest": {
@@ -993,7 +994,7 @@
           "food": 1,
           "wood": 4,
           "stone": 3,
-          "faith": 16,
+          "faith": 15,
           "pop": 3,
           "templeLevel": 2,
           "capitalHp": 3,
@@ -1002,7 +1003,7 @@
           "villages": 0,
           "score": 14,
           "faithless": 0,
-          "doctrine": {"peace":0,"war":4,"abundance":2,"wisdom":2}
+          "doctrine": {"peace":0,"war":3,"abundance":2,"wisdom":2}
         },
         "enemy": {
           "food": 6,

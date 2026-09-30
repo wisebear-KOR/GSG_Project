@@ -52,12 +52,14 @@ export function doSpeak(state, text, { reinterpret = false, seal = false } = {})
   const cost = E.revelationCostFor(state, t);
   const p = state.sides.player;
   if (p.faith < cost) return silence(state); // UI refuses; player then stays silent
+  const spoken = E.spokenOf(state, t);
   p.faith -= cost;
   const naming = E.nameTile(state, L.parseNaming(t));
   if (naming) naming.name = state.names[naming.tile];
   let pending = interpret(state, t, naming);
   if (reinterpret && !state.reinterpretUsed && p.faith >= 1) { p.faith -= 1; state.reinterpretUsed = true; pending = interpret(state, t, naming); }
   pending.seal = seal;
+  pending.spoken = spoken;
   return pending;
 }
 function interpret(state, text, naming) {
@@ -88,7 +90,7 @@ export function doAccept(state, pending) {
   if (pending.seal && pending.prophecy) E.sealProphecy(state, pending.prophecy);
   E.resolveRound(state, [...accepted, ...auto], enemyPlan);
   if (!state.winner) wordsAfter(state, pending);
-  if (text) E.recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0);
+  if (text) E.recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0, pending.spoken);
   if (pending.naming?.first && state.sides.player.doctrine.wisdom < D.RULES.graceDoctrineBelow) state.sides.player.doctrine.wisdom += 1;
   const last = state.history.at(-1);
   if (last) last.text = text;

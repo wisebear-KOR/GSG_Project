@@ -744,7 +744,7 @@
       "act": 3,
       "petition": {"from":"어부 도랑","need":{"type":"build","build":"village"}},
       "revelation": "시온에서 돌을 캐어 오라",
-      "cost": 1,
+      "cost": 2,
       "tone": "command",
       "tablet": {
         "orders": ["gather:B3:stone","gather:A1:stone"],
@@ -800,19 +800,15 @@
           "act": "pray:A3:"
         },
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
-        {
-          "side": "player",
-          "text": "말씀이 세 장 이어졌다 — 풍요의 기적. 곳간이 넘친다. 식량 +4.",
-          "fx": {"kind":"streak","tile":"D2","gain":{"food":4}}
-        },
+        {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"장로 하르쿤: “곡식 창고가 신을 대신하지는 못한다.”","ui":true}
       ],
       "digest": {
         "player": {
-          "food": 17,
+          "food": 13,
           "wood": 12,
           "stone": 20,
-          "faith": 13,
+          "faith": 12,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 3,
@@ -821,7 +817,7 @@
           "villages": 1,
           "score": 18,
           "faithless": 0,
-          "doctrine": {"peace":0,"war":0,"abundance":6,"wisdom":1}
+          "doctrine": {"peace":0,"war":0,"abundance":5,"wisdom":1}
         },
         "enemy": {
           "food": 5,
@@ -842,7 +838,7 @@
         "revealed": "1100111011111111",
         "holyOwner": null,
         "wrath": 0,
-        "streak": null,
+        "streak": {"doctrine":"abundance","n":2},
         "silentRun": 0,
         "names": {"B3":"시온"},
         "saints": [{"name":"석공 브엘","kind":"guardian"}],
@@ -899,26 +895,25 @@
           "fx": {"kind":"gain","tile":"D2","gain":{"faith":2}},
           "act": "pray:D2:"
         },
-        {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"player","text":"역병으로 우리 부족 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"역병으로 율법파 1명을 잃었다.","fx":{"kind":"loss"}}
       ],
       "digest": {
         "player": {
-          "food": 14,
+          "food": 11,
           "wood": 14,
           "stone": 23,
-          "faith": 18,
-          "pop": 5,
+          "faith": 16,
+          "pop": 4,
           "templeLevel": 1,
           "capitalHp": 3,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 18,
+          "score": 16,
           "faithless": 0,
-          "doctrine": {"peace":0,"war":0,"abundance":6,"wisdom":1}
+          "doctrine": {"peace":0,"war":0,"abundance":5,"wisdom":1}
         },
         "enemy": {
           "food": 8,
@@ -954,10 +949,10 @@
     "rounds": 8,
     "winner": "enemy",
     "winKind": "score",
-    "winReason": "8장 종료 — 승점 18 : 24",
-    "score": {"player":18,"enemy":24},
+    "winReason": "8장 종료 — 승점 16 : 24",
+    "score": {"player":16,"enemy":24},
     "breakdown": {
-      "player": [{"key":"pop","n":5,"w":2},{"key":"village","n":1,"w":3},{"key":"temple","n":1,"w":2},{"key":"hp","n":3,"w":1}],
+      "player": [{"key":"pop","n":4,"w":2},{"key":"village","n":1,"w":3},{"key":"temple","n":1,"w":2},{"key":"hp","n":3,"w":1}],
       "enemy": [{"key":"pop","n":4,"w":2},{"key":"village","n":3,"w":3},{"key":"temple","n":2,"w":2},{"key":"hp","n":3,"w":1}]
     },
     "history": [
@@ -968,7 +963,7 @@
       {"round":5,"ps":16,"es":20},
       {"round":6,"ps":18,"es":20},
       {"round":7,"ps":18,"es":22},
-      {"round":8,"ps":18,"es":24}
+      {"round":8,"ps":16,"es":24}
     ],
     "revelations": [
       {"round":1,"doctrine":"abundance"},

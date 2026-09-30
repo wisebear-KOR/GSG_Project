@@ -694,7 +694,7 @@
       "act": 3,
       "petition": {"from":"산파 시브라","need":{"type":"gather","gather":"food"}},
       "revelation": "율법파에게 재앙을! 그들의 수도를 쳐라",
-      "cost": 1,
+      "cost": 2,
       "tone": "curse",
       "tablet": {"orders":["attack:A2:"],"forbidden":[],"doctrine":"war","interpretation":"석판에 새겨진 말씀이도다. 율법파 마을(A2)을 공격한다!"},
       "accepted": ["attack:A2:"],
@@ -748,6 +748,7 @@
         },
         {"side":"player","text":"이 땅은 이제 「분노의 마을」이라 불린다 — “율법파에게 재앙을! 그들의 수도를 쳐라”.","fx":{"kind":"legend","tile":"A2"}},
         {"side":"player","text":"은총 — 산파 시브라의 청원에 응답했다. 신앙 +1.","fx":{"kind":"grace","tile":"D2","gain":{"faith":1}}},
+        {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"장로 하르쿤: “'율법파'라니. 칼을 부르는 신은 칼로 망한다.”","ui":true}
       ],
       "digest": {
@@ -755,7 +756,7 @@
           "food": 4,
           "wood": 4,
           "stone": 6,
-          "faith": 9,
+          "faith": 8,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 3,
@@ -764,7 +765,7 @@
           "villages": 3,
           "score": 24,
           "faithless": 0,
-          "doctrine": {"peace":0,"war":3,"abundance":2,"wisdom":0}
+          "doctrine": {"peace":0,"war":2,"abundance":2,"wisdom":0}
         },
         "enemy": {
           "food": 2,
@@ -785,7 +786,7 @@
         "revealed": "1110111011111111",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"war","n":2},
+        "streak": {"doctrine":"war","n":1},
         "silentRun": 0,
         "legends": {"A2":"분노의 마을"},
         "stats": {"converted":0,"captured":1,"miracles":0,"prophecies":0,"petitions":2},
@@ -808,7 +809,7 @@
         "orders": ["build:A2:wall","build:B2:village"],
         "forbidden": [],
         "doctrine": "war",
-        "interpretation": "불이 말하노니, 우리 마을(A2)에 성벽을 쌓는다, 그리고 성스러운 언덕(B2)에 마을을 세운다!"
+        "interpretation": "석판에 새겨진 말씀이도다. 우리 마을(A2)에 성벽을 쌓는다, 그리고 성스러운 언덕(B2)에 마을을 세운다!"
       },
       "accepted": ["build:A2:wall","build:B2:village"],
       "rejected": [],
@@ -819,7 +820,7 @@
       "ordered": ["build:A2:wall","build:B2:village"],
       "log": [
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
-        {"side":"priest","text":"불이 말하노니, 우리 마을(A2)에 성벽을 쌓는다, 그리고 성스러운 언덕(B2)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판에 새겨진 말씀이도다. 우리 마을(A2)에 성벽을 쌓는다, 그리고 성스러운 언덕(B2)에 마을을 세운다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(A4)에서 식량을 2 얻었다.",
@@ -858,7 +859,7 @@
           "food": 4,
           "wood": 4,
           "stone": 4,
-          "faith": 11,
+          "faith": 10,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 3,
@@ -867,7 +868,7 @@
           "villages": 4,
           "score": 27,
           "faithless": 0,
-          "doctrine": {"peace":0,"war":4,"abundance":2,"wisdom":0}
+          "doctrine": {"peace":0,"war":3,"abundance":2,"wisdom":0}
         },
         "enemy": {
           "food": 2,
@@ -888,7 +889,7 @@
         "revealed": "1110111011111111",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"war","n":2},
+        "streak": {"doctrine":"war","n":1},
         "silentRun": 0,
         "legends": {"A2":"분노의 마을"},
         "stats": {"converted":0,"captured":1,"miracles":0,"prophecies":0,"petitions":2},

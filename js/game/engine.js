@@ -77,7 +77,7 @@ export function createState(config = DEFAULT_CONFIG) {
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
     priest: 'loyal', names: {}, lessons: [], petition: null, petitionIgnored: 0, prophecy: null,
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
-    judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, lawGuard: { preach: 0, attack: 0 }, rally: false,
+    judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, doomUsed: false, lawGuard: { preach: 0, attack: 0 }, rally: false,
     edictOn: !!cfg.veteran && !tutorial, destiny: null, destinyOffer: null, holyId: null,
     commandments: [], saints: [], deeds: {}, fallen: [], silentRun: 0, legends: {},
     miraDone: false, miraQuote: null, bloodKills: 0, pendingDilemma: null,
@@ -201,8 +201,10 @@ export const ultRound = (state) => (quick(state) ? 6 : ULT_ROUND);
 export const draftRound = (state) => (quick(state) ? 3 : 5);
 export const wrathRound = (state) => (state.config?.trial === 'last' ? 1 : quick(state) ? 3 : 4);
 export const hasUlt = (state, side, key) => side === 'player' && state.sides[side].doctrine[key] >= DOCTRINE_MAX && state.round >= ultRound(state);
-// 대성당 다음 단계에 필요한 마을 수 (1·2·3단계 → 마을 1·2·3)
-export const cathedralVillages = (state) => (state.sides.player.cathedral ?? 0) + 1;
+// 대성당 단계마다 필요한 마을: 1·2·3, 큰 판은 판이 넓은 만큼 더 (6×6 +1, 7×7 +2)
+export const cathedralVillages = (state) => (state.sides.player.cathedral ?? 0) + 1 + Math.max(0, state.rows - 5);
+// 신앙 승리에 필요한 개종 (선교로 데려온 율법파 신도)
+export const faithConverts = (state) => (quick(state) ? 1 : 2);
 export const popCap = (state, side) => 3 + 2 * villageCount(state, side) + (hasUlt(state, side, 'abundance') ? 2 : 0);
 
 // 신도가 닿을 수 있는 범위: 수도에서 2칸, 마을에서 1칸
@@ -220,7 +222,8 @@ export function reach(state, side) {
 // 행동 수 = 2 + 신전 단계 + 신도 4명당 1 (+ 지혜 교리 / 율법파 난이도 보너스), 최대 6, 신도 수를 넘지 않는다
 export function actionLimit(state, side) {
   const s = state.sides[side];
-  const bonus = side === 'enemy' ? state.enemyBonus + (state.rally ? 1 : 0) : (s.doctrine.wisdom >= 4 ? 1 : 0);
+  // 율법파는 판이 넓을수록 손이 많다 (7×7 +1): 넓은 판에서 거리만으로 안전해지지 않게
+  const bonus = side === 'enemy' ? state.enemyBonus + (state.rally ? 1 : 0) + (state.rows >= 7 && !state.tutorial ? 1 : 0) : (s.doctrine.wisdom >= 4 ? 1 : 0);
   let limit = Math.min(MAX_ACTIONS, 2 + s.templeLevel + Math.floor(s.pop / RULES.followersPerAction) + bonus);
   if (side === 'player' && isSabbath(state)) limit = Math.max(1, limit - 2);
   return Math.max(0, Math.min(limit, s.pop));
@@ -256,7 +259,9 @@ function fallen(state, key) {
 
 // 선교 보너스: 평화 교리 + 방언 + 계명(칼을 들지 말라) + 성인 설교자 (교리·성인·계명 합은 최대 +2)
 // 포위: 율법파 수도에 붙은 우리 땅이 둘이면 수도 공격 +1, 셋 이상이면 +2
+// 원정: 대성당 공사가 시작된 우리 수도를 치는 율법파 +1 (성전을 무너뜨리러 온 칼)
 export function siegeOf(state, side, tile) {
+  if (side === 'enemy' && tile?.building === 'capital' && tile.owner === 'player' && (state.sides.player.cathedral ?? 0) >= 1 && !state.tutorial) return 1;
   if (side !== 'player' || tile?.building !== 'capital' || tile.owner !== 'enemy') return 0;
   const n = neighbors(state, tile).filter((x) => x.owner === 'player').length;
   return n >= 3 ? 2 : n >= 2 ? 1 : 0;
@@ -729,9 +734,19 @@ export function revelationCostFor(state, text) {
   const base = text.trim().length > 30 && !citedWords(state, text).length ? 2 : 1;
   return base + (state.bannedWords.some((w) => text.includes(w)) ? 1 : 0) + (isEcho(state, text) ? 1 : 0);
 }
-// 메아리: 지난 계시를 그대로 되풀이하면 무뎌진다 (신앙 +1, 교리가 오르지 않는다). 띄어쓰기·문장부호는 보지 않는다
+// 메아리: 지난 계시를 되풀이하면 무뎌진다 (신앙 +1, 교리가 오르지 않는다). 글자가 같거나(띄어쓰기·문장부호는 보지 않는다)
+// 말을 바꿔도 석판이 알아듣는 일들이 지난 계시와 똑같으면 되풀이다. 일의 목록은 해석기가 알려 준다 (setPlanSig)
 const plainWords = (x) => String(x ?? '').replace(/[\s\p{P}]/gu, '');
-export const isEcho = (state, text) => !state.tutorial && !!text && plainWords(text) !== '' && plainWords(text) === plainWords(state.revelations?.at(-1)?.text);
+let planSigFn = null;
+export const setPlanSig = (f) => { planSigFn = f; };
+const planSig = (state, text) => (planSigFn ? planSigFn(state, text) : '');
+export const isEcho = (state, text, sig = planSig(state, text)) => {
+  if (state.tutorial || !text || plainWords(text) === '') return false;
+  const last = state.revelations?.at(-1);
+  return plainWords(text) === plainWords(last?.text) || (!!sig && sig === last?.sig);
+};
+// 말하는 순간의 되풀이 판정 (확정 뒤 recordRevelation에 넘긴다 — 해결 뒤에는 할 수 있는 일이 달라지므로)
+export const spokenOf = (state, text) => { const sig = planSig(state, text); return { sig, echo: isEcho(state, text, sig) }; };
 
 // 율법파가 이번 장에 할 일 (예고용). 공개하는 범위는 난이도에 따라 다르다
 export function enemyIntent(state) {
@@ -745,7 +760,8 @@ export function enemyIntent(state) {
 
 // 기적 비용: 신의 분노만큼 싸진다 (최소 1). 심판의 날은 공짜
 export const miracleCost = (state, m) => (m.id === DOOM.id ? 0 : Math.max(1, m.cost - (state.wrath ?? 0) - (state.config.trial === 'storm' && m.id === 'lightning' ? 1 : 0)));
-export const doomReady = (state) => (state.wrath ?? 0) >= 3 && !state.tutorial;
+// 심판의 날은 판에 한 번 — 일부러 뒤처져 여러 번 내리는 길을 막는다
+export const doomReady = (state) => (state.wrath ?? 0) >= 3 && !state.tutorial && !state.doomUsed;
 
 export function castMiracle(state, id, targetTile) {
   const m = id === DOOM.id ? DOOM : MIRACLES.find((x) => x.id === id);
@@ -789,7 +805,7 @@ const MIRACLE_FX = {
     const cap = capitalOf(state, 'enemy');
     e.capitalHp = Math.max(0, e.capitalHp - 1);
     e.pop = Math.max(0, e.pop - 1);
-    state.wrath = 0;
+    state.wrath = 0; state.doomUsed = true;
     raiseEdict(state, -2, t('eng.edict.doom'));
     logEvent(state, 'player', t('log.doom', { hp: e.capitalHp }), null, { kind: 'lightning', tile: cap?.id });
     if (e.capitalHp <= 0) { state.winner = 'player'; state.winReason = t('eng.win.doom'); state.winKind = 'doom'; }
@@ -903,7 +919,7 @@ export function resolveRound(state, playerPlan, enemyPlan) {
 // 되풀이에 굳는 율법: 이번 장 계시로 명령한 선교·공격은 다음 장 율법파의 방어가 된다
 function updateLawGuard(state, playerPlan) {
   if (state.tutorial) return;
-  state.lawGuard ??= { preach: 0, attack: 0 }; state.rally ??= false;
+  state.lawGuard ??= { preach: 0, attack: 0 }; state.rally ??= false; state.doomUsed ??= false;
   const spoken = new Set(playerPlan.filter((a) => !a.auto).map((a) => a.type));
   for (const k of ['preach', 'attack']) {
     const before = state.lawGuard[k];
@@ -928,7 +944,7 @@ function recordHistory(state) {
   if (state.round >= wrathRound(state) && es - ps >= ((state.config.ascension ?? 0) >= 3 ? 8 : 6)) state.wrath = Math.min(3, state.wrath + 1);
   else if (es - ps <= 3) state.wrath = Math.max(0, state.wrath - 1);
   if (state.wrath > before) {
-    logEvent(state, 'player', state.wrath >= 3 ? t('log.wrathFull') : t('log.wrath', { n: state.wrath }), null, { kind: 'wrath', tile: capitalOf(state, 'player')?.id });
+    logEvent(state, 'player', state.wrath >= 3 ? t('log.wrathFull', { doom: !state.doomUsed }) : t('log.wrath', { n: state.wrath }), null, { kind: 'wrath', tile: capitalOf(state, 'player')?.id });
   }
   // 율법파의 결집: 우리가 8점 이상 앞서면 다음 장 율법파는 행동 +1, 공격을 먼저 한다 (4점 이내로 좁혀지면 풀린다)
   const wasRally = state.rally;
@@ -1381,9 +1397,10 @@ export function checkVictory(state, final = true) {
   if (e.pop <= 0) { state.winner = 'player'; state.winReason = t('eng.win.convertAll'); state.winKind = 'convertAll'; }
   if (!state.winner && state.edictOn && e.edict >= edictMax(state)) { state.winner = 'enemy'; state.winReason = t('eng.win.edict'); state.winKind = 'edict'; }
   if (p.pop <= 0) { state.winner = 'enemy'; state.winReason = t('eng.win.extinct'); state.winKind = 'extinct'; }
+  // 신앙 승리는 장 끝에만 본다. 인구의 3/4이 우리 신도이고, 그 가운데 선교로 데려온 이가 있어야 한다 (칼과 번개만으로는 신앙이 아니다)
   const total = state.sides.player.pop + state.sides.enemy.pop;
   const qk = quick(state);
-  if (!state.winner && total >= (qk ? 6 : 8) && state.round >= (qk ? 4 : 6) && state.sides.player.pop >= total * 0.75) {
+  if (!state.winner && final && total >= (qk ? 6 : 8) && state.round >= (qk ? 4 : 6) && state.sides.player.pop >= total * 0.75 && (state.stats.converted ?? 0) >= faithConverts(state)) {
     state.winner = 'player'; state.winReason = t('eng.win.faith'); state.winKind = 'faith';
   }
   if (!state.winner && final && state.round >= state.maxRounds) {
@@ -1397,17 +1414,18 @@ export function checkVictory(state, final = true) {
 }
 
 // 계시를 내리면 교리 트랙이 오른다
-export function recordRevelation(state, text, doctrine, extra = 0) {
+export function recordRevelation(state, text, doctrine, extra = 0, spoken = spokenOf(state, text)) {
   const d = state.sides.player.doctrine;
-  if (isEcho(state, text)) {
-    state.revelations.push({ round: state.round, text, doctrine, echo: true });
+  const sig = spoken.sig || undefined;
+  if (spoken.echo) {
+    state.revelations.push({ round: state.round, text, doctrine, echo: true, sig });
     logEvent(state, 'player', t('log.echo'), null, { kind: 'doctrine' });
     return;
   }
   if (doctrine && d[doctrine] < DOCTRINE_MAX) d[doctrine] += 1;
   // 비유·첫 이름 같은 가속은 그 교리가 낮을 때만 (궁극에 너무 빨리 닿지 않게)
   if (doctrine && extra && d[doctrine] < RULES.graceDoctrineBelow) d[doctrine] = Math.min(DOCTRINE_MAX, d[doctrine] + extra);
-  state.revelations.push({ round: state.round, text, doctrine });
+  state.revelations.push({ round: state.round, text, doctrine, sig });
   if (state.winner) return; // 판이 끝난 뒤에는 교리 대립·연속 기적이 점수를 바꾸지 않는다
   if (!doctrine) { state.streak = null; return; }
   // 교리 대립 (두 번째 판부터): 반대 교리가 흔들린다. 이미 얻은 특전 칸 아래로는 내려가지 않는다

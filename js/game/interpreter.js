@@ -5,7 +5,7 @@
 import { hasLanguageModel, createBaseSession, promptJSON } from '../llm.js';
 import { DOCTRINES, DOCTRINE, PRIESTS, TERRAIN, DOCTRINE_VOICE } from './data.js';
 import { nouns } from './lore.js';
-import { legalActions, actionLimit, tileName, villageCount, enemyIntent, nextEvent, gatherAmount, cathedralVillages } from './engine.js';
+import { legalActions, actionLimit, tileName, villageCount, enemyIntent, nextEvent, gatherAmount, cathedralVillages, setPlanSig } from './engine.js';
 import { t } from './i18n.js';
 
 // 실험 v5 프롬프트를 게임에 맞게 옮긴 것 (docs/EXPERIMENTS.md).
@@ -285,3 +285,7 @@ export function extractLesson(state, revelation, orders) {
   if (known) return null;
   return { word: words[0], type: a.type, gather: a.gather ?? null, build: a.build ?? null };
 }
+
+// 되풀이 판정에 쓰는 일의 목록: 석판이 이 계시에서 알아듣는 일의 종류 (칸은 보지 않는다)
+const kindKey = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);
+setPlanSig((state, text) => [...new Set(interpretWithTablet(state, text).orders.map(kindKey))].sort().join('|'));
