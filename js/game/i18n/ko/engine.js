@@ -13,7 +13,8 @@ const LEGEND_ADJ = { war: '분노의', peace: '빛의', abundance: '넘치는', 
 const streakHead = (v) => `말씀이 세 장 이어졌다 — ${v.doc}의 기적.`;
 
 export default {
-  'log.rally': '율법파가 결집한다 — 우리가 크게 앞서자 다음 장 율법파의 행동이 하나 늘고 칼을 먼저 든다.',
+  'log.rally': '율법파가 결집한다 — 우리가 크게 앞서자 율법파의 행동이 하나 늘고 칼을 먼저 들며, 장마다 신도가 모여든다.',
+  'log.rallyJoin': '결집한 율법파에 흩어졌던 이 하나가 모여들었다.',
   'log.remnant': (v) => `${tribe(v.who)}의 마지막 신도가 쓰러졌다 — ${v.hp > 0 ? `수도가 흔들리고(내구도 ${v.hp}) 한 명이 수도로 돌아온다.` : '수도가 무너졌다.'}`,
   'log.echo': '같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.',
   'log.attackRetreat': (v) => `율법파 원정대가 ${josa(v.place, '을', '를')} 넘지 못하고 물러났다 (율법파 식량 -1).`,

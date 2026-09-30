@@ -77,7 +77,7 @@ export function createState(config = DEFAULT_CONFIG) {
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
     priest: 'loyal', names: {}, lessons: [], petition: null, petitionIgnored: 0, prophecy: null,
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
-    judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, doomUsed: false, lawGuard: { preach: 0, attack: 0 }, rally: false,
+    judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, doomUsed: false, miracleUses: {}, lawGuard: { preach: 0, attack: 0 }, rally: false,
     edictOn: !!cfg.veteran && !tutorial, destiny: null, destinyOffer: null, holyId: null,
     commandments: [], saints: [], deeds: {}, fallen: [], silentRun: 0, legends: {},
     miraDone: false, miraQuote: null, bloodKills: 0, pendingDilemma: null,
@@ -604,7 +604,9 @@ export function startRound(state) {
       state.reacted = heard;
     }
   }
+  // 선공은 승점이 뒤진 쪽 (같으면, 그리고 튜토리얼은 번갈아)
   state.first = state.round % 2 === 1 ? 'player' : 'enemy';
+  if (!state.tutorial) { const d = score(state, 'player') - score(state, 'enemy'); if (d < 0) state.first = 'player'; else if (d > 0) state.first = 'enemy'; }
   state.roundMods = {};
   state.dilemmaPick = null;
   if (state.round > 1) state.destinyOffer = null; // 1장에 고르지 않았으면 첫 소명 그대로
@@ -743,7 +745,8 @@ const planSig = (state, text) => (planSigFn ? planSigFn(state, text) : '');
 export const isEcho = (state, text, sig = planSig(state, text)) => {
   if (state.tutorial || !text || plainWords(text) === '') return false;
   const last = state.revelations?.at(-1);
-  return plainWords(text) === plainWords(last?.text) || (!!sig && sig === last?.sig);
+  // 두 장 전의 일과 같아도 되풀이다 (두 계시를 번갈아 쓰는 것도 되풀이)
+  return plainWords(text) === plainWords(last?.text) || (!!sig && (sig === last?.sig || sig === state.revelations?.at(-2)?.sig));
 };
 // 말하는 순간의 되풀이 판정 (확정 뒤 recordRevelation에 넘긴다 — 해결 뒤에는 할 수 있는 일이 달라지므로)
 export const spokenOf = (state, text) => { const sig = planSig(state, text); return { sig, echo: isEcho(state, text, sig) }; };
@@ -759,7 +762,9 @@ export function enemyIntent(state) {
 }
 
 // 기적 비용: 신의 분노만큼 싸진다 (최소 1). 심판의 날은 공짜
-export const miracleCost = (state, m) => (m.id === DOOM.id ? 0 : Math.max(1, m.cost - (state.wrath ?? 0) - (state.config.trial === 'storm' && m.id === 'lightning' ? 1 : 0)));
+// 같은 기적을 다시 쓸 때마다 신앙 1이 더 든다 (번개 하나로 판을 끌고 가지 않게)
+export const miracleCost = (state, m) => (m.id === DOOM.id ? 0 : Math.max(1, m.cost - (state.wrath ?? 0) - (state.config.trial === 'storm' && m.id === 'lightning' ? 1 : 0)) + (state.miracleUses?.[m.id] ?? 0));
+const usedMiracle = (state, id) => { state.miracleUses = { ...(state.miracleUses ?? {}), [id]: (state.miracleUses?.[id] ?? 0) + 1 }; };
 // 심판의 날은 판에 한 번 — 일부러 뒤처져 여러 번 내리는 길을 막는다
 export const doomReady = (state) => (state.wrath ?? 0) >= 3 && !state.tutorial && !state.doomUsed;
 
@@ -774,6 +779,7 @@ export function castMiracle(state, id, targetTile) {
     s.faith -= cost;
     MIRACLE_FX[id](state, s, home);
     state.miracleUsed = true;
+    usedMiracle(state, id);
     state.stats.miracles += 1;
     checkVictory(state, false);
     return { ok: true };
@@ -793,6 +799,7 @@ export function castMiracle(state, id, targetTile) {
     logEvent(state, 'player', t('log.bounty'), null, { kind: 'bounty', gain: { wood: 2, stone: 2 } });
   }
   state.miracleUsed = true;
+  usedMiracle(state, id);
   state.stats.miracles += 1;
   checkVictory(state, false);
   return { ok: true };
@@ -919,7 +926,7 @@ export function resolveRound(state, playerPlan, enemyPlan) {
 // 되풀이에 굳는 율법: 이번 장 계시로 명령한 선교·공격은 다음 장 율법파의 방어가 된다
 function updateLawGuard(state, playerPlan) {
   if (state.tutorial) return;
-  state.lawGuard ??= { preach: 0, attack: 0 }; state.rally ??= false; state.doomUsed ??= false;
+  state.lawGuard ??= { preach: 0, attack: 0 }; state.rally ??= false; state.doomUsed ??= false; state.miracleUses ??= {};
   const spoken = new Set(playerPlan.filter((a) => !a.auto).map((a) => a.type));
   for (const k of ['preach', 'attack']) {
     const before = state.lawGuard[k];
@@ -946,10 +953,10 @@ function recordHistory(state) {
   if (state.wrath > before) {
     logEvent(state, 'player', state.wrath >= 3 ? t('log.wrathFull', { doom: !state.doomUsed }) : t('log.wrath', { n: state.wrath }), null, { kind: 'wrath', tile: capitalOf(state, 'player')?.id });
   }
-  // 율법파의 결집: 우리가 8점 이상 앞서면 다음 장 율법파는 행동 +1, 공격을 먼저 한다 (4점 이내로 좁혀지면 풀린다)
+  // 율법파의 결집: 우리가 12점 이상 앞서면 율법파는 행동 +1, 공격을 먼저 하고, 장마다 신도가 하나씩 모여든다 (6점 이내로 좁혀지면 풀린다)
   const wasRally = state.rally;
-  if (state.round >= wrathRound(state) && ps - es >= 8) state.rally = true;
-  else if (ps - es <= 4) state.rally = false;
+  if (state.round >= wrathRound(state) && ps - es >= 12) state.rally = true;
+  else if (ps - es <= 6) state.rally = false;
   if (state.rally && !wasRally) logEvent(state, 'enemy', t('log.rally'), null, { kind: 'rally', tile: capitalOf(state, 'enemy')?.id });
 }
 
@@ -1303,6 +1310,8 @@ function upkeep(state) {
         logEvent(state, side, t('log.birth', { who: side }), null, { kind: 'birth' });
       }
     }
+    // 결집한 율법파에는 장마다 신도 하나가 모여든다
+    if (side === 'enemy' && state.rally) { s.pop += 1; logEvent(state, 'enemy', t('log.rallyJoin'), null, { kind: 'birth' }); }
     s.faith += faithIncome(state, side);
     if (state.event?.id === 'plague' && s.pop > 1 && !(side === 'player' && state.roundMods.ark)) { s.pop -= 1; logEvent(state, side, t('log.plague', { who: side }), null, { kind: 'loss' }); }
   }

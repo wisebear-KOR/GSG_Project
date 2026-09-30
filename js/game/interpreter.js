@@ -162,9 +162,9 @@ const TABLET_RULES = [
   { kind: 'gather', re: kw('kw.tablet.hill'), match: (a, t) => a.type === 'gather' && t.terrain === 'hill', doctrine: 'wisdom' },
   { kind: 'preach', re: kw('kw.tablet.preach'), match: (a) => a.type === 'preach', doctrine: 'peace' },
   { kind: 'attack', re: kw('kw.tablet.attack'), except: kw('kw.tablet.attackExcept'), match: (a) => a.type === 'attack', doctrine: 'war' },
-  { kind: 'pray', re: kw('kw.tablet.rest'), match: (a) => a.type === 'pray', doctrine: 'peace' },
+  { kind: 'pray', re: kw('kw.tablet.rest'), except: kw('kw.tablet.restExcept'), match: (a) => a.type === 'pray', doctrine: 'peace' },
   { kind: 'wall', re: kw('kw.tablet.wall'), except: kw('kw.tablet.wallExcept'), match: (a) => a.build === 'wall', doctrine: 'war' },
-  { kind: 'gather', re: kw('kw.tablet.food'), match: (a) => a.gather === 'food', doctrine: 'abundance' },
+  { kind: 'gather', re: kw('kw.tablet.food'), except: kw('kw.tablet.foodExcept'), match: (a) => a.gather === 'food', doctrine: 'abundance' },
   { kind: 'gather', re: kw('kw.tablet.wood'), match: (a) => a.gather === 'wood', doctrine: 'abundance' },
   { kind: 'gather', re: kw('kw.tablet.stone'), match: (a) => a.gather === 'stone', doctrine: 'abundance' },
   { kind: 'village', re: kw('kw.tablet.village'), except: kw('kw.tablet.villageExcept'), match: (a) => a.build === 'village', doctrine: 'abundance' },
@@ -195,6 +195,7 @@ function rankMatches(state, rule, matches) {
 }
 // "두려워하지 말고 쳐라"는 금지가 아니다 (두려워는 부정어가 아니다)
 const NEGATION = kw('kw.negation');
+const NOT_NEG = kw('kw.notNeg');
 const CLAUSE = kw('kw.clauseSplit');
 
 // 곳을 가리키는 말: 수도·성지·율법파가 노리는 곳·칸 이름(E4)·붙인 이름은 칸을, "숲에"처럼 장소가 된 지형은 지형을 가리킨다.
@@ -202,12 +203,22 @@ const CLAUSE = kw('kw.clauseSplit');
 const PLACE_TERRAIN = ['river', 'plain', 'forest', 'mountain', 'hill', 'desert'].map((k) => [k, kw(`kw.place.${k}`, 'g')]);
 const PLACE = {
   capital: kw('kw.place.capital'), holy: kw('kw.place.holy'), aim: kw('kw.place.aim'), near: kw('kw.place.near'),
-  foe: kw('kw.place.foe'), ours: kw('kw.place.ours'), id: kw('kw.place.id'),
+  foe: kw('kw.place.foe'), ours: kw('kw.place.ours'), id: kw('kw.place.id'), village: kw('kw.place.village'),
+  nearTerrain: kw('kw.place.nearTerrain'), home: kw('kw.place.home'), dir: kw('kw.place.dirWord'),
 };
+const VILLAGE_WORD = kw('kw.tablet.village');
+const VILLAGE_EXCEPT = kw('kw.tablet.villageExcept');
 function placeOf(state, clause) {
   const anchors = new Set();
   const terrains = new Set();
   let text = clause;
+  // "산 옆에": 그 지형 칸들을 가리키고 그 이웃을 고른다 (산을 캐라는 말로 읽지 않는다)
+  const nt = clause.match(PLACE.nearTerrain);
+  if (nt) {
+    const terrain = t('kw.place.terrainName')[nt[1]];
+    for (const x of state.tiles) if (x.terrain === terrain) anchors.add(x.id);
+    text = text.replace(nt[0], ' ');
+  }
   for (const [k, re] of PLACE_TERRAIN) {
     re.lastIndex = 0;
     if (re.test(text)) { terrains.add(k); re.lastIndex = 0; text = text.replace(re, ' '); }
@@ -220,18 +231,32 @@ function placeOf(state, clause) {
     }
   }
   if (PLACE.holy.test(clause) && state.holyId) anchors.add(state.holyId);
+  let near = !!nt || PLACE.near.test(clause);
+  if (PLACE.home.test(clause)) { const c = capitalOf(state, 'player'); if (c) { anchors.add(c.id); near = true; } }
+  // 방향: 우리 수도에서 그쪽에 있는 칸 ("동쪽 안개를 걷어라")
+  const dm = clause.match(PLACE.dir);
+  const home = capitalOf(state, 'player');
+  const dir = dm && home ? t('kw.place.dir')[dm[1]] : null;
+  // "율법파 마을을 쳐라"는 율법파 마을, "그 마을에 성벽을"은 우리 마을 (새로 세우라는 말이면 가리키지 않는다)
+  if (PLACE.village.test(clause) && !PLACE.capital.test(clause)) {
+    const side = PLACE.foe.test(clause) ? 'enemy' : 'player';
+    if (side === 'enemy' || !VILLAGE_WORD.test(clause) || VILLAGE_EXCEPT.test(clause)) {
+      for (const x of state.tiles) if (x.owner === side && x.building === 'village') anchors.add(x.id);
+    }
+  }
   if (PLACE.aim.test(clause)) for (const x of enemyIntent(state)) if (x.shown) anchors.add(x.tile);
   const m = clause.match(PLACE.id);
   if (m && state.tileAt[m[1].toUpperCase() + m[2]]) anchors.add(m[1].toUpperCase() + m[2]);
   for (const [id, name] of Object.entries(state.names ?? {})) if (clause.includes(name)) anchors.add(id);
-  return { anchors, terrains, near: PLACE.near.test(clause), text };
+  return { anchors, terrains, near, text, dir, home };
 }
 // 가리킨 곳에 맞을수록 앞 (같으면 원래 순서): 가리킨 칸 4 ("옆에"면 그 이웃이 4), 가리킨 칸의 이웃 2, 지형이 맞으면 +1
 function byPlace(state, place, matches) {
-  if (!place.anchors.size && !place.terrains.size) return matches;
+  if (!place.anchors.size && !place.terrains.size && !place.dir) return matches;
   const score = (a) => {
     const tl = state.tileAt[a.tile];
     let s = 0;
+    if (place.dir) s += Math.sign(tl.r - place.home.r) === place.dir[0] || Math.sign(tl.c - place.home.c) === place.dir[1] ? 3 : 0;
     for (const id of place.anchors) {
       const d = distance(tl, state.tileAt[id]);
       s = Math.max(s, d === 0 ? (place.near ? 1 : 4) : d === 1 ? (place.near ? 4 : 2) : 0);
@@ -272,11 +297,13 @@ export function interpretWithTablet(state, revelation) {
   const picks = [];
   // 절 단위로 나눠서 부정어가 있는 절의 행동은 금지로 본다. 같은 칸을 다투면 규칙 순서(구체적인 말이 먼저)로,
   // 행동 수가 모자라면 먼저 말한 일부터 남긴다
-  const clauses = splitDont(revelation).split(CLAUSE);
+  const clauses = splitDont(revelation).split(CLAUSE).filter((c) => c?.trim());
+  // 금지 절에 할 일 말이 없으면 그 금지는 앞 절을 받는다 ("무릎 꿇고 비는 짓은 그만하라")
+  const negs = clauses.map((c) => NEGATION.test(c) && !NOT_NEG.test(c));
+  for (let ci = 1; ci < clauses.length; ci++) if (negs[ci] && !hitsOf(clauses[ci]).length) negs[ci - 1] = true;
   for (let ci = 0; ci < clauses.length; ci++) {
     const clause = clauses[ci];
-    if (!clause.trim()) continue;
-    const negative = NEGATION.test(clause);
+    const negative = negs[ci];
     const many = COUNT.find(([re]) => re.test(clause))?.[1] ?? (MANY.test(clause) ? 2 : 1);
     const place = placeOf(state, clause);
     let hits = hitsOf(place.text);
