@@ -27,7 +27,7 @@ export const CATHEDRAL = [
   { name: t('data.cathedral.1.name'), cost: { stone: 4, wood: 4, faith: 4 } },
   { name: t('data.cathedral.2.name'), cost: { stone: 3, wood: 3, faith: 5 } },
 ];
-export const EDICT_MAX = 12;         // 율법 석판이 이만큼 차면 율법파가 이긴다
+export const EDICT_MAX = 10;         // 율법 석판이 이만큼 차면 율법파가 이긴다 (오름: 율법파가 성지를 쥠·신전을 높임 / 내림: 우리가 성지를 쥠·번개·심판의 날)
 
 // 소명: 두 번째 판부터 판 시작에 셋 중 하나를 고른다. 이루면 승점 +5
 export const DESTINIES = {
@@ -243,7 +243,7 @@ export const BLESSINGS = {
 export const AWE_TITLES = t('data.aweTitles');
 
 // 규칙 판: 규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)
-export const RULESET = 9;
+export const RULESET = 10;
 
 // 시련: 고정된 맵과 한 가지 비틀린 규칙. 별 셋 (승리 / 10점 차 / 20점 차 또는 일찍 끝냄)
 export const TRIALS = {

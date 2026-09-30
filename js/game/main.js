@@ -2002,7 +2002,7 @@ function matHTML(cur, side) {
     ${mine && (cur.commandments?.length || cur.saints?.length) ? `<div class="vows-row">${(cur.commandments ?? []).map((c) => `<span class="cmd" title="${esc(COMMANDMENTS[c].text)}">「${esc(COMMANDMENTS[c].name)}」</span>`).join('')}${(cur.saints ?? []).map((x) => `<span class="saint" title="${x.kind === 'preacher' ? t('ui.mat.saintPreacher') : t('ui.mat.saintGuard')}">✦ ${esc(x.name)}</span>`).join('')}</div>` : ''}
     ${mine && currentTask() ? `<div class="task-ribbon"><span>${t('ui.mat.task')}</span>${esc(currentTask().text)}<button class="task-x" type="button" title="${t('ui.mat.taskOff')}">✕</button></div>` : ''}
     <div class="res-grid${mine ? ' row4' : ' compact'}">${res}</div>${warnLine}
-    ${!mine && cur.edictOn ? `<div class="edict-bar${s.edict >= edictMax(cur) - 2 ? ' danger' : ''}" title="${t('ui.mat.edictTip', { kills: (cur.bloodKills ?? 0) % 3, max: edictMax(cur) })}"><span>${t('ui.mat.edict')}</span><i><em style="width:${(s.edict / edictMax(cur)) * 100}%"></em></i><b>${s.edict}/${edictMax(cur)}</b></div>` : ''}
+    ${!mine && cur.edictOn ? `<div class="edict-bar${s.edict >= edictMax(cur) - 2 ? ' danger' : ''}" title="${t('ui.mat.edictTip', { max: edictMax(cur) })}"><span>${t('ui.mat.edict')}</span><i><em style="width:${(s.edict / edictMax(cur)) * 100}%"></em></i><b>${s.edict}/${edictMax(cur)}</b></div>` : ''}
     <div class="section-label"><span>${t('ui.mat.pop')}</span><span title="${t('ui.mat.popTip', { over: s.pop > cap })}">${s.pop} <small class="cap">${t('ui.mat.cap', { cap })}</small></span></div>
     <div class="meeples">${meeples}</div>
     <div class="section-label"><span>${t('ui.mat.power')}</span></div>

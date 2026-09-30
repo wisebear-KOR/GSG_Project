@@ -86,7 +86,7 @@ export function createState(config = DEFAULT_CONFIG) {
     judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, doomUsed: false, miracleUses: {}, lawGuard: { preach: 0, attack: 0 }, rally: false,
     edictOn: !tutorial && (cfg.unlock ?? (cfg.veteran ? MODULES : 0)) >= 1, destiny: null, destinyOffer: null, holyId: null,
     commandments: [], saints: [], deeds: {}, fallen: [], silentRun: 0, legends: {},
-    miraDone: false, miraQuote: null, bloodKills: 0, pendingDilemma: null,
+    miraDone: false, miraQuote: null, pendingDilemma: null,
     sacred: cfg.daily ? hashPick(SACRED_WORDS, 'sacred', cfg.daily) : null, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
     miracleUsed: false, reinterpretUsed: false,
     log: [], revelations: [], history: [], winner: null, winReason: '', winKind: null,
@@ -1003,8 +1003,6 @@ function holyAndEdict(state) {
   const owner = actOf(state) >= 2 ? holyOwner(state) : null;
   if (owner === 'enemy') raiseEdict(state, 1, t('eng.edict.holyEnemy'));
   else if (owner === 'player') raiseEdict(state, -1, t('eng.edict.holyPlayer'));
-  const e = state.sides.enemy;
-  if (e.faith >= 10) { e.faith -= 10; raiseEdict(state, 1, t('eng.edict.faith')); }
 }
 
 // 소명 (장이 끝날 때 확인)
@@ -1179,7 +1177,7 @@ export function hydrateState(obj) {
   for (const sd of Object.values(state.sides)) sd.capitalHp = Math.min(sd.capitalHp, CAPITAL_HP);
   state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null;
   state.edictOn ??= false; state.dilemmaPick ??= null; state.winKind ??= null;
-  state.silentRun ??= 0; state.legends ??= {}; state.miraDone ??= false; state.pendingDilemma ??= null; state.miraQuote ??= null; state.bloodKills ??= 0;
+  state.silentRun ??= 0; state.legends ??= {}; state.miraDone ??= false; state.pendingDilemma ??= null; state.miraQuote ??= null;
   state.commandments ??= []; state.saints ??= []; state.deeds ??= {}; state.fallen ??= []; state.sacred ??= null; state.destiny ??= null; state.destinyOffer ??= null; state.holyId ??= null;
   for (const sd of Object.values(state.sides)) { sd.cathedral ??= 0; sd.edict ??= 0; }
   state.grace ??= { round: 0, used: 0 }; state.roundMods ??= {}; state.miracleHand ??= [...FIRST_HAND]; state.miracleOffer ??= null; state.pendingSite ??= null; state.stats ??= { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 };
@@ -1292,10 +1290,6 @@ function resolveAction(state, a) {
         return logEvent(state, side, t('log.attackFail', { who: side, place }), dice, { tile: tl.id, kind: 'attack' });
       }
       if (!(foe === 'player' && state.roundMods.ark)) f.pop = Math.max(0, f.pop - 1);
-      if (side === 'player') {
-        state.bloodKills = (state.bloodKills ?? 0) + 1;
-        if (state.bloodKills % 3 === 0) raiseEdict(state, 1, t('eng.edict.blood'));
-      }
       if (tl.building === 'capital') {
         f.capitalHp -= 1;
         if (foe === 'player' && (f.cathedral ?? 0) >= 1) { f.cathedral -= 1; logEvent(state, side, t('log.cathedralFall', { part: CATHEDRAL[f.cathedral].name, stage: f.cathedral }), null, { tile: tl.id, kind: 'loss' }); }

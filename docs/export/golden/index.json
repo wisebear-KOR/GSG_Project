@@ -1,6 +1,6 @@
 {
   "generator": "tools/golden.mjs",
-  "ruleset": 9,
+  "ruleset": 10,
   "lang": "ko",
   "games": [
     {
@@ -30,10 +30,10 @@
     {
       "file": "s5-hard-veteran.json",
       "config": {"mode":"standard","size":5,"difficulty":"hard","seed":5303,"veteran":true},
-      "rounds": 9,
+      "rounds": 11,
       "winner": "enemy",
       "winKind": "edict",
-      "score": {"player":25,"enemy":41}
+      "score": {"player":31,"enemy":47}
     },
     {
       "file": "s6-normal-veteran.json",
@@ -47,9 +47,9 @@
       "file": "s6-easy-veteran.json",
       "config": {"mode":"standard","size":6,"difficulty":"easy","seed":6605,"veteran":true},
       "rounds": 12,
-      "winner": "player",
+      "winner": "enemy",
       "winKind": "score",
-      "score": {"player":38,"enemy":29}
+      "score": {"player":38,"enemy":42}
     },
     {
       "file": "s7-hard-first.json",

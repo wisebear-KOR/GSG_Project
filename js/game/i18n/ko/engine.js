@@ -91,10 +91,8 @@ export default {
   'eng.edict.doom': '심판의 날이 돌판을 갈랐다',
   'eng.edict.holyEnemy': '율법파가 성지에서 율법을 외웠다',
   'eng.edict.holyPlayer': '성지의 말씀이 율법을 지웠다',
-  'eng.edict.faith': '율법파가 경건을 돌에 새겼다',
   'eng.edict.mira': '미라의 소문이 율법파에 닿았다',
   'eng.edict.temple': '율법파가 신전을 높였다',
-  'eng.edict.blood': '쓰러진 자의 피가 율법을 굳힌다',
 
   // ---------- 은총의 까닭 (log.grace의 {why}) ----------
   // types: 금한 행동 종류 ['attack' | 'preach', ...]

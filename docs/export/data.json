@@ -3,7 +3,7 @@
     "source": "js/game/data.js",
     "generator": "tools/export-data.mjs",
     "lang": "ko",
-    "ruleset": 9,
+    "ruleset": 10,
     "conventions": [
       "A function value is written as an object whose only key is \"$fn\" (its JS source text). Port the logic by hand; see docs/spec/03-data.md.",
       "A RegExp value is written as an object with keys \"$re\" (source) and \"flags\"."
@@ -457,7 +457,7 @@
     "hidden": true,
     "text": "율법파 수도가 흔들리고(내구도 -1) 한 사람이 쓰러진다. 분노가 가라앉는다. 판에 한 번."
   },
-  "EDICT_MAX": 12,
+  "EDICT_MAX": 10,
   "ENEMY_LEADERS": {
     "elder": {
       "name": "장로 하르쿤",
@@ -1273,7 +1273,7 @@
     "graceDoctrineBelow": 3,
     "maxNames": 3
   },
-  "RULESET": 9,
+  "RULESET": 10,
   "SACRED_WORDS": [
     {
       "word": "무지개",
