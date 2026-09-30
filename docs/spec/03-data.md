@@ -41,7 +41,7 @@
 | [`OPPOSED`](#opposed) | 객체 | 4 | engine, main | 대립 교리 |
 | [`DOCTRINE_VOICE`](#doctrine_voice) | 객체 | 4 | interp | 교리가 깊어질 때 사제의 말투 |
 | [`MIRACLES`](#miracles--first_hand--doom) | 배열 | 8 | engine, main | 기적 카드 |
-| [`FIRST_HAND`](#miracles--first_hand--doom) | 배열 | 3 | engine | 첫 판 손패 |
+| [`FIRST_HAND`](#miracles--first_hand--doom) | 배열 | 3 | engine | 해금 3 전(첫 판~세 번째 판) 손패 |
 | [`DOOM`](#miracles--first_hand--doom) | 객체 | 1 | engine, main | 숨은 기적 「심판의 날」 |
 | [`TONES`](#tones) | 객체 | 4 | main | 말투 이름·효과 글 |
 | [`PROPHECY`](#prophecy) | 객체 | — | engine, main | 예언 보상·벌·종류 |
@@ -59,8 +59,8 @@
 | [`AWE_TITLES`](#awe_levels--awe_titles--blessings) | 배열 | 6 | main | 경외 레벨 칭호 |
 | [`BLESSINGS`](#awe_levels--awe_titles--blessings) | 객체 | 4 | main (+engine이 `config.blessing`으로) | 은사 |
 | [`SIGILS`](#sigils) | 객체 | 6 | main | 신의 인장 → SVG 심볼 |
-| [`RULES`](#rules) | 객체 | 9 | engine, main | 규칙 수치 모음 |
-| [상수](#상수) | 수 | — | — | `CAPITAL_HP` 3, `MAX_TEMPLE` 3, `MAX_ACTIONS` 6, `DOCTRINE_MAX` 6, `EDICT_MAX` 12, `DESTINY_POINTS` 5, `MAX_COMMANDMENTS` 2, `REVELATION_MAX` 100, `MAX_ROUNDS` 12, `RULESET` 6 |
+| [`RULES`](#rules) | 객체 | 8 | engine, main | 규칙 수치 모음 (`superiority`는 `435c3cc`에서 지웠다) |
+| [상수](#상수) | 수 | — | — | `CAPITAL_HP` 2, `MAX_TEMPLE` 3, `MAX_ACTIONS` 6, `DOCTRINE_MAX` 6, `EDICT_MAX` 12, `DESTINY_POINTS` 5, `MAX_COMMANDMENTS` 2, `REVELATION_MAX` 100, `MAX_ROUNDS` 12, `RULESET` 7 (engine의 `MODULES` 4는 `data.js` 밖) |
 | [`revelationCost`](#함수-칸-fn) | 함수 | — | (쓰이지 않음) | 계시 기본 비용 |
 
 ---
@@ -202,7 +202,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 ### ASCENSION
 
-어려움에서 이기면 열리는 승천 1~5단계의 **설명 글** 5줄 (main 설정 화면, 언어팩 배열 `data.ascension`): "율법파 시작 신도 +1, 식량 +4" · "율법 석판 한계 -2" · "신의 분노가 차는 격차 6 → 8" · "3막에 율법파 공격·선교 주사위 +1" · "은사 없이 시작". 효과는 engine이 `config.ascension` 값으로 적용한다: ≥1 율법파 신도 +1·식량 +4, ≥2 율법 석판 한계 −2(`edictMax`), ≥3 분노가 차는 격차 6→8, ≥4 3막에 율법파 공격·선교 주사위 +1(`enemyZeal` — 예전의 "3막 율법파 행동 +1"을 `afab303`에서 바꿨다), 5 은사 없이 시작(main — 설정 화면과 종료 화면 「새 땅」 모두). 1단계 글의 "식량 +4"와 4단계 글은 `afab303`에서 코드에 맞게 고쳤다.
+어려움에서 이기면 열리는 승천 1~5단계의 **설명 글** 5줄 (main 설정 화면, 언어팩 배열 `data.ascension`): "율법파 시작 신도 +1, 식량 +4" · "율법 석판 한계 -2" · "신의 분노가 차는 격차 6 → 8" · "3막에 율법파 공격·선교 주사위 +1" · "은사 없이 시작". 효과는 engine이 `config.ascension` 값으로 적용한다: ≥1 율법파 신도 +1·식량 +4, ≥2 율법 석판 한계 −2(`edictMax`), ≥3 분노가 차는 격차 6→8, ≥4 3막에 율법파 공격·선교 주사위 +1(`enemyZeal` — 예전의 "3막 율법파 행동 +1"을 `afab303`에서 바꿨다), 5 은사 없이 시작(main — 설정 화면과 종료 화면 「새 맵」 모두). 1단계 글의 "식량 +4"와 4단계 글은 `afab303`에서 코드에 맞게 고쳤다.
 
 ---
 
@@ -218,12 +218,12 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `name`, `text` | 문자열 | 이름, LLM 프롬프트의 "최근 사건" |
 | `rule` | 문자열 | 규칙 요약 (화면) |
 
-행 6. 효과는 engine이 id로 적용한다: `calm` 없음 (두 번째 판 3막에서는 덱에서 빠진다) · `drought` 식량 채집 −1 (단비가 내린 장은 없음) · `harvest` 평원 식량 채집 +1 · `plague` 장 끝에 양쪽 인구 −1 (인구 >1일 때, 방주가 우리를 지킨다) · `threat` 율법파 공격 주사위 +1 · `prophet` 탐험하면 반드시 신앙 +3. 청원(`makePetition`)도 가뭄·역병·예언자를 본다.
-덱: `dealDeck(EVENTS + (두 번째 판이면 DILEMMAS 중 셋), maxRounds + 2)`.
+행 6. 효과는 engine이 id로 적용한다: `calm` 없음 (해금 3 — 네 번째 판부터 — 3막에서는 덱에서 빠진다) · `drought` 식량 채집 −1 (단비가 내린 장은 없음) · `harvest` 평원 식량 채집 +1 · `plague` 장 끝에 양쪽 인구 −1 (인구 >1일 때, 방주가 우리를 지킨다) · `threat` 율법파 공격 주사위 +1 · `prophet` 탐험하면 반드시 신앙 +3. 청원(`makePetition`)도 가뭄·역병·예언자를 본다.
+덱: `dealDeck(EVENTS + (해금 3이면 DILEMMAS 중 셋), maxRounds + 2)`. "해금 N" = engine `unlocked(state, N)`/`unlockedCfg(cfg, N)` — 끝낸 판 수 `config.unlock`(없으면 `veteran ? 4 : 0`)이 N 이상 (`8ba0ef8`, [02 §16.2](02-rules.md#162-모듈-해금-configunlock과-두-번째-판부터-configveteran)).
 
 ### DILEMMAS · MIRA
 
-**`DILEMMAS`**: 두 갈래 사건 (두 번째 판부터, 판마다 시드 해시로 여섯 중 셋이 사건 덱에 섞인다). `EVENTS` 행에 `choice`가 붙은 모양.
+**`DILEMMAS`**: 두 갈래 사건 (해금 3 — 네 번째 판부터, 판마다 시드 해시로 여섯 중 셋이 사건 덱에 섞인다). `EVENTS` 행에 `choice`가 붙은 모양.
 
 | 칸 | 형 | 뜻 |
 |---|---|---|
@@ -239,7 +239,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 행 6: `refugees`, `pilgrims`, `inquisitor`, `schism`, `merchant`, `healer`.
 
-**`MIRA`**: 분열의 예언자 — 덱에 없고, 두 번째 판·2막부터 대립 교리가 둘 다 3 이상이거나 신앙 바닥으로 한 장을 버텼을 때 **한 번** 그 장의 사건을 밀어내고 나온다 (`startRound`). 모양은 `DILEMMAS` 행과 같고 `special: true`, 선택지 셋. 선택지 칸이 둘 더 있다: `edict` (정수, 율법 석판 +n), `calm` (`true`, 신앙 바닥 카운트·연속 침묵을 0으로).
+**`MIRA`**: 분열의 예언자 — 덱에 없고, 해금 4(다섯 번째 판부터)·2막부터 대립 교리가 둘 다 3 이상이거나 신앙 바닥으로 한 장을 버텼을 때 **한 번** 그 장의 사건을 밀어내고 나온다 (`startRound`). 모양은 `DILEMMAS` 행과 같고 `special: true`, 선택지 셋. 선택지 칸이 둘 더 있다: `edict` (정수, 율법 석판 +n), `calm` (`true`, 신앙 바닥 카운트·연속 침묵을 0으로).
 
 **`MIRA_TWIST`**: 교리 id → 미라가 지난 계시를 비틀어 인용할 때 붙이는 말 (`eng.miraQuote`). 4행.
 
@@ -257,7 +257,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 행 10: L1 확장(마을·목재·식량), L2 식량·식량·기도, L3 돌·성벽·목재, L4 성벽·돌·기도, L5 공격·공격·식량, L6 기도·신전·식량, L7 선교·선교·기도, L8 식량·신전·마을, L9 마을·마을·목재, L10 식량·목재·기도(검열).
 
 - engine `planEnemy`: `rules = [rush?, rally?, ...tail, ...card.rules]`. 표에 없는 합성 규칙이 셋 끼어든다 — `rush` `{type: 'attack', target: 'capital'}`(우리 대성당 공사가 시작되면), `rally` `{type: 'attack'}`(율법파 결집 중), 그리고 `tail`은 막마다 칼(`ZEAL_ACT`: 보통 3막·어려움 2막부터)이면 `[rules[0], {type: 'attack'}, rules[1], rules[2]]`, 아니면 `card.rules`. 공격·선교는 율법파 신도가 2 이상일 때만, 대상이 없으면(튜토리얼 제외) 우리 쪽으로 마을을 짓는다. 남는 행동은 `autoFill`. 자세한 것은 [02 §4.4·§4.9](02-rules.md#44-계획-planenemy).
-- `lawPool`: 튜토리얼은 L5·L7·L10 제외. 검열 L10은 두 번째 판 + 보통 이상. 지도자 `deck.remove`/`deck.add`를 적용 (add는 **한 장 더** — 같은 id가 두 번 들어갈 수 있다). 두 번째 판 2막 첫 장에는 (풀에 L5가 있으면) L5 한 장을 덱 끝에서 네 번째 자리(`splice(len − 3, 0, L5)` — 다음에 뽑을 세 장 바로 밑)에 끼운다.
+- `lawPool`: 튜토리얼은 L5·L7·L10 제외. 검열 L10은 해금 4(다섯 번째 판부터) + 보통 이상. 지도자 `deck.remove`/`deck.add`를 적용 (add는 **한 장 더** — 같은 id가 두 번 들어갈 수 있다). 해금 3(네 번째 판부터)이면 2막 첫 장에 (풀에 L5가 있으면) L5 한 장을 덱 끝에서 네 번째 자리(`splice(len − 3, 0, L5)` — 다음에 뽑을 세 장 바로 밑)에 끼운다.
 - `lawThreat`(어려움의 두 장 비교): 실제로 할 수 있는 규칙마다 가중치 attack 3, preach 2, build 2, pray 1, gather 1.
 
 ### ENEMY_LEADERS
@@ -307,7 +307,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 ### OPPOSED
 
-교리 → 반대 교리 (`peace↔war`, `abundance↔wisdom`). 두 번째 판부터 `recordRevelation`이 반대 교리를 한 칸 내린다 (이미 얻은 특전 칸 2·4·6 아래로는 내리지 않는다). 미라의 발동 조건(대립 교리가 둘 다 3 이상)은 engine이 같은 쌍을 직접 적어 검사한다. main은 확인 화면에 "흔들릴 교리"를 보여 준다.
+교리 → 반대 교리 (`peace↔war`, `abundance↔wisdom`). 해금 4(다섯 번째 판부터)면 `recordRevelation`이 반대 교리를 한 칸 내린다 (이미 얻은 특전 칸 2·4·6 아래로는 내리지 않는다). 미라의 발동 조건(대립 교리가 둘 다 3 이상)은 engine이 같은 쌍을 직접 적어 검사한다. main은 확인 화면에 "흔들릴 교리"를 보여 준다.
 
 ### DOCTRINE_VOICE
 
@@ -335,7 +335,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 효과는 engine `castMiracle`/`MIRACLE_FX`에 있다: 번개(성벽을 무너뜨리거나 신도 −1, 수도면 석판 −2), 단비(식량 +3, 이번 장 가뭄 무효), 풍요(목재·돌 +2), 만나(식량 +4), 방주(이번 장 우리 손실 막기), 방언(선교 +1), 불기둥(시야 3칸, 공격 +1), 부활(인구 +1, 한도면 신앙 +2). 장당 하나.
 
-`FIRST_HAND` = `['lightning', 'rain', 'bounty']` — 첫 판(과 튜토리얼)의 손패. 두 번째 판은 `hashPick`으로 번개/단비 중 하나 + 나머지에서 둘. 두 번째 판의 드래프트(5장, 빠른 판 3장)에서 손에 없는 기적 가운데 `deck` 난수로 셋을 보여 하나를 더한다.
+`FIRST_HAND` = `['lightning', 'rain', 'bounty']` — 첫 판~세 번째 판(과 튜토리얼)의 손패. 해금 3(네 번째 판부터)은 `hashPick`으로 번개/단비 중 하나 + 나머지에서 둘. 해금 3 판의 드래프트(5장, 빠른 판 3장)에서 손에 없는 기적 가운데 `deck` 난수로 셋을 보여 하나를 더한다.
 
 `DOOM` — 숨은 기적 「심판의 날」: `{id: 'doom', name, cost: 0, hidden: true, text}`. 신의 분노가 3이면(튜토리얼 제외) **판에 한 번** 쓸 수 있다(`state.doomUsed`, `9b43bbf`): 율법파 수도 −1·신도 −1, 분노 0, 석판 −2. 드래프트에 나오지 않는다. 설명 `data.miracle.doom.text`도 "… 분노가 가라앉는다. 판에 한 번."으로 바뀌었다.
 
@@ -359,7 +359,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 ### COMMANDMENTS
 
-영원한 계명 ("영원히 …"로 새긴다; 두 번째 판·3장부터, 판당 `MAX_COMMANDMENTS` = 2). 키 = 계명 id.
+영원한 계명 ("영원히 …"로 새긴다; 해금 4(다섯 번째 판부터)·3장부터, 판당 `MAX_COMMANDMENTS` = 2). 키 = 계명 id.
 
 | 칸 | 형 | 뜻 |
 |---|---|---|
@@ -383,7 +383,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 ### PRIESTS
 
-대사제 성향. 첫 판은 `loyal`, 두 번째 판부터 `hashPick(loyal을 뺀 키, 'priest', seed)`. 수치 효과는 없다.
+대사제 성향. 해금 3 전(첫 판~세 번째 판)은 `loyal`, 해금 3(네 번째 판부터)이면 `hashPick(loyal을 뺀 키, 'priest', seed)`. 수치 효과는 없다.
 
 | 칸 | 뜻 |
 |---|---|
@@ -398,19 +398,19 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 ### DESTINIES
 
-소명 (두 번째 판부터, 도전 링크 제외). 판 시작에 셋을 제시하고 고르지 않으면 첫째. 이루면 승점 `DESTINY_POINTS`(5).
+소명 (해금 2 — 세 번째 판부터, 도전 링크 제외). 판 시작에 셋을 제시하고 고르지 않으면 첫째. 이루면 승점 `DESTINY_POINTS`(5).
 
 | 칸 | 형 | 뜻 |
 |---|---|---|
 | `name`, `text` | 문자열 | |
 | `test` | **함수** `(st, v) => boolean` | `st` = 게임 상태, `v = {villages: villageCount(st, 'player')}` |
 
-행 8과 조건(함수 원문 요약): `villages` 8장까지 마을 4 · `convert` 개종 3회 · `ultimate` 교리 하나가 6 · `temple` 6장까지 신전 3단계 · `feeder` 마지막 장까지 굶은 적 없음 · `fortress` 마지막 장에 수도 내구도 3 · `sword` 마을 2곳 빼앗기 (시련 `earth`에서는 제시하지 않는다) · `namer` 이름 3개.
+행 8과 조건(함수 원문 요약): `villages` 8장까지 마을 4 · `convert` 개종 3회 · `ultimate` 교리 하나가 6 · `temple` 6장까지 신전 3단계 · `feeder` 마지막 장까지 굶은 적 없음 · `fortress` 마지막 장에 수도 내구도 `>= CAPITAL_HP`(`435c3cc`부터 상수 — 지금 2, 한 번도 맞지 않음) · `sword` 마을 2곳 빼앗기 (시련 `earth`에서는 제시하지 않는다) · `namer` 이름 3개.
 제시 순서: `Object.keys(DESTINIES)`를 `hashPick([0..9], seed, 'dest', id)` 오름차순(동률은 id 사전순)으로 정렬해 앞의 셋. 판정: 장 끝 `checkDestiny`(유지 단계 안과 `recordHistory`에서).
 
 ### JUDGEMENTS
 
-심판의 기준 = 승점 공식. 첫 판은 `classic`, 두 번째 판부터 `hashPick(키 목록, 'judgement', seed)`.
+심판의 기준 = 승점 공식. 해금 2 전(첫 판·두 번째 판)은 `classic`, 해금 2(세 번째 판부터)면 `hashPick(키 목록, 'judgement', seed)`.
 
 | 칸 | 형 | 뜻 |
 |---|---|---|
@@ -422,7 +422,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 ### ACTS · FESTIVALS · MONTHS
 
-- `ACTS`: 세 막 `{name, text?}` (1막은 `text`가 없다). 막 번호 `actOf(state)`: `round < floor(maxRounds/4)+1` → 1, `round < ceil(maxRounds×2/3)` → 2, 그 밖 3. 두 번째 판에서 막이 바뀌면 규칙이 바뀐다 (2막: 율법 덱에 L5, 성지가 석판을 움직이기 시작, 미라 가능 / 3막: 평온한 계절 없음, 승천 4의 행동 +1). main은 막 이름·글을 장 제목과 지도자 말로 보여 준다.
+- `ACTS`: 세 막 `{name, text?}` (1막은 `text`가 없다). 막 번호 `actOf(state)`: `round < floor(maxRounds/4)+1` → 1, `round < ceil(maxRounds×2/3)` → 2, 그 밖 3. 막이 바뀌면 규칙이 바뀐다 (2막: 율법 덱에 L5(해금 3), 성지가 석판을 움직이기 시작(해금 1), 미라 가능(해금 4) / 3막: 평온한 계절 없음(해금 3), 승천 4의 율법파 공격·선교 주사위 +1). 막 머리말 `text`는 해금 3부터 지도자 말로 나온다. main은 막 이름·글을 장 제목과 지도자 말로 보여 준다.
 - `FESTIVALS`: `{"2": 하지제, "3": 추수제, "last": 동지의 밤}` — 막이 바뀌는 장·마지막 장의 부제 (main).
 - `MONTHS`: 달 이름 12개. `monthOf(state) = MONTHS[min(11, floor((round−1)×12 / maxRounds))]`.
 
@@ -465,17 +465,18 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `followersPerFaith` | 3 | 신도 3명마다 신앙 수입 +1 (`faithIncome`) |
 | `baseFaithIncome` | 1 | 매 장 기본 신앙 수입 |
 | `heresyGrace` | 1 | 신앙 0으로 버틸 수 있는 장 수, 그다음 장부터 신도가 율법파로 떠난다 (`upkeep`) |
-| `superiority` | 3 | 신도가 이만큼 많으면 선교·공격 주사위 +1 |
 | `lowFaith` | 2 | 이 이하이면 자동 노동이 기도를 먼저 하고 신앙 청원이 나온다 (`autoFill`, `makePetition`) |
 | `gracePerRound` | 1 | 청원·이름·서원으로 받는 은총 신앙의 장당 한도 (`grantGrace`) |
 | `graceDoctrineBelow` | 3 | 비유·첫 이름·전생의 유적의 교리 가속은 그 교리가 이 값보다 낮을 때만 (`recordRevelation`, main, `discoverSites`) |
 | `maxNames` | 3 | 판당 이름 수 (`nameTile`) |
 
+칸 8개. `superiority`(3 — 신도가 이만큼 많으면 공격·방어 주사위 +1)는 `435c3cc`에서 규칙과 함께 지웠다([02 §1.7](02-rules.md#17-파생-수치)). `data.json`의 `RULES`에도 없다.
+
 ### 상수
 
 | 이름 | 값 | 뜻 · 쓰는 곳 |
 |---|---|---|
-| `CAPITAL_HP` | 3 | 수도 내구도 시작값 (engine), 화면 칸 수 (main) |
+| `CAPITAL_HP` | 2 | 수도 내구도 시작값 (engine), 소명 `fortress`의 문턱 (`DESTINIES`), 화면 칸 수·업적 「흔들림 없는 신전」의 판정 `capitalFull` (main). `435c3cc`에서 3 → 2 (양쪽) — 점령이 실제로 닿는 길이 되게: 커밋 기록의 탐욕 최적화기에서 수도 점령으로 이긴 판 7% → 15%, 고정 한 줄 스크립트는 그대로 |
 | `MAX_TEMPLE` | 3 | 신전 최고 단계 |
 | `MAX_ACTIONS` | 6 | 행동 수 상한 (`actionLimit`) |
 | `DOCTRINE_MAX` | 6 | 교리 트랙 끝 = 궁극 |
@@ -484,7 +485,9 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `MAX_COMMANDMENTS` | 2 | 판당 계명 수 |
 | `REVELATION_MAX` | 100 | 계시 글자 수 상한 (main `revMax`; 시련 `cloister`는 20) |
 | `MAX_ROUNDS` | 12 | **쓰이지 않는다** (`createState`는 `MAP_SIZES`가 없을 때 숫자 12를 직접 쓴다) |
-| `RULESET` | 6 | 규칙 판 번호 (`data.js:247`). 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). `e68a240`에서 4 → 5로 올렸다 — `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)·`e68a240`(막기 대칭·헤아린 성벽 예산)의 규칙 변경이 한 번에 반영된다. 그 사이(`afab303`~`e68a240` 직전)에 둔 판은 재조정 전의 판과 같은 `-r4` 키로 남아 있다. `9b43bbf`(심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정)는 올리지 않아 `-r5`에 그 전후 판이 섞인다. `87a0fce`에서 5 → 6(승점으로 정하는 선공, 결집 12·6점과 신도 +1, 같은 기적 재사용 +1, 두 장 전 메아리). `7a28084`의 7×7 대성당 ×1.5는 올리지 않고 `-r6` 안에서 바뀌었다 |
+| `RULESET` | 7 | 규칙 판 번호 (`data.js:247`). 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). `e68a240`에서 4 → 5로 올렸다 — `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)·`e68a240`(막기 대칭·헤아린 성벽 예산)의 규칙 변경이 한 번에 반영된다. 그 사이(`afab303`~`e68a240` 직전)에 둔 판은 재조정 전의 판과 같은 `-r4` 키로 남아 있다. `9b43bbf`(심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정)는 올리지 않아 `-r5`에 그 전후 판이 섞인다. `87a0fce`에서 5 → 6(승점으로 정하는 선공, 결집 12·6점과 신도 +1, 같은 기적 재사용 +1, 두 장 전 메아리). `7a28084`의 7×7 대성당 ×1.5는 올리지 않고 `-r6` 안에서 바뀌었다. `435c3cc`에서 6 → 7(신도 수 우위 삭제, 수도 내구도 2). `8ba0ef8`의 해금 단계는 올리지 않았다 |
+
+`data.js` 밖의 상수 하나: engine의 **`MODULES` = 4**(`engine.js:68`, `8ba0ef8`) — 모듈 해금 단계의 최대(끝낸 판 수를 이 값에서 자른다). main이 import해 `unlock: min(MODULES, 서고 길이)`로 넘기고 해금 안내의 끝을 정한다. `data.json`에는 없다.
 
 ---
 
