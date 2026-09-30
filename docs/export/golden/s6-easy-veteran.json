@@ -481,7 +481,7 @@
         "revealed": "000000100000110000111000111100111100",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"abundance","n":2},
+        "streak": {"doctrine":"abundance","n":3},
         "silentRun": 0,
         "prophecy": {"kind":"pop","rounds":3,"due":5},
         "destiny": {"id":"fortress","done":false},
@@ -511,7 +511,7 @@
       "plan": ["explore:B2:","explore:A1:","explore:A2:","gather:B1:food"],
       "ordered": ["explore:B2:"],
       "log": [
-        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A5"}},
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"F2"}},
         {"side":"god","text":"“안개 너머를 탐험하라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 안개 지대(B2) 속을 탐험한다!","ui":true},
         {
@@ -691,7 +691,7 @@
         "revealed": "111000111100111110111110111111111110",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"wisdom","n":1},
+        "streak": {"doctrine":"wisdom","n":2},
         "silentRun": 0,
         "destiny": {"id":"fortress","done":false},
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":1,"petitions":2},
@@ -724,7 +724,7 @@
       "plan": ["gather:B1:food","gather:D1:wood","gather:C2:stone","gather:C1:food"],
       "ordered": [],
       "log": [
-        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A5"}},
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"F2"}},
         {"side":"god","text":"“안개 너머를 탐험하라”","ui":true},
         {"side":"priest","text":"석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — 탐험(닿는 안개가 없다). 나머지는 각자 할 일을 하라.","ui":true},
         {
@@ -814,7 +814,7 @@
         "revealed": "111000111100111110111110111111111110",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"wisdom","n":1},
+        "streak": {"doctrine":"wisdom","n":2},
         "silentRun": 0,
         "destiny": {"id":"fortress","done":false},
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":1,"petitions":2},
@@ -837,7 +837,7 @@
       "plan": ["pray:F2:","gather:B1:food","gather:D1:wood","gather:C2:stone"],
       "ordered": [],
       "log": [
-        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +2.","fx":{"kind":"guard","tile":"A5"}},
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +2.","fx":{"kind":"guard","tile":"F2"}},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(A4)에서 돌을 2 얻었다.",
@@ -1536,7 +1536,7 @@
         "revealed": "111000111100111110111110111111111110",
         "holyOwner": null,
         "wrath": 2,
-        "streak": {"doctrine":"war","n":1},
+        "streak": {"doctrine":"war","n":2},
         "silentRun": 0,
         "destiny": {"id":"fortress","done":true},
         "stats": {"converted":0,"captured":1,"miracles":0,"prophecies":1,"petitions":2},

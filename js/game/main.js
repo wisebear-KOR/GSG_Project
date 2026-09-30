@@ -1354,7 +1354,7 @@ async function playback(before) {
     if (repeatHidden) await fx.wait(120); else await playFx(log);
     // 연속 성공 콤보: 우리 성공이 이어질수록 음이 오른다
     if (log.side === 'player' && log.fx) {
-      const good = log.dice ? log.dice.win : ['gain', 'build', 'treasure', 'grace', 'streak', 'birth', 'cathedral', 'prophecy'].includes(log.fx.kind);
+      const good = log.dice ? log.dice.win : ['gain', 'build', 'treasure', 'grace', 'birth', 'cathedral', 'prophecy'].includes(log.fx.kind);
       const bad = log.dice ? !log.dice.win : ['fail', 'blocked', 'loss', 'warn'].includes(log.fx.kind);
       if (good) combo += 1; else if (bad) combo = 0;
       if (good && combo >= 2 && !fx.motion.skip) sfx.coin(Math.min(7, combo + 2));
@@ -1474,7 +1474,7 @@ function bannerFor(log, seen) {
     gain: [isPray ? 'i-temple' : `i-${res}`, isPray ? t('ui.banner.pray') : t('ui.banner.gather')],
     treasure: ['i-faith', t('ui.banner.treasure')], explore: ['e-prophet', t('ui.banner.explore')], build: ['i-house', t('ui.banner.build')], cathedral: ['i-temple', t('ui.banner.cathedral')],
     preach: ['d-peace', t('ui.banner.preach')], attack: ['d-war', t('ui.banner.attack')], blocked: ['i-shield', t('ui.banner.blocked')], fail: ['i-shield', t('ui.banner.fail')],
-    birth: ['i-house', t('ui.banner.birth')], loss: ['i-shield', t('ui.banner.loss')], warn: ['i-faith', t('ui.banner.warn')], ban: ['s-tablet', t('ui.banner.ban')], grace: ['i-faith', t('ui.banner.grace')], prophecy: ['i-faith', t('ui.banner.prophecy')], bless: ['i-faith', t('ui.banner.bless')], wrath: ['d-war', t('ui.banner.wrath')], streak: ['i-faith', t('ui.banner.streak')], edict: ['s-tablet', t('ui.banner.edict')], dilemma: ['e-prophet', t('ui.banner.dilemma')], saint: ['i-faith', t('ui.banner.saint')], legend: ['i-faith', t('ui.banner.legend')], commandment: ['s-tablet', t('ui.banner.commandment')], site: ['e-prophet', t('ui.banner.site')], lightning: ['m-lightning', t('ui.banner.lightning')], rain: ['m-rain', t('ui.banner.rain')], bounty: ['m-bounty', t('ui.banner.bounty')],
+    birth: ['i-house', t('ui.banner.birth')], loss: ['i-shield', t('ui.banner.loss')], warn: ['i-faith', t('ui.banner.warn')], ban: ['s-tablet', t('ui.banner.ban')], grace: ['i-faith', t('ui.banner.grace')], prophecy: ['i-faith', t('ui.banner.prophecy')], bless: ['i-faith', t('ui.banner.bless')], wrath: ['d-war', t('ui.banner.wrath')], edict: ['s-tablet', t('ui.banner.edict')], dilemma: ['e-prophet', t('ui.banner.dilemma')], saint: ['i-faith', t('ui.banner.saint')], legend: ['i-faith', t('ui.banner.legend')], commandment: ['s-tablet', t('ui.banner.commandment')], site: ['e-prophet', t('ui.banner.site')], lightning: ['m-lightning', t('ui.banner.lightning')], rain: ['m-rain', t('ui.banner.rain')], bounty: ['m-bounty', t('ui.banner.bounty')],
   }[e.kind];
   if (!map) return null;
   const [icon, verb] = map;
@@ -1584,12 +1584,6 @@ async function playFx(log) {
       sfx.page();
       if (home) fx.ring(svg, home, '#f4efe4', true);
       return fx.wait(700);
-    case 'streak':
-      sfx.holy();
-      fx.flash('rgba(255,236,170,.45)', 700);
-      if (tile) { fx.ring(svg, tile, '#ffe28a', true); fx.sparks(tileToHost(svg, null, tile), 40, ['#fff6d0', '#ffd98a', '#ffffff']); }
-      if (e.gain && home) await gainTo(home);
-      return fx.wait(900);
     case 'wrath':
       sfx.thunder?.();
       fx.flash('rgba(160,30,20,.35)', 600);
@@ -2102,7 +2096,7 @@ function renderAltar() {
     const opp = result.doctrine && unlocked(state, 4) ? OPPOSED[result.doctrine] : null;
     if (opp && state.sides.player.doctrine[opp] > [6, 4, 2, 0].find((f) => state.sides.player.doctrine[opp] >= f)) tags.push(`<span class="wtag tone-curse">${DOCTRINE[opp].name} -1</span>`);
     const st = state.streak;
-    if (result.doctrine && st?.doctrine === result.doctrine && st.n === 2) tags.push(`<span class="wtag ok">${t('ui.tag.streak', { name: DOCTRINE[result.doctrine].name })}</span>`);
+    if (result.doctrine && st?.doctrine === result.doctrine && st.n >= 2) tags.push(`<span class="wtag warn">${t('ui.tag.streak', { name: DOCTRINE[result.doctrine].name })}</span>`);
     const carve = pending.command ? `<label class="seal-prophecy carve"><input type="checkbox" class="carve-box" ${pending.carve ? 'checked' : ''}>
       ${t('ui.carve', { name: esc(COMMANDMENTS[pending.command].name), text: esc(COMMANDMENTS[pending.command].text) })}</label>` : '';
     const seal = pending.prophecy ? `<label class="seal-prophecy"><input type="checkbox" class="prophecy-box" ${pending.seal ? 'checked' : ''}>

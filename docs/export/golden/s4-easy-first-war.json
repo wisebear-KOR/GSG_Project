@@ -768,7 +768,7 @@
         "revealed": "1100111011111111",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"war","n":1},
+        "streak": {"doctrine":"war","n":2},
         "silentRun": 0,
         "legends": {"C2":"분노의 마을"},
         "stats": {"converted":0,"captured":2,"miracles":0,"prophecies":0,"petitions":2},
@@ -801,7 +801,7 @@
       "plan": ["build:C2:wall","build:A2:village","gather:B1:stone","gather:A1:wood"],
       "ordered": ["build:C2:wall","build:A2:village"],
       "log": [
-        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A3"}},
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"D2"}},
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 우리 마을(C2)에 성벽을 쌓는다, 그리고 숲(A2)에 마을을 세운다!","ui":true},
         {
@@ -886,7 +886,7 @@
         "revealed": "1110111011111111",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"war","n":1},
+        "streak": {"doctrine":"war","n":2},
         "silentRun": 0,
         "legends": {"C2":"분노의 마을"},
         "stats": {"converted":0,"captured":2,"miracles":0,"prophecies":0,"petitions":2},

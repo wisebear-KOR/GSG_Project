@@ -783,6 +783,7 @@ body.reduce-motion .intent-badge, body.reduce-motion .intent-ring { animation: n
 .wtag.tone-curse { background: rgba(180, 50, 40, .14); border-color: rgba(180, 50, 40, .45); color: #7a2016; }
 .wtag.tone-metaphor { background: rgba(122, 91, 208, .12); border-color: rgba(122, 91, 208, .4); color: #46318a; }
 .wtag.ok { background: rgba(201, 162, 74, .25); color: var(--ink); }
+.wtag.warn { background: rgba(180, 50, 40, .12); border-color: rgba(180, 50, 40, .4); color: #7a2016; }
 .wtag.name { background: rgba(61, 111, 182, .14); border-color: rgba(61, 111, 182, .4); color: #1f3f73; }
 .order .word { font: 600 11.5px var(--font-ui); color: #8a5a00; margin-left: 4px; }
 .seal-prophecy { display: flex; gap: 8px; align-items: center; margin-top: 8px; padding: 6px 10px; border-radius: 10px; background: rgba(122, 91, 208, .08); border: 1px dashed rgba(122, 91, 208, .45); font: 13px var(--font-ui); color: #3a2a6e; cursor: pointer; }

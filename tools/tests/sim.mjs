@@ -3,6 +3,12 @@ import { E, I, L, C, D, mulberry32, pick, REVELATIONS, SMART_REVS, doSpeak, doAc
 export { E, I, L, C, D, mulberry32, pick, REVELATIONS, SMART_REVS, doSpeak, doAccept };
 
 // ---------------- fixed scripts (text) ----------------
+// 고정 문장 돌려쓰기 (평가자가 찾은 눈먼 전쟁 돌리기 포함) — rotm:<이름>, 기적은 smartMiracle
+export const ROTATIONS = {
+  war3: ['율법파에게 저주를, 쳐라, 마을을 넓혀라', '분노하라, 쳐라, 마을을 넓혀라, 곡식을 거두라', '성벽을 쌓아 지켜라'],
+  war3b: ['율법파 마을을 쳐라, 마을을 넓혀라', '성벽을 쌓아 지켜라, 곡식을 거두라', '율법파를 공격하라, 나무를 베라'],
+  mix4: ['마을을 넓히고 곡식을 거두라, 나무를 베라', '돌을 캐고 신전을 높여라', '이웃에게 사랑을 전하고 곡식을 거두라', '쳐라, 성벽을 쌓아 지켜라'],
+};
 export const FIXED = {
   silence: null,
   pray: '기도하고 경배하라',
@@ -26,7 +32,7 @@ function evalState(s) {
   if (s.winner === 'player') return 1000;
   if (s.winner === 'enemy' || s.winner === 'draw') return -1000;
   const p = s.sides.player;
-  return E.score(s, 'player') - E.score(s, 'enemy') + 0.35 * Math.min(p.faith, 12) + 0.15 * (p.food + p.wood + p.stone) - (p.food < p.pop ? 2 : 0);
+  return E.score(s, 'player') - E.score(s, 'enemy') + 0.35 * Math.min(p.faith, 12) + 0.15 * (p.food + p.wood + p.stone) - (p.food < p.pop ? 2 : 0) - 2 * E.braceAhead(s);
 }
 export function cloneLite(s) { return structuredClone({ ...s, log: [] }); }
 export function smartChooseText(state, rng, { cands = SMART_REVS, samples = 2, record = null } = {}) {
@@ -189,6 +195,12 @@ export function makePolicy(name) {
     offer: (s) => s.miracleOffer.find((x) => ['manna', 'ark', 'revive'].includes(x)) ?? s.miracleOffer[0],
     speak: (s, rng) => ({ text: rolloutChooseText(s, rng), seal: true }), site: () => 'take',
   };
+  const rm = name.match(/^rotm:(\w+)$/);
+  if (rm) {
+    const lines = ROTATIONS[rm[1]];
+    if (!lines) throw new Error('unknown rotation ' + rm[1]);
+    return { miracle: (s) => (s.round < s.maxRounds ? smartMiracle(s) : null), offer: (s) => s.miracleOffer[0], speak: (s) => ({ text: lines[(s.round - 1) % lines.length], seal: false }), site: () => 'take' };
+  }
   const m = name.match(/^(fix|fixm):(\w+)$/);
   if (m) {
     const text = FIXED[m[2]];

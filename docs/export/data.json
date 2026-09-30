@@ -3,7 +3,7 @@
     "source": "js/game/data.js",
     "generator": "tools/export-data.mjs",
     "lang": "ko",
-    "ruleset": 11,
+    "ruleset": 12,
     "conventions": [
       "A function value is written as an object whose only key is \"$fn\" (its JS source text). Port the logic by hand; see docs/spec/03-data.md.",
       "A RegExp value is written as an object with keys \"$re\" (source) and \"flags\"."
@@ -404,7 +404,7 @@
       "name": "전쟁",
       "perks": {
         "2": "공격 주사위 +1",
-        "4": "공격 주사위 +1 (누적)",
+        "4": "성벽이 돌 1 (원래 2)",
         "6": "궁극 — 공격에 지면 신도 대신 신앙 2가 탄다"
       }
     },
@@ -1273,7 +1273,7 @@
     "graceDoctrineBelow": 3,
     "maxNames": 3
   },
-  "RULESET": 11,
+  "RULESET": 12,
   "SACRED_WORDS": [
     {
       "word": "무지개",

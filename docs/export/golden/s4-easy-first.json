@@ -344,16 +344,11 @@
           "act": "attack:D2:"
         },
         {"side":"player","text":"은총 — 양치기 아벨의 청원에 응답했다. 신앙 +1.","fx":{"kind":"grace","tile":"D2","gain":{"faith":1}}},
-        {
-          "side": "player",
-          "text": "말씀이 세 장 이어졌다 — 풍요의 기적. 곳간이 넘친다. 식량 +4.",
-          "fx": {"kind":"streak","tile":"D2","gain":{"food":4}}
-        },
         {"side":"leader","text":"장로 하르쿤: “'들어'를 바라는구나. 배부른 자는 율법을 잊는다.”","ui":true}
       ],
       "digest": {
         "player": {
-          "food": 7,
+          "food": 3,
           "wood": 4,
           "stone": 7,
           "faith": 9,
@@ -386,7 +381,7 @@
         "revealed": "1100111011111111",
         "holyOwner": null,
         "wrath": 0,
-        "streak": null,
+        "streak": {"doctrine":"abundance","n":3},
         "silentRun": 0,
         "saints": [{"name":"석공 브엘","kind":"guardian"}],
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":2},
@@ -401,7 +396,7 @@
       "lawCard": "L1",
       "first": "enemy",
       "act": 2,
-      "petition": {"from":"방직공 레아","need":null},
+      "petition": {"from":"방직공 레아","need":{"type":"gather","gather":"food"}},
       "revelation": "이웃에게 나의 말씀을 전하라",
       "cost": 1,
       "tone": "command",
@@ -414,11 +409,12 @@
       "accepted": [],
       "rejected": [],
       "petitionAnswered": false,
-      "auto": ["gather:C1:wood","gather:A2:food","gather:A1:stone","gather:B1:food"],
+      "auto": ["gather:A2:food","gather:C1:wood","gather:A1:stone","gather:B1:food"],
       "enemyPlan": ["build:C2:village","gather:B4:wood","gather:A2:food"],
-      "plan": ["gather:C1:wood","gather:A2:food","gather:A1:stone","gather:B1:food"],
+      "plan": ["gather:A2:food","gather:C1:wood","gather:A1:stone","gather:B1:food"],
       "ordered": [],
       "log": [
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"D2"}},
         {"side":"god","text":"“이웃에게 나의 말씀을 전하라”","ui":true},
         {"side":"priest","text":"석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — 선교(닿는 율법파 땅이 없다). 나머지는 각자 할 일을 하라.","ui":true},
         {"side":"player","text":"신도들은 평원(A2)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"A2"}},
@@ -459,7 +455,7 @@
       ],
       "digest": {
         "player": {
-          "food": 6,
+          "food": 2,
           "wood": 6,
           "stone": 10,
           "faith": 10,
@@ -507,7 +503,7 @@
       "lawCard": "L9",
       "first": "enemy",
       "act": 2,
-      "petition": {"from":"석공 브엘","need":{"type":"pray"}},
+      "petition": {"from":"석공 브엘","need":{"type":"gather","gather":"food"}},
       "revelation": "축복하노니 들판의 곡식을 거두어라",
       "cost": 1,
       "tone": "blessing",
@@ -519,7 +515,7 @@
       },
       "accepted": ["gather:A2:food"],
       "rejected": [],
-      "petitionAnswered": false,
+      "petitionAnswered": true,
       "auto": ["gather:B1:food","gather:C1:wood","gather:A1:stone"],
       "enemyPlan": ["build:C3:village","build:D1:village","gather:B4:wood","build:D3:village"],
       "plan": ["gather:A2:food","gather:B1:food","gather:C1:wood","gather:A1:stone"],
@@ -562,14 +558,15 @@
         {"side":"enemy","text":"율법파는 자원이 모자라 평원(D3)에 짓지 못했다.","fx":{"kind":"fail","tile":"D3"},"act":"build:D3:village"},
         {"side":"player","text":"역병으로 우리 부족 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"enemy","text":"역병으로 율법파 1명을 잃었다.","fx":{"kind":"loss"}},
+        {"side":"player","text":"은총 — 석공 브엘의 청원에 응답했다. 신앙 +1.","fx":{"kind":"grace","tile":"D2","gain":{"faith":1}}},
         {"side":"leader","text":"장로 하르쿤: “곡식 창고가 신을 대신하지는 못한다.”","ui":true}
       ],
       "digest": {
         "player": {
-          "food": 10,
+          "food": 6,
           "wood": 8,
           "stone": 13,
-          "faith": 11,
+          "faith": 12,
           "pop": 4,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -602,7 +599,7 @@
         "streak": {"doctrine":"abundance","n":1},
         "silentRun": 0,
         "saints": [{"name":"석공 브엘","kind":"guardian"}],
-        "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":2},
+        "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":3},
         "rng": {"deck":1916558450,"dice":-1263667239},
         "winner": null,
         "winKind": null
@@ -623,9 +620,9 @@
       "accepted": ["gather:B3:stone"],
       "rejected": [],
       "petitionAnswered": false,
-      "auto": ["gather:C1:wood","gather:A2:food","gather:A1:stone"],
+      "auto": ["gather:A2:food","gather:C1:wood","gather:A1:stone"],
       "enemyPlan": ["gather:A1:stone","build:C2:wall","gather:B4:wood"],
-      "plan": ["gather:B3:stone","gather:C1:wood","gather:A2:food","gather:A1:stone"],
+      "plan": ["gather:B3:stone","gather:A2:food","gather:C1:wood","gather:A1:stone"],
       "ordered": ["gather:B3:stone"],
       "log": [
         {"side":"god","text":"“이 산을 시온이라 부르라”","ui":true},
@@ -639,15 +636,15 @@
         },
         {
           "side": "player",
-          "text": "신도들이 숲(C1)에서 목재를 2 얻었다.",
-          "fx": {"kind":"gain","tile":"C1","gain":{"wood":2}},
-          "act": "gather:C1:wood"
-        },
-        {
-          "side": "player",
           "text": "신도들이 평원(A2)에서 식량을 3 얻었다.",
           "fx": {"kind":"gain","tile":"A2","gain":{"food":3}},
           "act": "gather:A2:food"
+        },
+        {
+          "side": "player",
+          "text": "신도들이 숲(C1)에서 목재를 2 얻었다.",
+          "fx": {"kind":"gain","tile":"C1","gain":{"wood":2}},
+          "act": "gather:C1:wood"
         },
         {
           "side": "player",
@@ -668,10 +665,10 @@
       ],
       "digest": {
         "player": {
-          "food": 11,
+          "food": 7,
           "wood": 10,
           "stone": 18,
-          "faith": 13,
+          "faith": 14,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -705,7 +702,7 @@
         "silentRun": 0,
         "names": {"B3":"시온"},
         "saints": [{"name":"석공 브엘","kind":"guardian"}],
-        "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":2},
+        "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":3},
         "rng": {"deck":1916558450,"dice":-1263667239},
         "winner": null,
         "winKind": null
@@ -725,9 +722,9 @@
       "accepted": ["gather:B3:stone"],
       "rejected": [],
       "petitionAnswered": false,
-      "auto": ["gather:C1:wood","gather:A2:food","gather:A1:stone"],
+      "auto": ["gather:A2:food","gather:C1:wood","gather:A1:stone"],
       "enemyPlan": ["gather:A2:food","gather:A4:food","pray:A3:"],
-      "plan": ["gather:B3:stone","gather:C1:wood","gather:A2:food","gather:A1:stone"],
+      "plan": ["gather:B3:stone","gather:A2:food","gather:C1:wood","gather:A1:stone"],
       "ordered": ["gather:B3:stone"],
       "log": [
         {"side":"god","text":"“시온에서 돌을 캐어 오라”","ui":true},
@@ -741,15 +738,15 @@
         },
         {
           "side": "player",
-          "text": "신도들이 숲(C1)에서 목재를 2 얻었다.",
-          "fx": {"kind":"gain","tile":"C1","gain":{"wood":2}},
-          "act": "gather:C1:wood"
-        },
-        {
-          "side": "player",
           "text": "신도들이 평원(A2)에서 식량을 3 얻었다.",
           "fx": {"kind":"gain","tile":"A2","gain":{"food":3}},
           "act": "gather:A2:food"
+        },
+        {
+          "side": "player",
+          "text": "신도들이 숲(C1)에서 목재를 2 얻었다.",
+          "fx": {"kind":"gain","tile":"C1","gain":{"wood":2}},
+          "act": "gather:C1:wood"
         },
         {
           "side": "player",
@@ -775,10 +772,10 @@
       ],
       "digest": {
         "player": {
-          "food": 12,
+          "food": 8,
           "wood": 12,
           "stone": 23,
-          "faith": 13,
+          "faith": 14,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -808,11 +805,11 @@
         "revealed": "1100111011111111",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"abundance","n":2},
+        "streak": {"doctrine":"abundance","n":3},
         "silentRun": 0,
         "names": {"B3":"시온"},
         "saints": [{"name":"석공 브엘","kind":"guardian"}],
-        "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":2},
+        "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":3},
         "rng": {"deck":1916558450,"dice":-1263667239},
         "winner": null,
         "winKind": null
@@ -832,7 +829,7 @@
       "plan": ["pray:D2:","gather:A2:food","gather:C1:wood","gather:A1:stone"],
       "ordered": [],
       "log": [
-        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A3"}},
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"D2"}},
         {"side":"enemy","text":"율법파는 평원(A2)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"A2"}},
         {
           "side": "player",
@@ -877,10 +874,10 @@
       ],
       "digest": {
         "player": {
-          "food": 13,
+          "food": 9,
           "wood": 14,
           "stone": 26,
-          "faith": 17,
+          "faith": 18,
           "pop": 4,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -914,7 +911,7 @@
         "silentRun": 0,
         "names": {"B3":"시온"},
         "saints": [{"name":"석공 브엘","kind":"guardian"}],
-        "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":2},
+        "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":3},
         "rng": {"deck":1916558450,"dice":-1263667239},
         "winner": "enemy",
         "winKind": "score"
@@ -950,6 +947,6 @@
       {"round":6,"doctrine":"abundance"},
       {"round":7,"doctrine":"abundance"}
     ],
-    "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":2}
+    "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":3}
   }
 }

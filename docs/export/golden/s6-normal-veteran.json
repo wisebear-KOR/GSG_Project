@@ -463,16 +463,11 @@
         {"side":"player","text":"율법 심문관 — 쫓아낸다. 신앙 +1, 다음 장 율법파가 칼을 든다.","fx":{"kind":"dilemma","tile":"F2"}},
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"player","text":"은총 — 숲을 '검은숲'이라 부르게 했다. 신앙 +1.","fx":{"kind":"grace","tile":"F2","gain":{"faith":1}}},
-        {
-          "side": "player",
-          "text": "말씀이 세 장 이어졌다 — 풍요의 기적. 곳간이 넘친다. 식량 +4.",
-          "fx": {"kind":"streak","tile":"F2","gain":{"food":4}}
-        },
         {"side":"leader","text":"철의 대제사장 바락: “'그 말'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
       ],
       "digest": {
         "player": {
-          "food": 6,
+          "food": 2,
           "wood": 8,
           "stone": 9,
           "faith": 10,
@@ -505,7 +500,7 @@
         "revealed": "000000000000110000111000111100111100",
         "holyOwner": null,
         "wrath": 0,
-        "streak": null,
+        "streak": {"doctrine":"abundance","n":3},
         "silentRun": 0,
         "names": {"E4":"검은숲"},
         "destiny": {"id":"convert","done":false},
@@ -523,7 +518,7 @@
       "first": "enemy",
       "act": 2,
       "reacted": "vow",
-      "petition": {"from":"농부 엘리","need":{"type":"pray"}},
+      "petition": {"from":"농부 엘리","need":{"type":"gather","gather":"food"}},
       "revelation": "검은숲에서 나무를 베어라",
       "cost": 2,
       "tone": "command",
@@ -541,6 +536,7 @@
       "plan": ["gather:E4:wood","gather:D1:food","gather:C1:wood","gather:E1:stone"],
       "ordered": ["gather:E4:wood"],
       "log": [
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"F2"}},
         {"side":"god","text":"“검은숲에서 나무를 베어라”","ui":true},
         {"side":"priest","text":"곳간이 노래하노니, 검은숲(E4)에서 나무를 벤다!","ui":true},
         {
@@ -596,7 +592,7 @@
       ],
       "digest": {
         "player": {
-          "food": 7,
+          "food": 3,
           "wood": 12,
           "stone": 12,
           "faith": 10,
@@ -629,7 +625,7 @@
         "revealed": "000000000000110000111000111100111100",
         "holyOwner": null,
         "wrath": 1,
-        "streak": null,
+        "streak": {"doctrine":"abundance","n":3},
         "silentRun": 0,
         "names": {"E4":"검은숲"},
         "destiny": {"id":"convert","done":false},
@@ -645,7 +641,7 @@
       "lawCard": "L8",
       "first": "player",
       "act": 2,
-      "petition": {"from":"양치기 아벨","need":null},
+      "petition": {"from":"양치기 아벨","need":{"type":"gather","gather":"food"}},
       "miracleDraft": {"offer":["tongues","ark","rain"],"pick":"tongues"},
       "revelation": "영원히 칼을 들지 말라",
       "carveRequested": true,
@@ -659,7 +655,7 @@
       },
       "accepted": [],
       "rejected": [],
-      "petitionAnswered": false,
+      "petitionAnswered": true,
       "auto": ["gather:D1:food","gather:C1:wood","gather:E1:stone","gather:D2:food"],
       "enemyPlan": ["gather:A2:food","gather:A4:food","gather:A3:wood","gather:A6:stone","gather:B4:food"],
       "dilemma": {"pick":"trade","byText":false,"paid":"trade"},
@@ -667,7 +663,7 @@
       "plan": ["gather:D1:food","gather:C1:wood","gather:E1:stone","gather:D2:food"],
       "ordered": [],
       "log": [
-        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A5"}},
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +2.","fx":{"kind":"guard","tile":"F2"}},
         {"side":"god","text":"“영원히 칼을 들지 말라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 공격은 하지 말라. 나머지는 각자 할 일을 하라.","ui":true},
         {
@@ -738,7 +734,7 @@
       ],
       "digest": {
         "player": {
-          "food": 7,
+          "food": 3,
           "wood": 16,
           "stone": 17,
           "faith": 12,
@@ -777,7 +773,7 @@
         "commandments": ["noSword"],
         "destiny": {"id":"convert","done":false},
         "vowNext": "attack",
-        "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":1,"vows":1},
+        "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":2,"vows":1},
         "rng": {"deck":1092897172,"dice":6202},
         "winner": null,
         "winKind": null
@@ -790,7 +786,7 @@
       "first": "player",
       "act": 2,
       "reacted": "vow",
-      "petition": {"from":"방직공 레아","need":{"type":"build","build":"village"}},
+      "petition": {"from":"방직공 레아","need":{"type":"gather","gather":"food"}},
       "revelation": "이웃이 말씀을 받아 두 장 안에 돌아오리라",
       "sealRequested": true,
       "cost": 1,
@@ -870,7 +866,7 @@
       ],
       "digest": {
         "player": {
-          "food": 6,
+          "food": 2,
           "wood": 18,
           "stone": 20,
           "faith": 19,
@@ -909,7 +905,7 @@
         "names": {"E4":"검은숲"},
         "commandments": ["noSword"],
         "destiny": {"id":"convert","done":false},
-        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":1,"vows":1},
+        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":2,"vows":1},
         "rng": {"deck":1092897172,"dice":-631829468},
         "winner": null,
         "winKind": null
@@ -921,7 +917,7 @@
       "lawCard": "L3",
       "first": "player",
       "act": 2,
-      "petition": {"from":"파수꾼 요압","need":{"type":"build","build":"village"}},
+      "petition": {"from":"파수꾼 요압","need":{"type":"gather","gather":"food"}},
       "revelation": "이웃에게 나의 말씀을 전하라",
       "cost": 2,
       "tone": "command",
@@ -992,7 +988,7 @@
       ],
       "digest": {
         "player": {
-          "food": 6,
+          "food": 2,
           "wood": 20,
           "stone": 23,
           "faith": 20,
@@ -1026,12 +1022,12 @@
         "faithMarks": {"D3":{"side":"player","n":1}},
         "holyOwner": null,
         "wrath": 3,
-        "streak": {"doctrine":"peace","n":2},
+        "streak": {"doctrine":"peace","n":3},
         "silentRun": 0,
         "names": {"E4":"검은숲"},
         "commandments": ["noSword"],
         "destiny": {"id":"convert","done":false},
-        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":1,"vows":1},
+        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":2,"vows":1},
         "rng": {"deck":1092897172,"dice":-1263665138},
         "winner": null,
         "winKind": null
@@ -1043,7 +1039,7 @@
       "lawCard": "L10",
       "first": "player",
       "act": 3,
-      "petition": {"from":"늙은 사관 갈렙","need":{"type":"build","build":"wall"}},
+      "petition": {"from":"늙은 사관 갈렙","need":{"type":"gather","gather":"food"}},
       "revelation": "이웃에게 나의 말씀을 전하라",
       "cost": 2,
       "tone": "command",
@@ -1061,7 +1057,7 @@
       "plan": ["preach:D3:","gather:D1:food","gather:C1:wood","gather:E1:stone"],
       "ordered": ["preach:D3:"],
       "log": [
-        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A5"}},
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"F2"}},
         {"side":"god","text":"“이웃에게 나의 말씀을 전하라”","ui":true},
         {"side":"priest","text":"곳간이 노래하노니, 율법파 마을(D3)의 율법파에게 신의 뜻을 전한다!","ui":true},
         {
@@ -1128,7 +1124,7 @@
       ],
       "digest": {
         "player": {
-          "food": 6,
+          "food": 2,
           "wood": 22,
           "stone": 26,
           "faith": 21,
@@ -1161,14 +1157,14 @@
         "revealed": "000000000000110000111000111100111100",
         "holyOwner": null,
         "wrath": 3,
-        "streak": {"doctrine":"peace","n":2},
+        "streak": {"doctrine":"peace","n":3},
         "silentRun": 0,
         "names": {"E4":"검은숲"},
         "commandments": ["noSword"],
         "destiny": {"id":"convert","done":false},
         "saints": [{"name":"늙은 사관 갈렙","kind":"guardian"}],
         "bannedNext": "나무",
-        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":1,"vows":1},
+        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":2,"vows":1},
         "rng": {"deck":1092897172,"dice":1767630818},
         "winner": null,
         "winKind": null
@@ -1194,7 +1190,7 @@
       "plan": ["pray:F2:","gather:D1:food","gather:C1:wood","gather:E1:stone"],
       "ordered": ["pray:F2:"],
       "log": [
-        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +2.","fx":{"kind":"guard","tile":"A5"}},
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +2.","fx":{"kind":"guard","tile":"F2"}},
         {"side":"god","text":"“신전에서 기도하라”","ui":true},
         {"side":"priest","text":"곳간이 노래하노니, 신전에서 기도한다!","ui":true},
         {
@@ -1248,7 +1244,7 @@
       ],
       "digest": {
         "player": {
-          "food": 5,
+          "food": 1,
           "wood": 24,
           "stone": 29,
           "faith": 25,
@@ -1307,7 +1303,7 @@
         "commandments": ["noSword"],
         "destiny": {"id":"convert","done":false},
         "saints": [{"name":"늙은 사관 갈렙","kind":"guardian"}],
-        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":1,"vows":1},
+        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":2,"vows":1},
         "rng": {"deck":1092897172,"dice":1135795148},
         "winner": null,
         "winKind": null
@@ -1392,7 +1388,7 @@
       ],
       "digest": {
         "player": {
-          "food": 4,
+          "food": 0,
           "wood": 24,
           "stone": 30,
           "faith": 30,
@@ -1451,7 +1447,7 @@
         "commandments": ["noSword"],
         "destiny": {"id":"convert","done":false},
         "saints": [{"name":"늙은 사관 갈렙","kind":"guardian"}],
-        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":1,"vows":1},
+        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":2,"vows":1},
         "rng": {"deck":1092897172,"dice":1135795148},
         "winner": null,
         "winKind": null
@@ -1478,12 +1474,13 @@
       "petitionAnswered": false,
       "auto": ["gather:D1:food","gather:C1:wood","gather:F1:stone","gather:D2:food"],
       "enemyPlan": ["build:E2:wall","attack:D1:","gather:A1:stone","pray:A5:","build:F3:wall","gather:A6:stone"],
-      "dilemma": {"pick":"trade","byText":false,"paid":"trade"},
+      "dilemma": {"pick":"trade","byText":false,"paid":"pass"},
       "plan": ["gather:E1:stone","gather:D1:food","gather:C1:wood","gather:F1:stone","gather:D2:food"],
       "ordered": ["gather:E1:stone"],
       "log": [
         {"side":"god","text":"“산에서 돌을 캐어 오라”","ui":true},
         {"side":"priest","text":"수수께끼로 이르노니, 채석장(E1)에서 돌을 캔다!","ui":true},
+        {"side":"player","text":"떠돌이 상인 — 곡식을 내준다에 드는 것을 감당할 수 없어 「보낸다」 쪽을 따랐다.","fx":{"kind":"dilemma"}},
         {"side":"enemy","text":"율법파는 우리 마을(D1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"D1"}},
         {
           "side": "player",
@@ -1535,15 +1532,15 @@
           "fx": {"kind":"gain","tile":"A5","gain":{"faith":2}},
           "act": "pray:A5:"
         },
-        {"side":"player","text":"떠돌이 상인 — 곡식을 내준다. 식량 -3, 돌 +2, 목재 +2.","fx":{"kind":"dilemma","tile":"F2"}},
+        {"side":"player","text":"떠돌이 상인 — 보낸다. 아무 일도 없다.","fx":{"kind":"dilemma","tile":"F2"}},
         {"side":"player","text":"지혜의 서약이 흔들린다 (지혜 -1).","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"철의 대제사장 바락: “'캐어'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
       ],
       "digest": {
         "player": {
-          "food": 4,
-          "wood": 28,
-          "stone": 37,
+          "food": 3,
+          "wood": 26,
+          "stone": 35,
           "faith": 33,
           "pop": 6,
           "templeLevel": 2,
@@ -1600,7 +1597,7 @@
         "commandments": ["noSword"],
         "destiny": {"id":"convert","done":false},
         "saints": [{"name":"늙은 사관 갈렙","kind":"guardian"}],
-        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":1,"vows":1},
+        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":2,"vows":1},
         "rng": {"deck":1092897172,"dice":1135795148},
         "winner": null,
         "winKind": null
@@ -1669,9 +1666,9 @@
       ],
       "digest": {
         "player": {
-          "food": 9,
-          "wood": 27,
-          "stone": 36,
+          "food": 8,
+          "wood": 25,
+          "stone": 34,
           "faith": 36,
           "pop": 6,
           "templeLevel": 3,
@@ -1726,13 +1723,13 @@
         "revealed": "000000000000110000111000111100111100",
         "holyOwner": null,
         "wrath": 3,
-        "streak": {"doctrine":"abundance","n":1},
+        "streak": {"doctrine":"wisdom","n":1},
         "silentRun": 0,
         "names": {"E4":"검은숲"},
         "commandments": ["noSword"],
         "destiny": {"id":"convert","done":false},
         "saints": [{"name":"늙은 사관 갈렙","kind":"guardian"}],
-        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":1,"vows":1},
+        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":2,"vows":1},
         "rng": {"deck":1092897172,"dice":1135795148},
         "winner": "enemy",
         "winKind": "score"
@@ -1777,6 +1774,6 @@
       {"round":11,"doctrine":"abundance"},
       {"round":12,"doctrine":"wisdom"}
     ],
-    "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":1,"vows":1}
+    "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":1,"petitions":2,"vows":1}
   }
 }

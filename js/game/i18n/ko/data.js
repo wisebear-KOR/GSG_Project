@@ -78,7 +78,7 @@ export default {
   'data.doctrine.peace.perk.6': '궁극 — 장이 끝날 때마다 이웃 율법파에게 말씀이 스며든다',
   'data.doctrine.war.name': '전쟁',
   'data.doctrine.war.perk.2': '공격 주사위 +1',
-  'data.doctrine.war.perk.4': '공격 주사위 +1 (누적)',
+  'data.doctrine.war.perk.4': '성벽이 돌 1 (원래 2)',
   'data.doctrine.war.perk.6': '궁극 — 공격에 지면 신도 대신 신앙 2가 탄다',
   'data.doctrine.abundance.name': '풍요',
   'data.doctrine.abundance.perk.2': '식량 채집 +1',

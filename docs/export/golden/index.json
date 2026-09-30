@@ -1,6 +1,6 @@
 {
   "generator": "tools/golden.mjs",
-  "ruleset": 11,
+  "ruleset": 12,
   "lang": "ko",
   "games": [
     {
@@ -57,7 +57,7 @@
       "rounds": 14,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":39,"enemy":46}
+      "score": {"player":29,"enemy":55}
     },
     {
       "file": "s7-normal-veteran.json",

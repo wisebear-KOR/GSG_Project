@@ -10,14 +10,13 @@ const ours = (owner) => (owner === 'player' ? '우리' : '율법파');
 const ga = (w) => (batchim(w) ? '이' : '가');
 // 전설이 된 땅의 별칭 (교리별)
 const LEGEND_ADJ = { war: '분노의', peace: '빛의', abundance: '넘치는', wisdom: '별의' };
-const streakHead = (v) => `말씀이 세 장 이어졌다 — ${v.doc}의 기적.`;
 
 export default {
   'log.rally': '율법파가 결집한다 — 우리가 크게 앞서자 율법파의 행동이 하나 늘고 칼을 먼저 든다.',
   'log.remnant': (v) => `${tribe(v.who)}의 마지막 신도가 쓰러졌다 — ${v.hp > 0 ? `수도가 흔들리고(내구도 ${v.hp}) 한 명이 수도로 돌아온다.` : '수도가 무너졌다.'}`,
   'log.echo': '같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.',
   'log.attackRetreat': (v) => `율법파 원정대가 ${josa(v.place, '을', '를')} 넘지 못하고 물러났다 (율법파 식량 -1).`,
-  'log.lawGuard': (v) => `율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +${v.n}.`,
+  'log.lawGuard': (v) => `율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +${v.n}.`,
   // ---------- 칸 이름 (항상 플레이어 시점: "우리" = 플레이어) ----------
   'eng.tile.fog': '안개 지대({id})',
   'eng.tile.named': '{name}({id})',
@@ -235,11 +234,6 @@ export default {
   'log.heresy': '신앙이 바닥나 신도 1명이 율법파로 떠났다.',
   'log.faithless': '신앙이 바닥나 신도들이 흔들린다. 이대로면 다음 장에 떠나는 자가 생긴다.',
 
-  // 교리 대립과 연속 기적 (doc: 교리 이름)
+  // 교리 대립 (doc: 교리 이름)
   'log.doctrineShaken': '{doc}의 서약이 흔들린다 ({doc} -1).',
-  'log.streak.peace': (v) => `${streakHead(v)} 율법파 한 사람이 스스로 말씀을 받아들였다.`,
-  'log.streak.warWall': (v) => `${streakHead(v)} ${v.place}의 성벽이 무너졌다.`,
-  'log.streak.warFear': (v) => `${streakHead(v)} 율법파가 두려워 떤다 (율법파 신앙 -2).`,
-  'log.streak.abundance': (v) => `${streakHead(v)} 곳간이 넘친다. 식량 +4.`,
-  'log.streak.wisdom': (v) => `${streakHead(v)} 안개가 걷혔다.`,
 };

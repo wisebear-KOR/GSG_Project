@@ -269,10 +269,13 @@ function placeOf(state, clause) {
       for (const x of state.tiles) if (x.owner === side && x.building === 'village') anchors.add(x.id);
     }
   }
+  const aimBonus = new Map();
   if (PLACE.aim.test(clause)) {
-    const shown = enemyIntent(state).filter((x) => x.shown);
-    const claims = shown.filter((x) => (PLACE.aimBuild.test(clause) ? x.type === 'build' : x.type !== 'gather'));
-    for (const x of claims.length ? claims : shown) anchors.add(x.tile);
+    const inside = (x) => x.type === 'pray' || (x.type === 'build' && x.build !== 'village');
+    const shown = enemyIntent(state).filter((x) => x.shown && !inside(x));
+    const pool = PLACE.aimBuild.test(clause) ? shown.filter((x) => x.build === 'village') : shown;
+    for (const x of pool) { anchors.add(x.tile); if (x.build === 'village') aimBonus.set(x.tile, 0.5); }
+    if (pool.length) named.push('aim');
   }
   // 칸 이름과 붙인 이름은 넓은 가리킴(마을·수도)보다 앞선다 ("C2 마을에 성벽을")
   const exact = new Set();
@@ -282,14 +285,14 @@ function placeOf(state, clause) {
   for (const m2 of clause.matchAll(PLACE.avoidId)) { const id = m2[1].toUpperCase() + m2[2]; avoid.add(id); exact.delete(id); }
   for (const id of exact) anchors.add(id);
   for (const id of avoid) anchors.delete(id);
-  return { anchors, exact, avoid, named, terrains, near, text, dir, home, closest: PLACE.closest.test(clause) };
+  return { anchors, exact, avoid, named, terrains, near, text, dir, home, aimBonus, closest: PLACE.closest.test(clause) };
 }
 // 방향과 얼마나 곧게 놓였는가 (0~1): 육각 칸의 화면 좌표로 본 방향과 그 방향의 코사인
 const hexXY = (tl) => [tl.c + (tl.r & 1) / 2, tl.r * 0.866];
 function aligned(tl, home, [dr, dc]) {
   const [x, y] = hexXY(tl); const [hx, hy] = hexXY(home);
   const vx = x - hx; const vy = y - hy; const len = Math.hypot(vx, vy);
-  return len ? Math.max(0, (vx * dc + vy * dr) / len) : 0;
+  return len ? ((vx * dc + vy * dr) / len + 1) / 2 : 0;
 }
 // 가리킨 곳에 맞을수록 앞 (같으면 원래 순서): 가리킨 칸 4 ("옆에"면 그 이웃이 4), 가리킨 칸의 이웃 2, 지형이 맞으면 +1
 function byPlace(state, place, matches) {
@@ -304,6 +307,7 @@ function byPlace(state, place, matches) {
     }
     if (place.exact.has(tl.id)) s += 2;
     if (place.avoid?.has(tl.id)) s -= 10;
+    s += place.aimBonus?.get(tl.id) ?? 0;
     // "가까운": 우리 수도에서 가까울수록 조금 앞 (같은 점수끼리의 순서)
     if (place.closest && place.home) s += (20 - distance(tl, place.home)) / 100;
     return s + (place.terrains.has(tl.terrain) ? 1 : 0);

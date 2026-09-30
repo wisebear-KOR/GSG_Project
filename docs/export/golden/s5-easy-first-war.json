@@ -1244,7 +1244,7 @@
         "revealed": "1111011100111001110011110",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"war","n":1},
+        "streak": {"doctrine":"war","n":2},
         "silentRun": 0,
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":4},
         "rng": {"deck":-42893902,"dice":-759717862},
@@ -1271,7 +1271,7 @@
       "plan": ["build:B2:village","gather:A1:food","gather:C2:stone","gather:D2:wood"],
       "ordered": ["build:B2:village"],
       "log": [
-        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A4"}},
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"E2"}},
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
         {"side":"priest","text":"불이 말하노니, 평원(B2)에 마을을 세운다!","ui":true},
         {
@@ -1346,7 +1346,7 @@
         "revealed": "1111011100111001110011110",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"war","n":1},
+        "streak": {"doctrine":"war","n":2},
         "silentRun": 0,
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":4},
         "rng": {"deck":-42893902,"dice":-759717862},

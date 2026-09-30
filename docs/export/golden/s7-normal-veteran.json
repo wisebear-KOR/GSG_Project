@@ -815,7 +815,7 @@
         "revealed": "0000000110000011100001111000111110011111001111100",
         "holyOwner": null,
         "wrath": 2,
-        "streak": {"doctrine":"wisdom","n":1},
+        "streak": {"doctrine":"wisdom","n":2},
         "silentRun": 0,
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
@@ -850,7 +850,7 @@
       "plan": ["gather:F1:food","gather:D1:wood","gather:E1:food"],
       "ordered": ["gather:F1:food","gather:D1:wood"],
       "log": [
-        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A6"}},
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"G2"}},
         {"side":"god","text":"“들판의 곡식을 거두고, 숲의 나무를 베어라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 평원(F1)에서 곡식을 거둔다, 그리고 숲(D1)에서 나무를 벤다!","ui":true},
         {
@@ -1381,7 +1381,7 @@
         "revealed": "0000000110000011100001111000111110011111001111100",
         "holyOwner": null,
         "wrath": 3,
-        "streak": {"doctrine":"peace","n":1},
+        "streak": {"doctrine":"peace","n":2},
         "silentRun": 0,
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
@@ -1411,7 +1411,7 @@
       "plan": ["build:G2:temple","gather:E1:food","gather:C1:wood","gather:G3:stone"],
       "ordered": ["build:G2:temple"],
       "log": [
-        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A6"}},
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"G2"}},
         {"side":"god","text":"“높은 신전을 쌓아 나를 섬겨라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 신전을 높인다!","ui":true},
         {
