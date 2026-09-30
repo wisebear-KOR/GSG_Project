@@ -288,8 +288,8 @@ export function actionOdds(state, a, { curse = false } = {}) {
   const t = state.tileAt[a.tile];
   let atk = 0; let def = 0;
   if (a.type === 'attack') {
-    atk = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0) + superiority(s, f) + enemyZeal(state, side) + siegeOf(state, side, t) + (side === 'player' ? (state.roundMods.attackBonus ?? (curse ? 1 : 0)) + (state.roundMods.pillar ?? 0) : 0);
-    def = (t.wall ? 2 : 0) + (t.building === 'capital' ? 1 : 0) + superiority(f, s) + lawGuardOf(state, side, 'attack');
+    atk = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0) + enemyZeal(state, side) + siegeOf(state, side, t) + (side === 'player' ? (state.roundMods.attackBonus ?? (curse ? 1 : 0)) + (state.roundMods.pillar ?? 0) : 0);
+    def = (t.wall ? 2 : 0) + (t.building === 'capital' ? 1 : 0) + lawGuardOf(state, side, 'attack');
   } else if (a.type === 'preach') {
     atk = preachBonus(state, side);
     def = (t.building === 'capital' ? 1 : 0) + (t.wall ? 1 : 0) + lawGuardOf(state, side, 'preach');
@@ -299,8 +299,6 @@ export function actionOdds(state, a, { curse = false } = {}) {
   return w / 36;
 }
 
-// 신도 수가 상대보다 3명 이상 많으면 선교·공격 주사위 +1
-const superiority = (s, f) => (s.pop >= f.pop + RULES.superiority ? 1 : 0);
 
 // ---------- 행동 설명 ----------
 // 한국어 조사 도우미는 언어팩(i18n/ko/grammar.js)으로 옮겼다. 기존 import를 위해 다시 내보낸다
@@ -1154,7 +1152,7 @@ export function hydrateState(obj) {
   state.tileAt = Object.fromEntries(state.tiles.map((t) => [t.id, t]));
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
   state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.petitionIgnored ??= 0; state.prophecy ??= null;
-  state.lawGuard ??= { preach: 0, attack: 0 }; state.rally ??= false;
+  state.lawGuard ??= { preach: 0, attack: 0 }; state.rally ??= false; state.doomUsed ??= false; state.miracleUses ??= {};
   state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null;
   state.edictOn ??= false; state.dilemmaPick ??= null; state.winKind ??= null;
   state.silentRun ??= 0; state.legends ??= {}; state.miraDone ??= false; state.pendingDilemma ??= null; state.miraQuote ??= null; state.bloodKills ??= 0;
@@ -1246,10 +1244,10 @@ function resolveAction(state, a) {
     }
     case 'attack': {
       if (tl.owner !== foe) return logEvent(state, side, t('log.attackNotFoe', { place }), null, { tile: tl.id, kind: 'fail' });
-      const bonus = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0) + superiority(s, f)
+      const bonus = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0)
         + (side === 'enemy' && state.event?.id === 'threat' ? 1 : 0) + enemyZeal(state, side) + siegeOf(state, side, tl) + (side === 'player' ? (state.roundMods.attackBonus ?? 0) + (state.roundMods.pillar ?? 0) : 0);
       const guardian = foe === 'player' && tl.building === 'capital' && state.saints?.some((x) => x.kind === 'guardian') ? 1 : 0;
-      const defBonus = (tl.wall ? 2 : 0) + (tl.building === 'capital' ? 1 : 0) + superiority(f, s) + guardian + lawGuardOf(state, side, 'attack');
+      const defBonus = (tl.wall ? 2 : 0) + (tl.building === 'capital' ? 1 : 0) + guardian + lawGuardOf(state, side, 'attack');
       const ra = d6(state); const rd = d6(state);
       const win = ra + bonus > rd + defBonus;
       const dice = { attacker: ra, attackerBonus: bonus, defender: rd, defenderBonus: defBonus, win };

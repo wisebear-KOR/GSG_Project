@@ -22,7 +22,7 @@ export default {
   // ---------- 칸 이름 (항상 플레이어 시점: "우리" = 플레이어) ----------
   'eng.tile.fog': '안개 지대({id})',
   'eng.tile.named': '{name}({id})',
-  'eng.tile.capital': (v) => `${ours(v.owner)} 신전(${v.id})`,
+  'eng.tile.capital': (v) => `${ours(v.owner)} 수도(${v.id})`,
   'eng.tile.village': (v) => `${ours(v.owner)} 마을(${v.id})`,
   'eng.tile.land': '{name}({id})',
 
@@ -88,13 +88,13 @@ export default {
   'eng.fx.revive': '부활',
 
   // ---------- 율법 석판이 움직인 까닭 (log.edict의 {why}) ----------
-  'eng.edict.lightning': '번개가 탑의 돌판을 쪼갰다',
+  'eng.edict.lightning': '번개가 율법파 수도의 돌판을 쪼갰다',
   'eng.edict.doom': '심판의 날이 돌판을 갈랐다',
   'eng.edict.holyEnemy': '율법파가 성지에서 율법을 외웠다',
   'eng.edict.holyPlayer': '성지의 말씀이 율법을 지웠다',
   'eng.edict.faith': '율법파가 경건을 돌에 새겼다',
   'eng.edict.mira': '미라의 소문이 율법파에 닿았다',
-  'eng.edict.temple': '율법파가 탑을 높였다',
+  'eng.edict.temple': '율법파가 신전을 높였다',
   'eng.edict.blood': '쓰러진 자의 피가 율법을 굳힌다',
 
   // ---------- 은총의 까닭 (log.grace의 {why}) ----------
@@ -152,7 +152,7 @@ export default {
   'log.lightningHit': '⚡ 번개가 {place}에 떨어져 율법파 1명이 쓰러졌다.',
   'log.rain': '🌧️ 단비가 내렸다. 식량 +3.',
   'log.bounty': '🎁 풍요의 기적. 목재 +2, 돌 +2.',
-  'log.doom': '심판의 날 — 하늘이 갈라져 율법파의 탑이 흔들리고(수도 내구도 {hp}) 한 사람이 쓰러졌다. 신의 분노가 가라앉는다.',
+  'log.doom': '심판의 날 — 하늘이 갈라져 율법파 수도가 흔들리고(내구도 {hp}) 한 사람이 쓰러졌다. 신의 분노가 가라앉는다.',
   'log.manna': '만나가 내렸다. 식량 +4.',
   'log.ark': '방주의 기적 — 이번 장에는 아무도 잃지 않으리라.',
   'log.tongues': '방언의 은사 — 이번 장 선교에 힘이 실린다.',
@@ -181,7 +181,7 @@ export default {
 
   // 율법 석판 (plus: 올랐는가, d: 실제 변화량)
   'log.edict': (v) => `율법 석판 ${v.plus ? '+' : ''}${v.d} — ${v.why} (${v.edict}/${v.max}).`,
-  'log.edictNear': '율법 석판이 거의 완성되었다! 성지를 쥐거나 탑을 쳐서 막아야 한다.',
+  'log.edictNear': '율법 석판이 거의 완성되었다! 성지를 쥐거나 번개로 율법파 수도를 쳐서 막아야 한다.',
 
   // 소명·계명·성언·숨은 말
   'log.destiny': '소명을 이루었다 — 「{name}」 {text}. 승점 +{n}.',

@@ -2019,7 +2019,7 @@ function renderAltar() {
   const hand = `<div class="hand">${cards.map((m) => `
     <button class="mcard${targeting === m.id ? ' on' : ''}${m.hidden ? ' doom' : ''}" data-m="${m.id}" type="button" ${!canMiracle || state.miracleUsed || p.faith < miracleCost(state, m) ? 'disabled' : ''}>
       <span class="cost${miracleCost(state, m) < m.cost ? ' cut' : ''}">${miracleCost(state, m)}</span>${miracleCost(state, m) < m.cost ? `<s class="was">${m.cost}</s>` : ''}${svgUse(MIRACLE_ART[m.id], 'art', '0 0 48 48')}<div class="nm">${m.name}</div>
-      <span class="tip"><b>${m.name}</b> · ${t('ui.faithCost', { n: miracleCost(state, m) })}${state.wrath && !m.hidden ? t('ui.hand.wrath', { n: state.wrath, off: m.cost - miracleCost(state, m) }) : ''}<br>${esc(m.text)}${state.miracleUsed ? `<br><i>${t('ui.hand.used')}</i>` : ''}</span>
+      <span class="tip"><b>${m.name}</b> · ${t('ui.faithCost', { n: miracleCost(state, m) })}${state.wrath && !m.hidden && m.cost > miracleCost(state, m) - (state.miracleUses?.[m.id] ?? 0) ? t('ui.hand.wrath', { n: state.wrath, off: m.cost - (miracleCost(state, m) - (state.miracleUses?.[m.id] ?? 0)) }) : ''}${state.miracleUses?.[m.id] && !m.hidden ? t('ui.hand.reuse', { n: state.miracleUses[m.id] }) : ''}<br>${esc(m.text)}${state.miracleUsed ? `<br><i>${t('ui.hand.used')}</i>` : ''}</span>
     </button>`).join('')}</div>`;
   const noticeHTML = notice ? `<div class="notice">${esc(notice)}</div>` : '';
   let scroll = '';
@@ -2238,6 +2238,7 @@ function bindAltar() {
   // 확인 칩을 눌러 그 행동을 빼거나 되살린다 (장당 두 개까지, 빈 자리는 신도들이 알아서). ⇄는 같은 일을 다른 칸으로 옮긴다
   if (phase === 'confirm' && pending) {
     a.querySelectorAll('.chip-move').forEach((b) => {
+      b.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); b.click(); } };
       b.onclick = (e) => {
         e.stopPropagation();
         if (pending.incoming || a.querySelector('.accept')?.disabled) return;

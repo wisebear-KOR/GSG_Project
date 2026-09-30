@@ -101,11 +101,11 @@
         "faith": 4,
         "pop": 3,
         "templeLevel": 1,
-        "capitalHp": 3,
+        "capitalHp": 2,
         "cathedral": 0,
         "edict": 0,
         "villages": 0,
-        "score": 17,
+        "score": 14,
         "faithless": 0,
         "doctrine": {"peace":0,"war":0,"abundance":0,"wisdom":0}
       },
@@ -116,11 +116,11 @@
         "faith": 3,
         "pop": 4,
         "templeLevel": 1,
-        "capitalHp": 3,
+        "capitalHp": 2,
         "cathedral": 0,
         "edict": 0,
         "villages": 0,
-        "score": 19
+        "score": 16
       }
     },
     "eventDeck": [
@@ -253,11 +253,11 @@
           "faith": 5,
           "pop": 3,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 0,
-          "score": 17,
+          "score": 14,
           "faithless": 0,
           "doctrine": {"peace":0,"war":0,"abundance":0,"wisdom":0}
         },
@@ -268,11 +268,11 @@
           "faith": 5,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 23
+          "score": 20
         },
         "owners": {"A6":"enemy","B4":"enemy","G2":"player"},
         "buildings": {"A6":"capital","B4":"village","G2":"capital"},
@@ -367,11 +367,11 @@
           "faith": 5,
           "pop": 3,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 19,
+          "score": 16,
           "faithless": 0,
           "doctrine": {"peace":0,"war":0,"abundance":1,"wisdom":0}
         },
@@ -382,11 +382,11 @@
           "faith": 7,
           "pop": 4,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 21
+          "score": 18
         },
         "owners": {"A6":"enemy","B4":"enemy","E1":"player","G2":"player"},
         "buildings": {"A6":"capital","B4":"village","E1":"village","G2":"capital"},
@@ -479,11 +479,11 @@
           "faith": 6,
           "pop": 4,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 21,
+          "score": 18,
           "faithless": 0,
           "doctrine": {"peace":0,"war":0,"abundance":3,"wisdom":0}
         },
@@ -494,11 +494,11 @@
           "faith": 9,
           "pop": 4,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 22
+          "score": 19
         },
         "owners": {"A6":"enemy","B4":"enemy","E1":"player","G2":"player"},
         "buildings": {"A6":"capital","B4":"village","E1":"village","G2":"capital"},
@@ -585,11 +585,11 @@
           "faith": 11,
           "pop": 4,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 21,
+          "score": 18,
           "faithless": 0,
           "doctrine": {"peace":1,"war":0,"abundance":3,"wisdom":0}
         },
@@ -600,11 +600,11 @@
           "faith": 1,
           "pop": 4,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 1,
           "villages": 1,
-          "score": 23
+          "score": 20
         },
         "owners": {"A6":"enemy","B4":"enemy","E1":"player","G2":"player"},
         "buildings": {"A6":"capital","B4":"village","E1":"village","G2":"capital"},
@@ -693,11 +693,11 @@
           "faith": 14,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 23,
+          "score": 20,
           "faithless": 0,
           "doctrine": {"peace":1,"war":0,"abundance":2,"wisdom":1}
         },
@@ -708,11 +708,11 @@
           "faith": 5,
           "pop": 4,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 1,
           "villages": 3,
-          "score": 27
+          "score": 24
         },
         "owners": {"A6":"enemy","B4":"enemy","C4":"enemy","D4":"enemy","E1":"player","G2":"player"},
         "buildings": {"A6":"capital","B4":"village","C4":"village","D4":"village","E1":"village","G2":"capital"},
@@ -801,11 +801,11 @@
           "faith": 18,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 23,
+          "score": 20,
           "faithless": 0,
           "doctrine": {"peace":1,"war":0,"abundance":2,"wisdom":1}
         },
@@ -816,11 +816,11 @@
           "faith": 7,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 1,
           "villages": 5,
-          "score": 33
+          "score": 30
         },
         "owners": {"A6":"enemy","B4":"enemy","C3":"enemy","C4":"enemy","D3":"enemy","D4":"enemy","E1":"player","G2":"player"},
         "buildings": {
@@ -943,11 +943,11 @@
           "faith": 20,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 23,
+          "score": 20,
           "faithless": 0,
           "doctrine": {"peace":1,"war":0,"abundance":3,"wisdom":0}
         },
@@ -958,11 +958,11 @@
           "faith": 2,
           "pop": 6,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 2,
           "villages": 5,
-          "score": 35
+          "score": 32
         },
         "owners": {"A6":"enemy","B4":"enemy","C3":"enemy","C4":"enemy","D3":"enemy","D4":"enemy","E1":"player","G2":"player"},
         "buildings": {
@@ -1050,11 +1050,11 @@
           "faith": 21,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 2,
-          "score": 25,
+          "score": 22,
           "faithless": 0,
           "doctrine": {"peace":1,"war":0,"abundance":4,"wisdom":0}
         },
@@ -1065,11 +1065,11 @@
           "faith": 7,
           "pop": 7,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 2,
           "villages": 7,
-          "score": 41
+          "score": 38
         },
         "owners": {
           "A6": "enemy",
@@ -1217,11 +1217,11 @@
           "faith": 24,
           "pop": 7,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 2,
-          "score": 29,
+          "score": 26,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":4,"wisdom":0}
         },
@@ -1232,11 +1232,11 @@
           "faith": 0,
           "pop": 7,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 3,
           "villages": 7,
-          "score": 41
+          "score": 38
         },
         "owners": {
           "A6": "enemy",
@@ -1368,11 +1368,11 @@
           "faith": 28,
           "pop": 6,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 2,
-          "score": 27,
+          "score": 24,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":4,"wisdom":0}
         },
@@ -1383,11 +1383,11 @@
           "faith": 6,
           "pop": 9,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 3,
           "villages": 10,
-          "score": 51
+          "score": 48
         },
         "owners": {
           "A6": "enemy",
@@ -1504,9 +1504,9 @@
         {"side":"player","text":"안개 지대(B2)를 탐험했다. 안개가 걷혔다.","fx":{"kind":"explore","tile":"B2"},"act":"explore:B2:"},
         {
           "side": "enemy",
-          "text": "율법파가 우리 마을(D1)을 빼앗았다!",
-          "dice": {"attacker":4,"attackerBonus":2,"defender":5,"defenderBonus":0,"win":true},
-          "fx": {"kind":"attack","tile":"D1","capture":true},
+          "text": "율법파 원정대가 우리 마을(D1)을 넘지 못하고 물러났다 (율법파 식량 -1).",
+          "dice": {"attacker":4,"attackerBonus":1,"defender":5,"defenderBonus":0,"win":false},
+          "fx": {"kind":"attack","tile":"D1"},
           "act": "attack:D1:"
         },
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
@@ -1525,36 +1525,36 @@
           "food": 0,
           "wood": 14,
           "stone": 13,
-          "faith": 32,
-          "pop": 5,
+          "faith": 33,
+          "pop": 6,
           "templeLevel": 2,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
-          "villages": 1,
-          "score": 25,
+          "villages": 2,
+          "score": 26,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":4,"wisdom":1}
         },
         "enemy": {
-          "food": 22,
+          "food": 20,
           "wood": 5,
           "stone": 7,
           "faith": 2,
           "pop": 10,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 4,
-          "villages": 11,
-          "score": 55
+          "villages": 10,
+          "score": 50
         },
         "owners": {
           "A6": "enemy",
           "B4": "enemy",
           "C3": "enemy",
           "C4": "enemy",
-          "D1": "enemy",
+          "D1": "player",
           "D2": "enemy",
           "D3": "enemy",
           "D4": "enemy",
@@ -1583,6 +1583,7 @@
         },
         "walls": ["A6","B4"],
         "revealed": "0110000111000011100001111000111110011110001111000",
+        "faithMarks": {"D1":{"side":"enemy","n":1}},
         "holyOwner": null,
         "wrath": 3,
         "streak": {"doctrine":"wisdom","n":1},
@@ -1612,13 +1613,12 @@
       "rejected": [],
       "petitionAnswered": false,
       "auto": ["gather:E1:food","gather:G3:stone"],
-      "enemyPlan": ["gather:A2:food","attack:E1:","build:A6:temple","build:F1:village","gather:A7:food","build:G3:village"],
+      "enemyPlan": ["gather:A2:food","attack:D1:","build:A6:temple","build:F1:village","gather:A7:food","build:G3:village"],
       "plan": ["gather:F3:stone","gather:E1:food","gather:G3:stone"],
       "ordered": ["gather:F3:stone"],
       "log": [
         {"side":"god","text":"“산에서 돌을 캐어 오라”","ui":true},
         {"side":"priest","text":"곳간이 노래하노니, 산(F3)에서 돌을 캔다!","ui":true},
-        {"side":"enemy","text":"율법파는 우리 마을(E1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"E1"}},
         {"side":"enemy","text":"율법파는 산(G3)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"G3"}},
         {
           "side": "player",
@@ -1652,12 +1652,19 @@
         },
         {
           "side": "enemy",
-          "text": "율법 석판 +2 — 율법파가 탑을 높였다 (6/12).",
+          "text": "율법 석판 +2 — 율법파가 신전을 높였다 (6/12).",
           "fx": {"kind":"edict","tile":"A6","up":true},
           "act": "build:A6:temple"
         },
         {"side":"enemy","text":"율법파의 신전이 2단계로 높아졌다.","fx":{"kind":"build","tile":"A6"},"act":"build:A6:temple"},
         {"side":"enemy","text":"율법파가 율법파 마을(F1)을 세웠다.","fx":{"kind":"build","tile":"F1"},"act":"build:F1:village"},
+        {
+          "side": "enemy",
+          "text": "율법파 원정대가 우리 마을(D1)을 넘지 못하고 물러났다 (율법파 식량 -1).",
+          "dice": {"attacker":2,"attackerBonus":0,"defender":2,"defenderBonus":0,"win":false},
+          "fx": {"kind":"attack","tile":"D1"},
+          "act": "attack:D1:"
+        },
         {"side":"player","text":"우리 부족이 굶주려 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"player","text":"지혜의 서약이 흔들린다 (지혜 -1).","fx":{"kind":"doctrine"}},
@@ -1668,36 +1675,36 @@
           "food": 0,
           "wood": 14,
           "stone": 17,
-          "faith": 34,
-          "pop": 4,
+          "faith": 35,
+          "pop": 5,
           "templeLevel": 2,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
-          "villages": 1,
-          "score": 23,
+          "villages": 2,
+          "score": 24,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":5,"wisdom":0}
         },
         "enemy": {
-          "food": 25,
+          "food": 21,
           "wood": 1,
           "stone": 5,
           "faith": 7,
           "pop": 11,
           "templeLevel": 2,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 6,
-          "villages": 12,
-          "score": 61
+          "villages": 11,
+          "score": 56
         },
         "owners": {
           "A6": "enemy",
           "B4": "enemy",
           "C3": "enemy",
           "C4": "enemy",
-          "D1": "enemy",
+          "D1": "player",
           "D2": "enemy",
           "D3": "enemy",
           "D4": "enemy",
@@ -1735,7 +1742,7 @@
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
         "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":1,"vows":1,"starved":1},
-        "rng": {"deck":-106831468,"dice":-1959440500},
+        "rng": {"deck":-106831468,"dice":1703691126},
         "winner": null,
         "winKind": null
       }
@@ -1750,22 +1757,28 @@
       "revelation": "성벽을 쌓아 우리 땅을 지켜라",
       "cost": 1,
       "tone": "command",
-      "tablet": {"orders":["build:E1:wall"],"forbidden":[],"doctrine":"war","interpretation":"곳간이 노래하노니, 우리 마을(E1)에 성벽을 쌓는다!"},
-      "accepted": ["build:E1:wall"],
+      "tablet": {"orders":["build:D1:wall"],"forbidden":[],"doctrine":"war","interpretation":"곳간이 노래하노니, 우리 마을(D1)에 성벽을 쌓는다!"},
+      "accepted": ["build:D1:wall"],
       "rejected": [],
       "petitionAnswered": false,
-      "auto": ["build:G2:wall","gather:G1:food","gather:F3:stone"],
-      "enemyPlan": ["build:F1:wall","attack:E1:","gather:A4:stone","pray:A6:","build:F2:wall","gather:A5:stone"],
-      "plan": ["build:E1:wall","build:G2:wall","gather:G1:food","gather:F3:stone"],
-      "ordered": ["build:E1:wall"],
+      "auto": ["build:E1:wall","gather:G1:food","gather:C1:wood","gather:F3:stone"],
+      "enemyPlan": ["build:F1:wall","attack:D1:","gather:A4:stone","pray:A6:","build:F2:wall","gather:A5:stone"],
+      "plan": ["build:D1:wall","build:E1:wall","gather:G1:food","gather:C1:wood","gather:F3:stone"],
+      "ordered": ["build:D1:wall"],
       "log": [
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
-        {"side":"priest","text":"곳간이 노래하노니, 우리 마을(E1)에 성벽을 쌓는다!","ui":true},
+        {"side":"priest","text":"곳간이 노래하노니, 우리 마을(D1)에 성벽을 쌓는다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 평원(G1)에서 식량을 3 얻었다.",
           "fx": {"kind":"gain","tile":"G1","gain":{"food":3}},
           "act": "gather:G1:food"
+        },
+        {
+          "side": "player",
+          "text": "신도들이 숲(C1)에서 목재를 2 얻었다.",
+          "fx": {"kind":"gain","tile":"C1","gain":{"wood":2}},
+          "act": "gather:C1:wood"
         },
         {
           "side": "player",
@@ -1785,8 +1798,8 @@
           "fx": {"kind":"gain","tile":"A5","gain":{"stone":2}},
           "act": "gather:A5:stone"
         },
+        {"side":"player","text":"신도들이 우리 마을(D1)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"D1"},"act":"build:D1:wall"},
         {"side":"player","text":"신도들이 우리 마을(E1)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"E1"},"act":"build:E1:wall"},
-        {"side":"player","text":"신도들이 우리 신전(G2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"G2"},"act":"build:G2:wall"},
         {"side":"enemy","text":"율법파가 율법파 마을(F1)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"F1"},"act":"build:F1:wall"},
         {"side":"enemy","text":"율법파가 율법파 마을(F2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"F2"},"act":"build:F2:wall"},
         {
@@ -1797,10 +1810,10 @@
         },
         {
           "side": "enemy",
-          "text": "율법파 원정대가 우리 마을(E1)을 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":2,"attackerBonus":1,"defender":2,"defenderBonus":2,"win":false},
-          "fx": {"kind":"attack","tile":"E1"},
-          "act": "attack:E1:"
+          "text": "율법파가 우리 마을(D1)을 빼앗았다!",
+          "dice": {"attacker":4,"attackerBonus":0,"defender":1,"defenderBonus":2,"win":true},
+          "fx": {"kind":"attack","tile":"D1","capture":true},
+          "act": "attack:D1:"
         },
         {"side":"player","text":"역병으로 우리 부족 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
@@ -1812,31 +1825,31 @@
       "digest": {
         "player": {
           "food": 2,
-          "wood": 14,
+          "wood": 16,
           "stone": 15,
-          "faith": 35,
+          "faith": 36,
           "pop": 3,
           "templeLevel": 2,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 23,
+          "score": 19,
           "faithless": 0,
           "doctrine": {"peace":2,"war":1,"abundance":5,"wisdom":0}
         },
         "enemy": {
-          "food": 25,
+          "food": 22,
           "wood": 1,
           "stone": 5,
           "faith": 5,
           "pop": 11,
           "templeLevel": 2,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 7,
           "villages": 12,
-          "score": 63
+          "score": 60
         },
         "owners": {
           "A6": "enemy",
@@ -1872,7 +1885,7 @@
           "F2": "village",
           "G2": "capital"
         },
-        "walls": ["A6","B4","E1","F1","F2","G2"],
+        "walls": ["A6","B4","E1","F1","F2"],
         "revealed": "0110000111000011100001111000111110011110001111000",
         "holyOwner": null,
         "wrath": 3,
@@ -1881,7 +1894,7 @@
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
         "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":1,"vows":1,"starved":1},
-        "rng": {"deck":-106831468,"dice":1703691126},
+        "rng": {"deck":-106831468,"dice":1071855456},
         "winner": null,
         "winKind": null
       }
@@ -1945,7 +1958,11 @@
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법 석판 +1 — 율법파가 경건을 돌에 새겼다 (8/12).","fx":{"kind":"edict","tile":"A6","up":true}},
-        {"side":"player","text":"소명을 이루었다 — 「지키는 자」 끝까지 수도 내구도 3 지키기. 승점 +5.","fx":{"kind":"prophecy","tile":"G2"}},
+        {
+          "side": "player",
+          "text": "소명을 이루었다 — 「지키는 자」 끝까지 수도를 한 번도 내주지 않기 (내구도 온전히). 승점 +5.",
+          "fx": {"kind":"prophecy","tile":"G2"}
+        },
         {
           "side": "player",
           "text": "잊힌 제단 — 이름 모를 신의 제단이 이끼에 덮여 있다. 신앙 +3.",
@@ -1956,31 +1973,31 @@
       "digest": {
         "player": {
           "food": 3,
-          "wood": 14,
+          "wood": 16,
           "stone": 15,
-          "faith": 42,
+          "faith": 43,
           "pop": 4,
           "templeLevel": 2,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 30,
+          "score": 26,
           "faithless": 0,
           "doctrine": {"peace":2,"war":1,"abundance":5,"wisdom":1}
         },
         "enemy": {
-          "food": 26,
+          "food": 23,
           "wood": 3,
           "stone": 5,
           "faith": 1,
           "pop": 12,
           "templeLevel": 2,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 8,
           "villages": 12,
-          "score": 67
+          "score": 64
         },
         "owners": {
           "A6": "enemy",
@@ -2016,7 +2033,7 @@
           "F2": "village",
           "G2": "capital"
         },
-        "walls": ["A6","B4","E1","E2","E3","F1","F2","G2"],
+        "walls": ["A6","B4","E1","E2","E3","F1","F2"],
         "revealed": "0110000111000011100001111000111110011111001111110",
         "holyOwner": null,
         "wrath": 3,
@@ -2025,7 +2042,7 @@
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":true},
         "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":1,"vows":1,"starved":1},
-        "rng": {"deck":-106831468,"dice":-759710357},
+        "rng": {"deck":-106831468,"dice":-1391546027},
         "winner": "enemy",
         "winKind": "score"
       }
@@ -2035,40 +2052,40 @@
     "rounds": 14,
     "winner": "enemy",
     "winKind": "score",
-    "winReason": "14장 종료 — 승점 30 : 67",
-    "score": {"player":30,"enemy":67},
+    "winReason": "14장 종료 — 승점 26 : 64",
+    "score": {"player":26,"enemy":64},
     "breakdown": {
       "player": [
         {"key":"pop","n":4,"w":2},
         {"key":"village","n":1,"w":2},
         {"key":"temple","n":2,"w":2},
-        {"key":"hp","n":3,"w":3},
-        {"key":"wall","n":2,"w":1},
+        {"key":"hp","n":2,"w":3},
+        {"key":"wall","n":1,"w":1},
         {"key":"destiny","n":1,"w":5}
       ],
       "enemy": [
         {"key":"pop","n":12,"w":2},
         {"key":"village","n":12,"w":2},
         {"key":"temple","n":2,"w":2},
-        {"key":"hp","n":3,"w":3},
+        {"key":"hp","n":2,"w":3},
         {"key":"wall","n":6,"w":1}
       ]
     },
     "history": [
-      {"round":1,"ps":17,"es":23},
-      {"round":2,"ps":19,"es":21},
-      {"round":3,"ps":21,"es":22},
-      {"round":4,"ps":21,"es":23},
-      {"round":5,"ps":23,"es":27},
-      {"round":6,"ps":23,"es":33},
-      {"round":7,"ps":23,"es":35},
-      {"round":8,"ps":25,"es":41},
-      {"round":9,"ps":29,"es":41},
-      {"round":10,"ps":27,"es":51},
-      {"round":11,"ps":25,"es":55},
-      {"round":12,"ps":23,"es":61},
-      {"round":13,"ps":23,"es":63},
-      {"round":14,"ps":30,"es":67}
+      {"round":1,"ps":14,"es":20},
+      {"round":2,"ps":16,"es":18},
+      {"round":3,"ps":18,"es":19},
+      {"round":4,"ps":18,"es":20},
+      {"round":5,"ps":20,"es":24},
+      {"round":6,"ps":20,"es":30},
+      {"round":7,"ps":20,"es":32},
+      {"round":8,"ps":22,"es":38},
+      {"round":9,"ps":26,"es":38},
+      {"round":10,"ps":24,"es":48},
+      {"round":11,"ps":26,"es":50},
+      {"round":12,"ps":24,"es":56},
+      {"round":13,"ps":19,"es":60},
+      {"round":14,"ps":26,"es":64}
     ],
     "revelations": [
       {"round":1,"doctrine":null},

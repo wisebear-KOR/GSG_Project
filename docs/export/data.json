@@ -74,7 +74,7 @@
       "text": "시작할 때 수도 둘레 3칸이 보인다"
     }
   },
-  "CAPITAL_HP": 3,
+  "CAPITAL_HP": 2,
   "CATHEDRAL": [
     {
       "name": "기초",
@@ -178,9 +178,9 @@
     },
     "fortress": {
       "name": "지키는 자",
-      "text": "끝까지 수도 내구도 3 지키기",
+      "text": "끝까지 수도를 한 번도 내주지 않기 (내구도 온전히)",
       "test": {
-        "$fn": "(st) => st.round >= st.maxRounds && st.sides.player.capitalHp >= 3"
+        "$fn": "(st) => st.round >= st.maxRounds && st.sides.player.capitalHp >= CAPITAL_HP"
       }
     },
     "sword": {
@@ -455,7 +455,7 @@
     "name": "심판의 날",
     "cost": 0,
     "hidden": true,
-    "text": "율법파의 탑이 흔들리고(수도 -1) 한 사람이 쓰러진다. 분노가 가라앉는다. 판에 한 번."
+    "text": "율법파 수도가 흔들리고(내구도 -1) 한 사람이 쓰러진다. 분노가 가라앉는다. 판에 한 번."
   },
   "EDICT_MAX": 12,
   "ENEMY_LEADERS": {
@@ -1268,7 +1268,6 @@
     "followersPerFaith": 3,
     "baseFaithIncome": 1,
     "heresyGrace": 1,
-    "superiority": 3,
     "lowFaith": 2,
     "gracePerRound": 1,
     "graceDoctrineBelow": 3,

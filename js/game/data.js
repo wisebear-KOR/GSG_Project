@@ -36,7 +36,7 @@ export const DESTINIES = {
   ultimate: { name: t('data.destiny.ultimate.name'), text: t('data.destiny.ultimate.text'), test: (st) => Object.values(st.sides.player.doctrine).some((x) => x >= 6) },
   temple:   { name: t('data.destiny.temple.name'), text: t('data.destiny.temple.text'), test: (st) => st.round <= 6 && st.sides.player.templeLevel >= 3 },
   feeder:   { name: t('data.destiny.feeder.name'), text: t('data.destiny.feeder.text'), test: (st) => st.round >= st.maxRounds && !st.stats.starved },
-  fortress: { name: t('data.destiny.fortress.name'), text: t('data.destiny.fortress.text'), test: (st) => st.round >= st.maxRounds && st.sides.player.capitalHp >= 3 },
+  fortress: { name: t('data.destiny.fortress.name'), text: t('data.destiny.fortress.text'), test: (st) => st.round >= st.maxRounds && st.sides.player.capitalHp >= CAPITAL_HP },
   sword:    { name: t('data.destiny.sword.name'), text: t('data.destiny.sword.text'), test: (st) => st.stats.captured >= 2 },
   namer:    { name: t('data.destiny.namer.name'), text: t('data.destiny.namer.text'), test: (st) => Object.keys(st.names ?? {}).length >= 3 },
 };
@@ -50,7 +50,8 @@ export const ACTS = [
 ];
 
 export const MAX_TEMPLE = 3;
-export const CAPITAL_HP = 3;
+// 수도 내구도: 2 — 점령이 실제로 닿는 길이 되게 (3이던 때는 점령이 이긴 판의 1~3%)
+export const CAPITAL_HP = 2;
 export const MAX_ROUNDS = 12;
 export const MAX_ACTIONS = 6;
 export const REVELATION_MAX = 100;
@@ -63,7 +64,6 @@ export const RULES = {
   followersPerFaith: 3,      // 신도 3명마다 신앙 수입 +1
   baseFaithIncome: 1,        // 매 장 기본 신앙 수입
   heresyGrace: 1,            // 신앙 0으로 버틸 수 있는 장 수 (그다음 장부터 이탈)
-  superiority: 3,            // 신도가 이만큼 많으면 선교·공격 주사위 +1
   lowFaith: 2,               // 이하이면 경고하고 자동 노동이 기도를 우선한다
   gracePerRound: 1,          // 청원·말투·이름 붙이기로 받는 신앙(은총)은 장당 이만큼까지
   graceDoctrineBelow: 3,     // 비유·첫 이름의 교리 보너스는 그 교리가 이 값보다 낮을 때만
@@ -244,7 +244,7 @@ export const BLESSINGS = {
 export const AWE_TITLES = t('data.aweTitles');
 
 // 규칙 판: 규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)
-export const RULESET = 6;
+export const RULESET = 7;
 
 // 시련: 고정된 맵과 한 가지 비틀린 규칙. 별 셋 (승리 / 10점 차 / 20점 차 또는 일찍 끝냄)
 export const TRIALS = {

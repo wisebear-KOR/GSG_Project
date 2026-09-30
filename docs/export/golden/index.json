@@ -9,7 +9,7 @@
       "rounds": 5,
       "winner": "player",
       "winKind": "tutorial",
-      "score": {"player":18,"enemy":18}
+      "score": {"player":17,"enemy":17}
     },
     {
       "file": "s4-easy-first.json",
@@ -17,7 +17,7 @@
       "rounds": 8,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":16,"enemy":25}
+      "score": {"player":15,"enemy":24}
     },
     {
       "file": "s5-normal-first.json",
@@ -25,7 +25,7 @@
       "rounds": 12,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":24,"enemy":28}
+      "score": {"player":23,"enemy":27}
     },
     {
       "file": "s5-hard-veteran.json",
@@ -33,7 +33,7 @@
       "rounds": 9,
       "winner": "enemy",
       "winKind": "edict",
-      "score": {"player":18,"enemy":54}
+      "score": {"player":20,"enemy":47}
     },
     {
       "file": "s6-normal-veteran.json",
@@ -41,7 +41,7 @@
       "rounds": 12,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":19,"enemy":55}
+      "score": {"player":18,"enemy":54}
     },
     {
       "file": "s6-easy-veteran.json",
@@ -49,7 +49,7 @@
       "rounds": 12,
       "winner": "player",
       "winKind": "score",
-      "score": {"player":41,"enemy":26}
+      "score": {"player":40,"enemy":25}
     },
     {
       "file": "s7-hard-first.json",
@@ -57,7 +57,7 @@
       "rounds": 14,
       "winner": "player",
       "winKind": "score",
-      "score": {"player":42,"enemy":42}
+      "score": {"player":41,"enemy":41}
     },
     {
       "file": "s7-normal-veteran.json",
@@ -65,7 +65,7 @@
       "rounds": 14,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":30,"enemy":67}
+      "score": {"player":26,"enemy":64}
     },
     {
       "file": "s4-easy-first-war.json",
@@ -73,7 +73,7 @@
       "rounds": 8,
       "winner": "player",
       "winKind": "score",
-      "score": {"player":25,"enemy":19}
+      "score": {"player":24,"enemy":18}
     },
     {
       "file": "s5-easy-first-war.json",
@@ -81,7 +81,7 @@
       "rounds": 12,
       "winner": "player",
       "winKind": "score",
-      "score": {"player":20,"enemy":18}
+      "score": {"player":19,"enemy":17}
     },
     {
       "file": "s4-hard-veteran-asc4.json",
@@ -89,7 +89,7 @@
       "rounds": 8,
       "winner": "enemy",
       "winKind": "capital",
-      "score": {"player":2,"enemy":48}
+      "score": {"player":2,"enemy":44}
     }
   ]
 }

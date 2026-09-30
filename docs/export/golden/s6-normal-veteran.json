@@ -85,11 +85,11 @@
         "faith": 4,
         "pop": 3,
         "templeLevel": 1,
-        "capitalHp": 3,
+        "capitalHp": 2,
         "cathedral": 0,
         "edict": 0,
         "villages": 0,
-        "score": 8,
+        "score": 7,
         "faithless": 0,
         "doctrine": {"peace":0,"war":0,"abundance":0,"wisdom":0}
       },
@@ -100,11 +100,11 @@
         "faith": 3,
         "pop": 4,
         "templeLevel": 1,
-        "capitalHp": 3,
+        "capitalHp": 2,
         "cathedral": 0,
         "edict": 0,
         "villages": 0,
-        "score": 9
+        "score": 8
       }
     },
     "eventDeck": [
@@ -239,11 +239,11 @@
           "faith": 5,
           "pop": 3,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 0,
-          "score": 8,
+          "score": 7,
           "faithless": 0,
           "doctrine": {"peace":0,"war":0,"abundance":1,"wisdom":0}
         },
@@ -254,11 +254,11 @@
           "faith": 7,
           "pop": 4,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 14
+          "score": 13
         },
         "owners": {"A5":"enemy","C4":"enemy","F2":"player"},
         "buildings": {"A5":"capital","C4":"village","F2":"capital"},
@@ -348,11 +348,11 @@
           "faith": 7,
           "pop": 4,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 14,
+          "score": 13,
           "faithless": 0,
           "doctrine": {"peace":0,"war":0,"abundance":2,"wisdom":0}
         },
@@ -363,11 +363,11 @@
           "faith": 1,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 1,
           "villages": 1,
-          "score": 15
+          "score": 14
         },
         "owners": {"A5":"enemy","C4":"enemy","D1":"player","F2":"player"},
         "buildings": {"A5":"capital","C4":"village","D1":"village","F2":"capital"},
@@ -479,11 +479,11 @@
           "faith": 10,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 15,
+          "score": 14,
           "faithless": 0,
           "doctrine": {"peace":0,"war":0,"abundance":3,"wisdom":1}
         },
@@ -494,11 +494,11 @@
           "faith": 3,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 1,
           "villages": 1,
-          "score": 15
+          "score": 14
         },
         "owners": {"A5":"enemy","C4":"enemy","D1":"player","F2":"player"},
         "buildings": {"A5":"capital","C4":"village","D1":"village","F2":"capital"},
@@ -604,11 +604,11 @@
           "faith": 9,
           "pop": 4,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 14,
+          "score": 13,
           "faithless": 0,
           "doctrine": {"peace":0,"war":0,"abundance":3,"wisdom":1}
         },
@@ -619,11 +619,11 @@
           "faith": 6,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 1,
           "villages": 3,
-          "score": 25
+          "score": 24
         },
         "owners": {"A5":"enemy","C3":"enemy","C4":"enemy","D1":"player","D3":"enemy","F2":"player"},
         "buildings": {"A5":"capital","C3":"village","C4":"village","D1":"village","D3":"village","F2":"capital"},
@@ -740,11 +740,11 @@
           "faith": 11,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 15,
+          "score": 14,
           "faithless": 0,
           "doctrine": {"peace":1,"war":0,"abundance":3,"wisdom":1}
         },
@@ -755,11 +755,11 @@
           "faith": 8,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 1,
           "villages": 3,
-          "score": 25
+          "score": 24
         },
         "owners": {"A5":"enemy","C3":"enemy","C4":"enemy","D1":"player","D3":"enemy","F2":"player"},
         "buildings": {"A5":"capital","C3":"village","C4":"village","D1":"village","D3":"village","F2":"capital"},
@@ -874,11 +874,11 @@
           "faith": 16,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 15,
+          "score": 14,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":3,"wisdom":1}
         },
@@ -889,11 +889,11 @@
           "faith": 1,
           "pop": 6,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 2,
           "villages": 4,
-          "score": 31
+          "score": 30
         },
         "owners": {"A5":"enemy","C3":"enemy","C4":"enemy","D1":"player","D3":"enemy","E3":"enemy","F2":"player"},
         "buildings": {"A5":"capital","C3":"village","C4":"village","D1":"village","D3":"village","E3":"village","F2":"capital"},
@@ -1005,11 +1005,11 @@
           "faith": 13,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 15,
+          "score": 14,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":3,"wisdom":1}
         },
@@ -1020,11 +1020,11 @@
           "faith": 4,
           "pop": 7,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 2,
           "villages": 4,
-          "score": 32
+          "score": 31
         },
         "owners": {"A5":"enemy","C3":"enemy","C4":"enemy","D1":"player","D3":"enemy","E3":"enemy","F2":"player"},
         "buildings": {"A5":"capital","C3":"village","C4":"village","D1":"village","D3":"village","E3":"village","F2":"capital"},
@@ -1126,7 +1126,7 @@
         },
         {
           "side": "enemy",
-          "text": "율법파 원정대가 우리 신전(F2)을 넘지 못하고 물러났다 (율법파 식량 -1).",
+          "text": "율법파 원정대가 우리 수도(F2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
           "dice": {"attacker":2,"attackerBonus":0,"defender":5,"defenderBonus":1,"win":false},
           "fx": {"kind":"attack","tile":"F2"},
           "act": "attack:F2:"
@@ -1144,11 +1144,11 @@
           "faith": 15,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 15,
+          "score": 14,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":3,"wisdom":1}
         },
@@ -1159,11 +1159,11 @@
           "faith": 9,
           "pop": 8,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 2,
           "villages": 4,
-          "score": 33
+          "score": 32
         },
         "owners": {"A5":"enemy","C3":"enemy","C4":"enemy","D1":"player","D3":"enemy","E3":"enemy","F2":"player"},
         "buildings": {"A5":"capital","C3":"village","C4":"village","D1":"village","D3":"village","E3":"village","F2":"capital"},
@@ -1248,8 +1248,8 @@
         },
         {
           "side": "enemy",
-          "text": "율법파 원정대가 우리 신전(F2)을 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":4,"attackerBonus":1,"defender":3,"defenderBonus":2,"win":false},
+          "text": "율법파 원정대가 우리 수도(F2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
+          "dice": {"attacker":4,"attackerBonus":0,"defender":3,"defenderBonus":2,"win":false},
           "fx": {"kind":"attack","tile":"F2"},
           "act": "attack:F2:"
         },
@@ -1273,11 +1273,11 @@
           "faith": 17,
           "pop": 5,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 15,
+          "score": 14,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":2,"wisdom":2}
         },
@@ -1288,11 +1288,11 @@
           "faith": 2,
           "pop": 8,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 3,
           "villages": 6,
-          "score": 43
+          "score": 42
         },
         "owners": {
           "A5": "enemy",
@@ -1412,11 +1412,11 @@
           "faith": 21,
           "pop": 5,
           "templeLevel": 2,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 17,
+          "score": 16,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":2,"wisdom":3}
         },
@@ -1427,11 +1427,11 @@
           "faith": 8,
           "pop": 9,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 3,
           "villages": 6,
-          "score": 44
+          "score": 43
         },
         "owners": {
           "A5": "enemy",
@@ -1564,11 +1564,11 @@
           "faith": 22,
           "pop": 5,
           "templeLevel": 2,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 17,
+          "score": 16,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":3,"wisdom":2}
         },
@@ -1579,11 +1579,11 @@
           "faith": 4,
           "pop": 10,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 4,
           "villages": 6,
-          "score": 45
+          "score": 44
         },
         "owners": {
           "A5": "enemy",
@@ -1698,11 +1698,11 @@
           "faith": 24,
           "pop": 5,
           "templeLevel": 3,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 19,
+          "score": 18,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":3,"wisdom":2}
         },
@@ -1713,11 +1713,11 @@
           "faith": 8,
           "pop": 10,
           "templeLevel": 1,
-          "capitalHp": 3,
+          "capitalHp": 2,
           "cathedral": 0,
           "edict": 4,
           "villages": 8,
-          "score": 55
+          "score": 54
         },
         "owners": {
           "A5": "enemy",
@@ -1767,25 +1767,25 @@
     "rounds": 12,
     "winner": "enemy",
     "winKind": "score",
-    "winReason": "12장 종료 — 승점 19 : 55",
-    "score": {"player":19,"enemy":55},
+    "winReason": "12장 종료 — 승점 18 : 54",
+    "score": {"player":18,"enemy":54},
     "breakdown": {
-      "player": [{"key":"pop","n":5,"w":1},{"key":"village","n":1,"w":5},{"key":"temple","n":3,"w":2},{"key":"hp","n":3,"w":1}],
-      "enemy": [{"key":"pop","n":10,"w":1},{"key":"village","n":8,"w":5},{"key":"temple","n":1,"w":2},{"key":"hp","n":3,"w":1}]
+      "player": [{"key":"pop","n":5,"w":1},{"key":"village","n":1,"w":5},{"key":"temple","n":3,"w":2},{"key":"hp","n":2,"w":1}],
+      "enemy": [{"key":"pop","n":10,"w":1},{"key":"village","n":8,"w":5},{"key":"temple","n":1,"w":2},{"key":"hp","n":2,"w":1}]
     },
     "history": [
-      {"round":1,"ps":8,"es":14},
-      {"round":2,"ps":14,"es":15},
-      {"round":3,"ps":15,"es":15},
-      {"round":4,"ps":14,"es":25},
-      {"round":5,"ps":15,"es":25},
-      {"round":6,"ps":15,"es":31},
-      {"round":7,"ps":15,"es":32},
-      {"round":8,"ps":15,"es":33},
-      {"round":9,"ps":15,"es":43},
-      {"round":10,"ps":17,"es":44},
-      {"round":11,"ps":17,"es":45},
-      {"round":12,"ps":19,"es":55}
+      {"round":1,"ps":7,"es":13},
+      {"round":2,"ps":13,"es":14},
+      {"round":3,"ps":14,"es":14},
+      {"round":4,"ps":13,"es":24},
+      {"round":5,"ps":14,"es":24},
+      {"round":6,"ps":14,"es":30},
+      {"round":7,"ps":14,"es":31},
+      {"round":8,"ps":14,"es":32},
+      {"round":9,"ps":14,"es":42},
+      {"round":10,"ps":16,"es":43},
+      {"round":11,"ps":16,"es":44},
+      {"round":12,"ps":18,"es":54}
     ],
     "revelations": [
       {"round":1,"doctrine":"abundance"},

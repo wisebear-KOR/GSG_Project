@@ -256,7 +256,7 @@ function byPlace(state, place, matches) {
   const score = (a) => {
     const tl = state.tileAt[a.tile];
     let s = 0;
-    if (place.dir) s += Math.sign(tl.r - place.home.r) === place.dir[0] || Math.sign(tl.c - place.home.c) === place.dir[1] ? 3 : 0;
+    if (place.dir) s += (place.dir[0] && Math.sign(tl.r - place.home.r) === place.dir[0]) || (place.dir[1] && Math.sign(tl.c - place.home.c) === place.dir[1]) ? 3 : 0;
     for (const id of place.anchors) {
       const d = distance(tl, state.tileAt[id]);
       s = Math.max(s, d === 0 ? (place.near ? 1 : 4) : d === 1 ? (place.near ? 4 : 2) : 0);
