@@ -33,7 +33,7 @@
       "rounds": 9,
       "winner": "enemy",
       "winKind": "edict",
-      "score": {"player":20,"enemy":47}
+      "score": {"player":25,"enemy":41}
     },
     {
       "file": "s6-normal-veteran.json",
@@ -55,9 +55,9 @@
       "file": "s7-hard-first.json",
       "config": {"mode":"standard","size":7,"difficulty":"hard","seed":7304,"veteran":false},
       "rounds": 14,
-      "winner": "enemy",
+      "winner": "player",
       "winKind": "score",
-      "score": {"player":38,"enemy":48}
+      "score": {"player":41,"enemy":41}
     },
     {
       "file": "s7-normal-veteran.json",

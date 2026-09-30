@@ -10,7 +10,7 @@ for (let g = 0; g < 300; g++) {
       const r = I.interpretWithTablet(s, '두려워하지 말고 쳐라');
       if (r.forbidden.some((a) => a.type === 'attack')) attackForbidden++;
     }
-    // drain faith aggressively: always long revelations
+    // long revelations (cost no longer grows with length — this now checks faith upkeep under ordinary play)
     doAccept(s, doSpeak(s, pick(rng, REVELATIONS.filter((t) => t.length > 30))));
     rounds++;
     if (s.log.some((l) => l.round === s.round && /신앙이 바닥나/.test(l.text))) heresy++;

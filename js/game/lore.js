@@ -38,13 +38,6 @@ export function frequentNoun(revelations) {
   return best?.[0] ?? null;
 }
 
-// 성구 인용: 최근 세 장의 계시와 겹치는 명사 (봉인된 말은 인용이 아니다)
-const CITE_STOP = new Set(t('kw.citeStop'));
-export function citedWords(state, text) {
-  const past = new Set(state.revelations.filter((r) => r.round >= state.round - 3 && r.round < state.round).flatMap((r) => nouns(r.text)));
-  return [...new Set(nouns(text))].filter((w) => past.has(w) && !CITE_STOP.has(w) && !state.bannedWords?.includes(w));
-}
-
 // 말한 대로 내리는 기적: 계시 속 말이 손에 든 기적을 부른다
 const MIRACLE_WORDS = Object.fromEntries(['lightning', 'rain', 'bounty', 'manna', 'ark', 'tongues', 'pillar', 'revive'].map((id) => [id, kw(`kw.miracle.${id}`)]));
 export function parseMiracle(text, hand) {

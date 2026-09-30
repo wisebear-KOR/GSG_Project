@@ -288,17 +288,17 @@ export function preachBonus(state, side) {
 }
 
 // 선교·공격의 보너스와 승률 (확인 화면 표시용 — resolveAction과 같은 계산)
-export function actionOdds(state, a, { curse = false } = {}) {
+export function actionOdds(state, a, { curse = false, wallAhead = false } = {}) {
   const side = a.side ?? 'player';
   const s = state.sides[side]; const f = state.sides[other(side)];
   const t = state.tileAt[a.tile];
   let atk = 0; let def = 0;
   if (a.type === 'attack') {
     atk = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0) + enemyZeal(state, side) + siegeOf(state, side, t) + (side === 'player' ? (state.roundMods.attackBonus ?? (curse ? 1 : 0)) + (state.roundMods.pillar ?? 0) : 0);
-    def = (t.wall ? 2 : 0) + (t.building === 'capital' ? 1 : 0) + lawGuardOf(state, side, 'attack');
+    def = (t.wall || wallAhead ? 2 : 0) + (t.building === 'capital' ? 1 : 0) + lawGuardOf(state, side, 'attack');
   } else if (a.type === 'preach') {
     atk = preachBonus(state, side);
-    def = (t.building === 'capital' ? 1 : 0) + (t.wall ? 1 : 0) + lawGuardOf(state, side, 'preach');
+    def = (t.building === 'capital' ? 1 : 0) + (t.wall || wallAhead ? 1 : 0) + lawGuardOf(state, side, 'preach');
   } else return null;
   let w = 0;
   for (let x = 1; x <= 6; x++) for (let y = 1; y <= 6; y++) if (x + atk > y + def) w++;
@@ -755,9 +755,7 @@ export function chooseEvent(state, id) {
 
 // 계시 비용: 신앙 1 + 봉인된 말을 쓰면 +1 + 되풀이면 +1 (길이는 보지 않는다 — 말을 아끼게 하는 규칙이 멋진 말을 벌하지 않게)
 export function revelationCostFor(state, text) {
-  // 지난 계시를 인용하면 길어도 1 (성구 인용 사슬)
-  const base = 1;
-  return base + (state.bannedWords.some((w) => text.includes(w)) ? 1 : 0) + (isEcho(state, text) ? 1 : 0);
+  return 1 + (state.bannedWords.some((w) => text.includes(w)) ? 1 : 0) + (isEcho(state, text) ? 1 : 0);
 }
 // 메아리: 지난 계시를 되풀이하면 무뎌진다 (신앙 +1, 교리가 오르지 않는다). 글자가 같거나(띄어쓰기·문장부호는 보지 않는다)
 // 말을 바꿔도 석판이 알아듣는 일들이 지난 계시와 똑같으면 되풀이다. 일의 목록은 해석기가 알려 준다 (setPlanSig)
@@ -779,7 +777,7 @@ export function enemyIntent(state) {
   const plan = planEnemy(state);
   const diff = state.tutorial ? 'easy' : state.config.difficulty;
   const shown = diff === 'easy' ? () => true
-    : diff === 'normal' ? (a) => ['attack', 'preach', 'build'].includes(a.type)
+    : diff === 'normal' ? (a) => a.type !== 'pray' // 보통은 칸을 차지하는 일을 모두 보인다 (기도는 수도 안의 일이라 막지도 막히지도 않는다)
       : (a) => a.type === 'attack' || a.type === 'build'; // 어려움도 칼과 건설은 보인다 — 읽고 막는 판단이 남게 (선교·채집·기도는 가림)
   return plan.map((a) => ({ ...a, shown: shown(a) && state.tileAt[a.tile].revealed }));
 }

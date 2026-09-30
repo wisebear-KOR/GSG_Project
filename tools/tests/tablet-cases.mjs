@@ -1210,6 +1210,20 @@ const CASES = [
   ['율법파 놈들 다 쓸어버려', ['attack'], []],
   ['가장 가까운 마을 터에 집을 지어라', ['build:village'], []],
   ['적 수도에 가장 가까운 곳에 마을', ['build:village'], []],
+  // 6차 평가자 문장: 곳이 된 지형, 재료, 금하는 말, 차지
+  ['율법파보다 먼저 숲을 차지하라', ['build:village'], ['gather:wood']],
+  ['채석장에 마을을 세워라', ['build:village'], ['gather:stone']],
+  ['언덕 위의 마을에 성벽을 둘러라', ['build:wall'], ['gather:faith']],
+  ['저들을 회개시켜라', [], ['pray']],
+  ['싸움은 피하되 이웃을 데려오라', ['forbid:attack'], ['attack']],
+  ['저 강 건너 땅에 깃발을 꽂아라', ['build:village'], ['gather:food']],
+  ['숲에서가 아니라 산에서 돌을 캐라', ['gather:stone'], ['gather:wood']],
+  ['돌로 벽을 세우고 나무로 집을 세워라', ['build:wall', 'build:village'], ['gather:stone', 'gather:wood']],
+  ['불과 유황을 저들 위에 내리라', [], ['pray']],
+  ['탐헐하라', ['explore'], []],
+  ['신젼을 지어라', ['build:temple'], []],
+  ['저 마을 먹자', [], ['gather:food']],
+  ['땅을 차지하라', ['build:village'], []],
 ];
 
 const kindOf = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);

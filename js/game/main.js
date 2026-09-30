@@ -17,7 +17,7 @@ import { renderBoard, tileToHost, markerToScreen, tileCenter } from './board.js'
 import { installArt } from './art.js';
 import { Tutorial } from './tutorial.js';
 import * as meta from './meta.js';
-import { leaderLine, nouns, detectTone, parseNaming, parseProphecy, citedWords, parseMiracle, parseCommandment } from './lore.js';
+import { leaderLine, nouns, detectTone, parseNaming, parseProphecy, parseMiracle, parseCommandment } from './lore.js';
 import {
   summarizeGame, epilogue, topRevelations, decisiveScene, diceLuck, evaluateAchievements, closestAchievement, ACHIEVEMENTS, difficultyName, doctrineName,
 } from './chronicle.js';
@@ -235,7 +235,7 @@ function renderSetup() {
   renderBoard($('mapPreview'), preview, {});
   const st = {};
   for (const tl of preview.tiles) st[tl.terrain] = (st[tl.terrain] ?? 0) + 1;
-  const best = meta.getBest(setup);
+  const best = meta.getBest({ ...setup, unlock: Math.min(MODULES, meta.getHistory().length) });
   $('mapHint').textContent = t('ui.mapHint', { size: setup.size, rounds: MAP_SIZES[setup.size].rounds, desert: st.desert ?? 0, hill: st.hill ?? 0, best });
 }
 
@@ -492,9 +492,9 @@ async function newRound() {
   if (actStart(state) && unlocked(state, 3) && ACTS[actOf(state) - 1].text) setTimeout(() => leaderSay(ACTS[actOf(state) - 1].text), fx.motion.reduced ? 300 : 2600);
   if (state.round === 1 && state.destinyOffer) setTimeout(showDestinyChoice, fx.motion.reduced ? 400 : 2600);
   if (state.round === 1 && state.leader) setTimeout(() => leaderSay(leaderLine(state, 'intro')), fx.motion.reduced ? 300 : 2400);
+  else if (state.reacted && REACT[state.reacted]) setTimeout(() => leaderSay(REACT[state.reacted].line), fx.motion.reduced ? 300 : 2400);
   // 대사제의 성향이 열린 판이면 첫 장에 사제가 자기 버릇을 말한다 (뜻을 헤아리는 손이 달라진다)
   if (state.round === 1 && state.priest && state.priest !== 'loyal') setTimeout(() => priestSay(t('ui.priestIntro', { trait: PRIESTS[state.priest].trait })), fx.motion.reduced ? 500 : 3600);
-  else if (state.reacted && REACT[state.reacted]) setTimeout(() => leaderSay(REACT[state.reacted].line), fx.motion.reduced ? 300 : 2400);
   if (tutorial) {
     const round = state.round;
     // 장 제목이 걷힌 뒤에 말을 건다. 그새 계시를 내렸다면(제단이 잠겼다면) 이번 장 설명은 건너뛴다
@@ -575,7 +575,7 @@ async function interpret(text, job = runInterpretation(text), naming = pending?.
   notice = done.notice ?? '';
   pending = {
     text, result, fresh: true, naming, dropped: new Set(),
-    tone: detectTone(text), cited: citedWords(state, text),
+    tone: detectTone(text),
     prophecy: state.prophecy ? null : parseProphecy(text), seal: false,
   };
   derivePending();
@@ -652,7 +652,7 @@ function silence() {
   pending = {
     text: null,
     result: { interpretation: state.silentRun >= 1 ? t('ui.silence.again') : t('ui.silence.first'), orders: [], forbidden: [], doctrine: null, source: 'silence' },
-    accepted: [], rejected: [], auto, fresh: true, dropped: new Set(), cited: [], links: {},
+    accepted: [], rejected: [], auto, fresh: true, dropped: new Set(), links: {},
   };
   enterConfirm();
 }
@@ -1898,7 +1898,9 @@ function omenReel() {
 
 // 판정 승률 (저주 말투면 공격 +1을 미리 반영)
 function oddsTag(a) {
-  const p = actionOdds(state, a, { curse: pending?.tone === 'curse' });
+  // 율법파가 이번 장에 그 칸에 성벽을 두른다고 예고했으면 그 성벽까지 셈한다 (건설이 공격보다 먼저 풀린다)
+  const wallAhead = enemyIntent(state).some((x) => x.shown && x.build === 'wall' && x.tile === a.tile);
+  const p = actionOdds(state, a, { curse: pending?.tone === 'curse', wallAhead });
   return p == null ? '' : `<span class="why odds ${p >= 0.5 ? 'good' : 'low'}" title="${t('ui.odds.tip')}">${Math.round(p * 100)}%</span>`;
 }
 
@@ -2100,7 +2102,6 @@ function renderAltar() {
     if (pending.naming) tags.push(`<span class="wtag name">${t('ui.tag.naming', { name: esc(pending.naming.name) })}</span>`);
     if (pending.dilemma) tags.push(`<span class="wtag ok">${t('ui.tag.dilemma', { label: esc(state.event.choice.find((o) => o.id === pending.dilemma).label) })}</span>`);
 
-    if (pending.cited?.length) tags.push(`<span class="wtag">${t('ui.tag.cited', { words: pending.cited.map(esc) })}</span>`);
     const opp = result.doctrine && unlocked(state, 4) ? OPPOSED[result.doctrine] : null;
     if (opp && state.sides.player.doctrine[opp] > [6, 4, 2, 0].find((f) => state.sides.player.doctrine[opp] >= f)) tags.push(`<span class="wtag tone-curse">${DOCTRINE[opp].name} -1</span>`);
     const st = state.streak;
@@ -2112,7 +2113,7 @@ function renderAltar() {
     const priest = source === 'silence' ? '' : `${esc(PRIESTS[state.priest]?.name ?? t('ui.priest'))}`;
     scroll = `<div class="scroll">
       <div class="scroll-head"><h3>${t('ui.confirm.title')}</h3><small>${priest ? `${priest} · ` : ''}${src}${result.ms ? ` · ${t('ui.secs', { s: (result.ms / 1000).toFixed(1) })}` : ''}${doc}</small></div>
-      ${text ? `<div class="rev-line">${t('ui.quoted', { text: markWords(text, Object.values(links), pending.cited) })}</div>` : ''}
+      ${text ? `<div class="rev-line">${t('ui.quoted', { text: markWords(text, Object.values(links)) })}</div>` : ''}
       ${tags.length ? `<div class="wtags">${tags.join('')}</div>` : ''}
       <div class="quote${voiceOf(state) ? ` voice-${voiceOf(state)}` : ''}" title="${esc(result.interpretation)}">${fresh ? '' : esc(result.interpretation)}</div>
       <div class="orders">${chips}</div>
@@ -2166,8 +2167,8 @@ function renderAltar() {
 }
 
 // 계시 원문에서 행동을 부른 낱말에 밑줄
-function markWords(text, words, cited = []) {
-  const list = [...new Set([...words, ...cited])].filter(Boolean).sort((a, b) => b.length - a.length);
+function markWords(text, words) {
+  const list = [...new Set(words)].filter(Boolean).sort((a, b) => b.length - a.length);
   if (!list.length) return esc(text);
   const re = new RegExp(list.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g');
   const done = new Set();
@@ -2175,8 +2176,7 @@ function markWords(text, words, cited = []) {
   let last = 0;
   for (const m of text.matchAll(re)) {
     out += esc(text.slice(last, m.index));
-    const cls = words.includes(m[0]) ? 'lw' : 'lw cite';
-    out += done.has(m[0]) ? esc(m[0]) : `<u class="${cls}" data-w="${esc(m[0])}">${esc(m[0])}</u>`;
+    out += done.has(m[0]) ? esc(m[0]) : `<u class="lw" data-w="${esc(m[0])}">${esc(m[0])}</u>`;
     done.add(m[0]);
     last = m.index + m[0].length;
   }
@@ -2198,7 +2198,7 @@ function drawLinks() {
   }
 }
 
-// 계시 비용 알약: 되풀이 > 인용 > 보통 순으로 하나만 적는다 (그리기와 입력 갱신이 같은 값을 쓴다)
+// 계시 비용 알약: 되풀이면 되풀이를, 아니면 비용만 적는다 (그리기와 입력 갱신이 같은 값을 쓴다)
 function costPill(text) {
   const d = text.trim();
   const cost = d ? revelationCostFor(state, text) : 0;

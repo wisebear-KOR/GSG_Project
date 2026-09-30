@@ -526,7 +526,6 @@ export default {
   'ui.tag.answered': '{from}의 청원에 답함{grace}',
   'ui.tag.naming': '이름 · {name}',
   'ui.tag.dilemma': '이 사건에 대한 뜻 · {label}',
-  'ui.tag.cited': (v) => `인용 · ${v.words.map((w) => `'${w}'`).join(' ')}`,
   'ui.tag.streak': '{name} 세 장째 — 말씀이 이어지면 기적',
   'ui.carve': '영원한 계명으로 새긴다 — 「{name}」 {text} (되돌릴 수 없다)',
   'ui.sealProphecy': '예언으로 봉인 — “{name}” {n}장 안에 이루어지면 신앙 +{reward}, 빗나가면 -{penalty}',

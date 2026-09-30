@@ -654,7 +654,12 @@
       "carveRequested": true,
       "cost": 1,
       "tone": "command",
-      "tablet": {"orders":[],"forbidden":["attack:D3:"],"doctrine":"peace","interpretation":"석판의 말씀이 흐릿하도다. 각자 할 일을 하라."},
+      "tablet": {
+        "orders": [],
+        "forbidden": ["attack:D3:"],
+        "doctrine": "peace",
+        "interpretation": "석판이 이르되, 공격은 하지 말라. 나머지는 각자 할 일을 하라."
+      },
       "accepted": [],
       "rejected": [],
       "petitionAnswered": false,
@@ -666,7 +671,7 @@
       "ordered": [],
       "log": [
         {"side":"god","text":"“영원히 칼을 들지 말라”","ui":true},
-        {"side":"priest","text":"석판의 말씀이 흐릿하도다. 각자 할 일을 하라.","ui":true},
+        {"side":"priest","text":"석판이 이르되, 공격은 하지 말라. 나머지는 각자 할 일을 하라.","ui":true},
         {
           "side": "player",
           "text": "영원한 계명을 새겼다 — 「칼을 들지 말라」. 공격할 수 없다. 대신 선교 주사위 +1.",
