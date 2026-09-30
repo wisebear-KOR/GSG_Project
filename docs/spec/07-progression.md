@@ -1,7 +1,7 @@
 # 07. 판 밖의 진행 — 저장 키 · 기록 · 경외 · 성서 · 오늘의 계시 · 시련 · 승천
 
 > 한 판(match) 밖에 남는 모든 것을 적는다. 상태 객체와 판 저장(이어하기)의 직렬화는 [04 §2.8](04-architecture.md), 판 안의 규칙은 [02](02-rules.md)에 있다.
-> 기준: 커밋 `448f553` (2026-09-30; 처음 쓴 때는 `8b91681`), `e68a240`의 `RULESET` 5와 튜토리얼 도감 수정, `9b43bbf`(규칙은 바뀌었으나 `RULESET`은 그대로, 저장본의 새 필드 `doomUsed`·계시 `sig`)까지 반영. `78c891e`는 판 밖 진행을 바꾸지 않았다. 코드가 기준이다. 인용은 `파일:줄` (`js/game/` 생략).
+> 기준: 커밋 `448f553` (2026-09-30; 처음 쓴 때는 `8b91681`), `e68a240`의 `RULESET` 5와 튜토리얼 도감 수정, `9b43bbf`(규칙은 바뀌었으나 `RULESET`은 그대로, 저장본의 새 필드 `doomUsed`·계시 `sig`)까지 반영. `78c891e`는 판 밖 진행을 바꾸지 않았다. `87a0fce`에서 `RULESET` 6(최고 기록 키 `-r6`, 저장본의 새 필드 `miracleUses`), `2825b37`의 튜토리얼 변경(판 밖 진행은 그대로), `4e2e0f7`의 `gsg.motion` 기본값(없으면 OS 동작 줄이기)까지 반영. 코드가 기준이다. 인용은 `파일:줄` (`js/game/` 생략).
 
 ---
 
@@ -79,7 +79,7 @@ export function set(key, value) {
 | `gsg.unlockNote` | JSON | `true` | `showUnlockNote` (`main.js:1180`) | 같은 곳 | 두 번째 판 안내를 한 번만 (§16) |
 | `gsg.lastVisit` | JSON | ms 시각 | `renderWelcome` (`main.js:926`) | 같은 곳 | 복귀 인사 (§16) |
 | `gsg.lang` | **원문** | `'ko'` 등 | `setLang` (`i18n.js:47-49`) | `i18n.js:12` | 언어 |
-| `gsg.motion` | **원문** | `'reduced'` \| `'full'` | `fx.setReduced` (`fx.js:16`) | `fx.js:9` | 연출 줄이기 |
+| `gsg.motion` | **원문** | `'reduced'` \| `'full'` (없으면 OS의 `prefers-reduced-motion`을 따른다 — `4e2e0f7`; 그 전에는 없으면 화려하게) | `fx.setReduced` (`fx.js:18`) | `fx.js:9` (`loadReduced`) | 연출 줄이기 |
 | `gsg.sound` | **원문** | `'on'` \| `'off'` (없으면 켜짐) | `setSound` (`sound.js:26`) | `sound.js:10` | 효과음 |
 | `gsg.music` | **원문** | `'on'` \| `'off'` (없으면 켜짐) | `setMusic` (`sound.js:49`) | `sound.js:11` | 배경음악 |
 | `gsg.vol.music`, `gsg.vol.sfx` | **원문** | `'0'`~`'1'` 숫자 문자열 (`'1'`) | `setVolume` (`sound.js:32`) | `sound.js:28` | 볼륨 |
@@ -109,6 +109,8 @@ export function set(key, value) {
 
 튜토리얼은 `finishGame`을 부르지 않는다. 판이 끝나면 `tutorial.on('end')` → 세라의 마지막 대사 → `endTutorial({ skipped })`(`main.js:341-346`): 건너뛰지 않았으면 업적 `tutorial`만 연다. 서고·경외·과제는 남지 않는다. 따라서 튜토리얼만 마친 사람은 아직 베테랑이 아니다(§16).
 
+판 안에서는 `2825b37`부터 튜토리얼의 선이 늘 우리이고(4장 선교 수업이 막히지 않게), 청원 외면을 세지 않으며(설명 없는 신앙 −1 없음), 3장 확인 단계에 ⇄ 칩 옮기기와 곳의 말을 가르치는 대사가 있다([02 §16.1](02-rules.md#161-튜토리얼), [06 §9](06-ui-ux.md#9-튜토리얼-흐름-tutorialjs)). 어느 것도 판 밖 기록을 바꾸지 않는다 — 업적 `tutorial`은 여전히 `endTutorial`이 연다.
+
 ---
 
 ## 3. 판 요약 — 서고 항목 (`chronicle.js:92-105`)
@@ -135,7 +137,7 @@ export function set(key, value) {
 | `god` | string \| null | 신의 이름 |
 | `saints` | int | 성인 수 |
 | `commandments` | int | 새긴 계명 수 |
-| `ruleset` | int | `RULESET` (지금 5 — `e68a240`에서 4 → 5) |
+| `ruleset` | int | `RULESET` (지금 6 — `e68a240`에서 4 → 5, `87a0fce`에서 5 → 6) |
 | `trial` | string \| null | |
 | `ascension` | int | |
 | `comeback`, `capitalFull` | bool | `finishGame`이 더한 값 |
@@ -456,7 +458,7 @@ export const weeklyIndex = (n, date = new Date()) => hash(`gsg:week:${isoWeek(da
 export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}${c.ascension ? `-a${c.ascension}` : ''}-r${RULESET}`;
 ```
 
-- 예: `5-normal-2026-r5`, `5-hard-123-a2-r5` (`e68a240` 전 기록은 `-r4`).
+- 예: `5-normal-2026-r6`, `5-hard-123-a2-r6` (`87a0fce` 전 기록은 `-r5`, `e68a240` 전 기록은 `-r4`). 예전 키의 값은 지우지 않고 남지만 새 판과 비교되지 않는다.
 - **기록 조건**: 튜토리얼·오늘의 계시·도전·시련이 아니고 **베테랑**이며 **이긴** 판(`main.js:793-794`). 값은 우리 승점. 기존 값보다 클 때만 바꾼다(같으면 그대로, false).
 - **표시**: 메인 맵 힌트 끝에 `이 맵 최고 N`(현재 `setup`으로 `getBest`), 종료 화면 "새 기록 — 이 맵(시드 S)에서 승점 N".
 - `RULESET`이 바뀌면 키가 달라져 예전 기록과 비교하지 않는다(§17.1).
@@ -559,11 +561,11 @@ speak 단계에서 두루마리가 **8초** 동안 비어 있으면 제안 두 �
 
 ### 17.1 `RULESET` (`data.js:246-247`)
 
-`RULESET = 5` (`e68a240`에서 4 → 5 — `afab303`·`5b7a94f`·`448f553`·`e68a240`의 규칙 변경을 한 번에 반영했다). "규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)". 쓰이는 곳: 최고 기록 키 끝 `-r5`, 판 요약 `ruleset`, 설정 "이 게임" 문구. 올리면 예전 최고 기록은 남지만 새 키와 비교되지 않는다. 서고 항목은 섞여 남는다. `-r4` 기록에는 재조정(`afab303`) 전후의 판이 섞여 있다. `9b43bbf`(심판의 날 판에 한 번, 신앙 승리는 장 끝·개종 2명(빠른 판 1명), 6×6·7×7 대성당 마을 더하기, 원정 +1, 7×7 율법파 행동 +1, 일 메아리)는 승패에 닿는 규칙 변경이지만 `RULESET`을 올리지 않아 `-r5` 기록에도 전후 판이 섞인다([02 §19-30](02-rules.md#19-확인-필요)).
+`RULESET = 6` (`87a0fce`에서 5 → 6 — 승점으로 정하는 선공, 결집 12·6점과 장마다 신도 +1, 같은 기적 재사용 +1, 두 장 전 메아리, 석판의 절 나누기·곳의 말. 그 전에 `e68a240`에서 4 → 5 — `afab303`·`5b7a94f`·`448f553`·`e68a240`의 규칙 변경을 한 번에 반영했다). "규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)". 쓰이는 곳: 최고 기록 키 끝 `-r6`, 판 요약 `ruleset`, 설정 "이 게임" 문구. 올리면 예전 최고 기록은 남지만 새 키와 비교되지 않는다. 서고 항목은 섞여 남는다. `-r4` 기록에는 재조정(`afab303`) 전후의 판이 섞여 있다. `9b43bbf`(심판의 날 판에 한 번, 신앙 승리는 장 끝·개종 2명(빠른 판 1명), 6×6·7×7 대성당 마을 더하기, 원정 +1, 7×7 율법파 행동 +1, 일 메아리)는 승패에 닿는 규칙 변경이지만 `RULESET`을 올리지 않아 `-r5` 기록에도 전후 판이 섞인다([02 §19-30](02-rules.md#19-확인-필요)). `87a0fce`가 6으로 올려 `-r5`는 거기서 닫혔다. 그 뒤 `7a28084`의 7×7 대성당 비용 ×1.5(다른 크기는 같은 값)는 올리지 않아 `-r6`의 7×7 기록에는 전후 판이 섞인다. `2825b37`(튜토리얼)·`4e2e0f7`(접근성)은 기록에 닿지 않는다.
 
 ### 17.2 `SAVE_VERSION`
 
-`SAVE_VERSION = 1`(`engine.js:1123`), 이어하기 키 `gsg.save.v1`. 규칙 판과 무관하다. 새 필드는 저장 형식을 바꾸지 않고 `hydrateState` 기본값으로 흡수한다 — [04 §2.8](04-architecture.md). `9b43bbf`의 `doomUsed`는 `hydrateState`가 채우지 않고 첫 해결 때 `false`가 되며, `revelations[].sig`는 옛 계시에 없다(그 계시와는 글로만 메아리를 본다).
+`SAVE_VERSION = 1`(`engine.js:1133`), 이어하기 키 `gsg.save.v1`. 규칙 판과 무관하다. 새 필드는 저장 형식을 바꾸지 않고 `hydrateState` 기본값으로 흡수한다 — [04 §2.8](04-architecture.md). `9b43bbf`의 `doomUsed`는 `hydrateState`가 채우지 않고 첫 해결 때 `false`가 되며, `revelations[].sig`는 옛 계시에 없다(그 계시와는 글로만 메아리를 본다). `87a0fce`의 `miracleUses`도 `hydrateState`가 채우지 않는다 — 없으면 비용 계산이 0으로 읽고 첫 해결 때 `{}`가 되므로, `87a0fce` 전에 저장한 판을 이어 하면 그때까지 쓴 기적의 재사용 가산이 0부터 다시 센다. 이어 한 판은 저장본에 규칙 판이 없어 새 규칙(`RULESET` 6)으로 이어진다.
 
 ---
 

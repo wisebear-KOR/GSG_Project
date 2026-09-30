@@ -25,7 +25,7 @@
 | [`CATHEDRAL`](#cathedral) | 배열 | 3 | engine | 대성당 세 단계 |
 | [`PLAYER_START`](#player_start--difficulty) | 객체 | 5 | engine | 우리 부족 시작 자원 |
 | [`DIFFICULTY`](#player_start--difficulty) | 객체 | 3 | engine, main, chron | 난이도: 율법파 보너스·시작 자원 |
-| [`MAP_SIZES`](#map_sizes) | 객체 | 4 | engine, main | 맵 크기 → 장 수 |
+| [`MAP_SIZES`](#map_sizes) | 객체 | 4 | engine, main | 판 크기 표: 맵 크기 → 장 수와 판마다 다른 규칙 수 전부 (`7a28084`) |
 | [`TUTORIAL`](#tutorial) | 객체 | — | engine | 튜토리얼 고정 시나리오 |
 | [`TRIALS`](#trials) | 객체 | 5 | engine, main | 시련 (고정 맵 + 비틀린 규칙) |
 | [`ASCENSION`](#ascension) | 배열 | 5 | main | 승천 단계 설명 |
@@ -60,7 +60,7 @@
 | [`BLESSINGS`](#awe_levels--awe_titles--blessings) | 객체 | 4 | main (+engine이 `config.blessing`으로) | 은사 |
 | [`SIGILS`](#sigils) | 객체 | 6 | main | 신의 인장 → SVG 심볼 |
 | [`RULES`](#rules) | 객체 | 9 | engine, main | 규칙 수치 모음 |
-| [상수](#상수) | 수 | — | — | `CAPITAL_HP` 3, `MAX_TEMPLE` 3, `MAX_ACTIONS` 6, `DOCTRINE_MAX` 6, `EDICT_MAX` 12, `DESTINY_POINTS` 5, `MAX_COMMANDMENTS` 2, `REVELATION_MAX` 100, `MAX_ROUNDS` 12, `RULESET` 5 |
+| [상수](#상수) | 수 | — | — | `CAPITAL_HP` 3, `MAX_TEMPLE` 3, `MAX_ACTIONS` 6, `DOCTRINE_MAX` 6, `EDICT_MAX` 12, `DESTINY_POINTS` 5, `MAX_COMMANDMENTS` 2, `REVELATION_MAX` 100, `MAX_ROUNDS` 12, `RULESET` 6 |
 | [`revelationCost`](#함수-칸-fn) | 함수 | — | (쓰이지 않음) | 계시 기본 비용 |
 
 ---
@@ -121,10 +121,10 @@
 | `name` | 문자열 | 단계 이름 (`data.cathedral.<i>.name`) |
 | `cost` | 비용 객체 | 이 단계의 비용 |
 
-비용: 4/4/4, 4/4/4, 3/3/5 (돌/목재/신앙 — 합계가 `COST.cathedral`과 같다). 빠른 판(4×4)은 각 값 `ceil(v × 0.7)`. 셋째 단계를 지으면 즉시 승리(`winKind: 'cathedral'`).
+비용: 4/4/4, 4/4/4, 3/3/5 (돌/목재/신앙 — 합계가 `COST.cathedral`과 같다). 판 크기 표의 `MAP_SIZES[n].cathedralCost`가 1이 아니면 각 값 `ceil(v × k)`: 4×4 ×0.7(3/3/3, 3/3/3, 3/3/4), 7×7 ×1.5(6/6/6, 6/6/6, 5/5/8 — `7a28084`). 튜토리얼은 ×1. 셋째 단계를 지으면 즉시 승리(`winKind: 'cathedral'`).
 
 표에 없는 규칙 (engine, [02 §10](02-rules.md#10-대성당)):
-- 다음 단계에는 우리 마을이 `cathedralVillages = cathedral + 1 + max(0, rows − 5)`개 있어야 한다 (`legalActions`) — 5×5 이하 1·2·3, 6×6 2·3·4, 7×7 3·4·5 (`9b43bbf`에서 큰 판 더하기).
+- 다음 단계에는 우리 마을이 `cathedralVillages = cathedral + 1 + MAP_SIZES[n].cathedralVillages`개 있어야 한다 (`legalActions`) — 4×4·5×5 1·2·3, 6×6 2·3·4, 7×7 3·4·5 (`9b43bbf`에서 큰 판 더하기, `7a28084`부터 판 크기 표에서 읽는다. 튜토리얼은 더하기 0).
 - 공사가 시작되면 율법파의 합법 행동에 우리 수도 공격이 거리와 무관하게 들어가고(`crusade: true`), `planEnemy`가 그것을 맨 앞에 둔다(rush). 공사 중인 우리 수도를 치는 율법파 공격은 +1 (`siegeOf`, `9b43bbf`).
 - 율법파가 우리 수도를 치면 어느 단계든 한 단계 무너진다(`cathedral >= 1`).
 
@@ -144,7 +144,27 @@
 
 ### MAP_SIZES
 
-맵 한 변 → `{name, rounds}`. `4`: 8장("빠르게"), `5`: 12장, `6`: 12장, `7`: 14장. engine `createState`의 `maxRounds`(시련의 `rounds`가 먼저), main 설정 화면. 4×4는 "빠른 판"(`quick()`)이라 궁극·드래프트·분노·신앙 승리 조건(개종 2명 → 1명 포함)이 앞당겨진다 (02 규칙). 한 변의 길이는 표 밖에서도 쓰인다: 6×6·7×7은 대성당 단계마다 마을이 하나·둘 더 필요하고, 7×7은 율법파 행동 수가 +1이다(engine `cathedralVillages`·`actionLimit`, `9b43bbf`).
+**판 크기 표** (`7a28084`): 맵 한 변 → 그 크기의 모든 규칙 수. 판마다 다른 수는 이 표에만 있다(규칙서 `docs/RULEBOOK.md`의 "판 크기 표"와 같다). 그 전에는 `{name, rounds}`뿐이었고 나머지는 엔진의 흩어진 예외(`quick()`, `max(0, rows − 5)`, `rows >= 7`)였다 — 값은 7×7 대성당 비용 말고는 같다.
+
+| 칸 | 형 | 뜻 · 쓰는 곳 |
+|---|---|---|
+| `name` | 문자열 | `data.mapSize.<n>.name` — 설정 화면 |
+| `rounds` | 정수 | 장 수 → `createState`의 `maxRounds`(시련의 `rounds`가 먼저), main 설정·시련 목록 |
+| `cathedralCost` | 수 (실수일 수 있다) | 대성당 비용 배율 → `buildCost(…, 'cathedral')`가 1이 아니면 `ceil(v × k)` |
+| `cathedralVillages` | 정수 | 대성당 단계마다 더 필요한 마을 → `cathedralVillages()` |
+| `enemyActions` | 정수 | 율법파 행동 수 더하기 → `actionLimit('enemy')` |
+| `faith` | `{pop, round, converts}` | 신앙 승리 문턱: 두 부족 인구 합, 그 장부터, 선교로 데려온 수 → `checkVictory`·`faithConverts()` |
+| `at` | `{ult, draft, wrath}` | 교리 궁극이 깨어나는 장·기적 드래프트 장·신의 분노가 차기 시작하는 장 → `ultRound()`·`draftRound()`·`wrathRound()` (시련 `last`는 분노 1장) |
+
+| 키 | `name` | `rounds` | `cathedralCost` | `cathedralVillages` | `enemyActions` | `faith` | `at` |
+|---|---|---|---|---|---|---|---|
+| `4` | 빠르게 | 8 | 0.7 | 0 | 0 | `{pop:6, round:4, converts:1}` | `{ult:6, draft:3, wrath:3}` |
+| `5` | 작게 | 12 | 1 | 0 | 0 | `{pop:8, round:6, converts:2}` | `{ult:8, draft:5, wrath:4}` |
+| `6` | 보통 | 12 | 1 | 1 | 0 | `{pop:8, round:6, converts:2}` | `{ult:8, draft:5, wrath:4}` |
+| `7` | 크게 | 14 | **1.5** | 2 | 1 | `{pop:8, round:6, converts:2}` | `{ult:8, draft:5, wrath:4}` |
+
+- engine은 `sizeRules(state) = MAP_SIZES[state.rows] ?? MAP_SIZES[5]`로 읽는다. 튜토리얼(3×3)은 5×5 줄을 받되 `cathedralCost`·`cathedralVillages`·`enemyActions`는 `tutorial`이면 쓰지 않는다(×1, 0, 0). 시련의 판도 크기대로 이 표를 쓴다.
+- JSON에서는 키가 문자열(`"4"`~`"7"`)이다. `data.js` 주석은 `at`을 `rounds.ult/draft/wrath`라 적었지만 실제 칸 이름은 `at`이다.
 
 ---
 
@@ -464,7 +484,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `MAX_COMMANDMENTS` | 2 | 판당 계명 수 |
 | `REVELATION_MAX` | 100 | 계시 글자 수 상한 (main `revMax`; 시련 `cloister`는 20) |
 | `MAX_ROUNDS` | 12 | **쓰이지 않는다** (`createState`는 `MAP_SIZES`가 없을 때 숫자 12를 직접 쓴다) |
-| `RULESET` | 5 | 규칙 판 번호. 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). `e68a240`에서 4 → 5로 올렸다 — `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)·`e68a240`(막기 대칭·헤아린 성벽 예산)의 규칙 변경이 한 번에 반영된다. 그 사이(`afab303`~`e68a240` 직전)에 둔 판은 재조정 전의 판과 같은 `-r4` 키로 남아 있다. `9b43bbf`(심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정)는 올리지 않아 `-r5`에 그 전후 판이 섞인다 |
+| `RULESET` | 6 | 규칙 판 번호 (`data.js:247`). 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). `e68a240`에서 4 → 5로 올렸다 — `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)·`e68a240`(막기 대칭·헤아린 성벽 예산)의 규칙 변경이 한 번에 반영된다. 그 사이(`afab303`~`e68a240` 직전)에 둔 판은 재조정 전의 판과 같은 `-r4` 키로 남아 있다. `9b43bbf`(심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정)는 올리지 않아 `-r5`에 그 전후 판이 섞인다. `87a0fce`에서 5 → 6(승점으로 정하는 선공, 결집 12·6점과 신도 +1, 같은 기적 재사용 +1, 두 장 전 메아리). `7a28084`의 7×7 대성당 ×1.5는 올리지 않고 `-r6` 안에서 바뀌었다 |
 
 ---
 
@@ -490,7 +510,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `COMMANDMENTS.<id>.re` | `kw.data.commandment.<id>.re` | `kw.eternal`이 맞은 뒤 `new RegExp(re).test(text)` — 플래그 없음 |
 | `SACRED_WORDS[].word` | `kw.data.sacred.<i>.word` | `text.includes(word)` (정규식 아님) |
 
-나머지 `kw.*`(석판 규칙·곳과 수의 말 `kw.place.*`·`kw.count2/3`(`78c891e`)·부정어·명사 뽑기·말투·예언·이름 붙이기·청원 키 등)는 `data.js`를 거치지 않고 interp·lore·engine이 언어팩에서 직접 읽는다 — [05 해석기](05-interpreter.md)와 [`i18n-ko.json`](../export/i18n-ko.json).
+나머지 `kw.*`(석판 규칙·곳과 수의 말 `kw.place.*`·`kw.count2/3`(`78c891e`)·부정어와 부정이 아닌 말 `kw.notNeg`·곳의 말 `kw.place.village`/`nearTerrain`/`terrainName`/`home`/`dir`/`dirWord`(`87a0fce`)·명사 뽑기·말투·예언·이름 붙이기·청원 키 등)는 `data.js`를 거치지 않고 interp·lore·engine이 언어팩에서 직접 읽는다 — [05 해석기](05-interpreter.md)와 [`i18n-ko.json`](../export/i18n-ko.json).
 
 ## 결정론 도우미 (요약)
 
