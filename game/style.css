@@ -1332,3 +1332,8 @@ body.reduce-motion .ui-tip { transition: none; }
   .table > .mat-player { order: 3; margin: 0 12px 12px; }
   .table > .side-col { order: 4; margin: 0 12px 16px; }
 }
+
+/* 움직임 줄이기: 운영체제 설정을 따른다 (fx.js의 연출도 같은 설정을 본다) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
