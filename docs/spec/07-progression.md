@@ -137,7 +137,7 @@ export function set(key, value) {
 | `god` | string \| null | 신의 이름 |
 | `saints` | int | 성인 수 |
 | `commandments` | int | 새긴 계명 수 |
-| `ruleset` | int | `RULESET` (지금 11 — `e68a240`에서 4 → 5, `87a0fce`에서 5 → 6, `435c3cc`에서 6 → 7, `0c95856`에서 7 → 8, `df1cb16`에서 8 → 9, `c12a1e9`에서 9 → 10, `846fd60`에서 10 → 11, `88878b6`에서 11 → 12; `55d33dd`는 그대로) |
+| `ruleset` | int | `RULESET` (지금 12 — `e68a240`에서 4 → 5, `87a0fce`에서 5 → 6, `435c3cc`에서 6 → 7, `0c95856`에서 7 → 8, `df1cb16`에서 8 → 9, `c12a1e9`에서 9 → 10, `846fd60`에서 10 → 11, `88878b6`에서 11 → 12; `55d33dd`는 그대로) |
 | `trial` | string \| null | |
 | `ascension` | int | |
 | `comeback`, `capitalFull` | bool | `finishGame`이 더한 값 |
@@ -366,7 +366,7 @@ export function dailyConfig(date = new Date()) {
 
 ### 10.2 숨은 말
 
-오늘의 계시에만 `state.sacred = hashPick(SACRED_WORDS, 'sacred', day)`(`engine.js:90`). 제단에 "오늘의 숨은 말 — 단서 “…” (n글자)"가 뜬다(`main.js:1992`). 수락 때 계시 원문에 그 낱말이 **들어 있으면**(부분 문자열) 판당 한 번 `stats.sacred = 1`과 로그(`engine.js:1040-1045`) → 업적 `sacred`.
+오늘의 계시에만 `state.sacred = hashPick(SACRED_WORDS, 'sacred', day)`(`engine.js:90`). 제단에 "오늘의 숨은 말 — 단서 “…” (n글자)"가 뜬다(`main.js:1992`). 수락 때 계시 원문에 그 낱말이 **들어 있으면**(부분 문자열) 판당 한 번 `stats.sacred = 1`과 로그(`engine.js:1047-1052`) → 업적 `sacred`.
 
 | # | 낱말 | 단서 |
 |---|---|---|
@@ -439,7 +439,7 @@ export const weeklyIndex = (n, date = new Date()) => hash(`gsg:week:${isoWeek(da
 | 단계 | 안내 문구 | 실제 효과 | 코드 |
 |---|---|---|---|
 | 1 | 율법파 시작 신도 +1, 식량 +4 | 율법파 신도 +1, 식량 +4 | `engine.js:159` |
-| 2 | 율법 석판 한계 −2 | `edictMax` 10 → 8 (`c12a1e9` 전에는 12 → 10) | `engine.js:990` |
+| 2 | 율법 석판 한계 −2 | `edictMax` 10 → 8 (`c12a1e9` 전에는 12 → 10) | `engine.js:997` |
 | 3 | 신의 분노가 차는 격차 6 → 8 | 분노가 오르는 승점 격차 8 | `engine.js:917` |
 | 4 | 3막에 율법파 공격·선교 주사위 +1 | 3막에서 율법파 공격 `atk +1`, 선교 `preachBonus +1` (`enemyZeal`). `afab303` 전에는 "3막 율법파 행동 +1"이었다 | `engine.js:265` |
 | 5 | 은사 없이 시작 | 일반 새 게임과 새 맵에서 은사를 넘기지 않음 | `main.js:282`, `845` |
@@ -537,8 +537,8 @@ export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}${c.ascension 
 | 기적 드래프트 | 해금 3 — 5장(4×4는 3장) | `engine.js:617` |
 | 검열 카드 `L10` | 해금 4 — 다섯 번째 판, 보통·어려움 율법 풀에 | `engine.js:184` |
 | 분열의 예언자 미라 | 해금 4 — 2막부터 조건이 맞으면 한 번 | `engine.js:572` |
-| 영원한 계명 · 교리 대립 | 해금 4 (성언은 `afab303`에서 없앴다) | `engine.js:1067, 1449` |
-| 침묵 벌칙 | 베테랑 — 두 번째 신앙 −1, 세 번째부터 신도 이탈 | `engine.js:1042` |
+| 영원한 계명 · 교리 대립 | 해금 4 (성언은 `afab303`에서 없앴다) | `engine.js:1074, 1449` |
+| 침묵 벌칙 | 베테랑 — 두 번째 신앙 −1, 세 번째부터 신도 이탈 | `engine.js:1049` |
 | 말 거두기 | 베테랑 — 신앙 1 (첫 판은 무료) | `main.js:696` |
 | 정경 봉헌 버튼 · 정경 적용 · 유적 | 베테랑 | `main.js:282, 817` |
 | 최고 기록 | 베테랑 — 기록됨 | `main.js:796` |
@@ -567,7 +567,7 @@ speak 단계에서 두루마리가 **8초** 동안 비어 있으면 제안 두 �
 
 ### 17.2 `SAVE_VERSION`
 
-`SAVE_VERSION = 1`(`engine.js:1152`), 이어하기 키 `gsg.save.v1`. 규칙 판과 무관하다 — 규칙 판은 `55d33dd`부터 상태 안의 `state.ruleset`(`createState`가 `RULESET`으로)에 적힌다. 새 필드는 저장 형식을 바꾸지 않고 `hydrateState` 기본값으로 흡수한다 — [04 §2.8](04-architecture.md). `9b43bbf`의 `doomUsed`와 `87a0fce`의 `miracleUses`는 `435c3cc`부터 `hydrateState`가 `false`·`{}`로 채운다(그 전에는 첫 해결 때 채워졌다). `revelations[].sig`는 옛 계시에 없다(그 계시와는 글로만 메아리를 본다). `87a0fce` 전에 저장한 판을 이어 하면 그때까지 쓴 기적의 재사용 가산이 0부터 다시 센다. `8ba0ef8` 전 저장본의 `config`에는 `unlock`이 없어 `veteran`으로 판정된다(베테랑이면 모든 모듈 — 저장할 때와 같다). 이어 한 판은 새 규칙(지금 `RULESET` 10)으로 이어진다. `c12a1e9` 전 저장본의 `bloodKills`는 읽히지 않고 남는다. ~~저장된 석판 값이 새 한계(10, 승천 2 이상 8) 이상이면 `hydrateState`가 자르지 않아 그 장 끝에 곧바로 율법파가 이긴다~~ — **고침** `55d33dd`: `state.ruleset`이 10 미만(없으면 0)이면 두 진영의 석판을 `edictMax − 1`로 자르고 `ruleset`을 `RULESET`으로 바꾼다(`engine.js:1185-1186`, [KNOWN-ISSUES C10](../godot/KNOWN-ISSUES.md)). `55d33dd` 전 규칙 10 저장본도 필드가 없어 자르기를 받지만 그 판의 석판은 이미 새 한계 아래다. `55d33dd` 전 저장본의 `lawGuard`(`{preach, attack}`)는 큰 값 하나로 바뀐다. `846fd60` 전 저장본의 `petitionIgnored`는 읽히지 않고 남는다(외면 벌이 없어졌다). `55d33dd`~`846fd60`의 저장본은 `ruleset` 10이라 석판 자르기를 받지 않고, 불러오면 11로 바뀌어 새 규칙(포위·성인 보정 없음)으로 이어진다. `435c3cc` 전 판은 수도 내구도 3을 들고 이어졌으나, `0c95856`부터 `hydrateState`가 `CAPITAL_HP`(2)로 자른다([04 확인 필요](04-architecture.md#확인-필요)).
+`SAVE_VERSION = 1`(`engine.js:1159`), 이어하기 키 `gsg.save.v1`. 규칙 판과 무관하다 — 규칙 판은 `55d33dd`부터 상태 안의 `state.ruleset`(`createState`가 `RULESET`으로)에 적힌다. 새 필드는 저장 형식을 바꾸지 않고 `hydrateState` 기본값으로 흡수한다 — [04 §2.8](04-architecture.md). `9b43bbf`의 `doomUsed`와 `87a0fce`의 `miracleUses`는 `435c3cc`부터 `hydrateState`가 `false`·`{}`로 채운다(그 전에는 첫 해결 때 채워졌다). `revelations[].sig`는 옛 계시에 없다(그 계시와는 글로만 메아리를 본다). `87a0fce` 전에 저장한 판을 이어 하면 그때까지 쓴 기적의 재사용 가산이 0부터 다시 센다. `8ba0ef8` 전 저장본의 `config`에는 `unlock`이 없어 `veteran`으로 판정된다(베테랑이면 모든 모듈 — 저장할 때와 같다). 이어 한 판은 새 규칙(지금 `RULESET` 10)으로 이어진다. `c12a1e9` 전 저장본의 `bloodKills`는 읽히지 않고 남는다. ~~저장된 석판 값이 새 한계(10, 승천 2 이상 8) 이상이면 `hydrateState`가 자르지 않아 그 장 끝에 곧바로 율법파가 이긴다~~ — **고침** `55d33dd`: `state.ruleset`이 10 미만(없으면 0)이면 두 진영의 석판을 `edictMax − 1`로 자르고 `ruleset`을 `RULESET`으로 바꾼다(`engine.js:1192-1193`, [KNOWN-ISSUES C10](../godot/KNOWN-ISSUES.md)). `55d33dd` 전 규칙 10 저장본도 필드가 없어 자르기를 받지만 그 판의 석판은 이미 새 한계 아래다. `55d33dd` 전 저장본의 `lawGuard`(`{preach, attack}`)는 큰 값 하나로 바뀐다. `846fd60` 전 저장본의 `petitionIgnored`는 읽히지 않고 남는다(외면 벌이 없어졌다). `55d33dd`~`846fd60`의 저장본은 `ruleset` 10이라 석판 자르기를 받지 않고, 불러오면 11로 바뀌어 새 규칙(포위·성인 보정 없음)으로 이어진다. `435c3cc` 전 판은 수도 내구도 3을 들고 이어졌으나, `0c95856`부터 `hydrateState`가 `CAPITAL_HP`(2)로 자른다([04 확인 필요](04-architecture.md#확인-필요)).
 
 ---
 
