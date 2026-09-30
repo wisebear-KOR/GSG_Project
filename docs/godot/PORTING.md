@@ -3,7 +3,7 @@
 웹판(JS, `js/game/`)을 Godot 4로 옮기기 위한 계획서다. 규칙과 화면의 세부는 [`docs/spec/`](../spec/01-overview.md)에 있고, 이 문서는 **어떻게 옮기고 어떻게 같다는 것을 증명할지**를 다룬다.
 
 > 이식 중 결정할 것(현재 웹판의 버그·이상 동작 모음)은 [KNOWN-ISSUES.md](KNOWN-ISSUES.md). 원칙은 "먼저 똑같이 재현하고, 그다음 JS와 함께 고친다".
-> 기준: 커밋 `448f553` (2026-09-30), 명세 검토 수정 `e68a240`, 3차 균형 `9b43bbf`, 석판의 곳·수의 말 `78c891e`, 4차 `87a0fce`·튜토리얼 `2825b37`·판 크기 표 `7a28084`·접근성 `4e2e0f7`, 5차 `435c3cc`·모듈 단계 해금 `8ba0ef8`·석판 조준 `bcdeb22`·저울 `3a790f5`까지 반영. 처음 쓴 뒤 규칙이 크게 바뀌었다(`afab303` 재조정, `5b7a94f` 수도 막기, `448f553` 남은 자, `e68a240` 막기 대칭·헤아린 성벽 예산·"~지 말고" 전부 금지·`RULESET` 5, `9b43bbf` 심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정·일 메아리, `78c891e` 곳을 가리키는 말·수의 말·한 칸에 한 가지·칩 옮기기, `87a0fce` 승점이 뒤진 쪽이 선공·결집 12/6점과 장마다 신도 +1·같은 기적 재사용 +1·두 장 전 메아리·석판의 `~고` 절 나누기와 새 곳의 말·`RULESET` 6, `2825b37` 튜토리얼은 늘 우리가 선·청원 벌 없음, `7a28084` 판 크기 표 `MAP_SIZES`·7×7 대성당 ×1.5, `435c3cc` 신도 수 우위 삭제·수도 내구도 2·`RULESET` 7·튜토리얼 청원 벌 조건을 골든 구동기에도, `8ba0ef8` 모듈이 끝낸 판마다 한 묶음씩(`config.unlock`), `bcdeb22` 석판의 `~되` 절 나누기·금지 넘김 조건·칸 이름 우선·가까운·율법파 마을 곁·짓는 말의 수도, 말한 번개의 수도 조준, `3a790f5` 따라잡기를 "저울" 하나로 보여 줌) — 명세 02·05·07과 골든은 모두 새 동작 기준이다.
+> 기준: 커밋 `448f553` (2026-09-30), 명세 검토 수정 `e68a240`, 3차 균형 `9b43bbf`, 석판의 곳·수의 말 `78c891e`, 4차 `87a0fce`·튜토리얼 `2825b37`·판 크기 표 `7a28084`·접근성 `4e2e0f7`, 5차 `435c3cc`·모듈 단계 해금 `8ba0ef8`·석판 조준 `bcdeb22`·저울 `3a790f5`, 6차 `0c95856`·`b470e03`·`0a0a974`까지 반영. 처음 쓴 뒤 규칙이 크게 바뀌었다(`afab303` 재조정, `5b7a94f` 수도 막기, `448f553` 남은 자, `e68a240` 막기 대칭·헤아린 성벽 예산·"~지 말고" 전부 금지·`RULESET` 5, `9b43bbf` 심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정·일 메아리, `78c891e` 곳을 가리키는 말·수의 말·한 칸에 한 가지·칩 옮기기, `87a0fce` 승점이 뒤진 쪽이 선공·결집 12/6점과 장마다 신도 +1·같은 기적 재사용 +1·두 장 전 메아리·석판의 `~고` 절 나누기와 새 곳의 말·`RULESET` 6, `2825b37` 튜토리얼은 늘 우리가 선·청원 벌 없음, `7a28084` 판 크기 표 `MAP_SIZES`·7×7 대성당 ×1.5, `435c3cc` 신도 수 우위 삭제·수도 내구도 2·`RULESET` 7·튜토리얼 청원 벌 조건을 골든 구동기에도, `8ba0ef8` 모듈이 끝낸 판마다 한 묶음씩(`config.unlock`), `bcdeb22` 석판의 `~되` 절 나누기·금지 넘김 조건·칸 이름 우선·가까운·율법파 마을 곁·짓는 말의 수도, 말한 번개의 수도 조준, `3a790f5` 따라잡기를 "저울" 하나로 보여 줌, `0c95856` 대성당 공사 중 율법파 선공·계시 비용은 길이와 무관하게 1(30자 가산·인용 할인 삭제)·「새 맵」의 해금 단계·최고 기록 키의 해금 단계·옛 저장본의 수도 내구도 자르기·`RULESET` 8, `b470e03` 석판이 공격·선교를 승률 순으로 조준·짚은 칸에서 못 한 일 `far:`·"A가 아니라 B"·"차지하라"·비유 절·"수도"의 적/우리 가르기를 공격·선교 말로, `0a0a974` 대사제 성향이 헤아린 노동을 정함(`PRIEST_LABOR`)·어려움도 율법파의 건설을 보임·튜토리얼 새 대사) — 명세 02·05·07과 골든은 모두 새 동작 기준이다.
 
 ## 원칙
 
@@ -53,18 +53,18 @@ res://
 
 | JS | 줄 수 | Godot | 비고 |
 |---|---|---|---|
-| `engine.js` | 1492 | `core/engine.gd` | 순수 함수. 상태는 `Dictionary` 하나로 두면 골든 JSON과 바로 비교된다. 메아리의 일 목록은 석판에서 받는다(`setPlanSig` — 아래 표). 판 크기별 수는 모두 `sizeRules(state)`로 `MAP_SIZES` 한 줄을 읽는다(`7a28084`). 모듈은 `veteran`이 아니라 `unlocked(state, level)`(`config.unlock ?? (veteran ? 4 : 0)`, `8ba0ef8`)로 켠다 — 침묵 벌만 여전히 `veteran`을 본다([02 §16.2](../spec/02-rules.md#162-모듈-해금-configunlock과-두-번째-판부터-configveteran)) |
-| `data.js` | 398 | `data/data.json` + `core/data.gd` | 함수 값(`$fn`)은 GDScript로 다시 쓴다 ([03 데이터](../spec/03-data.md)). `MAP_SIZES`는 판 크기 표 전부(장·대성당 비용·마을·율법파 행동·신앙 승리·궁극/드래프트/분노 장) |
+| `engine.js` | 1509 | `core/engine.gd` | 순수 함수. 헤아린 노동의 손 수·먼저 고르는 일·승률 문턱은 대사제 성향 표 `PRIEST_LABOR`(`autoFill` 안, `data.json`에 없다 — `0a0a974`, [02 §3.5](../spec/02-rules.md#35-기본-노동-autofill)). 선공은 대성당 공사 중이면 율법파(`0c95856`). 상태는 `Dictionary` 하나로 두면 골든 JSON과 바로 비교된다. 메아리의 일 목록은 석판에서 받는다(`setPlanSig` — 아래 표). 판 크기별 수는 모두 `sizeRules(state)`로 `MAP_SIZES` 한 줄을 읽는다(`7a28084`). 모듈은 `veteran`이 아니라 `unlocked(state, level)`(`config.unlock ?? (veteran ? 4 : 0)`, `8ba0ef8`)로 켠다 — 침묵 벌만 여전히 `veteran`을 본다([02 §16.2](../spec/02-rules.md#162-모듈-해금-configunlock과-두-번째-판부터-configveteran)) |
+| `data.js` | 397 | `data/data.json` + `core/data.gd` | 함수 값(`$fn`)은 GDScript로 다시 쓴다 ([03 데이터](../spec/03-data.md)) — `0c95856`에서 `revelationCost`를 지워 `COST.temple`·`DESTINIES.*.test`만 남았다. `MAP_SIZES`는 판 크기 표 전부(장·대성당 비용·마을·율법파 행동·신앙 승리·궁극/드래프트/분노 장) |
 | `mapgen.js` | 187 | `core/mapgen.gd` | 골든의 초기 맵으로 검증 |
-| `interpreter.js`, `lore.js` | 416+110 | `core/interpreter/*`, `core/lore.gd` | 정규식은 `kw.*` 문자열을 `RegEx`로 ([05 해석기](../spec/05-interpreter.md)). 석판 사전은 갈래마다 고정 길이인 뒤보기·앞보기를 쓴다. 곳을 가리키는 말(`placeOf`·`byPlace` — `87a0fce`의 지형 곁·신전 옆·방향·마을, `bcdeb22`의 칸 이름 전부(`exact` +2, 그 수만큼 명령)·가까운(`(20 − 거리)/100`, 실수 점수)·율법파 마을·짓는 말의 수도 포함)과 절 나누기(`~되/~고/~며/~면서`)·부정 넘김(`kw.negCarry`)·곳만 짚은 금지·해결 단계(한 칸에 한 가지·행동 수)는 05 §3.2. 언어팩의 **객체 값** `kw.place.terrainName`·`kw.place.dir`을 `Dictionary`로 읽는다 |
+| `interpreter.js`, `lore.js` | 431+110 | `core/interpreter/*`, `core/lore.gd` | 정규식은 `kw.*` 문자열을 `RegEx`로 ([05 해석기](../spec/05-interpreter.md)). 석판 사전은 갈래마다 고정 길이인 뒤보기·앞보기를 쓴다. 곳을 가리키는 말(`placeOf`·`byPlace` — `87a0fce`의 지형 곁·신전 옆·방향·마을, `bcdeb22`의 칸 이름 전부(`exact` +2, 그 수만큼 명령)·가까운(`(20 − 거리)/100`, 실수 점수)·율법파 마을·오아시스 포함, 누구의 것인지 말하지 않은 수도는 `b470e03`부터 공격·선교 말 유무로)과 절 나누기(`~되/~고/~며/~면서/~듯`)·비유 절 건너뛰기·"A가 아니라 B"(`kw.notBut` — 캡처 둘, `~에서`로 끝나면 그대로)·부정 넘김(`kw.negCarry`)·곳만 짚은 금지·후보 줄 세우기(`rankMatches` — 차지는 마을 먼저, 공격·선교는 엔진 `actionOdds` 순이라 승률 식이 먼저 맞아야 한다)·해결 단계(한 칸에 한 가지·행동 수·`far:` 까닭)는 05 §3.2. 언어팩의 **객체 값** `kw.place.terrainName`·`kw.place.dir`을 `Dictionary`로 읽는다 |
 | `chronicle.js` | 151 | `core/chronicle.gd` | |
 | `meta.js` | 167 | `autoload/Meta.gd` | `localStorage` → `user://*.json` ([07 진행](../spec/07-progression.md)) |
 | `i18n.js` + `i18n/ko/*` | ~1680 | `autoload/I18n.gd` + `i18n-ko.json` | 함수 값 처리 방법은 아래 |
-| `main.js` | 2446 | `autoload/Game.gd` + `ui/*` | 단계 기계와 화면 갱신을 나눈다 ([04 구조](../spec/04-architecture.md)) |
+| `main.js` | 2450 | `autoload/Game.gd` + `ui/*` | 단계 기계와 화면 갱신을 나눈다 ([04 구조](../spec/04-architecture.md)) |
 | `board.js`, `art.js` | 192+248 | `board/*`, `art/svg/*` | SVG 심볼은 파일로 뽑아 두었다 |
 | `fx.js` | 849 | `board/board_fx.gd`, `ui/*` | Tween, AnimationPlayer, 파티클. 연출 줄이기의 첫 값은 저장한 선택, 없으면 OS의 동작 줄이기(`4e2e0f7`). 웹 내보내기라면 `JavaScriptBridge.eval`로 같은 `matchMedia('(prefers-reduced-motion: reduce)')`를 읽을 수 있고, 다른 플랫폼은 읽을 길을 따로 정한다(없으면 화려하게) |
 | `sound.js` | 411 | `autoload/Sfx.gd`, `Music.gd` | Web Audio 합성 → 아래 [소리](#소리) |
-| `tutorial.js` | 189 | `ui/tutorial_overlay.gd` | 3장 확인 단계(`2825b37`)까지 단계 표는 [06 §9](../spec/06-ui-ux.md#9-튜토리얼-흐름-tutorialjs) |
+| `tutorial.js` | 192 | `ui/tutorial_overlay.gd` | 3장 확인 단계(`2825b37`), 4장의 되풀이 대사와 끝의 성벽·저울 대사(`0a0a974`)까지 단계 표는 [06 §9](../spec/06-ui-ux.md#9-튜토리얼-흐름-tutorialjs) |
 | `js/llm.js` | 58 | `core/interpreter/llm_client.gd` | Chrome Prompt API 전용 → 대체 필요 |
 
 ### 엔진 밖(`main.js`)에 있는 규칙 — 반드시 같이 옮긴다
@@ -73,15 +73,16 @@ res://
 
 | 규칙 | 하는 일 |
 |---|---|
-| `spokenMiracle` | 계시에 기적 이름이 있으면 그 기적을 먼저 내린다. 번개의 목표: 이름 붙인 율법파 칸 → (`bcdeb22`) 계시에 수도 말(`kw.place.capital`)이 있고 율법파 수도가 드러났으면 그 수도 → 마을 우선·우리 수도에서 가까운 율법파 칸 (`main.js:602-620`) |
+| `spokenMiracle` | 계시에 기적 이름이 있으면 그 기적을 먼저 내린다. 번개의 목표: 이름 붙인 율법파 칸 → (`bcdeb22`) 계시에 수도 말(`kw.place.capital`)이 있고 우리 말(`kw.place.ours`)은 없으며(`0c95856`) 율법파 수도가 드러났으면 그 수도 → 마을 우선·우리 수도에서 가까운 율법파 칸 (`main.js:604-622`) |
 | 침묵 경로 | 계시 없이 넘기면 `applySilence` 흐름 (기도 먼저 + 교리 없는 기본 노동) |
-| 기본 노동에 교리 넘기기 | `derivePending`과 계명 새긴 뒤 다시 채우기가 `autoFill(…, result.doctrine)`을 부른다 — 한 자리가 계시의 뜻을 헤아린 행동(`heeded`)이 된다 ([02 §3.5](../spec/02-rules.md#35-기본-노동-autofill)). 교리를 넘기지 않으면 골든과 달라진다 |
+| 기본 노동에 교리 넘기기 | `derivePending`과 계명 새긴 뒤 다시 채우기가 `autoFill(…, result.doctrine)`을 부른다 — 대사제 성향만큼(충직 1, 문자주의 0, 몽상가 2 — `0a0a974`) 자리가 계시의 뜻을 헤아린 행동(`heeded`)이 된다 ([02 §3.5](../spec/02-rules.md#35-기본-노동-autofill)). 교리를 넘기지 않으면 골든과 달라진다 |
+| 첫 장 사제 소개 | 대사제가 `loyal`이 아닌 판의 1장 3.6초 뒤 사제 말풍선 `ui.priestIntro`("이번 판의 대사제는 {trait}.") (`main.js:496`, `0a0a974`). 규칙에는 닿지 않는다 |
 | 계명 새긴 장 | 새긴 계명이 금한 행동(`noSword` 공격, `noExpand` 마을)만 빼고 `autoFill`로 다시 채운다. 금지 키에 확인 화면에서 뺀 칩도 더해 넘기므로 뺀 칩이 되살아나지 않는다 (`main.js:720-726`, `e68a240`) |
 | `wordsAfter` | 청원에 답하면 은총, 청원을 두 번 외면하면 신앙 -1(**튜토리얼은 외면을 세지 않는다** — `main.js:772`, `2825b37`; 골든·테스트 구동기에도 `435c3cc`에서 같은 조건을 넣었다), 이름 붙이기 은총. (예전의 기이한 해석 은총은 `afab303`에서 없어졌다) |
 | 이름 붙이기 은총 | 첫 이름이면 지혜 교리 +1 |
 | LLM 타임아웃 | LLM 해석이 30초 안에 오지 않으면 같은 계시를 석판으로 (`main.js:553-559`) — 해석기를 바꿔도 대체 경로는 둔다 |
 | 다시 해석 | 단추는 LLM 모드(`aiMode === 'llm'`)에서만 있다 — 석판 모드는 결정론이라 같은 결과. LLM 모드면 LLM 실패로 석판이 대신한 해석에도 있다 (`main.js:2092`, `e68a240`; 그 전에는 해석 출처가 석판이면 숨었다) |
-| 비용 알약 | `costPill(text)` 하나가 계시 비용·라벨·상태(`over`·`echo`·`cite`·`banned`)·툴팁을 정하고 그리기와 입력 갱신이 같이 쓴다. 라벨은 되풀이 > 인용 > 보통 순으로 하나 — 되풀이면 인용 표시는 붙지 않는다 (`main.js:2171-2180`, [06 §2.1](../spec/06-ui-ux.md#21-speak--계시-쓰기)) |
+| 비용 알약 | `costPill(text)` 하나가 계시 비용·라벨·상태(`over`·`echo`·`banned`)·툴팁을 정하고 그리기와 입력 갱신이 같이 쓴다. 라벨은 되풀이면 "신앙 N · 되풀이", 아니면 "신앙 N" (`main.js:2202-2211`, [06 §2.1](../spec/06-ui-ux.md#21-speak--계시-쓰기); `0c95856`에서 인용 상태 `cite`와 `ui.faithCostCited`를 지웠다 — 비용이 길이·인용과 무관해졌다) |
 | 결집·굳은 율법 재생 | 로그 `fx.kind` `rally`(결집)·`guard`(굳은 율법)는 율법파 수도 칸에 붉은 링 + 떠오르는 글(`ui.fx.rally`·`ui.fx.guard`), 실패음, 700ms. 행동 띠는 없다 (`main.js:1594-1598`, `e68a240` — 그 전에는 결집이 `wrath` 연출을 빌렸다) |
 | 도감 기록 | 튜토리얼에서는 도감(`gsg.seen`)에 아무것도 적지 않는다 — 카드·번개로 쓴 기적도 (`main.js:1653`, `1671`, `e68a240`) |
 | 지난 계시 인용 | `history.at(-1).text`를 다음 해석에 넘긴다 |
@@ -91,7 +92,7 @@ res://
 | 선공 표시 | 확인 칩의 "선공 · 막음"/"빼앗김"은 우리 칩과 율법파의 뜻이 둘 다 집 안 행동이 아닐 때만 (`firstNote`, `9b43bbf`) — 엔진 막기 규칙과 같게 |
 | 수락 순서 | 율법파 계획 확정 → 말한 기적 → 말투 효과·갈림길 비용 → 계명 새기기·예언 봉인(기준값 저장) → 해결(엔진 안에서 유지 → 굳은 율법 → 장 기록·결집) → 침묵·전설·서원·`wordsAfter` → 교리 기록(말할 때 판정한 메아리면 교리 없음; 예전의 성언 갱신 `updateLiturgy`는 없어졌다) ([02 §3.6](../spec/02-rules.md#36-확정-accept)) |
 | 강제 선택 | 소명·기적 드래프트는 계시 전에 고른다 (웹판은 2.5초 뒤 모달, 이미 말했으면 건너뜀) |
-| 모듈 해금 단계 | 일반 새 게임만 `config.unlock = min(MODULES, 끝낸 판 수)`를 넣는다(`main.js:282`). 오늘의 계시·시련·도전·종료 화면 「새 맵」은 넣지 않아 베테랑이면 전부 켜진다. 새 판 0.4초 뒤 단계가 오르면 해금 안내(`showUnlockNote`, `gsg.unlockNote` = 마지막으로 보인 단계) — [07 §16.1](../spec/07-progression.md) |
+| 모듈 해금 단계 | 일반 새 게임(`main.js:282`)과 `0c95856`부터 종료 화면 「새 맵」(`main.js:852`)이 `config.unlock = min(MODULES, 끝낸 판 수)`를 넣는다. 오늘의 계시·시련·도전은 넣지 않아 베테랑이면 전부 켜진다. 최고 기록 키에는 `0c95856`부터 해금 단계(`-u{n}`, 4 미만일 때)가 붙는다([07 §13](../spec/07-progression.md)). 새 판 0.4초 뒤 단계가 오르면 해금 안내(`showUnlockNote`, `gsg.unlockNote` = 마지막으로 보인 단계) — [07 §16.1](../spec/07-progression.md) |
 
 ## 결정론: 비트 단위로 맞추기
 
@@ -175,16 +176,16 @@ static func js_str(v) -> String:
 
 | 항목 | JS 동작 | Godot에서 할 일 |
 |---|---|---|
-| 정렬 | `Array.prototype.sort`는 **안정 정렬**. 엔진은 "거리순 정렬 후 `[0]`" 같은 곳에서 동점이면 원래 순서의 첫 항목을 고른다 (`engine.js:113, 478, 510, 512, 661, 1430`, `mapgen.js:50, 57, 102`, `chronicle.js:35`). 석판 해석기의 채집 순위(`rankMatches`, `interpreter.js:182-188`)는 원래 인덱스를 셋째 키로 넣어 안정성에 기대지 않는다 | `sort_custom`은 안정성을 보장하지 않는다. 인덱스를 붙여 비교하거나 병합 정렬을 쓴다 (`core/stable_sort.gd`) |
+| 정렬 | `Array.prototype.sort`는 **안정 정렬**. 엔진은 "거리순 정렬 후 `[0]`" 같은 곳에서 동점이면 원래 순서의 첫 항목을 고른다 (`engine.js:113, 478, 510, 512, 661, 1430`, `mapgen.js:50, 57, 102`, `chronicle.js:35`). 석판 해석기의 후보 순위(`rankMatches`, `interpreter.js:191-204` — 채집은 수확량, `b470e03`부터 차지는 마을 먼저, 공격·선교는 승률 내림차순)는 원래 인덱스를 마지막 키로 넣어 안정성에 기대지 않는다 | `sort_custom`은 안정성을 보장하지 않는다. 인덱스를 붙여 비교하거나 병합 정렬을 쓴다 (`core/stable_sort.gd`) |
 | `localeCompare` | 칸 id(`A1`…`I9`) 비교에만 쓴다 (`engine.js:113`) | 영문 대문자+한 자리 숫자라 일반 문자열 비교와 같다 |
 | 반올림 | `Math.floor`, `Math.ceil(v * k)`(대성당 비용 배율 — 판 크기 표의 `cathedralCost`, 4×4 0.7·7×7 1.5, `engine.js:335-336`, `7a28084`) | GDScript `float`도 IEEE double이라 같은 식이면 같은 값. 정수 나눗셈(`/`)을 섞지 말고 `floor()`/`ceil()`로 쓴다(정수 식은 [02 §20-8](../spec/02-rules.md#20-godot-이식-메모): `(7v + 9) / 10`, `(3v + 1) / 2`) |
-| 선공 | `startRound`가 장 시작 승점(`score`)이 뒤진 쪽을 선으로(같으면 홀짝, 튜토리얼은 늘 우리 — `87a0fce`·`2825b37`, `engine.js:610-612`). 선후가 해결 순서와 `rng.dice` 소비 순서를 정한다 | `score`를 같은 시점·같은 식(심판의 기준 가중치 포함)으로 먼저 옮겨야 선후가 맞는다. 골든의 장마다 `first`로 먼저 확인한다 |
+| 선공 | `startRound`가 장 시작 승점(`score`)이 뒤진 쪽을 선으로(같으면 홀짝, 튜토리얼은 늘 우리 — `87a0fce`·`2825b37`), 그다음 우리 대성당 공사 중이면 율법파로(`0c95856`) (`engine.js:629-632`). 선후가 해결 순서와 `rng.dice` 소비 순서를 정한다 | `score`를 같은 시점·같은 식(심판의 기준 가중치 포함)으로 먼저 옮겨야 선후가 맞는다. 골든의 장마다 `first`로 먼저 확인한다 |
 | 객체 키 순서 | 문자열 키는 삽입 순서, **정수처럼 보이는 키는 숫자 순서가 먼저** | Godot `Dictionary`는 삽입 순서. `{1:…, 2:…}` 같은 정수 키 표를 순회하는 곳은 키를 정렬해서 돈다 |
 | 난수 호출 순서 | 스트림별(`deck`, `dice`, 맵 생성용 시드 변형 4가지)로 호출 순서가 결과를 정한다 | [02 규칙](../spec/02-rules.md)의 RNG 순서를 그대로 따른다. 화면 쪽 연출에는 엔진 스트림을 쓰지 않는다 |
 | `for (const ch of str)` | 코드 포인트 단위 순회 | `unicode_at` 순회와 같다. 해시만 위 대리 문자 처리가 필요 |
-| 정규식 | JS 정규식 (`u` 플래그, `\p{Script=Hangul}`, 앞 보기 `kw.clean.coord`와 석판 사전(`kw.tablet.*`)의 앞 보기 `(?!…)`·**고정 길이 뒤 보기** `(?<!…)`, 메아리의 `[\s\p{P}]`). `\s`는 유니코드 공백 | Godot `RegEx`는 PCRE2. `\p{Script=Hangul}` → `\p{Hangul}`, 패턴 앞에 `(*UCP)`를 붙여 `\s`·`\w`를 유니코드로(또는 메아리처럼 `[\s\p{Z}\x{FEFF}\p{P}]`로 직접). PCRE2는 갈래마다 고정 길이인 뒤 보기를 지원한다(`(?<!돌아\|들어\|나)`처럼 갈래끼리 길이가 달라도 된다 — `87a0fce`의 절 나누기 `(?<=[가-힣]고\|[가-힣]며\|[가-힣]면서) `도 맨 바깥 갈래가 2·2·3글자라 된다). 플래그는 `(?i)` 같은 인라인 옵션. 정규식 split·콜백 치환이 없어 도우미가 필요하다 — `splitDont`는 네 패턴(`kw.dontAnd`·`stopAnd`·`enoughAnd`·`nounAnd`)을 차례로 **모든 일치**에 콜백 치환한다(`e68a240`부터, KNOWN-ISSUES B7). 석판의 `text.search()` 위치는 같은 글 안의 순서 비교에만 쓰므로 코드 포인트 위치로 옮겨도 된다 ([05 §6.4](../spec/05-interpreter.md#64-정규식문자열-이식-노트)) |
+| 정규식 | JS 정규식 (`u` 플래그, `\p{Script=Hangul}`, 앞 보기 `kw.clean.coord`와 석판 사전(`kw.tablet.*`)의 앞 보기 `(?!…)`·**고정 길이 뒤 보기** `(?<!…)`, 메아리의 `[\s\p{P}]`). `\s`는 유니코드 공백 | Godot `RegEx`는 PCRE2. `\p{Script=Hangul}` → `\p{Hangul}`, 패턴 앞에 `(*UCP)`를 붙여 `\s`·`\w`를 유니코드로(또는 메아리처럼 `[\s\p{Z}\x{FEFF}\p{P}]`로 직접). PCRE2는 갈래마다 고정 길이인 뒤 보기를 지원한다(`(?<!돌아\|들어\|나)`처럼 갈래끼리 길이가 달라도 된다 — `87a0fce`의 절 나누기 `(?<=[가-힣]고\|[가-힣]며\|[가-힣]면서) `도 맨 바깥 갈래가 2·2·3글자라 된다). 플래그는 `(?i)` 같은 인라인 옵션. 정규식 split·콜백 치환이 없어 도우미가 필요하다 — `splitDont`는 다섯 패턴(`kw.dontAnd`·`stopAnd`·`enoughAnd`·`notBut`·`nounAnd` — `notBut`은 `b470e03`, 갈래마다 캡처가 따로라 걸린 쪽을 쓰고 `~에서(가)`로 끝나면 그대로 둔다)을 차례로 **모든 일치**에 콜백 치환한다(`e68a240`부터, KNOWN-ISSUES B7). 절 나누기의 긍정 뒤 보기에 `b470e03`의 `[가-힣]듯` 갈래(2글자)도 있다. 석판의 `text.search()` 위치는 같은 글 안의 순서 비교에만 쓰므로 코드 포인트 위치로 옮겨도 된다 ([05 §6.4](../spec/05-interpreter.md#64-정규식문자열-이식-노트)) |
 | 엔진 → 해석기 역참조 | `interpreter.js`가 읽힐 때 `setPlanSig(fn)`으로 석판 함수를 엔진에 넣고, 엔진의 `isEcho`·`spokenOf`가 부른다(`9b43bbf`) — import 순환은 없지만 실행 때 엔진이 석판에 기댄다 | 엔진에 `Callable`을 주입한다. 석판 없이 엔진만 돌리면 메아리가 글로만 판정되어 골든의 `cost`·`log.echo`와 어긋난다 |
-| 글자 수 | `String.length`는 UTF-16 단위 (계시 30자 비용 경계) | 이모지 같은 4바이트 문자는 2로 센다. `length()` 대신 UTF-16 길이를 세는 함수를 쓴다 |
+| 글자 수 | `String.length`는 UTF-16 단위 (계시 상한 100자·시련 20자, 이름 길이 — `0c95856` 전에는 30자 비용 경계도) | 이모지 같은 4바이트 문자는 2로 센다. `length()` 대신 UTF-16 길이를 세는 함수를 쓴다 |
 
 ## 검증: 골든 테스트
 
@@ -195,11 +196,11 @@ static func js_str(v) -> String:
 3. **석판 해석기**: 같은 계시 문장을 넣어 명령 키·교리·금지 목록이 같은지.
 4. 전부 맞으면 계시 문장만으로 한 판 전체를 돌려 최종 결과까지 같은지.
 
-JS 쪽 규칙을 고치면 `node tools/golden.mjs`로 기록을 다시 만들고 Godot 테스트도 같이 돌린다. 골든은 `afab303`에서 새 규칙으로 모두 다시 만들어졌고, 그 뒤 `1b582ee`(석판 어휘)·`448f553`(남은 자)의 코드로 다시 돌려도 12개 파일이 바이트까지 같았다(`448f553`에서 확인) — 골든 계시들이 바뀐 어휘·남은 자에 닿지 않는다는 뜻이지, 그 규칙을 검증한다는 뜻은 아니다. `e68a240`에서는 막기 대칭(후 진영의 기도·신전·대성당·성벽도 막히지 않음)과 헤아린 성벽 예산이 해결되는 행동을 바꿔 골든을 다시 뽑았다 — 판 파일 9개가 바뀌었고(결집 로그의 `fx.kind`가 `wrath`에서 `rally`로 바뀐 것 포함), 그중 네 판(`s5-hard-veteran`, `s6-normal-veteran`, `s7-hard-first`, `s4-hard-veteran-asc4`)의 최종 승점이 달라졌다. `9b43bbf`(7×7 율법파 행동 +1, 원정 +1, 신앙 승리는 장 끝·개종 조건, 일 메아리)에서 판 파일 9개가 다시 바뀌어 네 판의 결과가 달라졌고(`s5-easy-first-war`는 6장 신앙 승리 → 12장 승점 승리), `78c891e`(석판의 곳·수의 말, 해석문 머리말 `석판이 이르되,`)에서 11판 모두가 다시 바뀌었으나 결과는 그대로다. `87a0fce`(승점이 뒤진 쪽이 선공, 결집 12/6점과 신도 +1, 기적 재사용 비용, 두 장 전 메아리, 석판 절 나누기)에서 튜토리얼 밖 10판이 다시 바뀌어 10판 모두 최종 승점이 달라졌고 세 판은 승자가 바뀌었다(예: `s5-normal-first` 30:22 승 → 24:28 패, `s4-hard-veteran-asc4`는 남은 자로 우리 수도 함락), `2825b37`(튜토리얼은 늘 우리가 선)에서 튜토리얼 판이 바뀌었다(결과 18:18 그대로). `7a28084`(판 크기 표)는 골든을 바꾸지 않았다. `435c3cc`(신도 수 우위 삭제, 수도 내구도 2, 튜토리얼 청원 벌 조건을 구동기에도)에서 11판 모두 다시 바뀌었고(대부분 양쪽 최종 승점 −1 — 수도 항목; `s5-hard-veteran` 18:54 → 20:47, `s7-normal-veteran` 30:67 → 26:64, `s4-hard-veteran-asc4` 2:48 → 2:44, 튜토리얼 18:18 → 17:17), `8ba0ef8`(모듈 단계 해금)은 골든 설정에 `unlock`이 없어(`veteran` 판은 전부 켜짐) 판 파일을 바꾸지 않고 `index.json`의 `ruleset`만 7로 맞췄고, `bcdeb22`(석판 조준·말한 번개)에서 `s5-hard-veteran`·`s7-normal-veteran`이 바뀌었다(`s7-normal-veteran` 26:64 → 30:64) — 자세한 것은 [golden README](../export/golden/README.md). `index.json`의 `ruleset`은 7이다(`435c3cc`). 예전의 알려진 차이(튜토리얼 청원 벌 — [KNOWN-ISSUES](KNOWN-ISSUES.md) E5)는 `435c3cc`에서 구동기를 고쳐 없어졌다: 이제 `tutorial-3x3.json`의 신앙이 실제 게임과 같다. 이식판도 `main.js`대로 튜토리얼 조건을 넣는다. 규칙 밸런스는 골든이 아니라 `tools/tests/bench.mjs`로 본다([tools/tests](../../tools/tests/README.md)).
+JS 쪽 규칙을 고치면 `node tools/golden.mjs`로 기록을 다시 만들고 Godot 테스트도 같이 돌린다. 골든은 `afab303`에서 새 규칙으로 모두 다시 만들어졌고, 그 뒤 `1b582ee`(석판 어휘)·`448f553`(남은 자)의 코드로 다시 돌려도 12개 파일이 바이트까지 같았다(`448f553`에서 확인) — 골든 계시들이 바뀐 어휘·남은 자에 닿지 않는다는 뜻이지, 그 규칙을 검증한다는 뜻은 아니다. `e68a240`에서는 막기 대칭(후 진영의 기도·신전·대성당·성벽도 막히지 않음)과 헤아린 성벽 예산이 해결되는 행동을 바꿔 골든을 다시 뽑았다 — 판 파일 9개가 바뀌었고(결집 로그의 `fx.kind`가 `wrath`에서 `rally`로 바뀐 것 포함), 그중 네 판(`s5-hard-veteran`, `s6-normal-veteran`, `s7-hard-first`, `s4-hard-veteran-asc4`)의 최종 승점이 달라졌다. `9b43bbf`(7×7 율법파 행동 +1, 원정 +1, 신앙 승리는 장 끝·개종 조건, 일 메아리)에서 판 파일 9개가 다시 바뀌어 네 판의 결과가 달라졌고(`s5-easy-first-war`는 6장 신앙 승리 → 12장 승점 승리), `78c891e`(석판의 곳·수의 말, 해석문 머리말 `석판이 이르되,`)에서 11판 모두가 다시 바뀌었으나 결과는 그대로다. `87a0fce`(승점이 뒤진 쪽이 선공, 결집 12/6점과 신도 +1, 기적 재사용 비용, 두 장 전 메아리, 석판 절 나누기)에서 튜토리얼 밖 10판이 다시 바뀌어 10판 모두 최종 승점이 달라졌고 세 판은 승자가 바뀌었다(예: `s5-normal-first` 30:22 승 → 24:28 패, `s4-hard-veteran-asc4`는 남은 자로 우리 수도 함락), `2825b37`(튜토리얼은 늘 우리가 선)에서 튜토리얼 판이 바뀌었다(결과 18:18 그대로). `7a28084`(판 크기 표)는 골든을 바꾸지 않았다. `435c3cc`(신도 수 우위 삭제, 수도 내구도 2, 튜토리얼 청원 벌 조건을 구동기에도)에서 11판 모두 다시 바뀌었고(대부분 양쪽 최종 승점 −1 — 수도 항목; `s5-hard-veteran` 18:54 → 20:47, `s7-normal-veteran` 30:67 → 26:64, `s4-hard-veteran-asc4` 2:48 → 2:44, 튜토리얼 18:18 → 17:17), `8ba0ef8`(모듈 단계 해금)은 골든 설정에 `unlock`이 없어(`veteran` 판은 전부 켜짐) 판 파일을 바꾸지 않고 `index.json`의 `ruleset`만 7로 맞췄고, `bcdeb22`(석판 조준·말한 번개)에서 `s5-hard-veteran`·`s7-normal-veteran`이 바뀌었다(`s7-normal-veteran` 26:64 → 30:64) — 자세한 것은 [golden README](../export/golden/README.md). 6차에서는 `0c95856`(계시 비용 — `s5-normal-first` 10장의 긴 계시가 2 → 1, 결과 그대로; 대성당 선공은 골든에 대성당 공사가 없어 드러나지 않는다)이 `index.json`의 `ruleset`을 8로 올렸고, `b470e03`(석판이 공격·선교를 승률 순으로)이 `s5-normal-first`(결과 그대로)·`s7-hard-first`(41:41 승 → 38:48 패)를, `0a0a974`(대사제 성향 노동·어려움의 건설 공개)가 두 번째 판 다섯 판(`s5-hard-veteran` 결과 그대로, `s6-normal-veteran` 18:54 → 19:53, `s6-easy-veteran` 40:25 → 33:33 — 동점은 우리, `s7-normal-veteran` 30:64 → 24:66, `s4-hard-veteran-asc4` 8장 2:44 → 7장 6:30 점령)을 바꿨다. `index.json`의 `ruleset`은 8이다(`0c95856`). 예전의 알려진 차이(튜토리얼 청원 벌 — [KNOWN-ISSUES](KNOWN-ISSUES.md) E5)는 `435c3cc`에서 구동기를 고쳐 없어졌다: 이제 `tutorial-3x3.json`의 신앙이 실제 게임과 같다. 이식판도 `main.js`대로 튜토리얼 조건을 넣는다. 규칙 밸런스는 골든이 아니라 `tools/tests/bench.mjs`로 본다([tools/tests](../../tools/tests/README.md)).
 
 ## 언어팩
 
-- `docs/export/i18n-ko.json`에 1,332개 키가 있다(`435c3cc`~`3a790f5` — `ui.hand.reuse`, `ui.unlock.next`(함수), `ui.rules.core6`, 석판의 `kw.negCarry`·`kw.tablet.riverExcept`·`preachExcept`·`kw.place.foeVillage`·`closest`·`buildWord`의 9개를 더했다; `87a0fce`·`2825b37`의 1,323개, `78c891e`는 1,311개, `e68a240`은 1,287개). 값은 문자열·배열·객체·함수(`{"$fn": 원문}`) 중 하나다 — 객체 값은 넷이고 그중 `kw.place.terrainName`·`kw.place.dir`(`87a0fce`)은 석판이 낱말로 찾는 표다 ([언어팩](../i18n.md), [export README](../export/README.md)). 함수 셋(`interp.tablet.cannot`·`ui.heard.cannot`·`ui.heard.also`)은 키가 아닌 도우미 `cannotLabel`(`ko/interp.js:4-16`)을 부르므로 그것도 함께 옮긴다.
+- `docs/export/i18n-ko.json`에 1,343개 키가 있다(`0c95856`~`0a0a974` — `ui.faithCostCited`를 지우고 석판의 `kw.notBut`·`kw.tablet.stoneExcept`·`prayExcept`·`exploreExcept`·`gatherAnyExcept`·`kw.tablet.claim`·`kw.simile`·`kw.place.oasis`, `ui.priestIntro`(함수), `tut.speak4.2`·`tut.end5.3`·`tut.end5.4`의 12개를 더했다; `435c3cc`~`3a790f5`의 1,332개(`ui.hand.reuse`, `ui.unlock.next`(함수), `ui.rules.core6`, 석판의 `kw.negCarry`·`kw.tablet.riverExcept`·`preachExcept`·`kw.place.foeVillage`·`closest`·`buildWord`의 9개를 더했다), `87a0fce`·`2825b37`의 1,323개, `78c891e`는 1,311개, `e68a240`은 1,287개). 값은 문자열·배열·객체·함수(`{"$fn": 원문}`) 중 하나다 — 객체 값은 넷이고 그중 `kw.place.terrainName`·`kw.place.dir`(`87a0fce`)은 석판이 낱말로 찾는 표다 ([언어팩](../i18n.md), [export README](../export/README.md)). 함수 셋(`interp.tablet.cannot`·`ui.heard.cannot`·`ui.heard.also`)은 키가 아닌 도우미 `cannotLabel`(`ko/interp.js:4-17` — `b470e03`부터 `far:<칸>` 갈래가 있다)을 부르므로 그것도 함께 옮긴다. 석판의 `splitDont` 안에는 언어팩 밖의 한국어 검사 `/에서가?$/`(`interpreter.js:189`, `b470e03`)도 있다.
 - Godot 기본 번역(`TranslationServer`, CSV/PO)은 문자열만 다룬다. 이 게임은 한국어 조사(을/를, 이/가 …)와 조건 문장이 **함수 값**이라 그대로는 안 된다. 두 가지 길:
   1. **권장:** `I18n.gd` 오토로드가 JSON을 읽고, 함수 값 키는 GDScript 함수 표(`ko_fn.gd`)로 다시 쓴다. 조사는 `josa(name, "을", "를")` 도우미(`i18n/ko/grammar.js`와 같은 규칙: 괄호 앞 글자의 받침 기준).
   2. 함수 값을 `{place|을/를}` 같은 표기로 바꾸는 변환 단계를 두고 `I18n.gd`가 받침을 보고 조사를 고른다. 조건이 있는 문장은 키를 둘로 나눈다. 새 언어를 넣을 때는 이쪽이 번역가에게 편하다.
@@ -259,7 +260,7 @@ JS 쪽 규칙을 고치면 `node tools/golden.mjs`로 기록을 다시 만들고
 | 경로 | 무엇 | 다시 만드는 법 |
 |---|---|---|
 | `docs/export/data.json` | 데이터 표 전부 (한국어 문구 포함) | `node tools/export-data.mjs` |
-| `docs/export/i18n-ko.json` | 한국어팩 1,323키 (`4e2e0f7`) | 같음 |
+| `docs/export/i18n-ko.json` | 한국어팩 1,343키 (`0a0a974`) | 같음 |
 | `docs/export/golden/*.json` | 결정론 판 기록 (골든 테스트) | `node tools/golden.mjs` |
 | `docs/export/svg/*.svg` | 그림 심볼 47개 (+ `index.html` 미리보기·PNG 받기) | `node tools/export-svg.mjs` |
-| `tools/tests/` | 결정론·퍼징 검사 (불변식 목록은 04 문서 §5.2), 석판 회귀 시험(1011문장), 밸런스 벤치마크 ([README](../../tools/tests/README.md)) | `node tools/tests/fuzz.mjs`, `node tools/tests/tablet-cases.mjs`, `node tools/tests/bench.mjs` |
+| `tools/tests/` | 결정론·퍼징 검사 (불변식 목록은 04 문서 §5.2), 석판 회귀 시험(1182문장), 밸런스 벤치마크 ([README](../../tools/tests/README.md)) | `node tools/tests/fuzz.mjs`, `node tools/tests/tablet-cases.mjs`, `node tools/tests/bench.mjs` |

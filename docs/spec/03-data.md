@@ -1,6 +1,6 @@
 # 03. 데이터 — 데이터 표 레퍼런스
 
-> `js/game/data.js`가 내보내는 표 54개의 뜻·스키마·행 수·쓰는 곳. **실제 값은 [`docs/export/data.json`](../export/data.json)** 에 있다 (`node tools/export-data.mjs`로 만든다 — [export README](../export/README.md)).
+> `js/game/data.js`가 내보내는 표 53개(`0c95856`에서 쓰이지 않던 `revelationCost`를 지워 54 → 53)의 뜻·스키마·행 수·쓰는 곳. **실제 값은 [`docs/export/data.json`](../export/data.json)** 에 있다 (`node tools/export-data.mjs`로 만든다 — [export README](../export/README.md)).
 > 표의 수치를 **어떻게 쓰는지**(판정 공식)는 [02 규칙](02-rules.md), 상태 객체와 결정론은 [04 구조](04-architecture.md)에 있다. 코드와 이 문서가 다르면 코드가 기준이다.
 
 ## 읽는 법
@@ -48,7 +48,7 @@
 | [`COMMANDMENTS`](#commandments) | 객체 | 4 | engine, main | 영원한 계명 |
 | [`SACRED_WORDS`](#sacred_words) | 배열 | 7 | engine | 오늘의 계시의 숨은 말 |
 | [`PETITIONERS`](#petitioners) | 배열 | 12 | engine | 이름 있는 신도(청원자) |
-| [`PRIESTS`](#priests) | 객체 | 5 | engine, interp, main | 대사제 성향 |
+| [`PRIESTS`](#priests) | 객체 | 5 | engine, interp, main | 대사제 성향 (헤아린 노동의 수치는 engine의 `PRIEST_LABOR` — 표 밖) |
 | [`DESTINIES`](#destinies) | 객체 | 8 | engine, main | 소명 (`test`는 함수) |
 | [`JUDGEMENTS`](#judgements) | 객체 | 5 | engine, main | 심판의 기준 (승점 가중치) |
 | [`ACTS`](#acts--festivals--months) | 배열 | 3 | engine, main | 세 막 |
@@ -60,8 +60,8 @@
 | [`BLESSINGS`](#awe_levels--awe_titles--blessings) | 객체 | 4 | main (+engine이 `config.blessing`으로) | 은사 |
 | [`SIGILS`](#sigils) | 객체 | 6 | main | 신의 인장 → SVG 심볼 |
 | [`RULES`](#rules) | 객체 | 8 | engine, main | 규칙 수치 모음 (`superiority`는 `435c3cc`에서 지웠다) |
-| [상수](#상수) | 수 | — | — | `CAPITAL_HP` 2, `MAX_TEMPLE` 3, `MAX_ACTIONS` 6, `DOCTRINE_MAX` 6, `EDICT_MAX` 12, `DESTINY_POINTS` 5, `MAX_COMMANDMENTS` 2, `REVELATION_MAX` 100, `MAX_ROUNDS` 12, `RULESET` 7 (engine의 `MODULES` 4는 `data.js` 밖) |
-| [`revelationCost`](#함수-칸-fn) | 함수 | — | (쓰이지 않음) | 계시 기본 비용 |
+| [상수](#상수) | 수 | — | — | `CAPITAL_HP` 2, `MAX_TEMPLE` 3, `MAX_ACTIONS` 6, `DOCTRINE_MAX` 6, `EDICT_MAX` 12, `DESTINY_POINTS` 5, `MAX_COMMANDMENTS` 2, `REVELATION_MAX` 100, `MAX_ROUNDS` 12, `RULESET` 8 (engine의 `MODULES` 4는 `data.js` 밖) |
+| ~~[`revelationCost`](#함수-칸-fn)~~ | — | — | — | **없어짐** `0c95856` — 쓰이지 않던 길이 비용 함수. 계시 비용은 engine `revelationCostFor` ([02 §14.1](02-rules.md#141-계시-비용과-길이)) |
 
 ---
 
@@ -383,11 +383,12 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 ### PRIESTS
 
-대사제 성향. 해금 3 전(첫 판~세 번째 판)은 `loyal`, 해금 3(네 번째 판부터)이면 `hashPick(loyal을 뺀 키, 'priest', seed)`. 수치 효과는 없다.
+대사제 성향. 해금 3 전(첫 판~세 번째 판)은 `loyal`, 해금 3(네 번째 판부터)이면 `hashPick(loyal을 뺀 키, 'priest', seed)`. 이 표에는 글만 있고, `0a0a974`부터 성향이 정하는 수치(헤아린 노동의 손 수·먼저 고르는 일·선교/공격 승률 문턱)는 engine `autoFill`의 `PRIEST_LABOR`에 있다 — `loyal` 1손·50%, `literal` 0손, `dreamer` 2손, `zealot` 공격·선교 먼저·40%, `cautious` 성벽·기도 먼저·60% ([02 §3.5](02-rules.md#35-기본-노동-autofill)). `data.json`에는 없다.
 
 | 칸 | 뜻 |
 |---|---|
-| `name`, `trait` | 화면 |
+| `name` | 화면 (확인 화면 머리, 사제 말풍선 이름) |
+| `trait` | 성향 한 줄. `0a0a974`에서 헤아린 노동을 덧붙여 적었다(예: 문자주의 "말한 그대로만 한다 — 계시의 뜻을 헤아려 더 하는 일이 없다", 열혈 "… 남는 손이 먼저 치거나 전한다 (이길 확률 40%부터)"). 같은 커밋부터 `loyal`이 아닌 판의 1장에 사제 말풍선 `ui.priestIntro`("이번 판의 대사제는 {trait}.")로 보인다 — 그 전에는 화면 어디에도 쓰이지 않았다 |
 | `prompt` | LLM 프롬프트에 넣는 한 줄 (`loyal`은 빈 문자열) |
 
 행 5: `loyal`, `literal`, `dreamer`, `zealot`, `cautious`.
@@ -476,7 +477,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 | 이름 | 값 | 뜻 · 쓰는 곳 |
 |---|---|---|
-| `CAPITAL_HP` | 2 | 수도 내구도 시작값 (engine), 소명 `fortress`의 문턱 (`DESTINIES`), 화면 칸 수·업적 「흔들림 없는 신전」의 판정 `capitalFull` (main). `435c3cc`에서 3 → 2 (양쪽) — 점령이 실제로 닿는 길이 되게: 커밋 기록의 탐욕 최적화기에서 수도 점령으로 이긴 판 7% → 15%, 고정 한 줄 스크립트는 그대로 |
+| `CAPITAL_HP` | 2 | 수도 내구도 시작값과 `0c95856`부터 옛 저장본을 불러올 때의 상한(`hydrateState`가 `min(capitalHp, CAPITAL_HP)`) (engine), 소명 `fortress`의 문턱 (`DESTINIES`), 화면 칸 수·업적 「흔들림 없는 신전」의 판정 `capitalFull` (main). `435c3cc`에서 3 → 2 (양쪽) — 점령이 실제로 닿는 길이 되게: 커밋 기록의 탐욕 최적화기에서 수도 점령으로 이긴 판 7% → 15%, 고정 한 줄 스크립트는 그대로 |
 | `MAX_TEMPLE` | 3 | 신전 최고 단계 |
 | `MAX_ACTIONS` | 6 | 행동 수 상한 (`actionLimit`) |
 | `DOCTRINE_MAX` | 6 | 교리 트랙 끝 = 궁극 |
@@ -485,7 +486,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `MAX_COMMANDMENTS` | 2 | 판당 계명 수 |
 | `REVELATION_MAX` | 100 | 계시 글자 수 상한 (main `revMax`; 시련 `cloister`는 20) |
 | `MAX_ROUNDS` | 12 | **쓰이지 않는다** (`createState`는 `MAP_SIZES`가 없을 때 숫자 12를 직접 쓴다) |
-| `RULESET` | 7 | 규칙 판 번호 (`data.js:247`). 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). `e68a240`에서 4 → 5로 올렸다 — `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)·`e68a240`(막기 대칭·헤아린 성벽 예산)의 규칙 변경이 한 번에 반영된다. 그 사이(`afab303`~`e68a240` 직전)에 둔 판은 재조정 전의 판과 같은 `-r4` 키로 남아 있다. `9b43bbf`(심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정)는 올리지 않아 `-r5`에 그 전후 판이 섞인다. `87a0fce`에서 5 → 6(승점으로 정하는 선공, 결집 12·6점과 신도 +1, 같은 기적 재사용 +1, 두 장 전 메아리). `7a28084`의 7×7 대성당 ×1.5는 올리지 않고 `-r6` 안에서 바뀌었다. `435c3cc`에서 6 → 7(신도 수 우위 삭제, 수도 내구도 2). `8ba0ef8`의 해금 단계는 올리지 않았다 |
+| `RULESET` | 8 | 규칙 판 번호 (`data.js:246`). 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). `e68a240`에서 4 → 5로 올렸다 — `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)·`e68a240`(막기 대칭·헤아린 성벽 예산)의 규칙 변경이 한 번에 반영된다. 그 사이(`afab303`~`e68a240` 직전)에 둔 판은 재조정 전의 판과 같은 `-r4` 키로 남아 있다. `9b43bbf`(심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정)는 올리지 않아 `-r5`에 그 전후 판이 섞인다. `87a0fce`에서 5 → 6(승점으로 정하는 선공, 결집 12·6점과 신도 +1, 같은 기적 재사용 +1, 두 장 전 메아리). `7a28084`의 7×7 대성당 ×1.5는 올리지 않고 `-r6` 안에서 바뀌었다. `435c3cc`에서 6 → 7(신도 수 우위 삭제, 수도 내구도 2). `8ba0ef8`의 해금 단계는 올리지 않았다. `0c95856`에서 7 → 8(대성당 공사 중 율법파 선공, 30자 가산·인용 할인 삭제 — 같은 커밋부터 최고 기록 키에 해금 단계 `-u{n}`도 붙는다, [07 §13](07-progression.md#13-시드별-최고-기록-metajs105-115)). `0a0a974`(대사제 성향 노동, 어려움의 건설 공개)는 올리지 않았다 |
 
 `data.js` 밖의 상수 하나: engine의 **`MODULES` = 4**(`engine.js:68`, `8ba0ef8`) — 모듈 해금 단계의 최대(끝낸 판 수를 이 값에서 자른다). main이 import해 `unlock: min(MODULES, 서고 길이)`로 넘기고 해금 안내의 끝을 정한다. `data.json`에는 없다.
 
@@ -493,13 +494,13 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 ## 함수 칸 ($fn)
 
-`data.json`에서 `{"$fn": "<소스>"}`로 나오는 칸은 셋뿐이다. GDScript로 옮긴 모양을 함께 적는다.
+`data.json`에서 `{"$fn": "<소스>"}`로 나오는 칸은 둘뿐이다(9개 — `COST.temple` 1 + `DESTINIES.*.test` 8; 셋째였던 최상위 `revelationCost`는 `0c95856`에서 지웠다). GDScript로 옮긴 모양을 함께 적는다.
 
 | 자리 | 원문 | GDScript |
 |---|---|---|
 | `COST.temple` | `(level) => ({ stone: level * 2, wood: level + 1 })` | `func temple_cost(level: int) -> Dictionary: return {"stone": level * 2, "wood": level + 1}` |
 | `DESTINIES.<id>.test` (8개) | `(st, v) => …` — 예 `villages`: `(st, v) => st.round <= 8 && v.villages >= 4` | id → `Callable(state, v) -> bool` 표. `ultimate`는 `Object.values(st.sides.player.doctrine).some((x) => x >= 6)`, `namer`는 `Object.keys(st.names ?? {}).length >= 3`처럼 상태 필드를 직접 읽으므로 04의 상태 필드 이름을 따른다 |
-| `revelationCost` (최상위) | `(text) => (text.trim().length > 30 ? 2 : 1)` | 쓰이지 않는다. 실제 비용은 engine `revelationCostFor`: 30자를 넘어도 지난 계시를 인용하면(`citedWords`) 1, 봉인된 말을 쓰면 +1, 지난 계시를 그대로 되풀이하면(메아리 `isEcho`) +1 |
+| ~~`revelationCost` (최상위)~~ | ~~`(text) => (text.trim().length > 30 ? 2 : 1)`~~ | **없어짐** `0c95856` (쓰이지 않던 함수; `data.js:58`에는 주석 한 줄만 남았다). 비용은 engine `revelationCostFor`: 신앙 1, 봉인된 말을 쓰면 +1, 지난 계시를 되풀이하면(메아리 `isEcho`) +1 — 길이와 인용은 보지 않는다 |
 
 글자 수(`length`)는 JS 문자열 길이(UTF-16 단위)다. 한글 음절은 한 단위이므로 Godot `String.length()`와 같다.
 
