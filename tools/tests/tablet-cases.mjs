@@ -1244,6 +1244,19 @@ const CASES = [
   ['우리 마을들을 성벽으로 두르라', ['build:wall'], ['build:village']],
   ['점수를 올리자', ['build:village'], []],
   ['신전', ['build:temple'], []],
+  // 9차 평가자 문장: 명사 금지, 쉼표 없는 금지의 끝, 곳의 말
+  ['싸움은 금지다', ['forbid:attack'], ['attack']],
+  ['칼은 칼집에 넣고 쟁기를 들어라', ['forbid:attack'], ['attack']],
+  ['돌 위에 돌을 올려 하늘에 닿게 하라', ['build:temple'], ['gather:stone']],
+  ['멀티 늘려', ['build:village'], []],
+  ['그들의 마음을 얻어라', [], ['attack']],
+  ['하늘의 뜻을 여쭈어라', ['pray'], []],
+  ['신전과 성벽을 함께 세워라', ['build:wall', 'heard:temple:tile'], []], // 튜토리얼은 수도 하나라 한 칸에 한 가지
+  ['주린 백성을 먹여라', ['gather:food'], ['build:wall']],
+  ['마을을 짓지 말라 다만 성벽은 쌓아라', ['build:wall', 'forbid:build:village'], ['build:village']],
+  ['전쟁은 없다. 들에서 일하라', ['forbid:attack'], ['attack']],
+  ['방어가 약한 율법파 마을을 쳐라', [], ['build:wall']],
+  ['숲 가장자리에 마을을 세워라', ['build:village'], ['gather:wood']],
 ];
 
 const kindOf = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);

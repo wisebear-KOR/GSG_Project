@@ -463,7 +463,7 @@ export function validateOrders(state, side, chosen, forbidden = [], doctrine = n
 
 // 계시와 무관하게 남은 신도가 하는 기본 노동: 신앙이 바닥나면 기도부터, 그다음 가장 부족한 자원 채집
 // 풍요는 따로 두지 않는다 — 모자란 자원을 거두는 기본 노동이 곧 풍요의 뜻이다
-const DOCTRINE_LABOR = { peace: ['preach', 'pray'], war: ['attack', 'wall'], wisdom: ['explore', 'pray'] };
+const DOCTRINE_LABOR = { peace: ['preach', 'pray'], war: ['wall', 'attack'], wisdom: ['explore', 'pray'] };
 // 대사제의 성향이 뜻을 헤아리는 손: 몇 손(hands), 무엇부터(first), 싸움·선교는 이길 확률이 얼마일 때(odds)
 const PRIEST_LABOR = {
   loyal: { hands: 1, first: [], odds: 0.5 },

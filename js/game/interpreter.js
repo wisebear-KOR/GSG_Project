@@ -220,8 +220,8 @@ const PLACE_TERRAIN = ['river', 'plain', 'forest', 'mountain', 'hill', 'desert']
 const PLACE = {
   capital: kw('kw.place.capital'), holy: kw('kw.place.holy'), aim: kw('kw.place.aim'), near: kw('kw.place.near'),
   foe: kw('kw.place.foe'), ours: kw('kw.place.ours'), id: kw('kw.place.id'), village: kw('kw.place.village'),
-  nearTerrain: kw('kw.place.nearTerrain'), home: kw('kw.place.home'), dir: kw('kw.place.dirWord'), closest: kw('kw.place.closest'),
-  foeVillage: kw('kw.place.foeVillage'), oasis: kw('kw.place.oasis'), aimBuild: kw('kw.place.aimBuild'), quarry: kw('kw.place.quarry'), oasisAt: kw('kw.place.oasisAt'), claim: kw('kw.tablet.claim'), avoidId: kw('kw.place.avoidId', 'g'), ids: kw('kw.place.id', 'g'),
+  nearTerrain: kw('kw.place.nearTerrain'), home: kw('kw.place.home'), dir: kw('kw.place.dirWord'), closest: kw('kw.place.closest'), farthest: kw('kw.place.farthest'),
+  foeVillage: kw('kw.place.foeVillage'), oasis: kw('kw.place.oasis'), gatherAt: kw('kw.place.gatherAt'), aimBuild: kw('kw.place.aimBuild'), quarry: kw('kw.place.quarry'), oasisAt: kw('kw.place.oasisAt'), claim: kw('kw.tablet.claim'), avoidId: kw('kw.place.avoidId', 'g'), ids: kw('kw.place.id', 'g'),
 };
 const HOSTILE = [kw('kw.tablet.attack'), kw('kw.tablet.preach')];
 const VILLAGE_WORD = kw('kw.tablet.village');
@@ -241,6 +241,8 @@ function placeOf(state, clause) {
     re.lastIndex = 0;
     if (re.test(text)) { terrains.add(k); re.lastIndex = 0; text = text.replace(re, ' '); }
   }
+  const ga = clause.match(PLACE.gatherAt);
+  if (ga) { const k = t('kw.place.terrainName')[ga[1]]; if (k) terrains.add(k); }
   const named = [];
   if (PLACE.capital.test(clause)) {
     const foe = PLACE.foe.test(clause);
@@ -285,7 +287,10 @@ function placeOf(state, clause) {
   for (const m2 of clause.matchAll(PLACE.avoidId)) { const id = m2[1].toUpperCase() + m2[2]; avoid.add(id); exact.delete(id); }
   for (const id of exact) anchors.add(id);
   for (const id of avoid) anchors.delete(id);
-  return { anchors, exact, avoid, named, terrains, near, text, dir, home, aimBonus, closest: PLACE.closest.test(clause) };
+  // "적 수도에서 가장 먼 곳": 짚은 곳은 가까이 갈 곳이 아니라 멀어질 기준이다
+  const farthest = PLACE.farthest.test(clause) ? (anchors.size ? [...anchors].map((id) => state.tileAt[id]) : home ? [home] : null) : null;
+  if (farthest) { anchors.clear(); named.length = 0; }
+  return { anchors, exact, avoid, named, terrains, near, text, dir, home, aimBonus, farthest, closest: PLACE.closest.test(clause) };
 }
 // 방향과 얼마나 곧게 놓였는가 (0~1): 육각 칸의 화면 좌표로 본 방향과 그 방향의 코사인
 const hexXY = (tl) => [tl.c + (tl.r & 1) / 2, tl.r * 0.866];
@@ -296,7 +301,7 @@ function aligned(tl, home, [dr, dc]) {
 }
 // 가리킨 곳에 맞을수록 앞 (같으면 원래 순서): 가리킨 칸 4 ("옆에"면 그 이웃이 4), 가리킨 칸의 이웃 2, 지형이 맞으면 +1
 function byPlace(state, place, matches) {
-  if (!place.anchors.size && !place.terrains.size && !place.dir && !place.closest && !place.avoid?.size) return matches;
+  if (!place.anchors.size && !place.terrains.size && !place.dir && !place.closest && !place.farthest && !place.avoid?.size) return matches;
   const score = (a) => {
     const tl = state.tileAt[a.tile];
     let s = 0;
@@ -310,6 +315,7 @@ function byPlace(state, place, matches) {
     s += place.aimBonus?.get(tl.id) ?? 0;
     // "가까운": 우리 수도에서 가까울수록 조금 앞 (같은 점수끼리의 순서)
     if (place.closest && place.home) s += (20 - distance(tl, place.home)) / 100;
+    if (place.farthest) s += Math.min(...place.farthest.map((f) => distance(tl, f))) / 2;
     return s + (place.terrains.has(tl.terrain) ? 1 : 0);
   };
   return matches.map((a, i) => ({ a, i, s: score(a) })).sort((x, y) => y.s - x.s || x.i - y.i).map((x) => x.a);
@@ -372,7 +378,10 @@ export function interpretWithTablet(state, revelation) {
     const plain = found.some((h) => !h.rule.lastResort);
     for (const { rule, matches, pos } of found) {
       if ((rule.fallback && gathered) || (rule.lastResort && plain)) continue;
-      if (negative) { forbidden.push(...matches); if (rule.kind) banned.push(rule.kind); continue; }
+      if (negative) {
+        const scoped = place.terrains.size || place.anchors.size ? matches.filter((a) => place.terrains.has(state.tileAt[a.tile].terrain) || place.anchors.has(a.tile)) : matches;
+        forbidden.push(...(scoped.length ? scoped : matches)); if (rule.kind) banned.push(rule.kind); continue;
+      }
       // 알아들었으나 지금 할 수 없는 말 (닿는 율법파가 없다 등) — "흐릿하다"와 구별해 알려 준다
       if (!matches.length) { if (rule.kind) heard.push(cannotWhy(state, rule.kind)); continue; }
       // 가능한 행동이 없는 규칙은 교리를 정하지 않는다 ("평화를 지켜라"가 성벽이 없어 전쟁이 되지 않게)

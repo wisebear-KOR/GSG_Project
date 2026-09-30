@@ -57,7 +57,7 @@
       "rounds": 14,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":29,"enemy":55}
+      "score": {"player":36,"enemy":52}
     },
     {
       "file": "s7-normal-veteran.json",
