@@ -2249,6 +2249,10 @@ function bindAltar() {
       };
     });
     a.querySelectorAll('.order[data-key]').forEach((c) => {
+      // 키보드로도 칩을 빼고 되살린다 (Tab으로 옮겨 Enter·Space)
+      c.setAttribute('role', 'button');
+      c.tabIndex = 0;
+      c.onkeydown = (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target === c) { e.preventDefault(); e.stopPropagation(); c.click(); } };
       c.onclick = () => {
         // 해석문이 다 나오고 수락 버튼이 켜진 뒤에만
         if (pending.incoming || a.querySelector('.accept')?.disabled) return;

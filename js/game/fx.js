@@ -3,10 +3,12 @@ import { tileCenter, tileToHost } from './board.js';
 import { sfx } from './sound.js';
 import { t } from './i18n.js';
 
-// 연출 설정: 기본은 화려하게. 줄이기를 고르면 브라우저에 저장한다.
-// (OS의 '애니메이션 줄이기'를 따르지 않는 이유: 연출이 게임의 핵심이라 기본으로 켜 두고 직접 끌 수 있게 한다)
+// 연출 설정: 설정에서 고른 값이 있으면 그것을, 없으면 OS의 '애니메이션 줄이기'를 따른다. 고르면 브라우저에 저장한다
 function loadReduced() {
-  try { return localStorage.getItem('gsg.motion') === 'reduced'; } catch { return false; }
+  let saved = null;
+  try { saved = localStorage.getItem('gsg.motion'); } catch { /* 저장소가 없으면 OS 설정을 따른다 */ }
+  if (saved) return saved === 'reduced';
+  return !!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }
 // speed: 재생 배속 (1 · 2). 즉시는 main이 재생마다 skip을 켠다
 export const motion = { skip: false, reduced: loadReduced(), speed: 1 };

@@ -896,6 +896,7 @@ body.reduce-motion .site-mark { animation: none; }
 .lg-hint { flex-basis: 100%; font: 600 12.5px var(--font-ui); color: #7a2016; }
 .order .why.first { background: rgba(61, 111, 182, .16); color: #1f3f73; }
 .order .why.first.bad { background: rgba(180, 50, 40, .14); color: #7a2016; }
+.order[role="button"]:focus-visible { outline: 2px solid #f4c44a; outline-offset: 2px; }
 .order .chip-move { margin-left: 2px; width: 22px; height: 22px; padding: 0; border-radius: 50%; border: 1px solid rgba(94, 70, 30, .35); background: rgba(255, 250, 238, .7); color: #5c4520; font: 700 12px/1 var(--font-ui); cursor: pointer; flex: none; }
 .order .chip-move:hover, .order .chip-move.on { background: #f4c44a; border-color: #b8862b; color: #3d2a06; }
 @media (pointer: coarse) { .order .chip-move { width: 28px; height: 28px; } }
