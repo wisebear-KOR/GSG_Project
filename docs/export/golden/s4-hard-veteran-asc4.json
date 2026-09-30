@@ -116,7 +116,7 @@
       "revelation": "신전에서 기도하라",
       "cost": 1,
       "tone": "command",
-      "tablet": {"orders":["pray:D2:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판에 새겨진 말씀이도다. 신전에서 기도한다!"},
+      "tablet": {"orders":["pray:D2:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판이 이르되, 신전에서 기도한다!"},
       "accepted": ["pray:D2:"],
       "rejected": [],
       "petitionAnswered": false,
@@ -126,7 +126,7 @@
       "ordered": ["pray:D2:"],
       "log": [
         {"side":"god","text":"“신전에서 기도하라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 신전에서 기도한다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 신전에서 기도한다!","ui":true},
         {"side":"enemy","text":"율법파는 안개 지대(A1)를 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"A1"}},
         {
           "side": "player",
@@ -217,7 +217,7 @@
       "revelation": "높은 신전을 쌓아 나를 섬겨라",
       "cost": 1,
       "tone": "command",
-      "tablet": {"orders":["build:D2:temple"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판에 새겨진 말씀이도다. 신전을 높인다!"},
+      "tablet": {"orders":["build:D2:temple"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판이 이르되, 신전을 높인다!"},
       "accepted": ["build:D2:temple"],
       "rejected": [],
       "petitionAnswered": false,
@@ -227,7 +227,7 @@
       "ordered": ["build:D2:temple"],
       "log": [
         {"side":"god","text":"“높은 신전을 쌓아 나를 섬겨라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 신전을 높인다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 신전을 높인다!","ui":true},
         {"side":"player","text":"신도들은 숲(D3)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"D3"}},
         {
           "side": "enemy",
@@ -323,7 +323,7 @@
       "revelation": "율법파의 마을을 쳐라",
       "cost": 1,
       "tone": "command",
-      "tablet": {"orders":["attack:C2:"],"forbidden":[],"doctrine":"war","interpretation":"석판에 새겨진 말씀이도다. 율법파 마을(C2)을 공격한다!"},
+      "tablet": {"orders":["attack:C2:"],"forbidden":[],"doctrine":"war","interpretation":"석판이 이르되, 율법파 마을(C2)을 공격한다!"},
       "accepted": ["attack:C2:"],
       "rejected": [],
       "petitionAnswered": false,
@@ -334,7 +334,7 @@
       "ordered": ["attack:C2:"],
       "log": [
         {"side":"god","text":"“율법파의 마을을 쳐라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 율법파 마을(C2)을 공격한다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 율법파 마을(C2)을 공격한다!","ui":true},
         {"side":"enemy","text":"율법파는 평원(B1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"B1"}},
         {
           "side": "player",
@@ -453,12 +453,7 @@
       "revelation": "성벽을 쌓아 우리 땅을 지켜라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:B1:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 평원(B1)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:B1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 평원(B1)에 마을을 세운다!"},
       "accepted": ["build:B1:village"],
       "rejected": [],
       "petitionAnswered": false,
@@ -469,7 +464,7 @@
       "ordered": ["build:B1:village"],
       "log": [
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 평원(B1)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 평원(B1)에 마을을 세운다!","ui":true},
         {"side":"player","text":"신도들은 평원(B1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"B1"}},
         {"side":"player","text":"신도들은 산(B3)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"B3"}},
         {
@@ -562,7 +557,7 @@
       "revelation": "율법파의 마을을 쳐라",
       "cost": 1,
       "tone": "command",
-      "tablet": {"orders":["attack:C2:"],"forbidden":[],"doctrine":"war","interpretation":"석판에 새겨진 말씀이도다. 율법파 마을(C2)을 공격한다!"},
+      "tablet": {"orders":["attack:C2:"],"forbidden":[],"doctrine":"war","interpretation":"석판이 이르되, 율법파 마을(C2)을 공격한다!"},
       "accepted": ["attack:C2:"],
       "rejected": [],
       "petitionAnswered": false,
@@ -572,7 +567,7 @@
       "ordered": ["attack:C2:"],
       "log": [
         {"side":"god","text":"“율법파의 마을을 쳐라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 율법파 마을(C2)을 공격한다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 율법파 마을(C2)을 공격한다!","ui":true},
         {"side":"enemy","text":"율법파는 산(B3)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"B3"}},
         {
           "side": "player",
@@ -686,12 +681,7 @@
       "revelation": "땅을 넓혀 새 마을을 세워라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:B1:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 평원(B1)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:B1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 평원(B1)에 마을을 세운다!"},
       "accepted": ["build:B1:village"],
       "rejected": [],
       "petitionAnswered": false,
@@ -701,7 +691,7 @@
       "ordered": ["build:B1:village"],
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 평원(B1)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 평원(B1)에 마을을 세운다!","ui":true},
         {"side":"player","text":"신도들은 평원(B1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"B1"}},
         {
           "side": "enemy",
@@ -806,7 +796,7 @@
       "revelation": "율법파에게 재앙을! 그들의 수도를 쳐라",
       "cost": 1,
       "tone": "curse",
-      "tablet": {"orders":["attack:C2:"],"forbidden":[],"doctrine":"war","interpretation":"석판에 새겨진 말씀이도다. 율법파 마을(C2)을 공격한다!"},
+      "tablet": {"orders":["attack:C2:"],"forbidden":[],"doctrine":"war","interpretation":"석판이 이르되, 율법파 마을(C2)을 공격한다!"},
       "accepted": ["attack:C2:"],
       "rejected": [],
       "petitionAnswered": false,
@@ -817,7 +807,7 @@
       "ordered": ["attack:C2:"],
       "log": [
         {"side":"god","text":"“율법파에게 재앙을! 그들의 수도를 쳐라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 율법파 마을(C2)을 공격한다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 율법파 마을(C2)을 공격한다!","ui":true},
         {"side":"enemy","text":"율법파는 평원(B1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"B1"}},
         {
           "side": "player",

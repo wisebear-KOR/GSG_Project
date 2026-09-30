@@ -160,12 +160,7 @@
       "revelation": "땅을 넓혀 새 마을을 세워라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:C1:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 숲(C1)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:C1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 숲(C1)에 마을을 세운다!"},
       "accepted": ["build:C1:village"],
       "rejected": [],
       "petitionAnswered": false,
@@ -175,7 +170,7 @@
       "ordered": ["build:C1:village"],
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 숲(C1)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 숲(C1)에 마을을 세운다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 채석장(C2)에서 돌을 3 얻었다.",
@@ -271,12 +266,7 @@
       "revelation": "산에서 돌을 캐어 오라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["gather:C2:stone"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 채석장(C2)에서 돌을 캔다!"
-      },
+      "tablet": {"orders":["gather:C2:stone"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 채석장(C2)에서 돌을 캔다!"},
       "accepted": ["gather:C2:stone"],
       "rejected": [],
       "petitionAnswered": false,
@@ -286,7 +276,7 @@
       "ordered": ["gather:C2:stone"],
       "log": [
         {"side":"god","text":"“산에서 돌을 캐어 오라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 채석장(C2)에서 돌을 캔다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 채석장(C2)에서 돌을 캔다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(A2)에서 식량을 0 얻었다.",
@@ -374,7 +364,7 @@
       "revelation": "신전에서 기도하라",
       "cost": 1,
       "tone": "command",
-      "tablet": {"orders":["pray:E2:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판에 새겨진 말씀이도다. 신전에서 기도한다!"},
+      "tablet": {"orders":["pray:E2:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판이 이르되, 신전에서 기도한다!"},
       "accepted": ["pray:E2:"],
       "rejected": [],
       "petitionAnswered": false,
@@ -385,7 +375,7 @@
       "site": {"tile":"B2","choice":"take"},
       "log": [
         {"side":"god","text":"“신전에서 기도하라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 신전에서 기도한다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 신전에서 기도한다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 평원(B1)에서 식량을 3 얻었다.",
@@ -480,7 +470,7 @@
       "revelation": "안개 너머를 탐험하라",
       "cost": 1,
       "tone": "command",
-      "tablet": {"orders":["explore:A1:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판에 새겨진 말씀이도다. 안개 지대(A1) 속을 탐험한다!"},
+      "tablet": {"orders":["explore:A1:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판이 이르되, 안개 지대(A1) 속을 탐험한다!"},
       "accepted": ["explore:A1:"],
       "rejected": [],
       "petitionAnswered": false,
@@ -491,7 +481,7 @@
       "site": {"tile":"D4","choice":"take"},
       "log": [
         {"side":"god","text":"“안개 너머를 탐험하라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 안개 지대(A1) 속을 탐험한다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 안개 지대(A1) 속을 탐험한다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 산(A3)에서 돌을 2 얻었다.",
@@ -586,7 +576,7 @@
         "orders": ["gather:B1:food","gather:C1:wood"],
         "forbidden": [],
         "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 평원(B1)에서 곡식을 거둔다, 그리고 우리 마을(C1)에서 나무를 벤다!"
+        "interpretation": "석판이 이르되, 평원(B1)에서 곡식을 거둔다, 그리고 우리 마을(C1)에서 나무를 벤다!"
       },
       "accepted": ["gather:B1:food","gather:C1:wood"],
       "rejected": [],
@@ -597,7 +587,7 @@
       "ordered": ["gather:B1:food","gather:C1:wood"],
       "log": [
         {"side":"god","text":"“들판의 곡식을 거두고, 숲의 나무를 베어라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 평원(B1)에서 곡식을 거둔다, 그리고 우리 마을(C1)에서 나무를 벤다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 평원(B1)에서 곡식을 거둔다, 그리고 우리 마을(C1)에서 나무를 벤다!","ui":true},
         {"side":"enemy","text":"율법파는 평원(D2)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"D2"}},
         {
           "side": "player",

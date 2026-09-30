@@ -173,12 +173,7 @@
       "revelation": "땅을 넓혀 새 마을을 세워라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:D1:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 숲(D1)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:D1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 숲(D1)에 마을을 세운다!"},
       "accepted": ["build:D1:village"],
       "rejected": [],
       "petitionAnswered": true,
@@ -189,7 +184,7 @@
       "site": {"tile":"C1","choice":"take"},
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 숲(D1)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 숲(D1)에 마을을 세운다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 산(D3)에서 돌을 2 얻었다.",
@@ -284,7 +279,7 @@
         "orders": ["gather:F4:food","gather:E4:food"],
         "forbidden": [],
         "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 강(F4)에서 물고기를 잡는다, 그리고 오아시스(E4)에서 곡식을 거둔다!"
+        "interpretation": "석판이 이르되, 강(F4)에서 물고기를 잡는다, 그리고 오아시스(E4)에서 곡식을 거둔다!"
       },
       "accepted": ["gather:F4:food","gather:E4:food"],
       "rejected": [],
@@ -296,7 +291,7 @@
       "ordered": ["gather:F4:food","gather:E4:food"],
       "log": [
         {"side":"god","text":"“강물이 너희를 먹이리라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 강(F4)에서 물고기를 잡는다, 그리고 오아시스(E4)에서 곡식을 거둔다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 강(F4)에서 물고기를 잡는다, 그리고 오아시스(E4)에서 곡식을 거둔다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(A3)에서 식량을 1 얻었다.",
@@ -399,12 +394,7 @@
       "sealRequested": true,
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:C1:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 평원(C1)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:C1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 평원(C1)에 마을을 세운다!"},
       "accepted": ["build:C1:village"],
       "rejected": [],
       "petitionAnswered": false,
@@ -415,7 +405,7 @@
       "ordered": ["build:C1:village"],
       "log": [
         {"side":"god","text":"“세 장 안에 자손이 불어나리라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 평원(C1)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 평원(C1)에 마을을 세운다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 평원(D2)에서 식량을 3 얻었다.",
@@ -628,7 +618,7 @@
       "revelation": "안개 너머를 탐험하라",
       "cost": 2,
       "tone": "command",
-      "tablet": {"orders":["explore:D4:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판에 새겨진 말씀이도다. 안개 지대(D4) 속을 탐험한다!"},
+      "tablet": {"orders":["explore:D4:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판이 이르되, 안개 지대(D4) 속을 탐험한다!"},
       "accepted": ["explore:D4:"],
       "rejected": [],
       "petitionAnswered": false,
@@ -638,7 +628,7 @@
       "ordered": ["explore:D4:"],
       "log": [
         {"side":"god","text":"“안개 너머를 탐험하라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 안개 지대(D4) 속을 탐험한다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 안개 지대(D4) 속을 탐험한다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 평원(B1)에서 식량을 4 얻었다.",
@@ -736,7 +726,7 @@
       "revelation": "안개 너머를 탐험하라",
       "cost": 2,
       "tone": "command",
-      "tablet": {"orders":["explore:F5:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판에 새겨진 말씀이도다. 안개 지대(F5) 속을 탐험한다!"},
+      "tablet": {"orders":["explore:F5:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판이 이르되, 안개 지대(F5) 속을 탐험한다!"},
       "accepted": ["explore:F5:"],
       "rejected": [],
       "petitionAnswered": false,
@@ -746,7 +736,7 @@
       "ordered": ["explore:F5:"],
       "log": [
         {"side":"god","text":"“안개 너머를 탐험하라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 안개 지대(F5) 속을 탐험한다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 안개 지대(F5) 속을 탐험한다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 평원(A2)에서 식량을 1 얻었다.",

@@ -1,5 +1,6 @@
 // 한국어 언어팩 — ui (main.js · index.html)
 import { josa, batchim } from './grammar.js';
+import { cannotLabel } from './interp.js';
 
 const WHO = { player: '신도들은', enemy: '율법파는' };
 const DIRS = ['동', '북동', '북', '북서', '서', '남서', '남', '남동'];
@@ -14,11 +15,16 @@ export default {
   'ui.echo.tip': '지난 계시와 같은 말, 또는 말만 바꾼 같은 일들 — 되풀이된 말씀은 무뎌진다 (신앙 +1, 교리가 오르지 않는다)',
   // 알아들은 말 (발언 두루마리 아래)
   'ui.heard.label': '알아들은 말 —',
+  'ui.move.tip': '다른 칸으로 옮기기 — 누른 뒤 보드에서 빛나는 칸을 고른다',
+  'ui.notice.pickMove': '같은 일을 할 칸을 보드에서 고르세요 (Esc: 그대로 두기)',
   'ui.heard.guess': '석판의 예감 (대사제는 더 헤아린다) —',
   'ui.heard.pair': '<b>{word}</b> → {kind}',
   'ui.heard.kind': (v) => ({ gather: `${v.res} 채집`, pray: '기도', explore: '탐험', preach: '선교', attack: '공격',
     build: ({ village: '마을 건설', wall: '성벽', temple: '신전 높이기', cathedral: '대성당' })[v.build] ?? '건설' })[v.type] ?? v.type,
-  'ui.heard.cannot': (v) => `뜻은 알아들었으나 지금은 할 수 없다 — ${v.kinds.map((k) => ({ 'attack:law': '공격(계명이 칼을 금한다)', 'attack:earth': '공격(이 시련에서는 칼을 들 수 없다)', 'village:law': '마을(계명이 넓히기를 금한다)', 'temple:villages': '대성당(마을이 모자라다)', preach: '선교(닿는 율법파 땅이 없다)', attack: '공격(닿는 율법파 땅이 없다)', wall: '성벽(자원이 모자라다)', village: '마을(자원이나 빈 땅이 없다)', temple: '신전(자원이 모자라다)', explore: '탐험(닿는 안개가 없다)' })[k] ?? k).join(', ')}`,
+  'ui.heard.cannot': (v) => `뜻은 알아들었으나 지금은 할 수 없다 — ${v.kinds.map(cannotLabel).join(', ')}`,
+  'ui.heard.also': (v) => `못 함: ${v.kinds.map(cannotLabel).join(', ')}`,
+  'ui.heard.forbid': (v) => `금함: ${v.kinds.join(', ')}`,
+  'ui.heard.kindWord': (v) => ({ preach: '선교', attack: '공격', wall: '성벽', village: '마을', temple: '신전', explore: '탐험', pray: '기도', gather: '채집' })[v.k] ?? v.k,
   'ui.heard.none': '아직 알아들은 말이 없다 — 곡식·나무·돌·마을·성벽·기도·안개·이웃·쳐라 같은 말을 넣어 보라',
   // ---------- 문서 ----------
   'ui.doc.title': '말씀이 있으라 — Let There Be',
@@ -257,14 +263,14 @@ export default {
   // ---------- 규칙서 ----------
   'ui.rules.title': '규칙서',
   'ui.rules.core': '한눈에 — 이것만 알면 시작할 수 있다',
-  'ui.rules.core1': '매 장 <b>계시</b>를 한 줄 적는다. 두루마리 아래 <b>알아들은 말</b>에 신도들이 할 일이 바로 보인다 — 보면서 고쳐 쓴다.',
+  'ui.rules.core1': '매 장 <b>계시</b>를 한 줄 적는다. 두루마리 아래 <b>알아들은 말</b>에 신도들이 할 일이 바로 보인다 — 보면서 고쳐 쓴다. "강가에", "율법파의 수도를", "율법파가 노리는 곳에", "E4에"처럼 곳을 말하면 그 칸에서 한다. 한 칸에는 한 가지 일만.',
   'ui.rules.core2': '율법파가 이번 장에 할 일은 오른쪽 <b>붉은 카드</b>와 보드의 표식으로 미리 보인다. 같은 칸은 선공이 먼저 쓴다.',
   'ui.rules.core3': '같은 말만 되풀이하면 <b>율법이 굳는다</b>. 선교·공격은 번갈아 쓰고, 계시는 매번 새로 써라.',
   'ui.rules.core4': '이기는 길은 넷: <b>신앙</b>(인구의 3/4, 선교로 데려온 이 둘 이상), <b>대성당</b>(마을과 함께 짓는다), <b>점령</b>(수도를 에워싸고 친다), 마지막 장의 <b>승점</b>.',
   'ui.rules.core5': '신앙이 바닥나면 신도가 떠난다. 모자라면 <b>기도</b>로 채우고, 기적은 장당 하나.',
   'ui.rules.flow': '한 장의 흐름',
   'ui.rules.flow1': '두루마리에 <b>계시</b>를 한 줄 적고 인장을 누른다 (30자 이하 신앙 1, 더 길면 2). 대사제가 뜻을 헤아려 신도들의 일을 정한다.',
-  'ui.rules.flow2': '확인 화면에서 칩을 눌러 일을 빼거나, <b>말을 거둘</b> 수 있다. 대사제(LLM)가 해석했다면 신앙 1로 <b>다시 해석</b>할 수도 있다 (장당 한 번). 남은 신도는 계시의 뜻을 헤아려 한 가지를 더 하고, 나머지는 모자란 것을 채운다.',
+  'ui.rules.flow2': '확인 화면에서 칩을 눌러 일을 빼거나, <b>⇄</b>로 같은 일을 다른 칸으로 옮기거나, <b>말을 거둘</b> 수 있다. 대사제(LLM)가 해석했다면 신앙 1로 <b>다시 해석</b>할 수도 있다 (장당 한 번). 남은 신도는 계시의 뜻을 헤아려 한 가지를 더 하고, 나머지는 모자란 것을 채운다.',
   'ui.rules.flow3': '수락하면 율법파와 동시에 공개되어 채집 → 건설 → 기도 → 탐험 → 선교 → 공격 순으로 풀린다. 같은 칸은 선공이 차지한다.',
   'ui.rules.flow4': '장이 끝나면 식량을 먹고, 신앙 수입이 들어오고, 여유가 있으면 신도가 늘어난다.',
   'ui.rules.win': '이기는 길',

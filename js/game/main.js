@@ -359,6 +359,7 @@ function bindMain() {
     const listM = document.querySelector('.list-modal');
     if (e.key === 'Escape' && listM) { e.preventDefault(); (listM.querySelector('.list-head button') ?? listM.querySelector('button'))?.click(); return; }
     if (e.key === 'Escape' && document.getElementById('chronicle')?.classList.contains('open')) { e.preventDefault(); $('closeChron')?.click(); return; }
+    if (e.key === 'Escape' && targeting?.move) { e.preventDefault(); targeting = null; notice = ''; renderBoardView(); renderAltar(); return; }
     if (e.key === 'Escape' && phase === 'confirm' && document.querySelector('#altar .retract') && !document.querySelector('.choice-modal')) { e.preventDefault(); retract(); return; }
     if (e.key === 'Escape' && $('mainScreen').hidden && phase !== 'thinking' && phase !== 'playing' && !document.querySelector('.choice-modal:not(.list-modal)')) showMain();
   });
@@ -697,6 +698,7 @@ function retract() {
 
 async function accept() {
   lockAltar();
+  targeting = null;
   const { text, result, accepted, auto } = pending;
   tutorial?.hide();
   if (text) {
@@ -1665,7 +1667,31 @@ async function useMiracle(id) {
   }
 }
 
+// 확인 칩 옮기기: 같은 일을 다른 칸에서 한다 (계시의 뜻은 그대로, 칸만 고른다)
+const sameKind = (a, b) => a.type === b.type && a.build === b.build && a.gather === b.gather;
+function moveChoices(key) {
+  const a = pending?.accepted?.find((x) => x.key === key);
+  if (!a || state.tutorial) return [];
+  const taken = new Set(pending.accepted.filter((x) => x.key !== key).map((x) => x.tile));
+  const banned = new Set(pending.result.forbidden.map((x) => x.key));
+  return legalActions(state, 'player').filter((b) => sameKind(a, b) && b.key !== key && !taken.has(b.tile) && !banned.has(b.key));
+}
+function moveChip(id) {
+  const b = moveChoices(targeting.move).find((x) => x.tile === id);
+  const from = targeting.move;
+  targeting = null;
+  notice = '';
+  if (b) {
+    pending.result = { ...pending.result, orders: pending.result.orders.map((x) => (x.key === from ? b : x)) };
+    sfx.lift();
+    derivePending();
+  }
+  renderBoardView();
+  renderAltar();
+}
+
 async function onTileClick(id) {
+  if (targeting?.move && phase === 'confirm') return moveChip(id);
   if (targeting !== 'lightning' || phase !== 'speak') return;
   const r = castMiracle(state, 'lightning', id);
   if (r.ok && !state.tutorial) meta.markSeen('miracles', 'lightning');
@@ -1797,7 +1823,8 @@ function renderBoardView() {
     resolved.playerPlan.forEach((a) => markers.push({ tile: a.tile, side: 'player', dim: a.auto }));
     resolved.enemyPlan.forEach((a) => markers.push({ tile: a.tile, side: 'enemy', incoming: resolved.incomingEnemy }));
   }
-  const selectable = targeting === 'lightning' ? cur.tiles.filter((t) => t.owner === 'enemy' && t.revealed).map((t) => t.id) : [];
+  const selectable = targeting === 'lightning' ? cur.tiles.filter((t) => t.owner === 'enemy' && t.revealed).map((t) => t.id)
+    : targeting?.move && phase === 'confirm' ? moveChoices(targeting.move).map((b) => b.tile) : [];
   const hints = phase === 'speak' && !targeting ? hintTiles : [];
   const intents = ['speak', 'thinking', 'confirm'].includes(phase) && state.round > 0 && !state.winner
     ? enemyIntent(state).filter((a) => a.shown).map((a) => ({ tile: a.tile, type: a.type === 'build' ? 'build' : a.type })) : [];
@@ -2049,7 +2076,7 @@ function renderAltar() {
       for (const k of Object.keys(extra)) prev.after[k] = Math.max(0, prev.after[k] + extra[k]);
     }
     const chips = [
-      ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}" title="${esc(a.text)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${short(a)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}${oddsTag(a)}${firstNote(a)}</span>`),
+      ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}" title="${esc(a.text)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${short(a)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}${oddsTag(a)}${firstNote(a)}${moveChoices(a.key).length ? `<button class="chip-move${targeting?.move === a.key ? ' on' : ''}" type="button" data-move="${esc(a.key)}" title="${t('ui.move.tip')}" aria-label="${t('ui.move.tip')}">⇄</button>` : ''}</span>`),
       ...auto.map((a) => `<span class="order auto${a.heeded ? ' heeded' : ''}" title="${esc(a.heeded ? t('ui.chip.heededTip', { text: a.text }) : a.text)}">${meepleSvg('player')}<span class="t">${short(a)}</span>${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}<span class="why" style="background:rgba(124,89,27,.12)">${a.heeded ? t('ui.chip.heeded') : t('ui.chip.auto')}</span></span>`),
       ...(pending.miracle ? [`<span class="order miracle${pending.dropped.has(pending.miracle.key) ? ' dropped' : ''}" data-key="${pending.miracle.key}" title="${t('ui.chip.toggleTip')}">${svgUse(MIRACLE_ART[pending.miracle.id], 'mi', '0 0 48 48')}<span class="t">${esc(MIRACLES.find((m) => m.id === pending.miracle.id).name)}${pending.miracle.target ? ` → ${esc(tileName(state, state.tileAt[pending.miracle.target]))}` : ''}</span><span class="why">${t('ui.chip.miracle', { n: pending.miracle.cost })}</span></span>`] : []),
       ...[...pending.dropped].map((k) => result.orders.find((a) => a.key === k)).filter(Boolean).map((a) => `<span class="order dropped" data-key="${esc(a.key)}" title="${t('ui.chip.restoreTip')}">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why">${t('ui.chip.dropped')}</span></span>`),
@@ -2208,8 +2235,19 @@ function bindAltar() {
   a.querySelectorAll('.dl-opt').forEach((b) => {
     b.onclick = () => { if (phase !== 'speak') return; state.dilemmaPick = b.dataset.opt; meta.saveGame(state, 'speak'); sfx.click(); a.querySelectorAll('.dl-opt').forEach((x) => x.classList.toggle('on', x === b)); };
   });
-  // 확인 칩을 눌러 그 행동을 빼거나 되살린다 (장당 두 개까지, 빈 자리는 신도들이 알아서)
+  // 확인 칩을 눌러 그 행동을 빼거나 되살린다 (장당 두 개까지, 빈 자리는 신도들이 알아서). ⇄는 같은 일을 다른 칸으로 옮긴다
   if (phase === 'confirm' && pending) {
+    a.querySelectorAll('.chip-move').forEach((b) => {
+      b.onclick = (e) => {
+        e.stopPropagation();
+        if (pending.incoming || a.querySelector('.accept')?.disabled) return;
+        targeting = targeting?.move === b.dataset.move ? null : { move: b.dataset.move };
+        notice = targeting ? t('ui.notice.pickMove') : '';
+        sfx.click();
+        renderBoardView();
+        renderAltar();
+      };
+    });
     a.querySelectorAll('.order[data-key]').forEach((c) => {
       c.onclick = () => {
         // 해석문이 다 나오고 수락 버튼이 켜진 뒤에만
@@ -2302,11 +2340,16 @@ function heardHTML(text) {
   if (!text?.trim()) return '';
   const r = interpretWithTablet(state, text.trim());
   const links = linkWords(state, text, r.orders);
+  // 금한 일·못 한 일도 함께 보인다 (금지만 있는 계시도 알아들은 것이다)
+  const fk = r.forbidden.length ? [...new Set(r.forbidden.map(kindName))] : (r.banned ?? []).map((k) => t('ui.heard.kindWord', { k }));
+  const forbid = fk.length ? ` <span class="heard-no">${t('ui.heard.forbid', { kinds: fk })}</span>` : '';
   if (r.orders.length) {
     const parts = r.orders.map((a) => (links[a.key] ? t('ui.heard.pair', { word: esc(links[a.key]), kind: kindName(a) }) : kindName(a)));
-    return `${t(aiMode === 'llm' ? 'ui.heard.guess' : 'ui.heard.label')} ${parts.join(' · ')}`;
+    const also = r.heard?.length ? ` <span class="heard-no">${t('ui.heard.also', { kinds: r.heard })}</span>` : '';
+    return `${t(aiMode === 'llm' ? 'ui.heard.guess' : 'ui.heard.label')} ${parts.join(' · ')}${also}${forbid}`;
   }
-  if (r.heard?.length) return t('ui.heard.cannot', { kinds: r.heard });
+  if (r.heard?.length) return t('ui.heard.cannot', { kinds: r.heard }) + forbid;
+  if (forbid) return `${t(aiMode === 'llm' ? 'ui.heard.guess' : 'ui.heard.label')}${forbid}`;
   return t('ui.heard.none');
 }
 const kindName = (a) => t('ui.heard.kind', { type: a.type, build: a.build, res: a.gather ? RESOURCE_NAME[a.gather] : '' });

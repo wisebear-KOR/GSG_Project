@@ -281,7 +281,7 @@
         "orders": [],
         "forbidden": [],
         "doctrine": null,
-        "interpretation": "석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — 선교(닿는 율법파 땅이 없다). 나머지는 각자 할 일을 하라."
+        "interpretation": "석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — 채집(닿는 곳에 그 자원이 없다), 선교(닿는 율법파 땅이 없다). 나머지는 각자 할 일을 하라."
       },
       "accepted": [],
       "rejected": [],
@@ -292,7 +292,11 @@
       "ordered": [],
       "log": [
         {"side":"god","text":"“강물처럼 흘러 이웃에게 말씀을 전하라”","ui":true},
-        {"side":"priest","text":"석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — 선교(닿는 율법파 땅이 없다). 나머지는 각자 할 일을 하라.","ui":true},
+        {
+          "side": "priest",
+          "text": "석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — 채집(닿는 곳에 그 자원이 없다), 선교(닿는 율법파 땅이 없다). 나머지는 각자 할 일을 하라.",
+          "ui": true
+        },
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(A2)에서 돌을 3 얻었다.",
@@ -388,12 +392,7 @@
       "revelation": "땅을 넓혀 새 마을을 세워라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:C1:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 평원(C1)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:C1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 평원(C1)에 마을을 세운다!"},
       "accepted": ["build:C1:village"],
       "rejected": [],
       "petitionAnswered": false,
@@ -403,7 +402,7 @@
       "ordered": ["build:C1:village"],
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 평원(C1)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 평원(C1)에 마을을 세운다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 평원(D3)에서 식량을 2 얻었다.",
@@ -610,7 +609,7 @@
         "orders": ["build:C1:wall","build:B1:village"],
         "forbidden": [],
         "doctrine": "war",
-        "interpretation": "석판에 새겨진 말씀이도다. 우리 마을(C1)에 성벽을 쌓는다, 그리고 산(B1)에 마을을 세운다!"
+        "interpretation": "석판이 이르되, 우리 마을(C1)에 성벽을 쌓는다, 그리고 산(B1)에 마을을 세운다!"
       },
       "accepted": ["build:C1:wall","build:B1:village"],
       "rejected": [],
@@ -621,7 +620,7 @@
       "ordered": ["build:C1:wall","build:B1:village"],
       "log": [
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 우리 마을(C1)에 성벽을 쌓는다, 그리고 산(B1)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 우리 마을(C1)에 성벽을 쌓는다, 그리고 산(B1)에 마을을 세운다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(A5)에서 식량을 2 얻었다.",
@@ -741,7 +740,7 @@
       "revelation": "율법파의 마을을 쳐라",
       "cost": 1,
       "tone": "command",
-      "tablet": {"orders":["attack:C2:"],"forbidden":[],"doctrine":"war","interpretation":"석판에 새겨진 말씀이도다. 율법파 마을(C2)을 공격한다!"},
+      "tablet": {"orders":["attack:C2:"],"forbidden":[],"doctrine":"war","interpretation":"석판이 이르되, 율법파 마을(C2)을 공격한다!"},
       "accepted": ["attack:C2:"],
       "rejected": [],
       "petitionAnswered": false,
@@ -752,7 +751,7 @@
       "ordered": ["attack:C2:"],
       "log": [
         {"side":"god","text":"“율법파의 마을을 쳐라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 율법파 마을(C2)을 공격한다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 율법파 마을(C2)을 공격한다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 채석장(A2)에서 돌을 3 얻었다.",
@@ -861,7 +860,7 @@
         "orders": ["gather:C1:food"],
         "forbidden": [],
         "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 우리 마을(C1)에서 곡식을 거둔다!"
+        "interpretation": "석판이 이르되, 우리 마을(C1)에서 곡식을 거둔다!"
       },
       "accepted": ["gather:C1:food"],
       "rejected": [],
@@ -873,7 +872,7 @@
       "ordered": ["gather:C1:food"],
       "log": [
         {"side":"god","text":"“단비를 내려 들판을 적셔라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 우리 마을(C1)에서 곡식을 거둔다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 우리 마을(C1)에서 곡식을 거둔다!","ui":true},
         {"side":"player","text":"🌧️ 단비가 내렸다. 식량 +3.","fx":{"kind":"rain","gain":{"food":3}}},
         {"side":"enemy","text":"율법파는 우리 마을(C1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"C1"}},
         {
@@ -995,7 +994,7 @@
         "orders": ["preach:C2:"],
         "forbidden": [],
         "doctrine": "peace",
-        "interpretation": "석판에 새겨진 말씀이도다. 율법파 마을(C2)의 율법파에게 신의 뜻을 전한다!"
+        "interpretation": "석판이 이르되, 율법파 마을(C2)의 율법파에게 신의 뜻을 전한다!"
       },
       "accepted": ["preach:C2:"],
       "rejected": [],
@@ -1007,7 +1006,7 @@
       "ordered": ["preach:C2:"],
       "log": [
         {"side":"god","text":"“나그네를 받아 품어라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 율법파 마을(C2)의 율법파에게 신의 뜻을 전한다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 율법파 마을(C2)의 율법파에게 신의 뜻을 전한다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(A5)에서 식량을 2 얻었다.",
@@ -1158,7 +1157,7 @@
       "revelation": "언덕에 올라 나를 찬양하라",
       "cost": 1,
       "tone": "command",
-      "tablet": {"orders":["pray:E2:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판에 새겨진 말씀이도다. 신전에서 기도한다!"},
+      "tablet": {"orders":["pray:E2:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판이 이르되, 신전에서 기도한다!"},
       "accepted": ["pray:E2:"],
       "rejected": [],
       "petitionAnswered": false,
@@ -1168,7 +1167,7 @@
       "ordered": ["pray:E2:"],
       "log": [
         {"side":"god","text":"“언덕에 올라 나를 찬양하라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 신전에서 기도한다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 신전에서 기도한다!","ui":true},
         {"side":"enemy","text":"율법파는 우리 마을(C1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"C1"}},
         {
           "side": "player",

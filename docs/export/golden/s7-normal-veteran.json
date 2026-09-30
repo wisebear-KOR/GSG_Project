@@ -299,12 +299,7 @@
       "revelation": "땅을 넓혀 새 마을을 세워라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:E1:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 강(E1)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:E1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 강(E1)에 마을을 세운다!"},
       "accepted": ["build:E1:village"],
       "rejected": [],
       "petitionAnswered": false,
@@ -314,7 +309,7 @@
       "ordered": ["build:E1:village"],
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 강(E1)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 강(E1)에 마을을 세운다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(B4)에서 목재를 2 얻었다.",
@@ -422,7 +417,7 @@
         "orders": ["gather:E1:food"],
         "forbidden": [],
         "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 우리 마을(E1)에서 물고기를 잡는다!"
+        "interpretation": "석판이 이르되, 우리 마을(E1)에서 물고기를 잡는다!"
       },
       "accepted": ["gather:E1:food"],
       "rejected": [],
@@ -434,7 +429,7 @@
       "ordered": ["gather:E1:food"],
       "log": [
         {"side":"god","text":"“강물처럼 흘러 이웃에게 말씀을 전하라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 우리 마을(E1)에서 물고기를 잡는다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 우리 마을(E1)에서 물고기를 잡는다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 우리 마을(E1)에서 식량을 1 얻었다.",
@@ -747,7 +742,7 @@
       "revelation": "언덕에 올라 나를 찬양하라",
       "cost": 1,
       "tone": "command",
-      "tablet": {"orders":["pray:G2:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판에 새겨진 말씀이도다. 신전에서 기도한다!"},
+      "tablet": {"orders":["pray:G2:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판이 이르되, 신전에서 기도한다!"},
       "accepted": ["pray:G2:"],
       "rejected": [],
       "petitionAnswered": false,
@@ -758,7 +753,7 @@
       "ordered": ["pray:G2:"],
       "log": [
         {"side":"god","text":"“언덕에 올라 나를 찬양하라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 신전에서 기도한다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 신전에서 기도한다!","ui":true},
         {"side":"player","text":"신도들은 안개 지대(E4)를 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"E4"}},
         {
           "side": "enemy",
@@ -861,7 +856,7 @@
         "orders": ["gather:E2:food","gather:D1:wood"],
         "forbidden": [],
         "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 오아시스(E2)에서 곡식을 거둔다, 그리고 숲(D1)에서 나무를 벤다!"
+        "interpretation": "석판이 이르되, 오아시스(E2)에서 곡식을 거둔다, 그리고 숲(D1)에서 나무를 벤다!"
       },
       "accepted": ["gather:E2:food","gather:D1:wood"],
       "rejected": [],
@@ -872,7 +867,7 @@
       "ordered": ["gather:E2:food","gather:D1:wood"],
       "log": [
         {"side":"god","text":"“들판의 곡식을 거두고, 숲의 나무를 베어라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 오아시스(E2)에서 곡식을 거둔다, 그리고 숲(D1)에서 나무를 벤다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 오아시스(E2)에서 곡식을 거둔다, 그리고 숲(D1)에서 나무를 벤다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 오아시스(E2)에서 식량을 4 얻었다.",

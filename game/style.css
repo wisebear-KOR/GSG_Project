@@ -896,6 +896,9 @@ body.reduce-motion .site-mark { animation: none; }
 .lg-hint { flex-basis: 100%; font: 600 12.5px var(--font-ui); color: #7a2016; }
 .order .why.first { background: rgba(61, 111, 182, .16); color: #1f3f73; }
 .order .why.first.bad { background: rgba(180, 50, 40, .14); color: #7a2016; }
+.order .chip-move { margin-left: 2px; width: 22px; height: 22px; padding: 0; border-radius: 50%; border: 1px solid rgba(94, 70, 30, .35); background: rgba(255, 250, 238, .7); color: #5c4520; font: 700 12px/1 var(--font-ui); cursor: pointer; flex: none; }
+.order .chip-move:hover, .order .chip-move.on { background: #f4c44a; border-color: #b8862b; color: #3d2a06; }
+@media (pointer: coarse) { .order .chip-move { width: 28px; height: 28px; } }
 
 /* ---------- 2차 웨이브 B ---------- */
 .streak { margin-left: 6px; font-size: 10px; letter-spacing: 1px; color: var(--gold-hi); text-shadow: 0 0 6px rgba(255, 210, 110, .8); }
@@ -1312,6 +1315,7 @@ body.reduce-motion .ui-tip { transition: none; }
 /* 알아들은 말 */
 .heard-line { min-height: 1.3em; margin-top: 2px; font: 12.5px/1.45 var(--font-ui); color: var(--ink-soft); }
 .heard-line b { color: #7a4a05; background: rgba(244, 196, 74, .28); border-radius: 3px; padding: 0 3px; font-weight: 700; }
+.heard-line .heard-no { color: #8a3a2a; white-space: nowrap; }
 /* 율법파의 뜻: 굳음·결집·원정 */
 .law-back.intent .law-notes { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .law-back.intent .law-notes span { font: 600 11px var(--font-ui); padding: 1px 7px; border-radius: 999px; background: rgba(255, 184, 166, .16); color: #ffcfc2; border: 1px solid rgba(255, 184, 166, .3); }

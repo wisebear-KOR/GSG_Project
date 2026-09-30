@@ -188,12 +188,7 @@
       "revelation": "땅을 넓혀 새 마을을 세워라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:E1:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 산(E1)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:E1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 산(E1)에 마을을 세운다!"},
       "accepted": ["build:E1:village"],
       "rejected": [],
       "petitionAnswered": false,
@@ -203,7 +198,7 @@
       "ordered": ["build:E1:village"],
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 산(E1)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 산(E1)에 마을을 세운다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 채석장(E2)에서 돌을 3 얻었다.",
@@ -290,12 +285,7 @@
       "revelation": "숲에 들어가 나무를 베어라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["gather:F2:wood"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 숲(F2)에서 나무를 벤다!"
-      },
+      "tablet": {"orders":["gather:F2:wood"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 숲(F2)에서 나무를 벤다!"},
       "accepted": ["gather:F2:wood"],
       "rejected": [],
       "petitionAnswered": false,
@@ -305,7 +295,7 @@
       "ordered": ["gather:F2:wood"],
       "log": [
         {"side":"god","text":"“숲에 들어가 나무를 베어라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 숲(F2)에서 나무를 벤다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 숲(F2)에서 나무를 벤다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(A4)에서 목재를 2 얻었다.",
@@ -399,12 +389,7 @@
       "revelation": "산에서 돌을 캐어 오라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["gather:E2:stone"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 채석장(E2)에서 돌을 캔다!"
-      },
+      "tablet": {"orders":["gather:E2:stone"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 채석장(E2)에서 돌을 캔다!"},
       "accepted": ["gather:E2:stone"],
       "rejected": [],
       "petitionAnswered": false,
@@ -414,7 +399,7 @@
       "ordered": ["gather:E2:stone"],
       "log": [
         {"side":"god","text":"“산에서 돌을 캐어 오라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 채석장(E2)에서 돌을 캔다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 채석장(E2)에서 돌을 캔다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 채석장(E2)에서 돌을 3 얻었다.",

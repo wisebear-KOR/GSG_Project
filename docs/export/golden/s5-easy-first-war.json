@@ -157,12 +157,7 @@
       "revelation": "땅을 넓혀 새 마을을 세워라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:C1:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 평원(C1)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:C1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 평원(C1)에 마을을 세운다!"},
       "accepted": ["build:C1:village"],
       "rejected": [],
       "petitionAnswered": true,
@@ -172,7 +167,7 @@
       "ordered": ["build:C1:village"],
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 평원(C1)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 평원(C1)에 마을을 세운다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 채석장(C2)에서 돌을 3 얻었다.",
@@ -473,7 +468,7 @@
         "orders": ["build:C1:wall","build:B1:village"],
         "forbidden": [],
         "doctrine": "war",
-        "interpretation": "석판에 새겨진 말씀이도다. 우리 마을(C1)에 성벽을 쌓는다, 그리고 오아시스(B1)에 마을을 세운다!"
+        "interpretation": "석판이 이르되, 우리 마을(C1)에 성벽을 쌓는다, 그리고 오아시스(B1)에 마을을 세운다!"
       },
       "accepted": ["build:C1:wall","build:B1:village"],
       "rejected": [],
@@ -484,7 +479,7 @@
       "ordered": ["build:C1:wall","build:B1:village"],
       "log": [
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 우리 마을(C1)에 성벽을 쌓는다, 그리고 오아시스(B1)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 우리 마을(C1)에 성벽을 쌓는다, 그리고 오아시스(B1)에 마을을 세운다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(A5)에서 목재를 2 얻었다.",
@@ -574,12 +569,7 @@
       "revelation": "땅을 넓혀 새 마을을 세워라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:A1:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 강(A1)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:A1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 강(A1)에 마을을 세운다!"},
       "accepted": ["build:A1:village"],
       "rejected": [],
       "petitionAnswered": false,
@@ -589,7 +579,7 @@
       "ordered": ["build:A1:village"],
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 강(A1)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 강(A1)에 마을을 세운다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 평원(A2)에서 식량을 3 얻었다.",
@@ -893,7 +883,7 @@
         "orders": ["build:A1:wall","build:A2:village"],
         "forbidden": [],
         "doctrine": "war",
-        "interpretation": "석판에 새겨진 말씀이도다. 우리 마을(A1)에 성벽을 쌓는다, 그리고 평원(A2)에 마을을 세운다!"
+        "interpretation": "석판이 이르되, 우리 마을(A1)에 성벽을 쌓는다, 그리고 평원(A2)에 마을을 세운다!"
       },
       "accepted": ["build:A1:wall","build:A2:village"],
       "rejected": [],
@@ -904,7 +894,7 @@
       "ordered": ["build:A1:wall","build:A2:village"],
       "log": [
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 우리 마을(A1)에 성벽을 쌓는다, 그리고 평원(A2)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 우리 마을(A1)에 성벽을 쌓는다, 그리고 평원(A2)에 마을을 세운다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(A5)에서 목재를 2 얻었다.",
@@ -988,12 +978,7 @@
       "revelation": "땅을 넓혀 새 마을을 세워라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:A3:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판에 새겨진 말씀이도다. 강(A3)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:A3:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 강(A3)에 마을을 세운다!"},
       "accepted": ["build:A3:village"],
       "rejected": [],
       "petitionAnswered": false,
@@ -1003,7 +988,7 @@
       "ordered": ["build:A3:village"],
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판에 새겨진 말씀이도다. 강(A3)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 강(A3)에 마을을 세운다!","ui":true},
         {"side":"enemy","text":"율법파는 우리 마을(A2)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"A2"}},
         {"side":"enemy","text":"율법파는 우리 마을(A1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"A1"}},
         {
