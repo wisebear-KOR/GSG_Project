@@ -55,8 +55,7 @@ export const CAPITAL_HP = 2;
 export const MAX_ROUNDS = 12;
 export const MAX_ACTIONS = 6;
 export const REVELATION_MAX = 100;
-// 계시 비용: 30자 이하면 신앙 1, 더 길면 2
-export const revelationCost = (text) => (text.trim().length > 30 ? 2 : 1);
+// 계시 비용은 engine.revelationCostFor (신앙 1 + 금한 낱말 +1 + 되풀이 +1)
 
 // ---------- 규칙 수치 (한곳에서 조정) ----------
 export const RULES = {
@@ -244,7 +243,7 @@ export const BLESSINGS = {
 export const AWE_TITLES = t('data.aweTitles');
 
 // 규칙 판: 규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)
-export const RULESET = 7;
+export const RULESET = 8;
 
 // 시련: 고정된 맵과 한 가지 비틀린 규칙. 별 셋 (승리 / 10점 차 / 20점 차 또는 일찍 끝냄)
 export const TRIALS = {

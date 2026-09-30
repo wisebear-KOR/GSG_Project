@@ -51,7 +51,7 @@ export default {
   'data.tone.metaphor.text': '교리가 한 칸 더 오른다 (3칸 미만일 때)',
   'data.prophecy.fall.name': '율법파의 마을이 무너지리라',
   'data.prophecy.fall.short': '적 마을 함락',
-  'data.prophecy.capital.name': '율법파의 탑이 흔들리리라',
+  'data.prophecy.capital.name': '율법파 수도가 흔들리리라',
   'data.prophecy.capital.short': '적 수도 타격',
   'data.prophecy.pop.name': '신도가 불어나리라',
   'data.prophecy.pop.short': '신도 +2',

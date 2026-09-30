@@ -125,7 +125,7 @@ function spokenMiracle(state, text) {
     const named = Object.entries(state.names).find(([tid, n]) => text.includes(n) && state.tileAt[tid].owner === 'enemy');
     const enemies = state.tiles.filter((x) => x.owner === 'enemy' && x.revealed).sort((a, b) => (a.building === 'village' ? 0 : 1) - (b.building === 'village' ? 0 : 1) || E.distance(a, home) - E.distance(b, home));
     const cap = E.capitalOf(state, 'enemy');
-    const atCap = cap?.revealed && new RegExp(t('kw.place.capital')).test(text) ? cap.id : null;
+    const atCap = cap?.revealed && new RegExp(t('kw.place.capital')).test(text) && !new RegExp(t('kw.place.ours')).test(text) ? cap.id : null;
     target = named?.[0] ?? atCap ?? enemies[0]?.id ?? null;
     if (!target) return null;
   }

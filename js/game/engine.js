@@ -9,7 +9,7 @@ import {
   MIRA, MIRA_TWIST, MONTHS, TRIALS,
 } from './data.js';
 import { generateMap, placeSites, placeFeatures, placeLegacy } from './mapgen.js';
-import { frequentNoun, hashPick, citedWords } from './lore.js';
+import { frequentNoun, hashPick } from './lore.js';
 import { t } from './i18n.js';
 import { josa, batchim } from './i18n/ko/grammar.js';
 
@@ -614,6 +614,8 @@ export function startRound(state) {
   // 선공은 승점이 뒤진 쪽 (같으면 번갈아). 튜토리얼은 늘 우리가 선공 — 배우는 일이 막히지 않게
   state.first = state.tutorial || state.round % 2 === 1 ? 'player' : 'enemy';
   if (!state.tutorial) { const d = score(state, 'player') - score(state, 'enemy'); if (d < 0) state.first = 'player'; else if (d > 0) state.first = 'enemy'; }
+  // 대성당 공사가 시작되면 율법파가 원정한다 — 뒤져도 선공은 율법파 (점수를 일부러 낮춰 선공을 쥐는 대성당 한 줄을 막는다)
+  if (!state.tutorial && (state.sides.player.cathedral ?? 0) >= 1) state.first = 'enemy';
   state.roundMods = {};
   state.dilemmaPick = null;
   if (state.round > 1) state.destinyOffer = null; // 1장에 고르지 않았으면 첫 소명 그대로
@@ -737,10 +739,10 @@ export function chooseEvent(state, id) {
   state.petition = makePetition(state);
 }
 
-// 계시 비용: 기본(30자 이하 1, 넘으면 2) + 봉인된 말을 쓰면 +1
+// 계시 비용: 신앙 1 + 봉인된 말을 쓰면 +1 + 되풀이면 +1 (길이는 보지 않는다 — 말을 아끼게 하는 규칙이 멋진 말을 벌하지 않게)
 export function revelationCostFor(state, text) {
   // 지난 계시를 인용하면 길어도 1 (성구 인용 사슬)
-  const base = text.trim().length > 30 && !citedWords(state, text).length ? 2 : 1;
+  const base = 1;
   return base + (state.bannedWords.some((w) => text.includes(w)) ? 1 : 0) + (isEcho(state, text) ? 1 : 0);
 }
 // 메아리: 지난 계시를 되풀이하면 무뎌진다 (신앙 +1, 교리가 오르지 않는다). 글자가 같거나(띄어쓰기·문장부호는 보지 않는다)
@@ -1159,6 +1161,7 @@ export function hydrateState(obj) {
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
   state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.petitionIgnored ??= 0; state.prophecy ??= null;
   state.lawGuard ??= { preach: 0, attack: 0 }; state.rally ??= false; state.doomUsed ??= false; state.miracleUses ??= {};
+  for (const sd of Object.values(state.sides)) sd.capitalHp = Math.min(sd.capitalHp, CAPITAL_HP);
   state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null;
   state.edictOn ??= false; state.dilemmaPick ??= null; state.winKind ??= null;
   state.silentRun ??= 0; state.legends ??= {}; state.miraDone ??= false; state.pendingDilemma ??= null; state.miraQuote ??= null; state.bloodKills ??= 0;

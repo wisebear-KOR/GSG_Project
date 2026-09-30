@@ -1209,7 +1209,7 @@
         "short": "적 마을 함락"
       },
       "capital": {
-        "name": "율법파의 탑이 흔들리리라",
+        "name": "율법파 수도가 흔들리리라",
         "short": "적 수도 타격"
       },
       "pop": {
@@ -1505,8 +1505,5 @@
       "L2",
       "L8"
     ]
-  },
-  "revelationCost": {
-    "$fn": "(text) => (text.trim().length > 30 ? 2 : 1)"
   }
 }

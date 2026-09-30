@@ -612,7 +612,7 @@ function spokenMiracle(text) {
     const enemies = state.tiles.filter((t) => t.owner === 'enemy' && t.revealed).sort((a, b) => (a.building === 'village' ? 0 : 1) - (b.building === 'village' ? 0 : 1) || distance(a, home) - distance(b, home));
     // "번개로 적의 수도를"이면 율법파 수도를 친다
     const cap = capitalOf(state, 'enemy');
-    const atCap = cap?.revealed && new RegExp(t('kw.place.capital')).test(text) ? cap.id : null;
+    const atCap = cap?.revealed && new RegExp(t('kw.place.capital')).test(text) && !new RegExp(t('kw.place.ours')).test(text) ? cap.id : null;
     target = named?.[0] ?? atCap ?? enemies[0]?.id ?? null;
     if (!target) return null;
   }
@@ -847,7 +847,7 @@ function showEnd(summary, fresh, had) {
     buttons: [
       { label: t('ui.end.psalm'), title: t('ui.end.psalmTip'), cls: 'btn-ghost psalm', keep: true, onClick: () => copyPsalm(summary) },
       { label: t('ui.end.again'), title: t('ui.end.againTip'), cls: 'btn-primary', onClick: restart },
-      { label: t('ui.end.newMap'), title: t('ui.end.newMapTip'), onClick: () => { setup.seed = randomSeed(); saveSetup(); const asc = setup.difficulty === 'hard' ? Math.min(setup.ascension ?? 0, meta.ascensionOpen()) : 0; beginGame({ ...setup, ascension: asc, mode: 'standard', veteran: true, canon: meta.getCanon()[0] ?? null, god: godConfig(), legacy: legacyFor(setup.seed), blessing: asc >= 5 ? null : blessingPick() }); } },
+      { label: t('ui.end.newMap'), title: t('ui.end.newMapTip'), onClick: () => { setup.seed = randomSeed(); saveSetup(); const asc = setup.difficulty === 'hard' ? Math.min(setup.ascension ?? 0, meta.ascensionOpen()) : 0; beginGame({ ...setup, ascension: asc, mode: 'standard', veteran: true, unlock: Math.min(MODULES, meta.getHistory().length), canon: meta.getCanon()[0] ?? null, god: godConfig(), legacy: legacyFor(setup.seed), blessing: asc >= 5 ? null : blessingPick() }); } },
       { label: t('ui.end.main'), onClick: () => showMain() },
       { label: t('ui.viewBoard'), title: t('ui.end.viewBoardTip') },
     ],
@@ -2202,10 +2202,9 @@ function costPill(text) {
   const d = text.trim();
   const cost = d ? revelationCostFor(state, text) : 0;
   const echo = isEcho(state, d);
-  const cite = !echo && d.length > 30 && citedWords(state, text).length > 0;
   const banned = state.bannedWords.some((w) => text.includes(w));
-  const cls = { over: cost > state.sides.player.faith, echo, cite, banned };
-  const label = echo ? t('ui.faithCostEcho', { n: cost }) : cite ? t('ui.faithCostCited', { n: cost }) : t('ui.faithCost', { n: cost });
+  const cls = { over: cost > state.sides.player.faith, echo, banned };
+  const label = echo ? t('ui.faithCostEcho', { n: cost }) : t('ui.faithCost', { n: cost });
   return { cost, cls, label, title: echo ? t('ui.echo.tip') : '' };
 }
 

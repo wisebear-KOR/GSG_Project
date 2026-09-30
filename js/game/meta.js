@@ -103,7 +103,7 @@ export function importAll(obj) {
 }
 
 // ---------- 시드별 개인 최고 기록 (승리한 판의 승점) ----------
-export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}${c.ascension ? `-a${c.ascension}` : ''}-r${RULESET}`;
+export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}${c.ascension ? `-a${c.ascension}` : ''}${c.unlock != null && c.unlock < 4 ? `-u${c.unlock}` : ''}-r${RULESET}`;
 export const getBest = (c) => get('gsg.best', {})[bestKey(c)] ?? null;
 export function setBest(c, score) {
   const all = get('gsg.best', {});
