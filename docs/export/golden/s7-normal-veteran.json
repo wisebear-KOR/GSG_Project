@@ -229,7 +229,7 @@
           "fx": {"kind":"gain","tile":"A7","gain":{"food":2}},
           "act": "gather:A7:food"
         },
-        {"side":"enemy","text":"율법파가 안개 지대(B4)를 세웠다.","fx":{"kind":"build","tile":"B4"},"act":"build:B4:village"},
+        {"side":"enemy","text":"율법파가 안개 속(B4)에 마을을 세웠다.","fx":{"kind":"build","tile":"B4"},"act":"build:B4:village"},
         {
           "side": "enemy",
           "text": "율법파는 자원이 모자라 안개 지대(C5)에 짓지 못했다.",
@@ -356,7 +356,6 @@
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"player","text":"역병으로 우리 부족 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"enemy","text":"역병으로 율법파 1명을 잃었다.","fx":{"kind":"loss"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"leader","text":"설교자 아모스: “'넓혀'… 그 말을 돌판에 새길 수 있겠느냐?”","ui":true}
       ],
       "digest": {
@@ -364,7 +363,7 @@
           "food": 4,
           "wood": 2,
           "stone": 4,
-          "faith": 5,
+          "faith": 6,
           "pop": 3,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -475,7 +474,7 @@
           "food": 2,
           "wood": 6,
           "stone": 8,
-          "faith": 6,
+          "faith": 7,
           "pop": 3,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -567,14 +566,14 @@
           "fx": {"kind":"gain","tile":"G2","gain":{"faith":4}},
           "act": "pray:G2:"
         },
-        {"side":"leader","text":"설교자 아모스: “너의 사랑은 조건이 붙어 있지.”","ui":true}
+        {"side":"leader","text":"설교자 아모스: “'그 말'이라… 그 말, 우리 율법에도 있다.”","ui":true}
       ],
       "digest": {
         "player": {
           "food": 2,
           "wood": 6,
           "stone": 8,
-          "faith": 11,
+          "faith": 12,
           "pop": 3,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -638,8 +637,8 @@
       "log": [
         {"side":"god","text":"“안개 너머를 탐험하라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 안개 지대(D2) 속을 탐험한다!","ui":true},
-        {"side":"enemy","text":"율법파가 안개 지대(C4)를 세웠다.","fx":{"kind":"build","tile":"C4"},"act":"build:C4:village"},
-        {"side":"enemy","text":"율법파가 안개 지대(D4)를 세웠다.","fx":{"kind":"build","tile":"D4"},"act":"build:D4:village"},
+        {"side":"enemy","text":"율법파가 안개 속(C4)에 마을을 세웠다.","fx":{"kind":"build","tile":"C4"},"act":"build:C4:village"},
+        {"side":"enemy","text":"율법파가 안개 속(D4)에 마을을 세웠다.","fx":{"kind":"build","tile":"D4"},"act":"build:D4:village"},
         {
           "side": "enemy",
           "text": "율법파는 자원이 모자라 안개 지대(B3)에 짓지 못했다.",
@@ -662,7 +661,6 @@
         {"side":"player","text":"숲(C2)을 탐험했다. 안개가 걷혔다.","fx":{"kind":"explore","tile":"C2"},"act":"explore:C2:"},
         {"side":"player","text":"율법 심문관 — 쫓아낸다. 신앙 +1, 다음 장 율법파가 칼을 든다.","fx":{"kind":"dilemma","tile":"G2"}},
         {"side":"player","text":"신의 분노가 차오른다 (1/3) — 기적이 1만큼 싸진다.","fx":{"kind":"wrath","tile":"G2"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"player","text":"풍요의 서약이 흔들린다 (풍요 -1).","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"설교자 아모스: “'안개'… 그 말을 돌판에 새길 수 있겠느냐?”","ui":true}
       ],
@@ -671,7 +669,7 @@
           "food": 2,
           "wood": 6,
           "stone": 8,
-          "faith": 14,
+          "faith": 16,
           "pop": 3,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -778,7 +776,7 @@
           "food": 1,
           "wood": 6,
           "stone": 13,
-          "faith": 21,
+          "faith": 23,
           "pop": 3,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -915,7 +913,7 @@
           "food": 2,
           "wood": 8,
           "stone": 13,
-          "faith": 23,
+          "faith": 25,
           "pop": 4,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1016,7 +1014,7 @@
           "food": 2,
           "wood": 6,
           "stone": 13,
-          "faith": 24,
+          "faith": 26,
           "pop": 4,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1169,7 +1167,6 @@
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"leader","text":"설교자 아모스: “너의 사랑은 조건이 붙어 있지.”","ui":true}
       ],
       "digest": {
@@ -1177,7 +1174,7 @@
           "food": 2,
           "wood": 8,
           "stone": 13,
-          "faith": 26,
+          "faith": 29,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1324,7 +1321,7 @@
           "food": 3,
           "wood": 8,
           "stone": 13,
-          "faith": 29,
+          "faith": 32,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1476,7 +1473,6 @@
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파가 검열을 선포했다. 다음 장에는 '이웃'이라는 말을 쓰지 못한다.","fx":{"kind":"ban"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"leader","text":"설교자 아모스: “'신전'… 그 말을 돌판에 새길 수 있겠느냐?”","ui":true}
       ],
       "digest": {
@@ -1484,7 +1480,7 @@
           "food": 2,
           "wood": 8,
           "stone": 13,
-          "faith": 30,
+          "faith": 34,
           "pop": 5,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1626,7 +1622,7 @@
           "food": 1,
           "wood": 8,
           "stone": 17,
-          "faith": 32,
+          "faith": 36,
           "pop": 5,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1770,7 +1766,6 @@
         {"side":"player","text":"역병으로 우리 부족 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"역병으로 율법파 1명을 잃었다.","fx":{"kind":"loss"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"leader","text":"설교자 아모스: “'성벽'을 외치는 신이라니, 신도들이 두려워하겠구나.”","ui":true}
       ],
       "digest": {
@@ -1778,7 +1773,7 @@
           "food": 0,
           "wood": 6,
           "stone": 17,
-          "faith": 33,
+          "faith": 38,
           "pop": 3,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1933,7 +1928,7 @@
           "food": 1,
           "wood": 6,
           "stone": 19,
-          "faith": 37,
+          "faith": 42,
           "pop": 3,
           "templeLevel": 2,
           "capitalHp": 2,

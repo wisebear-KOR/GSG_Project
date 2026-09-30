@@ -1,6 +1,6 @@
 {
   "generator": "tools/golden.mjs",
-  "ruleset": 10,
+  "ruleset": 11,
   "lang": "ko",
   "games": [
     {
@@ -49,7 +49,7 @@
       "rounds": 12,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":38,"enemy":42}
+      "score": {"player":39,"enemy":42}
     },
     {
       "file": "s7-hard-first.json",

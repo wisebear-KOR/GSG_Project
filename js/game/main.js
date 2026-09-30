@@ -488,6 +488,9 @@ async function newRound() {
   const hasAct = !state.tutorial && !last && (state.round === 1 || !!actStart(state));
   const act = hasAct ? ACTS[actOf(state) - 1].name : null;
   fx.chapter(frameEl(), t('ui.chapter.title', { n: state.round, month: state.tutorial ? null : monthOf(state) }), t('ui.chapter.sub', { first: state.round === 1, hasFest, fest, last, hasAct, act, event: state.event.name, judge }));
+  // 율법파가 되풀이를 읽고 대비했으면 장이 열릴 때 보인다 (장 시작에 적힌 로그라 해결 재생에 들지 않는다)
+  const brace = state.log.find((l) => l.round === state.round && l.fx?.kind === 'guard');
+  if (brace) setTimeout(() => playFx(brace), fx.motion.reduced ? 300 : 2300);
   if (state.event.id === 'mira') setTimeout(() => leaderSay(t('ui.miraSay', { quote: state.miraQuote })), fx.motion.reduced ? 300 : 2500);
   if (actStart(state) && unlocked(state, 3) && ACTS[actOf(state) - 1].text) setTimeout(() => leaderSay(ACTS[actOf(state) - 1].text), fx.motion.reduced ? 300 : 2600);
   if (state.round === 1 && state.destinyOffer) setTimeout(showDestinyChoice, fx.motion.reduced ? 400 : 2600);
@@ -770,12 +773,7 @@ async function accept() {
 function wordsAfter(pd) {
   const pt = state.petition;
   if (pt?.need) {
-    if (pd.answered) { state.stats.petitions += 1; state.petitionIgnored = 0; grantGrace(state, 1, t('ui.grace.petition', { from: pt.from })); }
-    else if (!state.tutorial && ++state.petitionIgnored >= 2) {
-      state.petitionIgnored = 0;
-      state.sides.player.faith = Math.max(0, state.sides.player.faith - 1);
-      state.log.push({ round: state.round, side: 'player', text: t('ui.log.petitionIgnored'), fx: { kind: 'warn' }, snap: snapshot(state) });
-    }
+    if (pd.answered) { state.stats.petitions += 1; grantGrace(state, 1, t('ui.grace.petition', { from: pt.from })); }
   }
   if (pd.naming) grantGrace(state, 1, t('ui.grace.naming', { place: TERRAIN_NAME(pd.naming.tile), name: pd.naming.name }));
 }

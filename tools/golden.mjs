@@ -182,12 +182,7 @@ function speak(state, entry, rec) {
 function wordsAfter(state, pd) {
   const pt = state.petition;
   if (pt?.need) {
-    if (pd.answered) { state.stats.petitions += 1; state.petitionIgnored = 0; E.grantGrace(state, 1, t('ui.grace.petition', { from: pt.from })); }
-    else if (!state.tutorial && ++state.petitionIgnored >= 2) {
-      state.petitionIgnored = 0;
-      state.sides.player.faith = Math.max(0, state.sides.player.faith - 1);
-      uiLog(state, { round: state.round, side: 'player', text: t('ui.log.petitionIgnored'), fx: { kind: 'warn' }, snap: E.snapshot(state) });
-    }
+    if (pd.answered) { state.stats.petitions += 1; E.grantGrace(state, 1, t('ui.grace.petition', { from: pt.from })); }
   }
   if (pd.naming) {
     const tl = state.tileAt[pd.naming.tile];

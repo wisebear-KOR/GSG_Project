@@ -219,7 +219,7 @@
         },
         {"side":"player","text":"신도들이 우리 마을(E1)을 세웠다.","fx":{"kind":"build","tile":"E1"},"act":"build:E1:village"},
         {"side":"enemy","text":"율법파의 신전이 2단계로 높아졌다.","fx":{"kind":"build","tile":"A6"},"act":"build:A6:temple"},
-        {"side":"enemy","text":"율법파가 안개 지대(B4)를 세웠다.","fx":{"kind":"build","tile":"B4"},"act":"build:B4:village"},
+        {"side":"enemy","text":"율법파가 안개 속(B4)에 마을을 세웠다.","fx":{"kind":"build","tile":"B4"},"act":"build:B4:village"},
         {
           "side": "enemy",
           "text": "율법파는 자원이 모자라 안개 지대(C5)에 짓지 못했다.",
@@ -333,7 +333,6 @@
           "act": "gather:B7:stone"
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"leader","text":"건축가 네훔: “'들어'? 우리 곳간이 더 크다.”","ui":true}
       ],
       "digest": {
@@ -341,7 +340,7 @@
           "food": 2,
           "wood": 6,
           "stone": 3,
-          "faith": 5,
+          "faith": 6,
           "pop": 3,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -456,7 +455,7 @@
           "food": 7,
           "wood": 6,
           "stone": 8,
-          "faith": 6,
+          "faith": 7,
           "pop": 4,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -542,7 +541,7 @@
         {"side":"player","text":"신도들이 우리 마을(D1)을 세웠다.","fx":{"kind":"build","tile":"D1"},"act":"build:D1:village"},
         {"side":"player","text":"신도들이 우리 수도(G2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"G2"},"act":"build:G2:wall"},
         {"side":"enemy","text":"율법파가 안개 지대(B4)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"B4"},"act":"build:B4:wall"},
-        {"side":"enemy","text":"율법파가 안개 지대(C4)를 세웠다.","fx":{"kind":"build","tile":"C4"},"act":"build:C4:village"},
+        {"side":"enemy","text":"율법파가 안개 속(C4)에 마을을 세웠다.","fx":{"kind":"build","tile":"C4"},"act":"build:C4:village"},
         {
           "side": "enemy",
           "text": "율법파가 기도해 신앙을 2 얻었다.",
@@ -557,7 +556,7 @@
           "food": 4,
           "wood": 6,
           "stone": 4,
-          "faith": 7,
+          "faith": 8,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -651,8 +650,8 @@
           "fx": {"kind":"gain","tile":"A4","gain":{"wood":2}},
           "act": "gather:A4:wood"
         },
-        {"side":"enemy","text":"율법파가 안개 지대(D3)를 세웠다.","fx":{"kind":"build","tile":"D3"},"act":"build:D3:village"},
-        {"side":"enemy","text":"율법파가 안개 지대(D4)를 세웠다.","fx":{"kind":"build","tile":"D4"},"act":"build:D4:village"},
+        {"side":"enemy","text":"율법파가 안개 속(D3)에 마을을 세웠다.","fx":{"kind":"build","tile":"D3"},"act":"build:D3:village"},
+        {"side":"enemy","text":"율법파가 안개 속(D4)에 마을을 세웠다.","fx":{"kind":"build","tile":"D4"},"act":"build:D4:village"},
         {
           "side": "enemy",
           "text": "율법파는 자원이 모자라 안개 지대(C3)에 짓지 못했다.",
@@ -667,7 +666,6 @@
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"player","text":"신의 분노가 차오른다 (1/3) — 기적이 1만큼 싸진다.","fx":{"kind":"wrath","tile":"G2"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"leader","text":"건축가 네훔: “'율법파'라… 그 말로 벽 하나라도 쌓겠느냐.”","ui":true}
       ],
       "digest": {
@@ -675,7 +673,7 @@
           "food": 6,
           "wood": 8,
           "stone": 6,
-          "faith": 8,
+          "faith": 10,
           "pop": 6,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -802,7 +800,7 @@
           "food": 10,
           "wood": 10,
           "stone": 8,
-          "faith": 9,
+          "faith": 11,
           "pop": 7,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -928,7 +926,7 @@
           "food": 10,
           "wood": 10,
           "stone": 8,
-          "faith": 11,
+          "faith": 13,
           "pop": 7,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1055,12 +1053,7 @@
           "fx": {"kind":"attack","tile":"E3"},
           "act": "attack:E3:"
         },
-        {
-          "side": "player",
-          "text": "농부 엘리가 성인으로 추앙받는다 — 수호자 성인 (수도 방어 +1).",
-          "fx": {"kind":"saint","tile":"G2"},
-          "act": "attack:G2:"
-        },
+        {"side":"player","text":"농부 엘리가 성인으로 추앙받는다 — 수호자 성인.","fx":{"kind":"saint","tile":"G2"},"act":"attack:G2:"},
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 수도(G2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
@@ -1079,7 +1072,7 @@
           "food": 10,
           "wood": 12,
           "stone": 10,
-          "faith": 12,
+          "faith": 14,
           "pop": 7,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1208,7 +1201,7 @@
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 수도(G2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":2,"attackerBonus":0,"defender":5,"defenderBonus":4,"win":false},
+          "dice": {"attacker":2,"attackerBonus":0,"defender":5,"defenderBonus":3,"win":false},
           "fx": {"kind":"attack","tile":"G2"},
           "act": "attack:G2:"
         },
@@ -1225,7 +1218,7 @@
           "food": 11,
           "wood": 10,
           "stone": 10,
-          "faith": 18,
+          "faith": 20,
           "pop": 7,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1355,14 +1348,13 @@
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 수도(G2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":1,"attackerBonus":0,"defender":2,"defenderBonus":4,"win":false},
+          "dice": {"attacker":1,"attackerBonus":0,"defender":2,"defenderBonus":3,"win":false},
           "fx": {"kind":"attack","tile":"G2"},
           "act": "attack:G2:"
         },
         {"side":"player","text":"역병으로 우리 부족 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"역병으로 율법파 1명을 잃었다.","fx":{"kind":"loss"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"leader","text":"건축가 네훔: “'들판'? 우리 곳간이 더 크다.”","ui":true}
       ],
       "digest": {
@@ -1370,7 +1362,7 @@
           "food": 15,
           "wood": 14,
           "stone": 12,
-          "faith": 20,
+          "faith": 23,
           "pop": 6,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1530,7 +1522,7 @@
           "food": 16,
           "wood": 16,
           "stone": 16,
-          "faith": 22,
+          "faith": 25,
           "pop": 6,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1670,7 +1662,6 @@
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"leader","text":"건축가 네훔: “'넓혀'? 우리 곳간이 더 크다.”","ui":true}
       ],
       "digest": {
@@ -1678,7 +1669,7 @@
           "food": 20,
           "wood": 16,
           "stone": 18,
-          "faith": 24,
+          "faith": 28,
           "pop": 7,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1821,7 +1812,7 @@
           "food": 20,
           "wood": 18,
           "stone": 20,
-          "faith": 29,
+          "faith": 33,
           "pop": 8,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1983,7 +1974,7 @@
           "food": 22,
           "wood": 22,
           "stone": 22,
-          "faith": 33,
+          "faith": 37,
           "pop": 9,
           "templeLevel": 2,
           "capitalHp": 2,

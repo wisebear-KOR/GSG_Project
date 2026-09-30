@@ -270,7 +270,6 @@
           "act": "attack:C2:"
         },
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"leader","text":"철의 대제사장 바락: “'신전'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
       ],
       "digest": {
@@ -278,7 +277,7 @@
           "food": 3,
           "wood": 2,
           "stone": 3,
-          "faith": 8,
+          "faith": 9,
           "pop": 3,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -391,12 +390,7 @@
           "fx": {"kind":"attack","tile":"C2","capture":true},
           "act": "attack:C2:"
         },
-        {
-          "side": "player",
-          "text": "석공 브엘이 성인으로 추앙받는다 — 수호자 성인 (수도 방어 +1).",
-          "fx": {"kind":"saint","tile":"D2"},
-          "act": "attack:D2:"
-        },
+        {"side":"player","text":"석공 브엘이 성인으로 추앙받는다 — 수호자 성인.","fx":{"kind":"saint","tile":"D2"},"act":"attack:D2:"},
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 수도(D2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
@@ -409,14 +403,14 @@
         {"side":"player","text":"우리 부족의 마지막 신도가 쓰러졌다 — 수도가 흔들리고(내구도 1) 한 명이 수도로 돌아온다.","fx":{"kind":"loss","tile":"D2"}},
         {"side":"player","text":"신의 분노가 차오른다 (1/3) — 기적이 1만큼 싸진다.","fx":{"kind":"wrath","tile":"D2"}},
         {"side":"player","text":"은총 — 어부 도랑의 청원에 응답했다. 신앙 +1.","fx":{"kind":"grace","tile":"D2","gain":{"faith":1}}},
-        {"side":"leader","text":"철의 대제사장 바락: “'율법파'? 좋다, 칼로 답해 주마.”","ui":true}
+        {"side":"leader","text":"철의 대제사장 바락: “싸움을 원하는구나. 우리가 먼저 간다.”","ui":true}
       ],
       "digest": {
         "player": {
           "food": 2,
           "wood": 4,
           "stone": 3,
-          "faith": 10,
+          "faith": 11,
           "pop": 1,
           "templeLevel": 2,
           "capitalHp": 1,
@@ -497,7 +491,7 @@
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 수도(D2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":6,"attackerBonus":0,"defender":3,"defenderBonus":4,"win":false},
+          "dice": {"attacker":6,"attackerBonus":0,"defender":3,"defenderBonus":3,"win":false},
           "fx": {"kind":"attack","tile":"D2"},
           "act": "attack:D2:"
         },
@@ -512,7 +506,7 @@
           "food": 1,
           "wood": 4,
           "stone": 1,
-          "faith": 12,
+          "faith": 13,
           "pop": 2,
           "templeLevel": 2,
           "capitalHp": 1,
@@ -611,7 +605,7 @@
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 수도(D2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":1,"attackerBonus":0,"defender":1,"defenderBonus":4,"win":false},
+          "dice": {"attacker":1,"attackerBonus":0,"defender":1,"defenderBonus":3,"win":false},
           "fx": {"kind":"attack","tile":"D2"},
           "act": "attack:D2:"
         },
@@ -621,14 +615,14 @@
         {"side":"player","text":"신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다 (판에 한 번).","fx":{"kind":"wrath","tile":"D2"}},
         {"side":"player","text":"이 땅은 이제 「분노의 마을」이라 불린다 — “율법파의 마을을 쳐라”.","fx":{"kind":"legend","tile":"D1"}},
         {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
-        {"side":"leader","text":"철의 대제사장 바락: “'율법파'? 좋다, 칼로 답해 주마.”","ui":true}
+        {"side":"leader","text":"철의 대제사장 바락: “싸움을 원하는구나. 우리가 먼저 간다.”","ui":true}
       ],
       "digest": {
         "player": {
           "food": 1,
           "wood": 4,
           "stone": 1,
-          "faith": 12,
+          "faith": 13,
           "pop": 1,
           "templeLevel": 2,
           "capitalHp": 1,
@@ -720,12 +714,11 @@
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 수도(D2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":2,"attackerBonus":1,"defender":4,"defenderBonus":4,"win":false},
+          "dice": {"attacker":2,"attackerBonus":1,"defender":4,"defenderBonus":3,"win":false},
           "fx": {"kind":"attack","tile":"D2"},
           "act": "attack:D2:"
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"player","text":"지혜의 서약이 흔들린다 (지혜 -1).","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"철의 대제사장 바락: “'넓혀'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
       ],
@@ -734,7 +727,7 @@
           "food": 1,
           "wood": 2,
           "stone": 1,
-          "faith": 12,
+          "faith": 14,
           "pop": 2,
           "templeLevel": 2,
           "capitalHp": 1,
@@ -863,7 +856,7 @@
           "food": 1,
           "wood": 2,
           "stone": 1,
-          "faith": 7,
+          "faith": 9,
           "pop": 0,
           "templeLevel": 2,
           "capitalHp": 0,

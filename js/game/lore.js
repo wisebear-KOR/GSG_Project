@@ -97,7 +97,11 @@ export function leaderLine(state, kind, ctx = {}) {
   let pool = leader.lines[kind];
   if (kind === 'card') pool = leader.lines.card[ctx.card?.id] ?? leader.lines.card.any;
   if (kind === 'rebuttal') pool = leader.lines.rebuttal[ctx.doctrine] ?? leader.lines.rebuttal.any;
-  const line = hashPick(pool, state.config.seed, state.round, kind, ctx.card?.id ?? '', ctx.word ?? '');
+  let line = hashPick(pool, state.config.seed, state.round, kind, ctx.card?.id ?? '', ctx.word ?? '');
+  if (kind === 'rebuttal' && pool?.length > 1) {
+    const n = state.revelations.filter((r) => (r.doctrine ?? null) === (ctx.doctrine ?? null)).length;
+    line = pool[(pool.indexOf(hashPick(pool, state.config.seed, 'rebuttal', ctx.doctrine ?? '')) + n) % pool.length];
+  }
   if (!line) return '';
   return t('interp.leaderLine', { line, word: ctx.word });
 }

@@ -419,7 +419,7 @@ const CASES = [
   ['빵과 포도주를 준비하라', ['gather:food'], []],
   ['목재를 확보해', ['gather:wood'], []],
   ['석재 좀 모아', ['gather:stone'], []],
-  // 포위 = 율법파 수도 곁에 우리 땅을 두는 것 (포위 보너스). 치라는 말이 있으면 공격
+  // 포위 = 율법파 수도 곁에 우리 땅을 두는 것. 치라는 말이 있으면 공격
   ['적의 성을 포위하라', ['build:village'], []],
   ['적의 성을 포위해 공격하라', ['attack'], []],
   ['전도해라', ['preach'], []],
@@ -1224,6 +1224,18 @@ const CASES = [
   ['신젼을 지어라', ['build:temple'], []],
   ['저 마을 먹자', [], ['gather:food']],
   ['땅을 차지하라', ['build:village'], []],
+  // 7차 평가자 문장: 감정·한정의 부정, 목적어에 따라 뜻이 바뀌는 동사, 구어, 필요의 말
+  ['내 백성아, 굶주리지 마라', ['gather:food'], []],
+  ['장작을 패라', ['gather:wood'], ['attack']],
+  ['나무는 베되 숲을 모두 없애지는 마라', ['gather:wood'], []],
+  ['너희 칼을 녹여 낫을 만들라', ['gather:food'], ['attack']],
+  ['나는 전쟁을 원치 않는다. 다만 이웃에게 나의 사랑을 보여라', [], ['attack']],
+  ['돌이 필요해', ['gather:stone'], []],
+  ['마울을 지으라', ['build:village'], []],
+  ['탐헙하라', ['explore'], []],
+  ['너희 성문을 굳게 닫으라', ['build:wall'], []],
+  ['바위를 깨뜨려 성벽을 쌓으라', ['build:wall'], ['attack']],
+  ['율법파가 너무 강해', ['build:wall'], []],
 ];
 
 const kindOf = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);

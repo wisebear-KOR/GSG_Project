@@ -136,7 +136,7 @@ export default {
 
   // ================= 진행 기록 =================
   // 성인
-  'log.saint': (v) => `${v.name}${ga(v.name)} 성인으로 추앙받는다 — ${v.kind === 'preacher' ? '설교자 성인 (선교 +1)' : '수호자 성인 (수도 방어 +1)'}.`,
+  'log.saint': (v) => `${v.name}${ga(v.name)} 성인으로 추앙받는다 — ${v.kind === 'preacher' ? '설교자 성인' : '수호자 성인'}.`,
   'log.saintFallen': (v) => `성인 ${v.name}${ga(v.name)} 쓰러져 순교했다.`,
 
   // 은총·예언
@@ -204,6 +204,7 @@ export default {
   'log.buildNoRes': (v) => `${topic(v.who)} 자원이 모자라 ${v.place}에 짓지 못했다.`,
   'log.villageTaken': (v) => `${josa(v.place, '은', '는')} 이미 주인이 있어 마을을 세우지 못했다.`,
   'log.village': (v) => `${subj(v.who)} ${josa(v.place, '을', '를')} 세웠다.`,
+  'log.villageFog': (v) => `${subj(v.who)} 안개 속(${v.id})에 마을을 세웠다.`,
   'log.wall': (v) => `${subj(v.who)} ${v.place}에 성벽을 쌓았다.`,
   'log.temple': (v) => `${poss(v.who)} 신전이 ${v.level}단계로 높아졌다.`,
   'log.cathedralDone': (v) => `${subj(v.who)} 대성당의 첨탑을 올려 완공했다!`,

@@ -210,7 +210,7 @@
           "fx": {"kind":"gain","tile":"E1","gain":{"stone":3}},
           "act": "gather:E1:stone"
         },
-        {"side":"enemy","text":"율법파가 안개 지대(C4)를 세웠다.","fx":{"kind":"build","tile":"C4"},"act":"build:C4:village"},
+        {"side":"enemy","text":"율법파가 안개 속(C4)에 마을을 세웠다.","fx":{"kind":"build","tile":"C4"},"act":"build:C4:village"},
         {
           "side": "enemy",
           "text": "율법파는 자원이 모자라 안개 지대(B3)에 짓지 못했다.",
@@ -574,7 +574,7 @@
           "act": "gather:E1:stone"
         },
         {"side":"enemy","text":"율법파가 율법파 마을(D3)을 세웠다.","fx":{"kind":"build","tile":"D3"},"act":"build:D3:village"},
-        {"side":"enemy","text":"율법파가 안개 지대(C3)를 세웠다.","fx":{"kind":"build","tile":"C3"},"act":"build:C3:village"},
+        {"side":"enemy","text":"율법파가 안개 속(C3)에 마을을 세웠다.","fx":{"kind":"build","tile":"C3"},"act":"build:C3:village"},
         {
           "side": "enemy",
           "text": "율법파는 자원이 모자라 안개 지대(D4)에 짓지 못했다.",
@@ -591,7 +591,6 @@
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"역병으로 율법파 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"player","text":"신의 분노가 차오른다 (1/3) — 기적이 1만큼 싸진다.","fx":{"kind":"wrath","tile":"F2"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"철의 대제사장 바락: “'나무'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
       ],
@@ -600,7 +599,7 @@
           "food": 7,
           "wood": 12,
           "stone": 12,
-          "faith": 9,
+          "faith": 10,
           "pop": 4,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -742,7 +741,7 @@
           "food": 7,
           "wood": 16,
           "stone": 17,
-          "faith": 11,
+          "faith": 12,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -867,14 +866,14 @@
           "fx": {"kind":"prophecy","tile":"F2","gain":{"faith":3}}
         },
         {"side":"player","text":"신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다 (판에 한 번).","fx":{"kind":"wrath","tile":"F2"}},
-        {"side":"leader","text":"철의 대제사장 바락: “평화는 이긴 자가 정한다.”","ui":true}
+        {"side":"leader","text":"철의 대제사장 바락: “'이웃'이라니, 약한 자의 기도다.”","ui":true}
       ],
       "digest": {
         "player": {
           "food": 6,
           "wood": 18,
           "stone": 20,
-          "faith": 18,
+          "faith": 19,
           "pop": 6,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -988,16 +987,15 @@
           "act": "preach:D3:"
         },
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
-        {"side":"leader","text":"철의 대제사장 바락: “'이웃'이라니, 약한 자의 기도다.”","ui":true}
+        {"side":"leader","text":"철의 대제사장 바락: “평화는 이긴 자가 정한다.”","ui":true}
       ],
       "digest": {
         "player": {
           "food": 6,
           "wood": 20,
           "stone": 23,
-          "faith": 18,
+          "faith": 20,
           "pop": 6,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1115,12 +1113,7 @@
           "fx": {"kind":"preach","tile":"D3"},
           "act": "preach:D3:"
         },
-        {
-          "side": "player",
-          "text": "늙은 사관 갈렙이 성인으로 추앙받는다 — 수호자 성인 (수도 방어 +1).",
-          "fx": {"kind":"saint","tile":"F2"},
-          "act": "attack:F2:"
-        },
+        {"side":"player","text":"늙은 사관 갈렙이 성인으로 추앙받는다 — 수호자 성인.","fx":{"kind":"saint","tile":"F2"},"act":"attack:F2:"},
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 수도(F2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
@@ -1131,14 +1124,14 @@
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파가 검열을 선포했다. 다음 장에는 '나무'라는 말을 쓰지 못한다.","fx":{"kind":"ban"}},
         {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
-        {"side":"leader","text":"철의 대제사장 바락: “평화는 이긴 자가 정한다.”","ui":true}
+        {"side":"leader","text":"철의 대제사장 바락: “'이웃'이라니, 약한 자의 기도다.”","ui":true}
       ],
       "digest": {
         "player": {
           "food": 6,
           "wood": 22,
           "stone": 26,
-          "faith": 19,
+          "faith": 21,
           "pop": 6,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1246,11 +1239,10 @@
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 수도(F2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":1,"attackerBonus":0,"defender":1,"defenderBonus":2,"win":false},
+          "dice": {"attacker":1,"attackerBonus":0,"defender":1,"defenderBonus":1,"win":false},
           "fx": {"kind":"attack","tile":"F2"},
           "act": "attack:F2:"
         },
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"player","text":"풍요의 서약이 흔들린다 (풍요 -1).","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"철의 대제사장 바락: “'그 말'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
       ],
@@ -1259,7 +1251,7 @@
           "food": 5,
           "wood": 24,
           "stone": 29,
-          "faith": 22,
+          "faith": 25,
           "pop": 6,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1403,7 +1395,7 @@
           "food": 4,
           "wood": 24,
           "stone": 30,
-          "faith": 27,
+          "faith": 30,
           "pop": 6,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1544,7 +1536,6 @@
           "act": "pray:A5:"
         },
         {"side":"player","text":"떠돌이 상인 — 곡식을 내준다. 식량 -3, 돌 +2, 목재 +2.","fx":{"kind":"dilemma","tile":"F2"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"player","text":"지혜의 서약이 흔들린다 (지혜 -1).","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"철의 대제사장 바락: “'캐어'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
       ],
@@ -1553,7 +1544,7 @@
           "food": 4,
           "wood": 28,
           "stone": 37,
-          "faith": 29,
+          "faith": 33,
           "pop": 6,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1681,7 +1672,7 @@
           "food": 9,
           "wood": 27,
           "stone": 36,
-          "faith": 32,
+          "faith": 36,
           "pop": 6,
           "templeLevel": 3,
           "capitalHp": 2,

@@ -81,7 +81,7 @@ export function createState(config = DEFAULT_CONFIG) {
     enemyBonus: tutorial ? TUTORIAL.enemyBonus : diff.enemyBonus,
     tiles: [], tileAt: {}, sides: {}, eventDeck: [], lawDeck: [],
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
-    priest: 'loyal', names: {}, lessons: [], petition: null, petitionIgnored: 0, prophecy: null,
+    priest: 'loyal', names: {}, lessons: [], petition: null, prophecy: null,
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
     judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, doomUsed: false, miracleUses: {}, lawGuard: 0, rally: false, ruleset: RULESET,
     edictOn: !tutorial && (cfg.unlock ?? (cfg.veteran ? MODULES : 0)) >= 1, destiny: null, destinyOffer: null, holyId: null,
@@ -266,12 +266,6 @@ function fallen(state, key) {
 }
 
 // 선교 보너스: 평화 교리 + 방언 + 계명(칼을 들지 말라) + 성인 설교자 (교리·성인·계명 합은 최대 +2)
-// 포위: 율법파 수도에 붙은 우리 땅이 둘이면 수도 공격 +1, 셋 이상이면 +2
-export function siegeOf(state, side, tile) {
-  if (side !== 'player' || tile?.building !== 'capital' || tile.owner !== 'enemy') return 0;
-  const n = neighbors(state, tile).filter((x) => x.owner === 'player').length;
-  return n >= 3 ? 2 : n >= 2 ? 1 : 0;
-}
 // 승천 4: 3막에 율법파의 공격·선교 주사위 +1
 export const enemyZeal = (state, side) => (side === 'enemy' && (state.config.ascension ?? 0) >= 4 && actOf(state) === 3 ? 1 : 0);
 // 되풀이를 읽는 율법: 우리 선교·공격에 방어 +1, 되풀이가 이어지면 +2 (braceLaw)
@@ -280,7 +274,7 @@ export function preachBonus(state, side) {
   const s = state.sides[side];
   if (side !== 'player') return (s.doctrine.peace >= 2 ? 1 : 0) + (s.doctrine.peace >= 4 ? 1 : 0) + enemyZeal(state, side);
   const base = (s.doctrine.peace >= 2 ? 1 : 0) + (s.doctrine.peace >= 4 ? 1 : 0)
-    + (state.commandments?.includes('noSword') ? 1 : 0) + (state.saints?.some((x) => x.kind === 'preacher') ? 1 : 0)
+    + (state.commandments?.includes('noSword') ? 1 : 0)
     + (state.config.blessing === 'preacher' && !state.stats.converted ? 1 : 0);
   return Math.min(2, base) + (state.roundMods.tongues ?? 0);
 }
@@ -292,7 +286,7 @@ export function actionOdds(state, a, { curse = false, wallAhead = false } = {}) 
   const t = state.tileAt[a.tile];
   let atk = 0; let def = 0;
   if (a.type === 'attack') {
-    atk = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0) + enemyZeal(state, side) + siegeOf(state, side, t) + (side === 'player' ? (state.roundMods.attackBonus ?? (curse ? 1 : 0)) + (state.roundMods.pillar ?? 0) : 0);
+    atk = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0) + enemyZeal(state, side) + (side === 'player' ? (state.roundMods.attackBonus ?? (curse ? 1 : 0)) + (state.roundMods.pillar ?? 0) : 0);
     def = (t.wall || wallAhead ? 2 : 0) + (t.building === 'capital' ? 1 : 0) + lawGuardOf(state, side);
   } else if (a.type === 'preach') {
     atk = preachBonus(state, side);
@@ -1167,7 +1161,7 @@ export function hydrateState(obj) {
   if ([state.event, state.lawCard, ...state.eventDeck, ...state.lawDeck].some((c) => c === undefined)) throw new Error(t('eng.unknownCard'));
   state.tileAt = Object.fromEntries(state.tiles.map((t) => [t.id, t]));
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
-  state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.petitionIgnored ??= 0; state.prophecy ??= null;
+  state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.prophecy ??= null;
   if (typeof state.lawGuard !== 'number') state.lawGuard = Math.max(state.lawGuard?.attack ?? 0, state.lawGuard?.preach ?? 0);
   state.rally ??= false; state.doomUsed ??= false; state.miracleUses ??= {};
   for (const sd of Object.values(state.sides)) sd.capitalHp = Math.min(sd.capitalHp, CAPITAL_HP);
@@ -1209,7 +1203,7 @@ function resolveAction(state, a) {
       if (a.build === 'village') {
         if (tl.owner) return logEvent(state, side, t('log.villageTaken', { place }), null, { tile: tl.id, kind: 'fail' });
         pay(s, cost); tl.owner = side; tl.building = 'village'; tl.revealed ||= side === 'player';
-        return logEvent(state, side, t('log.village', { who: side, place: tileName(state, tl, 'player') }), null, { tile: tl.id, kind: 'build', icon: '🏠' });
+        return logEvent(state, side, t(tl.revealed ? 'log.village' : 'log.villageFog', { who: side, place: tileName(state, tl, 'player'), id: tl.id }), null, { tile: tl.id, kind: 'build', icon: '🏠' });
       }
       if (a.build === 'wall') { pay(s, cost); tl.wall = true; return logEvent(state, side, t('log.wall', { who: side, place }), null, { tile: tl.id, kind: 'build', icon: '🧱' }); }
       if (a.build === 'temple') {
@@ -1266,9 +1260,8 @@ function resolveAction(state, a) {
     case 'attack': {
       if (tl.owner !== foe) return logEvent(state, side, t('log.attackNotFoe', { place }), null, { tile: tl.id, kind: 'fail' });
       const bonus = (s.doctrine.war >= 2 ? 1 : 0) + (s.doctrine.war >= 4 ? 1 : 0)
-        + (side === 'enemy' && state.event?.id === 'threat' ? 1 : 0) + enemyZeal(state, side) + siegeOf(state, side, tl) + (side === 'player' ? (state.roundMods.attackBonus ?? 0) + (state.roundMods.pillar ?? 0) : 0);
-      const guardian = foe === 'player' && tl.building === 'capital' && state.saints?.some((x) => x.kind === 'guardian') ? 1 : 0;
-      const defBonus = (tl.wall ? 2 : 0) + (tl.building === 'capital' ? 1 : 0) + guardian + lawGuardOf(state, side);
+        + (side === 'enemy' && state.event?.id === 'threat' ? 1 : 0) + enemyZeal(state, side) + (side === 'player' ? (state.roundMods.attackBonus ?? 0) + (state.roundMods.pillar ?? 0) : 0);
+      const defBonus = (tl.wall ? 2 : 0) + (tl.building === 'capital' ? 1 : 0) + lawGuardOf(state, side);
       const ra = d6(state); const rd = d6(state);
       const win = ra + bonus > rd + defBonus;
       const dice = { attacker: ra, attackerBonus: bonus, defender: rd, defenderBonus: defBonus, win };

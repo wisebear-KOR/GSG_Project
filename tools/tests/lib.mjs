@@ -105,12 +105,7 @@ function wordsAfter(state, pd) {
   const pt = state.petition;
   const TERRAIN_NAME = (id) => D.TERRAIN[state.tileAt[id].terrain]?.name ?? '땅';
   if (pt?.need) {
-    if (pd.answered) { state.stats.petitions += 1; state.petitionIgnored = 0; E.grantGrace(state, 1, `${pt.from}의 청원에 응답했다`); }
-    else if (!state.tutorial && ++state.petitionIgnored >= 2) {
-      state.petitionIgnored = 0;
-      state.sides.player.faith = Math.max(0, state.sides.player.faith - 1);
-      state.log.push({ round: state.round, side: 'player', text: '청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.', fx: { kind: 'warn' }, snap: E.snapshot(state) });
-    }
+    if (pd.answered) { state.stats.petitions += 1; E.grantGrace(state, 1, `${pt.from}의 청원에 응답했다`); }
   }
   if (pd.naming) E.grantGrace(state, 1, `${TERRAIN_NAME(pd.naming.tile)}${hasBatchim(TERRAIN_NAME(pd.naming.tile)) ? '을' : '를'} '${pd.naming.name}'${hasBatchim(pd.naming.name) ? '이라' : '라'} 부르게 했다`);
 }

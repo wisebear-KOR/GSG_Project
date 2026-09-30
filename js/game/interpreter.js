@@ -211,6 +211,7 @@ const NEGATION = kw('kw.negation');
 const NOT_NEG = kw('kw.notNeg');
 const NEG_CARRY = kw('kw.negCarry');
 const SIMILE = kw('kw.simile');
+const PARTIAL_NEG = kw('kw.partialNeg');
 const CLAUSE = kw('kw.clauseSplit');
 
 // 곳을 가리키는 말: 수도·성지·율법파가 노리는 곳·칸 이름(E4)·붙인 이름은 칸을, "숲에"처럼 장소가 된 지형은 지형을 가리킨다.
@@ -220,7 +221,7 @@ const PLACE = {
   capital: kw('kw.place.capital'), holy: kw('kw.place.holy'), aim: kw('kw.place.aim'), near: kw('kw.place.near'),
   foe: kw('kw.place.foe'), ours: kw('kw.place.ours'), id: kw('kw.place.id'), village: kw('kw.place.village'),
   nearTerrain: kw('kw.place.nearTerrain'), home: kw('kw.place.home'), dir: kw('kw.place.dirWord'), closest: kw('kw.place.closest'),
-  foeVillage: kw('kw.place.foeVillage'), oasis: kw('kw.place.oasis'), quarry: kw('kw.place.quarry'), oasisAt: kw('kw.place.oasisAt'), claim: kw('kw.tablet.claim'), avoidId: kw('kw.place.avoidId', 'g'), ids: kw('kw.place.id', 'g'),
+  foeVillage: kw('kw.place.foeVillage'), oasis: kw('kw.place.oasis'), aimBuild: kw('kw.place.aimBuild'), quarry: kw('kw.place.quarry'), oasisAt: kw('kw.place.oasisAt'), claim: kw('kw.tablet.claim'), avoidId: kw('kw.place.avoidId', 'g'), ids: kw('kw.place.id', 'g'),
 };
 const HOSTILE = [kw('kw.tablet.attack'), kw('kw.tablet.preach')];
 const VILLAGE_WORD = kw('kw.tablet.village');
@@ -270,7 +271,7 @@ function placeOf(state, clause) {
   }
   if (PLACE.aim.test(clause)) {
     const shown = enemyIntent(state).filter((x) => x.shown);
-    const claims = shown.filter((x) => x.type !== 'gather');
+    const claims = shown.filter((x) => (PLACE.aimBuild.test(clause) ? x.type === 'build' : x.type !== 'gather'));
     for (const x of claims.length ? claims : shown) anchors.add(x.tile);
   }
   // 칸 이름과 붙인 이름은 넓은 가리킴(마을·수도)보다 앞선다 ("C2 마을에 성벽을")
@@ -283,13 +284,20 @@ function placeOf(state, clause) {
   for (const id of avoid) anchors.delete(id);
   return { anchors, exact, avoid, named, terrains, near, text, dir, home, closest: PLACE.closest.test(clause) };
 }
+// 방향과 얼마나 곧게 놓였는가 (0~1): 육각 칸의 화면 좌표로 본 방향과 그 방향의 코사인
+const hexXY = (tl) => [tl.c + (tl.r & 1) / 2, tl.r * 0.866];
+function aligned(tl, home, [dr, dc]) {
+  const [x, y] = hexXY(tl); const [hx, hy] = hexXY(home);
+  const vx = x - hx; const vy = y - hy; const len = Math.hypot(vx, vy);
+  return len ? Math.max(0, (vx * dc + vy * dr) / len) : 0;
+}
 // 가리킨 곳에 맞을수록 앞 (같으면 원래 순서): 가리킨 칸 4 ("옆에"면 그 이웃이 4), 가리킨 칸의 이웃 2, 지형이 맞으면 +1
 function byPlace(state, place, matches) {
   if (!place.anchors.size && !place.terrains.size && !place.dir && !place.closest && !place.avoid?.size) return matches;
   const score = (a) => {
     const tl = state.tileAt[a.tile];
     let s = 0;
-    if (place.dir) s += (place.dir[0] && Math.sign(tl.r - place.home.r) === place.dir[0]) || (place.dir[1] && Math.sign(tl.c - place.home.c) === place.dir[1]) ? 3 : 0;
+    if (place.dir) s += 3 * aligned(tl, place.home, place.dir);
     for (const id of place.anchors) {
       const d = distance(tl, state.tileAt[id]);
       s = Math.max(s, d === 0 ? (place.near ? 1 : 4) : d === 1 ? (place.near ? 4 : 2) : 0);
@@ -340,7 +348,7 @@ export function interpretWithTablet(state, revelation) {
   for (let ci = 1; ci < clauses.length; ci++) if (negs[ci] && !hitsOf(clauses[ci]).length && NEG_CARRY.test(clauses[ci])) negs[ci - 1] = true;
   for (let ci = 0; ci < clauses.length; ci++) {
     const clause = clauses[ci];
-    if (SIMILE.test(clause)) continue;
+    if (SIMILE.test(clause) || PARTIAL_NEG.test(clause)) continue;
     const negative = negs[ci];
     const place = placeOf(state, clause);
     // "E1과 E2에"처럼 칸을 여럿 짚으면 그만큼
@@ -369,6 +377,7 @@ export function interpretWithTablet(state, revelation) {
       const free = (b) => !picks.some((o) => o.a.tile === b.tile || o.a.key === b.key);
       for (const a of matches) {
         if (took >= many) break;
+        if (many === 1 && a.type === 'gather' && picks.some((o) => o.ci === ci && o.a.type === 'gather' && o.a.gather === a.gather)) { took = 1; break; }
         if (!free(a) && place.exact.has(a.tile)) {
           // 짚은 칸을 이름 없이 먼저 가져간 일은 다른 칸으로 비킨다
           const holder = picks.find((o) => o.a.tile === a.tile && !o.aimed);

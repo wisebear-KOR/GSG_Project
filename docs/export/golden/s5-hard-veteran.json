@@ -542,7 +542,7 @@
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법 석판 +1 — 율법파가 성지에서 율법을 외웠다 (3/10).","fx":{"kind":"edict","tile":"A4","up":true}},
         {"side":"player","text":"신의 분노가 차오른다 (1/3) — 기적이 1만큼 싸진다.","fx":{"kind":"wrath","tile":"E2"}},
-        {"side":"leader","text":"설교자 아모스: “너의 사랑은 조건이 붙어 있지.”","ui":true}
+        {"side":"leader","text":"설교자 아모스: “'굶기지'라… 그 말, 우리 율법에도 있다.”","ui":true}
       ],
       "digest": {
         "player": {
@@ -654,12 +654,7 @@
         },
         {"side":"player","text":"신도들이 우리 수도(E2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"E2"},"act":"build:E2:wall"},
         {"side":"player","text":"신도들이 우리 마을(B1)을 세웠다.","fx":{"kind":"build","tile":"B1"},"act":"build:B1:village"},
-        {
-          "side": "player",
-          "text": "늙은 사관 갈렙이 성인으로 추앙받는다 — 수호자 성인 (수도 방어 +1).",
-          "fx": {"kind":"saint","tile":"E2"},
-          "act": "attack:E2:"
-        },
+        {"side":"player","text":"늙은 사관 갈렙이 성인으로 추앙받는다 — 수호자 성인.","fx":{"kind":"saint","tile":"E2"},"act":"attack:E2:"},
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 수도(E2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
@@ -677,7 +672,6 @@
           "fx": {"kind":"treasure","tile":"A1","gain":{"wood":2,"stone":1}}
         },
         {"side":"player","text":"신의 분노가 차오른다 (2/3) — 기적이 2만큼 싸진다.","fx":{"kind":"wrath","tile":"E2"}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"player","text":"평화의 서약이 흔들린다 (평화 -1).","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"설교자 아모스: “'성벽'을 외치는 신이라니, 신도들이 두려워하겠구나.”","ui":true}
       ],
@@ -686,7 +680,7 @@
           "food": 3,
           "wood": 8,
           "stone": 7,
-          "faith": 9,
+          "faith": 10,
           "pop": 2,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -799,7 +793,7 @@
           "food": 3,
           "wood": 8,
           "stone": 5,
-          "faith": 12,
+          "faith": 13,
           "pop": 3,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -908,7 +902,7 @@
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 수도(E2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":5,"attackerBonus":1,"defender":6,"defenderBonus":4,"win":false},
+          "dice": {"attacker":5,"attackerBonus":1,"defender":6,"defenderBonus":3,"win":false},
           "fx": {"kind":"attack","tile":"E2"},
           "act": "attack:E2:"
         },
@@ -921,7 +915,7 @@
           "food": 9,
           "wood": 8,
           "stone": 8,
-          "faith": 12,
+          "faith": 13,
           "pop": 4,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1067,7 +1061,6 @@
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파가 검열을 선포했다. 다음 장에는 '이웃'이라는 말을 쓰지 못한다.","fx":{"kind":"ban"}},
         {"side":"enemy","text":"율법 석판 +1 — 율법파가 성지에서 율법을 외웠다 (7/10).","fx":{"kind":"edict","tile":"A4","up":true}},
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"leader","text":"설교자 아모스: “너의 사랑은 조건이 붙어 있지.”","ui":true}
       ],
       "digest": {
@@ -1075,7 +1068,7 @@
           "food": 6,
           "wood": 10,
           "stone": 9,
-          "faith": 14,
+          "faith": 16,
           "pop": 4,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1218,7 +1211,7 @@
           "food": 6,
           "wood": 10,
           "stone": 12,
-          "faith": 20,
+          "faith": 22,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1363,7 +1356,6 @@
           "text": "말하는 샘 — 샘물이 속삭이며 길을 알려 준다. 목재 +2, 돌 +1.",
           "fx": {"kind":"treasure","tile":"E5","gain":{"wood":2,"stone":1}}
         },
-        {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"leader","text":"설교자 아모스: “'신전'… 그 말을 돌판에 새길 수 있겠느냐?”","ui":true}
       ],
       "digest": {
@@ -1371,7 +1363,7 @@
           "food": 6,
           "wood": 12,
           "stone": 11,
-          "faith": 22,
+          "faith": 25,
           "pop": 6,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1518,7 +1510,7 @@
           "food": 3,
           "wood": 16,
           "stone": 16,
-          "faith": 25,
+          "faith": 28,
           "pop": 7,
           "templeLevel": 2,
           "capitalHp": 2,
