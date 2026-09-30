@@ -492,6 +492,8 @@ async function newRound() {
   if (actStart(state) && unlocked(state, 3) && ACTS[actOf(state) - 1].text) setTimeout(() => leaderSay(ACTS[actOf(state) - 1].text), fx.motion.reduced ? 300 : 2600);
   if (state.round === 1 && state.destinyOffer) setTimeout(showDestinyChoice, fx.motion.reduced ? 400 : 2600);
   if (state.round === 1 && state.leader) setTimeout(() => leaderSay(leaderLine(state, 'intro')), fx.motion.reduced ? 300 : 2400);
+  // 대사제의 성향이 열린 판이면 첫 장에 사제가 자기 버릇을 말한다 (뜻을 헤아리는 손이 달라진다)
+  if (state.round === 1 && state.priest && state.priest !== 'loyal') setTimeout(() => priestSay(t('ui.priestIntro', { trait: PRIESTS[state.priest].trait })), fx.motion.reduced ? 500 : 3600);
   else if (state.reacted && REACT[state.reacted]) setTimeout(() => leaderSay(REACT[state.reacted].line), fx.motion.reduced ? 300 : 2400);
   if (tutorial) {
     const round = state.round;

@@ -37,6 +37,7 @@ const SCRIPT = [
   ] },
   { phase: 'speak', round: 4, lines: [
     { text: t('tut.speak4.0'), focus: '#boardFrame' },
+    { text: t('tut.speak4.2'), focus: '.scroll-wrap' },
     { text: t('tut.speak4.1'), suggest: t('tut.speak4.1.suggest'), focus: '.seal-btn' },
   ] },
   { phase: 'speak', round: 5, lines: [
@@ -46,6 +47,8 @@ const SCRIPT = [
   { phase: 'end', round: 5, lines: [
     { text: t('tut.end5.0') },
     { text: t('tut.end5.1') },
+    { text: t('tut.end5.3') },
+    { text: t('tut.end5.4') },
     { text: t('tut.end5.2') },
   ] },
 ];

@@ -470,24 +470,38 @@ export function validateOrders(state, side, chosen, forbidden = [], doctrine = n
 // 계시와 무관하게 남은 신도가 하는 기본 노동: 신앙이 바닥나면 기도부터, 그다음 가장 부족한 자원 채집
 // 풍요는 따로 두지 않는다 — 모자란 자원을 거두는 기본 노동이 곧 풍요의 뜻이다
 const DOCTRINE_LABOR = { peace: ['preach', 'pray'], war: ['attack', 'wall'], wisdom: ['explore', 'pray'] };
+// 대사제의 성향이 뜻을 헤아리는 손: 몇 손(hands), 무엇부터(first), 싸움·선교는 이길 확률이 얼마일 때(odds)
+const PRIEST_LABOR = {
+  loyal: { hands: 1, first: [], odds: 0.5 },
+  literal: { hands: 0, first: [], odds: 0.5 },
+  dreamer: { hands: 2, first: [], odds: 0.5 },
+  zealot: { hands: 1, first: ['attack', 'preach'], odds: 0.4 },
+  cautious: { hands: 1, first: ['wall', 'pray'], odds: 0.6 },
+};
 export function autoFill(state, side, accepted, forbidden = [], doctrine = null) {
   const limit = actionLimit(state, side);
   const s = state.sides[side];
   const used = new Set(accepted.map((a) => a.tile));
   const leading = [];
-  // 신도들은 계시의 뜻을 헤아려 남은 손 하나를 그 뜻대로 쓴다 (선교·공격은 이길 만할 때만)
+  // 신도들은 계시의 뜻을 헤아려 남은 손을 그 뜻대로 쓴다 (선교·공격은 이길 만할 때만). 몇 손을, 무엇부터 쓰는지는 대사제의 성향:
+  // 충직(기본) 한 손 · 문자주의 없음(말한 그대로만) · 몽상가 두 손(숨은 뜻까지) · 열혈 싸움·선교부터 · 신중 성벽·기도부터(싸움은 확실할 때만)
+  const temper = PRIEST_LABOR[state.priest] ?? PRIEST_LABOR.loyal;
   if (side === 'player' && doctrine && DOCTRINE_LABOR[doctrine] && accepted.length < limit) {
-    const legal = legalActions(state, side).filter((a) => !forbidden.includes(a.key) && !used.has(a.tile));
     // 성벽은 받아들인 건설을 치르고 남은 돌로 따진다
     const left = { ...s };
     for (const a of accepted) if (a.type === 'build') pay(left, buildCost(state, side, a.build));
-    for (const kind of DOCTRINE_LABOR[doctrine]) {
-      const cand = legal.filter((a) => (kind === 'wall' ? a.build === 'wall' && canPay(left, COST.wall) : a.type === kind && a.type !== 'build'))
-        .filter((a) => !['preach', 'attack'].includes(a.type) || actionOdds(state, a) >= 0.5);
-      if (!cand.length) continue;
-      const pick = cand[0];
-      used.add(pick.tile); leading.push({ ...pick, auto: true, heeded: true });
-      break;
+    const kinds = [...new Set([...temper.first, ...DOCTRINE_LABOR[doctrine]])];
+    for (let n = 0; n < temper.hands && accepted.length + leading.length < limit; n++) {
+      const legal = legalActions(state, side).filter((a) => !forbidden.includes(a.key) && !used.has(a.tile));
+      for (const kind of kinds) {
+        const cand = legal.filter((a) => (kind === 'wall' ? a.build === 'wall' && canPay(left, COST.wall) : a.type === kind && a.type !== 'build'))
+          .filter((a) => !['preach', 'attack'].includes(a.type) || actionOdds(state, a) >= temper.odds);
+        if (!cand.length) continue;
+        const pick = cand[0];
+        if (pick.build === 'wall') pay(left, COST.wall);
+        used.add(pick.tile); leading.push({ ...pick, auto: true, heeded: true });
+        break;
+      }
     }
   }
   const filled = [...leading];
@@ -766,7 +780,7 @@ export function enemyIntent(state) {
   const diff = state.tutorial ? 'easy' : state.config.difficulty;
   const shown = diff === 'easy' ? () => true
     : diff === 'normal' ? (a) => ['attack', 'preach', 'build'].includes(a.type)
-      : (a) => a.type === 'attack';
+      : (a) => a.type === 'attack' || a.type === 'build'; // 어려움도 칼과 건설은 보인다 — 읽고 막는 판단이 남게 (선교·채집·기도는 가림)
   return plan.map((a) => ({ ...a, shown: shown(a) && state.tileAt[a.tile].revealed }));
 }
 
