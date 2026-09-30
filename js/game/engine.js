@@ -197,14 +197,16 @@ export const villageCount = (state, side) => state.tiles.filter((t) => t.owner =
 export const ULT_ROUND = 8;
 // 빠른 판(4×4 · 8장)은 박자를 앞당긴다
 export const quick = (state) => state.rows <= 4 && !state.tutorial;
-export const ultRound = (state) => (quick(state) ? 6 : ULT_ROUND);
-export const draftRound = (state) => (quick(state) ? 3 : 5);
-export const wrathRound = (state) => (state.config?.trial === 'last' ? 1 : quick(state) ? 3 : 4);
+export const ultRound = (state) => sizeRules(state).at.ult;
+export const draftRound = (state) => sizeRules(state).at.draft;
+export const wrathRound = (state) => (state.config?.trial === 'last' ? 1 : sizeRules(state).at.wrath);
 export const hasUlt = (state, side, key) => side === 'player' && state.sides[side].doctrine[key] >= DOCTRINE_MAX && state.round >= ultRound(state);
 // 대성당 단계마다 필요한 마을: 1·2·3, 큰 판은 판이 넓은 만큼 더 (6×6 +1, 7×7 +2)
-export const cathedralVillages = (state) => (state.sides.player.cathedral ?? 0) + 1 + Math.max(0, state.rows - 5);
+// 판 크기 표 (튜토리얼·시련의 작은 판은 5×5 값을 따른다)
+export const sizeRules = (state) => MAP_SIZES[state.rows] ?? MAP_SIZES[5];
+export const cathedralVillages = (state) => (state.sides.player.cathedral ?? 0) + 1 + (state.tutorial ? 0 : sizeRules(state).cathedralVillages);
 // 신앙 승리에 필요한 개종 (선교로 데려온 율법파 신도)
-export const faithConverts = (state) => (quick(state) ? 1 : 2);
+export const faithConverts = (state) => sizeRules(state).faith.converts;
 export const popCap = (state, side) => 3 + 2 * villageCount(state, side) + (hasUlt(state, side, 'abundance') ? 2 : 0);
 
 // 신도가 닿을 수 있는 범위: 수도에서 2칸, 마을에서 1칸
@@ -223,7 +225,7 @@ export function reach(state, side) {
 export function actionLimit(state, side) {
   const s = state.sides[side];
   // 율법파는 판이 넓을수록 손이 많다 (7×7 +1): 넓은 판에서 거리만으로 안전해지지 않게
-  const bonus = side === 'enemy' ? state.enemyBonus + (state.rally ? 1 : 0) + (state.rows >= 7 && !state.tutorial ? 1 : 0) : (s.doctrine.wisdom >= 4 ? 1 : 0);
+  const bonus = side === 'enemy' ? state.enemyBonus + (state.rally ? 1 : 0) + (state.tutorial ? 0 : sizeRules(state).enemyActions) : (s.doctrine.wisdom >= 4 ? 1 : 0);
   let limit = Math.min(MAX_ACTIONS, 2 + s.templeLevel + Math.floor(s.pop / RULES.followersPerAction) + bonus);
   if (side === 'player' && isSabbath(state)) limit = Math.max(1, limit - 2);
   return Math.max(0, Math.min(limit, s.pop));
@@ -330,7 +332,8 @@ export function buildCost(state, side, build) {
   }
   if (build === 'cathedral') {
     const c = CATHEDRAL[Math.min(2, s.cathedral ?? 0)].cost;
-    return quick(state) ? Object.fromEntries(Object.entries(c).map(([k, v]) => [k, Math.ceil(v * 0.7)])) : c;
+    const k = state.tutorial ? 1 : sizeRules(state).cathedralCost;
+    return k === 1 ? c : Object.fromEntries(Object.entries(c).map(([r, v]) => [r, Math.ceil(v * k)]));
   }
   return COST[build];
 }
@@ -1408,8 +1411,8 @@ export function checkVictory(state, final = true) {
   if (p.pop <= 0) { state.winner = 'enemy'; state.winReason = t('eng.win.extinct'); state.winKind = 'extinct'; }
   // 신앙 승리는 장 끝에만 본다. 인구의 3/4이 우리 신도이고, 그 가운데 선교로 데려온 이가 있어야 한다 (칼과 번개만으로는 신앙이 아니다)
   const total = state.sides.player.pop + state.sides.enemy.pop;
-  const qk = quick(state);
-  if (!state.winner && final && total >= (qk ? 6 : 8) && state.round >= (qk ? 4 : 6) && state.sides.player.pop >= total * 0.75 && (state.stats.converted ?? 0) >= faithConverts(state)) {
+  const fr = sizeRules(state).faith;
+  if (!state.winner && final && total >= fr.pop && state.round >= fr.round && state.sides.player.pop >= total * 0.75 && (state.stats.converted ?? 0) >= faithConverts(state)) {
     state.winner = 'player'; state.winReason = t('eng.win.faith'); state.winKind = 'faith';
   }
   if (!state.winner && final && state.round >= state.maxRounds) {

@@ -961,19 +961,71 @@
   "MAP_SIZES": {
     "4": {
       "name": "빠르게",
-      "rounds": 8
+      "rounds": 8,
+      "cathedralCost": 0.7,
+      "cathedralVillages": 0,
+      "enemyActions": 0,
+      "faith": {
+        "pop": 6,
+        "round": 4,
+        "converts": 1
+      },
+      "at": {
+        "ult": 6,
+        "draft": 3,
+        "wrath": 3
+      }
     },
     "5": {
       "name": "작게",
-      "rounds": 12
+      "rounds": 12,
+      "cathedralCost": 1,
+      "cathedralVillages": 0,
+      "enemyActions": 0,
+      "faith": {
+        "pop": 8,
+        "round": 6,
+        "converts": 2
+      },
+      "at": {
+        "ult": 8,
+        "draft": 5,
+        "wrath": 4
+      }
     },
     "6": {
       "name": "보통",
-      "rounds": 12
+      "rounds": 12,
+      "cathedralCost": 1,
+      "cathedralVillages": 1,
+      "enemyActions": 0,
+      "faith": {
+        "pop": 8,
+        "round": 6,
+        "converts": 2
+      },
+      "at": {
+        "ult": 8,
+        "draft": 5,
+        "wrath": 4
+      }
     },
     "7": {
       "name": "크게",
-      "rounds": 14
+      "rounds": 14,
+      "cathedralCost": 1.5,
+      "cathedralVillages": 2,
+      "enemyActions": 1,
+      "faith": {
+        "pop": 8,
+        "round": 6,
+        "converts": 2
+      },
+      "at": {
+        "ult": 8,
+        "draft": 5,
+        "wrath": 4
+      }
     }
   },
   "MAX_ACTIONS": 6,
