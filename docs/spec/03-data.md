@@ -60,7 +60,7 @@
 | [`BLESSINGS`](#awe_levels--awe_titles--blessings) | 객체 | 4 | main (+engine이 `config.blessing`으로) | 은사 |
 | [`SIGILS`](#sigils) | 객체 | 6 | main | 신의 인장 → SVG 심볼 |
 | [`RULES`](#rules) | 객체 | 9 | engine, main | 규칙 수치 모음 |
-| [상수](#상수) | 수 | — | — | `CAPITAL_HP` 3, `MAX_TEMPLE` 3, `MAX_ACTIONS` 6, `DOCTRINE_MAX` 6, `EDICT_MAX` 12, `DESTINY_POINTS` 5, `MAX_COMMANDMENTS` 2, `REVELATION_MAX` 100, `MAX_ROUNDS` 12, `RULESET` 4 |
+| [상수](#상수) | 수 | — | — | `CAPITAL_HP` 3, `MAX_TEMPLE` 3, `MAX_ACTIONS` 6, `DOCTRINE_MAX` 6, `EDICT_MAX` 12, `DESTINY_POINTS` 5, `MAX_COMMANDMENTS` 2, `REVELATION_MAX` 100, `MAX_ROUNDS` 12, `RULESET` 5 |
 | [`revelationCost`](#함수-칸-fn) | 함수 | — | (쓰이지 않음) | 계시 기본 비용 |
 
 ---
@@ -464,7 +464,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `MAX_COMMANDMENTS` | 2 | 판당 계명 수 |
 | `REVELATION_MAX` | 100 | 계시 글자 수 상한 (main `revMax`; 시련 `cloister`는 20) |
 | `MAX_ROUNDS` | 12 | **쓰이지 않는다** (`createState`는 `MAP_SIZES`가 없을 때 숫자 12를 직접 쓴다) |
-| `RULESET` | 4 | 규칙 판 번호. 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). **확인 필요**: `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)의 큰 규칙 변경 뒤에도 4 그대로라, 그 전에 세운 최고 기록과 새 판이 같은 키로 비교된다 |
+| `RULESET` | 5 | 규칙 판 번호. 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). `e68a240`에서 4 → 5로 올렸다 — `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)·`e68a240`(막기 대칭·헤아린 성벽 예산)의 규칙 변경이 한 번에 반영된다. 그 사이(`afab303`~`e68a240` 직전)에 둔 판은 재조정 전의 판과 같은 `-r4` 키로 남아 있다 |
 
 ---
 

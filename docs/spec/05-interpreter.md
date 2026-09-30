@@ -1,7 +1,7 @@
 # 05. 해석기 — 계시가 명령이 되기까지
 
 > 플레이어가 쓴 자연어 **계시**를 신도들의 **명령**(엔진의 행동 객체 목록)으로 바꾸는 모든 것: 비용, LLM(대사제) 경로, 석판(키워드) 파서, 결과 객체, 엔진 검증, 확인 화면, 그리고 계시의 **낱말 자체가 규칙이 되는** 장치들.
-> 기준: 커밋 `448f553` (2026-09-30). 코드가 기준이다. 인용은 `파일:줄`. 모르는 것·어색한 것은 맨 끝 [확인 필요](#확인-필요)에 모았다.
+> 기준: 커밋 `448f553` (2026-09-30), 명세 검토 수정 `e68a240`까지 반영("~지 말고" 전부 금지, 할 수 없는 까닭 코드, 다시 해석 버튼 조건, 헤아린 성벽 예산). 코드가 기준이다. 인용은 `파일:줄`. `e68a240`에서 `interpreter.js` 193행 뒤는 10줄, `engine.js` 460행 뒤는 4~5줄 밀렸다 — 이번에 고치지 않은 인용은 `448f553` 기준이다. 모르는 것·어색한 것은 맨 끝 [확인 필요](#확인-필요)에 모았다.
 > 관련 문서: [01 개요](01-overview.md) · [02 규칙](02-rules.md) · [03 데이터](03-data.md) · [04 구조](04-architecture.md) · [06 UI/UX](06-ui-ux.md) · [Godot 이식 계획](../godot/PORTING.md)
 
 ## 0. 파일 지도
@@ -39,7 +39,7 @@ flowchart TD
   H --> I[derivePending: validateOrders + autoFill 교리 한 자리<br/>linkWords·청원·갈림길·기적·계명]
   I --> J[확인 화면]
   J -- 칩 빼기/되살리기 --> I
-  J -- 다시 해석 신앙1<br/>석판 해석이면 없음 --> F
+  J -- 다시 해석 신앙1<br/>LLM 모드에서만 --> F
   J -- 말 거두기 --> A
   J -- 수락 --> K[accept: 기적 → 말투 → 갈림길 비용 → 계명 → 숨은 말 → 예언 봉인<br/>resolveRound → 침묵 → 전설 → 서원 → wordsAfter → 교리 기록·메아리 → 신학 노트 → 지도자 반박]
   S --> J
@@ -111,19 +111,19 @@ return { result: interpretWithTablet(state, text) };
 - `aiMode`: 시작 시 `llmStatus()`가 `available | readily-available | downloadable | downloading | after-download` 중 하나면 `'llm'`, 아니면 `'tablet'`. URL `?ai=tablet`이면 강제로 석판 (`main.js:121-123`). 상단 AI 버튼으로 전환 가능 (가능할 때만, 해석 중에는 불가 — `main.js:435-440`).
 - LLM이 어떤 이유로든 던지면 **같은 계시를 석판으로 해석**하고 확인 화면에 안내 문구(`대사제가 말씀을 알아듣지 못해 석판으로 해석했다 ({err}).`)를 띄운다. 비용은 다시 받지 않는다.
 - **30초 타임아웃** (`main.js:553-556`): `interpretWithLLM`에 `AbortController`의 `signal`을 넘긴다. 30초가 지나면 `abort()` → `session.clone`/`promptStreaming`이 `AbortError`를 던지고(재시도하지 않는다, 2.5) 위 `catch`가 석판으로 대신한다 (`{err}` = `AbortError`). 모델 내려받기(`prepareLLM`)는 타이머가 켜지기 전에 끝난다.
-- 석판으로 대신한 결과는 `source: 'tablet'`이라 확인 화면에 **다시 해석 버튼이 없다** (1.6).
+- 석판으로 대신한 결과도 `source: 'tablet'`이지만, 다시 해석 버튼은 해석 출처가 아니라 `aiMode === 'llm'`을 보므로 **버튼이 있다** — 누르면 LLM에 다시 묻는다 (1.6, `e68a240`. 그 전에는 출처가 석판이면 숨었다).
 
 ### 1.4 결과 객체 (해석기 출력)
 
 세 경로 모두 같은 모양을 돌려준다. **`quote`/`reason` 같은 필드는 없다** — 대사제의 말은 `interpretation` 하나이고, 거부 사유는 검증 단계(`validateOrders`)의 `rejected[].reason`에 있다.
 
-| 필드 | 타입 | LLM (`interpreter.js:147-154`) | 석판 (`interpreter.js:231-240`) | 침묵 (`main.js:648`) |
+| 필드 | 타입 | LLM (`interpreter.js:147-154`) | 석판 (`interpreter.js:241-250`) | 침묵 (`main.js:648`) |
 |---|---|---|---|---|
 | `interpretation` | string | 모델의 `interpretation`을 `cleanSpeech`로 다듬은 것 | 명령이 있으면 `interp.tablet.say`, 없고 `heard`가 있으면 `interp.tablet.cannot`, 그 밖은 `interp.tablet.blur` | `ui.silence.first` / `ui.silence.again` |
 | `orders` | Action[] | 모델이 고른 ID → 행동 (모르는 ID는 버림, 중복 가능) | 규칙이 고른 행동 − 금지된 것 | `[]` |
 | `forbidden` | Action[] | 모델이 금지한 ID → 행동 | 부정 절에서 걸린 행동 전부 (중복 가능) | `[]` |
 | `doctrine` | `'peace'｜'war'｜'abundance'｜'wisdom'｜null` | 항상 값이 있다 (스키마 enum). 한국어 이름 → id (`DOCTRINE_KO`) | 첫 규칙의 교리, 없으면 금지가 있을 때 `'peace'`, 아니면 `null` | `null` |
-| `heard` | string[] | 없음 | 알아들었으나 지금 할 수 없는 행동 종류 (`preach｜attack｜wall｜village｜temple｜explore`, 중복 제거, [3.2](#32-알고리즘)) | 없음 |
+| `heard` | string[] | 없음 | 알아들었으나 지금 할 수 없는 까닭 코드 (`preach｜attack｜wall｜village｜temple｜explore`, 계명·시련·마을 조건이 막았으면 `attack:law｜attack:earth｜village:law｜temple:villages` — `cannotWhy`, 중복 제거, [3.2](#32-알고리즘)) | 없음 |
 | `source` | `'llm'｜'tablet'｜'silence'` | `'llm'` | `'tablet'` | `'silence'` |
 | `ms` | number | 스트리밍 전체 소요 ms (반올림) | 없음 | 없음 |
 
@@ -165,13 +165,14 @@ const DOCTRINE_PREF = {
 
 출력: `{ accepted: Action[], rejected: { action, reason }[] }`.
 
-**자동 노동 `autoFill(state, side, accepted, forbidden, doctrine)`** (`engine.js:458-493`) — 명령이 채우지 못한 행동 수를 신도들이 알아서 채운다. 금지 키와 **확인 화면에서 뺀 키**는 쓰지 않는다. 해석 결과의 `doctrine`을 넘기는 곳은 `derivePending` (`main.js:590`)과 계명 새기기 뒤 다시 채우기 (`main.js:725`) 둘이다. 침묵(`silence`)과 율법파(`planEnemy`)는 교리 없이 부른다.
+**자동 노동 `autoFill(state, side, accepted, forbidden, doctrine)`** (`engine.js:461-497`) — 명령이 채우지 못한 행동 수를 신도들이 알아서 채운다. 금지 키와 **확인 화면에서 뺀 키**는 쓰지 않는다. 해석 결과의 `doctrine`을 넘기는 곳은 `derivePending` (`main.js:590`)과 계명 새기기 뒤 다시 채우기 (`main.js:725`) 둘이고, 둘 다 금지 키에 뺀 칩 키를 더해 넘긴다(다시 채우기 쪽은 `e68a240`부터). 침묵(`silence`)과 율법파(`planEnemy`)는 교리 없이 부른다.
 
 ```js
-const DOCTRINE_LABOR = { peace: ['preach', 'pray'], war: ['attack', 'wall'], abundance: ['gather'], wisdom: ['explore', 'pray'] };
+// 풍요는 따로 두지 않는다 — 모자란 자원을 거두는 기본 노동이 곧 풍요의 뜻이다 (e68a240)
+const DOCTRINE_LABOR = { peace: ['preach', 'pray'], war: ['attack', 'wall'], wisdom: ['explore', 'pray'] };
 ```
 
-0. **뜻을 헤아린 한 자리** (플레이어, `doctrine`이 있고, 받아들인 명령이 행동 수보다 적을 때): `DOCTRINE_LABOR[doctrine]`의 종류 순서대로, 금지·뺀 키와 이미 쓴 칸을 뺀 `legalActions` 중 첫 후보 하나. `wall`은 `a.build === 'wall'`, 그 밖은 `a.type === 종류`(건설 제외). 선교·공격은 확인 화면 승률 `actionOdds ≥ 0.5`일 때만. `gather`는 **건너뛴다**(아래 기본 노동이 어차피 채집한다) — 그래서 풍요는 헤아린 자리가 없다. 고른 행동에는 `{ auto: true, heeded: true }`를 붙이고, 확인 화면 칩 이름이 `알아서` 대신 `뜻을 헤아림`(툴팁 `ui.chip.heededTip`)이 된다.
+0. **뜻을 헤아린 한 자리** (플레이어, `doctrine`이 `DOCTRINE_LABOR`에 있고, 받아들인 명령이 행동 수보다 적을 때): `DOCTRINE_LABOR[doctrine]`의 종류 순서대로, 금지·뺀 키와 이미 쓴 칸을 뺀 `legalActions` 중 첫 후보 하나. `wall`은 `a.build === 'wall'`이고 **받아들인 건설의 비용을 치르고 남은 자원**(`left`)으로 성벽 비용을 낼 수 있을 때만(`e68a240` — 그 전에는 현재 보유 자원만 봐서 해결 때 돌이 모자랄 수 있었다), 그 밖은 `a.type === 종류`(건설 제외). 선교·공격은 확인 화면 승률 `actionOdds ≥ 0.5`일 때만. 풍요는 표에 없으므로 헤아린 자리가 없다. 고른 행동에는 `{ auto: true, heeded: true }`를 붙이고, 확인 화면 칩 이름이 `알아서` 대신 `뜻을 헤아림`(툴팁 `ui.chip.heededTip`)이 된다.
 1. 신앙 ≤ `RULES.lowFaith`(2)이고 기도가 가능하며 수도 칸이 비어 있으면 **기도 먼저** (자리 셈에 0의 한 자리를 넣는다).
 2. 식량·목재·돌을 **보유량 오름차순**으로 두 바퀴 돌며, 각 자원의 첫 채집 행동(빈 칸)을 넣는다.
 3. 그래도 자리가 남으면 기도.
@@ -223,7 +224,7 @@ const DOCTRINE_LABOR = { peace: ['preach', 'pray'], war: ['attack', 'wall'], abu
 |---|---|---|
 | **수락하고 공개** (Enter) | 해석문 연출이 끝난 뒤 | `accept()` → [1.7](#17-수락과-해결) |
 | 칩 누르기 | 연출 끝, 미플 착지 후 | 명령·기적 칩을 뺀다/되살린다. **최대 2개** (`한 장에 두 개까지만 뺄 수 있다.`). 빈 자리는 `autoFill`이 채운다 |
-| **다시 해석 · 신앙 1** (R, ㄱ) | 해석 출처가 `tablet`이 **아닐** 때만 버튼이 있다 (`main.js:2087`; 석판은 결정론이라 같은 답이 나온다. LLM 실패로 석판이 대신한 경우도 버튼이 없다). 버튼이 있어도 계시가 있고, 이번 장 `reinterpretUsed`가 아니고, 신앙 ≥ 1이어야 눌린다 (침묵이면 꺼진 채 보인다) | 신앙 -1, `reinterpretUsed = true`, 같은 원문으로 `interpret()` 다시 (지금 `aiMode`로; 이름은 유지, 예언·말투 등 다시 파싱, 뺀 칩 초기화). 이전 해석은 `pending.prev`로 남는다 |
+| **다시 해석 · 신앙 1** (R, ㄱ) | `aiMode === 'llm'`일 때만 버튼이 있다 (`main.js:2092`, `e68a240`; 석판 모드는 결정론이라 같은 답이 나온다. LLM 실패로 석판이 대신한 경우에도 LLM 모드면 버튼이 있다 — 그 전에는 해석 출처가 `tablet`이면 숨었다). 버튼이 있어도 계시가 있고, 이번 장 `reinterpretUsed`가 아니고, 신앙 ≥ 1이어야 눌린다 (침묵이면 꺼진 채 보인다) | 신앙 -1, `reinterpretUsed = true`, 같은 원문으로 `interpret()` 다시 (지금 `aiMode`로; 이름은 유지, 예언·말투 등 다시 파싱, 뺀 칩 초기화). 이전 해석은 `pending.prev`로 남는다 |
 | **↔ 이전 해석과 바꾸기** | `pending.prev`가 있을 때 | 두 해석을 맞바꾼다 (비용 없음) |
 | **말을 거두기** (Esc) | 확인 단계, `speakSnap` 있음, `reinterpretUsed` 아님, 튜토리얼 아님 | `speakSnap`의 상태로 되돌림(비용·이름 환불) → `reinterpretUsed = true` → 두 번째 판(`veteran`)이면 신앙 -1 → 원문을 두루마리에 되돌려 다시 쓰게 한다. **다시 해석과 같은 장당 한 번** |
 
@@ -541,13 +542,13 @@ for (let attempt = 0; ; attempt++) {
 
 ---
 
-## 3. 석판(키워드) 파서 — `interpretWithTablet` (`interpreter.js:157-241`)
+## 3. 석판(키워드) 파서 — `interpretWithTablet` (`interpreter.js:157-251`)
 
 LLM이 없을 때의 해석기이자, LLM 모드에서도 **입력 중 알아들은 말 줄·예감(칸 강조)·계시 제안 거르기·LLM 실패 대체**에 쓰인다. 결정론적이다.
 
 ### 3.1 규칙표 (순서가 곧 우선순위)
 
-정규식 원본 (`ko/interp.js:84-117`, 플래그 없음 — `interpreter.js:159`의 `kw(key)`는 플래그를 받지 않는다). 낱말 일부에 걸리지 않게 **앞뒤 보기**로 어절 경계를 흉내 낸다: `강하고`는 강이 아니고(`강(?![하해한력요제조])`), `돌아가서`는 돌이 아니고(`돌(?![아보려봐이])`, `(?<!돌아|들어)가라`), `생산`은 산이 아니고(`(?<![생출재야등])산`), `지켜보라`는 성벽이 아니고(`지켜(?!보)`), `빛나는`·`금빛`은 탐험이 아니고(`(?<![금은])빛(?![깔나])`), `쳐들어오면`은 공격 명령이 아니고(`쳐들(?!어오)`), `짓밟아`는 탐험이 아니다(`(?<!짓)밟아`). 뒤 보기는 모두 **고정 길이**(1~3글자, `돌아|들어`처럼 갈래가 있어도 갈래마다 고정)다 → [6.4](#64-정규식문자열-이식-노트).
+정규식 원본 (`ko/interp.js:84-117`, 플래그 없음 — 규칙표는 `interpreter.js:159`의 `kw(key, flags)`를 플래그 없이 부른다. `kw`는 `e68a240`부터 두 번째 인자를 `RegExp`에 넘기며, 플래그를 주는 곳은 `kw.dontAnd`의 `'g'` 하나다). 낱말 일부에 걸리지 않게 **앞뒤 보기**로 어절 경계를 흉내 낸다: `강하고`는 강이 아니고(`강(?![하해한력요제조])`), `돌아가서`는 돌이 아니고(`돌(?![아보려봐이])`, `(?<!돌아|들어)가라`), `생산`은 산이 아니고(`(?<![생출재야등])산`), `지켜보라`는 성벽이 아니고(`지켜(?!보)`), `빛나는`·`금빛`은 탐험이 아니고(`(?<![금은])빛(?![깔나])`), `쳐들어오면`은 공격 명령이 아니고(`쳐들(?!어오)`), `짓밟아`는 탐험이 아니다(`(?<!짓)밟아`). 뒤 보기는 모두 **고정 길이**(1~3글자, `돌아|들어`처럼 갈래가 있어도 갈래마다 고정)다 → [6.4](#64-정규식문자열-이식-노트).
 
 ```js
 'kw.tablet.river':   '(?<![가-힣])강(?![하해한력요제조])|물고기|강물|강가|물가',
@@ -568,7 +569,7 @@ LLM이 없을 때의 해석기이자, LLM 모드에서도 **입력 중 알아들
 'kw.tablet.explore': '찾|보이지|안개|탐험|숨겨|너머|살펴|살피|둘러|세상|(?<![금은])빛(?![깔나])|(?<!돌아|들어)가라|떠나|나아가|알아보|정찰|길을(?! 잃)|밝혀|밝히|어둠|(?<!짓)밟아|낯선|모르는 땅|미지|내디|발을 들|발을 내|먼 곳|땅끝|가 보|눈을 들|가보|구경',
 'kw.tablet.gatherAny': '자원|(?<!불러 )모아|모으|거두|생산|비축|채집',
 'kw.many':           '모두|많이|여러|곳곳|마다|최대한|가득|온 땅',
-'kw.dontAnd':        '(\\S+?)지 ?말고',                    // 코드는 'g'를 넘기지만 무시된다 (3.2)
+'kw.dontAnd':        '(\\S+?)지 ?말고',                    // 코드가 'g'를 넘겨 모든 일치를 바꾼다 (3.2)
 'kw.dontAndNeg':     (v) => `${v.verb}지 마라,`,
 'kw.fear':           '두려워|겁내|걱정|주저|망설|슬퍼|염려|의심',
 'kw.negation':       '마라|말라|말지|지 ?마|피하|멀리하|멀리 하',
@@ -620,7 +621,7 @@ for clause in text.split(CLAUSE):          # 절 나누기 (구분자는 버림)
         if negative:
             forbidden.push(...matches)          # 걸린 행동 전부 금지
             continue
-        if !matches.length and rule.kind: heard.push(rule.kind)     # 알아들었으나 지금 할 수 없음
+        if !matches.length and rule.kind: heard.push(cannotWhy(state, rule.kind))   # 알아들었으나 지금 할 수 없음
         if matches.length and rule.doctrine: doctrine ??= rule.doctrine   # 첫 교리만
         took = 0
         for a in matches:                       # ★ 첫 "빈" 후보부터
@@ -646,7 +647,7 @@ return {
 **`splitDont`** (`interpreter.js:177-180`) — 절 나누기 **전에** 한 번:
 
 ```js
-const DONT_AND = kw('kw.dontAnd', 'g');   // ⚠ kw는 두 번째 인자를 버린다 → 실제로는 비전역 정규식
+const DONT_AND = kw('kw.dontAnd', 'g');   // 전역 — 모든 "~지 말고"를 바꾼다 (e68a240 전에는 kw가 플래그를 버려 첫 일치만)
 const FEAR = kw('kw.fear');
 const splitDont = (text) => text.replace(DONT_AND, (m, verb) =>
   (FEAR.test(verb) ? `${verb} ` : t('kw.dontAndNeg', { verb })));
@@ -655,7 +656,7 @@ const splitDont = (text) => text.replace(DONT_AND, (m, verb) =>
 - `숲을 베지 말고 산에서 돌을 캐라` → `숲을 베지 마라, 산에서 돌을 캐라` → 앞 절은 부정(숲 채집 금지), 뒤 절은 돌 채집.
 - `두려워하지 말고 쳐라` → 동사 `두려워하`가 `kw.fear`에 걸려 `두려워하  쳐라` → 금지 없이 공격.
 - `(\S+?)지 ?말고`의 동사는 "지" 앞의 공백 없는 덩어리다 (가장 왼쪽 일치라 어절 첫 글자부터).
-- **비전역이라 첫 `~지 말고` 하나만 바뀐다.** `숲을 베지 말고 돌을 캐지 말고 기도하라` → 둘째 `캐지 말고`는 그대로라(`말고`는 `kw.negation`의 `지 ?마`에 안 걸린다 — `말`≠`마`) 돌 채집이 **명령**된다 → [확인 필요](#확인-필요).
+- **전역이라 모든 `~지 말고`가 금지 절이 된다**(겹치지 않는 일치를 왼쪽부터 차례로, 일치마다 `kw.fear`를 따로 본다). `숲을 베지 말고 기도하지 말고 돌을 캐라` → `숲을 베지 마라, 기도하지 마라, 돌을 캐라` → 숲 채집·기도 금지, 돌 채집 명령. `e68a240` 전에는 `kw`가 플래그를 버려 첫 `~지 말고`만 바뀌었고, 둘째 절(`말고`는 `kw.negation`의 `지 ?마`에 안 걸린다 — `말`≠`마`)이 **명령**이 되었다(위 문장이면 기도 명령).
 
 **`rankMatches`** (`interpreter.js:182-188`) — 후보의 **첫 원소가 채집**일 때만 목록 전체를 다시 줄 세운다 (안정 정렬 + 원래 순번으로 동점 처리):
 1. `gatherAny`(`fallback`)면 **플레이어 보유량이 적은 자원**부터 (`p[a.gather]`, 신앙 채집이면 `p.faith`). 다른 규칙은 이 키가 모두 0.
@@ -668,8 +669,18 @@ const splitDont = (text) => text.replace(DONT_AND, (m, verb) =>
 - **부정**은 절 단위. 부정 절에서는 명령을 하나도 만들지 않고, 걸린 규칙의 **모든** 가능한 행동을 금지한다 (여러 규칙이 같은 행동을 걸면 중복된다. 채집은 `rankMatches` 순서로 들어간다). 부정 절은 `heard`·교리를 만들지 않는다. `멀리`는 이제 부정어가 아니다(`멀리하|멀리 하`만) — `멀리 가라`는 탐험.
 - **한 규칙은 한 절에서 행동 하나까지**(양의 말 `kw.many`가 있으면 둘까지), 줄 세운 후보 중 **아직 명령하지 않은 칸·키의 첫 후보**부터. 그래서 `곡식을 거두라, 곡식을 거두라, 곡식을 거두라, 곡식을 거두라`는 식량 칸 둘(B2, C2)을 채우고 셋째 절부터는 빈 후보가 없다. `검은숲에서 일하라`는 이름 규칙이 A1 채집을 쓰고, 숲 규칙(`숲`)이 다음 빈 숲 C3를 쓴다.
 - **`gatherAny`는 구체 규칙의 뒷받침**: 같은 절에서 앞선 규칙(이름·노트 규칙 포함, 부정 절 포함)의 후보에 채집이 하나라도 있었으면 건너뛴다. `곡식을 모아라` → 식량만, `자원을 모아라` → 가장 모자란 돌.
-- **가능한 행동이 없는 규칙은 교리를 정하지 않는다** (`평화를 지켜라`가 성벽이 없다고 전쟁이 되지 않게). 그 규칙에 `kind`가 있으면 `heard`에 넣는다. `heard`는 다른 명령이 있어도 쌓이지만(`성벽을 쌓고 곡식을 거두라` → 명령 식량, `heard: ['wall']`) 해석문에는 **명령이 하나도 없을 때만** 쓴다.
-- `interp.tablet.cannot` = `석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — {종류별 사유, ", "로}. 나머지는 각자 할 일을 하라.` 사유: 선교·공격 `(닿는 율법파 땅이 없다)`, 성벽 `(자원이 모자라거나 둘러쌀 곳이 없다)`, 마을 `(자원이나 빈 땅이 없다)`, 신전 `(자원이 모자란다)`, 탐험 `(닿는 안개가 없다)` (`ko/interp.js:66`).
+- **가능한 행동이 없는 규칙은 교리를 정하지 않는다** (`평화를 지켜라`가 성벽이 없다고 전쟁이 되지 않게). 그 규칙에 `kind`가 있으면 `cannotWhy(state, kind)`의 까닭 코드를 `heard`에 넣는다. `heard`는 다른 명령이 있어도 쌓이지만(`성벽을 쌓고 곡식을 거두라` → 명령 식량, `heard: ['wall']`) 해석문에는 **명령이 하나도 없을 때만** 쓴다.
+- **`cannotWhy(state, kind)`** (`interpreter.js:193-201`, `e68a240`) — 계명·시련·마을 조건이 막았으면 그것을, 아니면 종류 그대로 돌려준다. 위에서부터 첫 번째:
+
+  | 조건 | 코드 |
+  |---|---|
+  | `kind == attack`이고 계명 `noSword`를 새김 | `attack:law` |
+  | `kind == attack`이고 시련 「대지모」(`config.trial == 'earth'`) | `attack:earth` |
+  | `kind == village`이고 계명 `noExpand`를 새김 | `village:law` |
+  | `kind == temple`이고 신전이 3단계(`templeLevel >= 3`)인데 우리 마을 수 < `cathedralVillages`(대성당 다음 단계에 필요한 마을) | `temple:villages` |
+  | 그 밖 | `kind` |
+
+- `interp.tablet.cannot` = `석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — {코드별 사유, ", "로}. 나머지는 각자 할 일을 하라.` 사유: `attack:law` 공격 `(계명이 칼을 금한다)`, `attack:earth` 공격 `(이 시련에서는 칼을 들 수 없다)`, `village:law` 마을 `(계명이 넓히기를 금한다)`, `temple:villages` 대성당 `(마을이 모자라다)`, 선교·공격 `(닿는 율법파 땅이 없다)`, 성벽 `(자원이 모자라거나 둘러쌀 곳이 없다)`, 마을 `(자원이나 빈 땅이 없다)`, 신전 `(자원이 모자란다)`, 탐험 `(닿는 안개가 없다)`, 모르는 코드는 그대로 (`ko/interp.js:66`). 예: 계명 「칼을 들지 말라」를 새긴 뒤 `적을 쳐라` → `…할 수 없도다 — 공격(계명이 칼을 금한다)…`. (`e68a240` 전에는 종류만 넣어, 계명·시련으로 막혀도 `공격(닿는 율법파 땅이 없다)`처럼 말했다.)
 - 이름·노트 규칙은 교리가 없다. 첫 교리는 규칙 순서(절 순서 → 규칙표 순서)로 정해지고 **계시 속 낱말의 위치와는 무관**하다.
 - 교리가 끝내 없고 금지만 있으면 `peace` (절제의 말).
 - 해석문은 금지로 걸러지기 **전** `orders`로 만든다 (드물게 금지된 행동을 말할 수 있다).
@@ -690,7 +701,6 @@ const splitDont = (text) => text.replace(DONT_AND, (m, verb) =>
 
 | 계시 | 결과 | 까닭 |
 |---|---|---|
-| `숲을 베지 말고 돌을 캐지 말고 기도하라` | 숲 채집 금지, 돌 채집 **명령** + 기도 | `splitDont`가 첫 `~지 말고`만 바꾼다 (`g` 플래그가 무시됨, 3.2) |
 | `나를 위한 높은 곳을 마련하라` (신전 비용 부족) | 명령 없음, 교리 없음, 해석문 `…지금은 할 수 없도다 — 신전(자원이 모자란다)…` | 신전 행동이 불가능 → `heard: ['temple']`만 |
 | `방패가 되어라` (돌 부족) | 명령 없음, `heard: ['wall']` | 성벽 불가능 |
 | `불` | 명령 없음, 흐릿 | 규칙에 없음 (LLM은 사건으로 해석) |
@@ -773,16 +783,16 @@ function heardHTML(text) {
 | `ui.heard.guess` (LLM 모드) | `석판의 예감 (대사제는 더 헤아린다) —` |
 | `ui.heard.pair` | `<b>{word}</b> → {kind}` |
 | `ui.heard.kind` | `{자원} 채집` / `기도` / `탐험` / `선교` / `공격` / `마을 건설` / `성벽` / `신전 높이기` / `대성당` |
-| `ui.heard.cannot` | `뜻은 알아들었으나 지금은 할 수 없다 — 선교(닿는 율법파 땅이 없다), …` (사유는 `interp.tablet.cannot`과 거의 같고 성벽만 `(자원이 모자라다)`) |
+| `ui.heard.cannot` | `뜻은 알아들었으나 지금은 할 수 없다 — 선교(닿는 율법파 땅이 없다), …` (`heard`의 까닭 코드를 받는다 — 계명·시련·마을 조건 코드 넷 포함, 3.2. 사유는 `interp.tablet.cannot`과 거의 같고 성벽만 `(자원이 모자라다)`) |
 | `ui.heard.none` | `아직 알아들은 말이 없다 — 곡식·나무·돌·마을·성벽·기도·안개·이웃·쳐라 같은 말을 넣어 보라` |
 
 예 (튜토리얼 1장): `나무를 베어 집을 지어라` → `알아들은 말 — <b>나무</b> → 목재 채집 · <b>집을</b> → 마을 건설`, `방패가 되어라` → `뜻은 알아들었으나 지금은 할 수 없다 — 성벽(자원이 모자라다)`. 명령만 보여 주고 금지는 보여 주지 않는다.
 
 ### 3.8 이해력 측정 — 회귀 시험
 
-- `node tools/tests/tablet-cases.mjs [--all]` — 새 플레이어가 쓸 법한 문장 **253개**(HEAD 기준)와 기대 행동. 상태는 튜토리얼 3×3 1장(`createState({ mode: 'tutorial', seed: 1 })` + `startRound`)에 목재·돌·식량을 6으로 채운 것 (율법파 마을이 바로 옆이라 선교·공격 대상이 있고, 성벽·마을을 지을 수 있다).
+- `node tools/tests/tablet-cases.mjs [--all]` — 새 플레이어가 쓸 법한 문장 **254개**(`e68a240` 기준)와 기대 행동. 상태는 튜토리얼 3×3 1장(`createState({ mode: 'tutorial', seed: 1 })` + `startRound`)에 목재·돌·식량을 6으로 채운 것 (율법파 마을이 바로 옆이라 선교·공격 대상이 있고, 성벽·마을을 지을 수 있다).
 - 판정: `want`의 행동 종류(`gather:food`, `build:wall`, `pray`, …; `gather:any`는 아무 채집, `forbid:…`는 금지)가 **모두** 나오고, `avoid`에 적힌 종류가 명령에 **하나도** 없으면 성공. 실패한 문장만 출력하고(`--all`이면 전부) 끝에 `석판 이해: n/N (%)`.
-- HEAD에서 **253/253 통과**. Godot 판도 같은 표를 GDScript 테스트로 돌린다 (6.5).
+- `e68a240`에서 **254/254 통과** — 더한 한 문장은 `숲을 베지 말고 기도하지 말고 돌을 캐라`(돌 채집 명령, 숲 채집·기도 금지; 기도·숲 채집 명령은 없어야 함)다. Godot 판도 같은 표를 GDScript 테스트로 돌린다 (6.5).
 
 **측정 이력** — 새 묶음은 **그 묶음에 맞춰 어휘를 고치기 전에** 한 번 재고, 고친 뒤 회귀 시험에 넣었다 (시험 파일의 절 주석):
 
@@ -794,8 +804,9 @@ function heardHTML(text) {
 | 묶음 4 | 30 | **77%** | |
 | 묶음 5 | 40 | **68%** | 은유 섞음 |
 | 묶음 6 | 58 | **90%** | 어휘를 보지 않은 에이전트가 씀 (눈 가린 시험) |
+| `e68a240` | 1 | — | "~지 말고"가 둘인 문장 (고친 동작의 회귀 시험) |
 
-재고 나서 고쳐 넣었으므로 253/253은 과적합된 수치다. 처음 보는 문장에 대한 이해율은 마지막 눈 가린 측정(90%)이 가장 가까운 추정이다. 새 문장을 더할 때는 먼저 재고 나서 고친다.
+재고 나서 고쳐 넣었으므로 254/254는 과적합된 수치다. 처음 보는 문장에 대한 이해율은 마지막 눈 가린 측정(90%)이 가장 가까운 추정이다. 새 문장을 더할 때는 먼저 재고 나서 고친다.
 
 ---
 
@@ -824,7 +835,7 @@ function heardHTML(text) {
 | 지도자 대사 | 계시 첫 명사 | 반박 대사 | 예 |
 | 판결문 | 명령 성공률 | 성취/반쯤/빗나감 도장 | 예 |
 
-(예전의 **기이한 해석**(LLM이 계시와 무관한 행동을 고르면 판당 한 번 은총 +1)과 **성언**(세 번 되풀이한 구절이 든 계시는 비용 1)은 `afab303`에서 빠졌다. 성언은 되풀이를 벌하는 메아리와 서로 어긋났다. `state.oddUsed`·`state.liturgy`는 `createState`(`engine.js:80`, `82`)와 `hydrateState`(`engine.js:1127`, `1130`)에 **죽은 필드**로만 남아 있다 — 저장본 호환 외에는 옮기지 않는다.)
+(예전의 **기이한 해석**(LLM이 계시와 무관한 행동을 고르면 판당 한 번 은총 +1)과 **성언**(세 번 되풀이한 구절이 든 계시는 비용 1)은 `afab303`에서 빠졌다. 성언은 되풀이를 벌하는 메아리와 서로 어긋났다. 죽은 필드로 남아 있던 `state.oddUsed`·`state.liturgy`와 두 장치의 언어팩 키도 `e68a240`에서 지웠다 — 옮기지 않는다.)
 
 ### 4.1 말투
 
@@ -1162,7 +1173,7 @@ return list[(h >>> 0) % list.length];
 | 청원·갈림길·계명 | `kw.petition.*`, `kw.data.event.*.choice.*.tags`, `kw.data.commandment.*.re` | |
 | 숨은 말 | `kw.data.sacred.*.word` | 화면에도 나온다 (단서의 글자 수 표시) |
 | 침묵·선교 힌트 | `kw.ui.speech`(`[가-힣A-Za-z0-9]`), `kw.ui.preach` | |
-| 석판의 말·알아들은 말 | `interp.tablet.prefix/say/cannot/blur`, `ui.heard.*` | 종류별 "지금 할 수 없는 까닭" 문구 |
+| 석판의 말·알아들은 말 | `interp.tablet.prefix/say/cannot/blur`, `ui.heard.*` | 까닭 코드별 "지금 할 수 없는 까닭" 문구 (`attack:law` 같은 코드 넷 포함, 3.2) |
 | 해석문 다듬기 | `kw.clean.*` | 좌표 뒤 조사 목록 `[을를이가에의]`, "도다" 어미 교정 |
 | 프롬프트 | `interp.systemPrompt`, `interp.prompt`, `interp.threat`, `interp.lessonName`, `data.priest.*.prompt`, `data.voice.*` | "그 언어로 답하라"로 바꾼다. 교리 enum은 교리 이름을 따라 자동으로 바뀐다 |
 | 제안·튜토리얼 예시 | `ui.suggest.*`, `tut.*.suggest` | 그 언어의 `kw.*`로 해석되는 문장이어야 한다 |
@@ -1241,13 +1252,25 @@ static func rule_match(id: String, a: Dictionary, tile: Dictionary) -> bool:
 		"gatherAny": return a.type == "gather"
 	return false
 
-# "~지 말고": JS처럼 **첫 번째 일치만** 바꾼다 (JS의 'g' 플래그가 무시되는 동작 그대로 — 확인 필요)
+# "~지 말고": JS의 전역 replace('g')처럼 **모든** 일치를 왼쪽부터 바꾼다 (e68a240 — 그 전 JS는 첫 일치만)
 func split_dont(text: String) -> String:
-	var m := DONT_AND.search(text)          # (\S+?)지 ?말고
-	if m == null: return text
-	var verb := m.get_string(1)
-	var rep := (verb + " ") if FEAR.search(verb) != null else T.t("kw.dontAndNeg", {"verb": verb})
-	return text.substr(0, m.get_start()) + rep + text.substr(m.get_end())
+	var out := ""; var last := 0
+	for m in DONT_AND.search_all(text):     # (\S+?)지 ?말고 — 겹치지 않는 일치
+		var verb := m.get_string(1)
+		out += text.substr(last, m.get_start() - last)
+		out += (verb + " ") if FEAR.search(verb) != null else T.t("kw.dontAndNeg", {"verb": verb})
+		last = m.get_end()
+	return out + text.substr(last)
+
+# 알아들었으나 할 수 없는 까닭 코드 (interpreter.js:193-201, 3.2)
+static func cannot_why(state, kind: String) -> String:
+	var cmd: Array = state.get("commandments", [])
+	if kind == "attack" and "noSword" in cmd: return "attack:law"
+	if kind == "attack" and state.config.get("trial") == "earth": return "attack:earth"
+	if kind == "village" and "noExpand" in cmd: return "village:law"
+	if kind == "temple" and state.sides.player.templeLevel >= 3 \
+			and Engine.village_count(state, "player") < Engine.cathedral_villages(state): return "temple:villages"
+	return kind
 
 # 첫 후보가 채집이면: (fallback이면 보유량 적은 자원) → 수확량 많은 칸 → 원래 순번
 func rank_matches(state, rule: Dictionary, matches: Array) -> Array:
@@ -1279,7 +1302,7 @@ func interpret(state, text: String) -> Dictionary:
 			if negative:
 				forbidden.append_array(matches)
 				continue
-			if matches.is_empty() and rule.has("kind"): heard.append(rule.kind)
+			if matches.is_empty() and rule.has("kind"): heard.append(cannot_why(state, rule.kind))
 			if not matches.is_empty() and doctrine == null and rule.doctrine != null: doctrine = rule.doctrine
 			var took := 0
 			for a in matches:   # 첫 "빈" 후보부터
@@ -1340,9 +1363,9 @@ var res = await http.request_completed          # [result, code, headers, body]
 2. **행동 키 형식** `type:tile:gather|build|''` — 골든·금지·뺀 칩·링크·판결의 공통 키.
 3. **ID 형식** `A{1부터}`, 칸별 묶음 순서, 행동 설명 문구 (`eng.act.*`) — 프롬프트 재현.
 4. **스키마의 의미**: 금지 → 행동 → 교리 → 해석문 순서, enum으로 ID 제한, 교리 enum = 언어팩 교리 이름.
-5. **검증 규칙** (`validateOrders`: 금지 → 누적 건설 예산 → 같은 칸(교리 선호, 교체 때 예산 되돌림) → 행동 수)과 `autoFill`(교리를 헤아린 한 자리 `DOCTRINE_LABOR` + 승률 0.5 문턱 포함).
+5. **검증 규칙** (`validateOrders`: 금지 → 누적 건설 예산 → 같은 칸(교리 선호, 교체 때 예산 되돌림) → 행동 수)과 `autoFill`(교리를 헤아린 한 자리 `DOCTRINE_LABOR`(풍요 없음) + 승률 0.5 문턱 + 헤아린 성벽은 받아들인 건설을 치르고 남은 자원으로 포함).
 6. **결과 객체 모양** (1.4)과 폴백 사슬.
-7. **석판의 세부**: 규칙 순서·`kind`·`except`·`fallback`, `splitDont`(첫 일치만), 양의 말(최대 2), `rankMatches`(→ `gatherAmount`까지 같아야 한다), 첫 **빈** 후보, `heard`. 회귀 시험 `tools/tests/tablet-cases.mjs` 253문장이 모두 같게 나와야 한다.
+7. **석판의 세부**: 규칙 순서·`kind`·`except`·`fallback`, `splitDont`(모든 일치), 양의 말(최대 2), `rankMatches`(→ `gatherAmount`까지 같아야 한다), 첫 **빈** 후보, `heard`와 `cannotWhy`의 까닭 코드. 회귀 시험 `tools/tests/tablet-cases.mjs` 254문장이 모두 같게 나와야 한다.
 8. **수락 순서** (1.7) — 교리는 해결 뒤, 기적은 맨 앞, 계명은 해결 전.
 9. **`hashPick`** 비트 단위 동일 (지도자 대사·청원자·사제·검열어 대체·숨은 말).
 10. **메아리 판정** `isEcho` (공백·문장부호 지우기, 튜토리얼 제외) — 비용과 교리 기록이 달라진다.
@@ -1358,8 +1381,7 @@ Godot `RegEx`는 PCRE2다. 현재 코드가 쓰는 JS 정규식 기능과 대응
 | `str.match(re)` (비전역) → `m[0]`, `m[1]`, `m[2]` | 이름, 예언 기한, `linkWords` | `search()` → `get_string(0/1/2)`. **괄호 묶음 순서를 바꾸지 말 것** (코드가 번호로 읽는다) |
 | `g` + `str.replace(re, '$1')` | `cleanSpeech` 3·4단계 | `re.sub(s, "$1", true)` |
 | `g` + `replace(/[\s\p{P}]/gu, '')` | 메아리 `isEcho`의 `plainWords` (`engine.js:729`) | `re.sub(s, "", true)`. `\p{P}`는 PCRE2가 UTF 모드에서 그대로 받는다. `\s`는 아래 `(*UCP)` 주의 |
-| **비전역** 정규식 + 콜백 `replace` | `splitDont` (`kw.dontAnd`; 코드가 `'g'`를 넘기지만 `interpreter.js:159`의 `kw`가 버린다) | **첫 일치 하나만** 바꾼다: `search()` 한 번 + `substr` 이어 붙이기 (6.2 `split_dont`) |
-| `g` + 콜백 치환 | `cleanSpeech` 5단계(`stemFix`) | 콜백이 없다 → `search_all`로 돌며 직접 이어 붙인다 |
+| `g` + 콜백 치환 | `cleanSpeech` 5단계(`stemFix`), `splitDont`(`kw.dontAnd` — `interpreter.js:159`의 `kw`가 `e68a240`부터 `'g'`를 넘긴다) | 콜백이 없다 → `search_all`로 돌며 직접 이어 붙인다 (6.2 `split_dont`). `e68a240` 전 JS는 `splitDont`만 첫 일치 하나를 바꿨다 |
 | `String.split(regex)` | 절 나누기, 명사 나누기 | 위 `regex_split` 도우미 (패턴이 빈 문자열에 걸리지 않으므로 결과가 같다) |
 | `str.match(/[^.!?]+[.!?]*/g)` | 두 문장 자르기 | `search_all` |
 | `/[^\p{Script=Hangul}\p{Script=Latin}\p{N}\p{P}\p{Zs}\p{S}]/gu` | `cleanSpeech` 1단계 | `\p{Script=…}` 대신 **`\p{Hangul}`, `\p{Latin}`** 으로 쓴다 (모든 PCRE2 판이 받는 문법) |
@@ -1394,8 +1416,8 @@ static func hash_pick(list: Array, salts: Array):
 
 ### 6.5 테스트 전략 (골든)
 
-1. **판 골든** — 이미 있다: `node tools/golden.mjs` → `docs/export/golden/*.json`. 장마다 `revelation`, `cost`, `tone`, `tablet.{orders, forbidden, doctrine, interpretation}`, `accepted`, `rejected`, `auto`, `petitionAnswered`, `plan`, 기록이 들어 있다 (`heard`와 `auto`의 `heeded` 표시는 골든에 없다 — `auto` 키 목록에 헤아린 자리가 들어 있을 뿐). Godot 테스트: 같은 계시를 석판에 넣어 `tablet`이 같은지, 검증·자동 노동 결과가 같은지. 골든은 `afab303`에서 새 석판·자동 노동으로 다시 만들었다.
-   - **석판 회귀 시험** — `tools/tests/tablet-cases.mjs`의 253문장(3.8)을 그대로 GDScript 표로 옮겨, 명령·금지의 종류가 JS와 같은지 본다.
+1. **판 골든** — 이미 있다: `node tools/golden.mjs` → `docs/export/golden/*.json`. 장마다 `revelation`, `cost`, `tone`, `tablet.{orders, forbidden, doctrine, interpretation}`, `accepted`, `rejected`, `auto`, `petitionAnswered`, `plan`, 기록이 들어 있다 (`heard`와 `auto`의 `heeded` 표시는 골든에 없다 — `auto` 키 목록에 헤아린 자리가 들어 있을 뿐). Godot 테스트: 같은 계시를 석판에 넣어 `tablet`이 같은지, 검증·자동 노동 결과가 같은지. 골든은 `afab303`에서 새 석판·자동 노동으로 다시 만들었고, `e68a240`(막기 대칭·헤아린 성벽 예산)에서 다시 뽑았다.
+   - **석판 회귀 시험** — `tools/tests/tablet-cases.mjs`의 254문장(3.8)을 그대로 GDScript 표로 옮겨, 명령·금지의 종류가 JS와 같은지 본다.
 2. **함수 골든** — 순수 함수는 표로 비교한다. JS에서 뽑는 법 (저장소 루트에서, 결과를 JSON으로 떨어뜨려 Godot 테스트 입력으로 쓴다):
 
 ```js
@@ -1419,7 +1441,7 @@ console.log(JSON.stringify({
 4. **LLM 품질 평가** (비결정론) — `lab/scenario.js`의 `SAMPLES`/`HARD_SAMPLES`(기대 `expect`, 피할 `avoid`, 교리)를 새 모델·새 프롬프트로 여러 번 돌려 의도 적중률·교리 적중률·응답 시간을 잰다. 기준선: v5 의도 87~93%, 교리 100% (2.7). 원격/로컬 모델을 바꿀 때마다 돌린다.
 5. **가짜 해석기** — 엔진 테스트는 해석기 대신 골든의 명령 키를 그대로 넣는다 (`docs/godot/PORTING.md` 골든 절).
 
-**석판 골든 표** (튜토리얼 3×3, 1장 시작 상태 `createState({ mode: 'tutorial' })` + `startRound`, 식량5·목재3·돌1, 행동 수 3 — 위 2.3 예 1의 행동 목록. `448f553`에서 Node로 실행한 결과):
+**석판 골든 표** (튜토리얼 3×3, 1장 시작 상태 `createState({ mode: 'tutorial' })` + `startRound`, 식량5·목재3·돌1, 행동 수 3 — 위 2.3 예 1의 행동 목록. `448f553`에서 Node로 실행한 결과, "~지 말고"가 둘인 두 줄은 `e68a240`에서 다시 실행):
 
 | 계시 | orders | forbidden | doctrine | 해석문 / 링크 |
 |---|---|---|---|---|
@@ -1439,7 +1461,8 @@ console.log(JSON.stringify({
 | `숲을 베지 말고 산에서 돌을 캐라` | `gather:B1:stone` | `gather:A1:wood`, `gather:C3:wood` | abundance | `splitDont` → `숲을 베지 마라, 산에서 …` |
 | `숲을 베지 마라, 산에서 돌을 캐라` | `gather:B1:stone` | `gather:A1:wood`, `gather:C3:wood` | abundance | |
 | `숲을 베지 마라 그리고 산에서 돌을 캐라` | `gather:B1:stone` | `gather:A1:wood`, `gather:C3:wood` | abundance | |
-| `숲을 베지 말고 돌을 캐지 말고 기도하라` | `gather:B1:stone`, `pray:C1:` | `gather:A1:wood`, `gather:C3:wood` | abundance | 둘째 `~지 말고`는 바뀌지 않는다 (3.2, 확인 필요) |
+| `숲을 베지 말고 돌을 캐지 말고 기도하라` | `pray:C1:` | `gather:A1:wood`, `gather:C3:wood`, `gather:B1:stone` | wisdom | 두 `~지 말고`가 모두 금지 절 (3.2; `e68a240` 전에는 돌 채집이 **명령**되고 교리 abundance) |
+| `숲을 베지 말고 기도하지 말고 돌을 캐라` | `gather:B1:stone` | `gather:A1:wood`, `gather:C3:wood`, `pray:C1:` | abundance | 회귀 시험의 254번째 문장 (`e68a240` 전에는 기도가 **명령**) |
 | `곡식을 거두라, 곡식을 거두라, 곡식을 거두라, 곡식을 거두라` | `gather:B2:food`, `gather:C2:food` | | abundance | 절마다 첫 빈 식량 칸 — 둘뿐이라 둘 |
 | `곡식을 많이 거두라` | `gather:B2:food`, `gather:C2:food` | | abundance | 양의 말 `많이` → 둘 |
 | `자원을 모아라` | `gather:B1:stone` | | abundance | `gatherAny` → 가장 모자란 돌 / 링크 `자원` |
@@ -1496,11 +1519,11 @@ console.log(JSON.stringify({
 코드와 설명이 어긋나거나, 의도가 불분명하거나, 이식 때 결정이 필요한 것.
 
 1. **다운로드 진행률이 표시되지 않을 수 있다**: `prepareLLM`은 `preparing ??= createBaseSession({ …, onProgress })`라서 처음 부른 쪽의 콜백만 쓴다. 메인 화면에서 콜백 없이 미리 깨우므로(`main.js:262`) `runInterpretation`이 넘기는 진행률 콜백은 무시된다 (`interpreter.js:120-126`). 의도인지?
-2. **(버그) `~지 말고`는 첫 번째 것만 금지로 바뀐다**: `interpreter.js:159`의 `const kw = (key) => new RegExp(t(key));`는 플래그 인자를 버리므로 `kw('kw.dontAnd', 'g')`(`interpreter.js:177`)가 **비전역** 정규식이 되고, `splitDont`의 `replace`는 첫 일치만 바꾼다. `숲을 베지 말고 돌을 캐지 말고 기도하라` → 숲만 금지, 돌 채집은 **명령**. (`lore.js:7`의 `kw`는 플래그를 받는다.) 지금 골든·회귀 시험에는 `~지 말고`가 두 번 든 문장이 없어 고쳐도 기존 결과는 안 바뀐다. Godot 판은 JS가 고쳐질 때까지 "첫 일치만"을 따른다 (6.2).
-3. **`interpreter.js:225` 주석이 동작과 어긋난다**: "규칙마다 첫 후보만 쓰던 동작은 양의 말이 없을 때 그대로 (골든과 같은 결과)"라고 하지만, 실제로는 채집 후보를 수확량 순으로 줄 세우고(`rankMatches`) 이미 명령한 칸·키를 건너뛴 **첫 빈 후보**를 고른다. `afab303` 전(첫 후보만, 쓰였으면 포기)과 결과가 다르다 — `곡식을 거두라` 네 번은 예전 1개, 지금 2개; `검은숲에서 일하라`는 예전 A1만, 지금 A1+C3. 골든은 `afab303`에서 다시 만들어 지금 동작과 맞는다.
+2. ~~**(버그) `~지 말고`는 첫 번째 것만 금지로 바뀐다**: `interpreter.js:159`의 `kw`가 플래그 인자를 버려 `kw('kw.dontAnd', 'g')`가 비전역 정규식이 되었고, `숲을 베지 말고 돌을 캐지 말고 기도하라`에서 돌 채집이 **명령**되었다.~~ — **고침** `e68a240`: `kw = (key, flags) => new RegExp(t(key), flags)`라 모든 `~지 말고`가 금지 절이 된다(3.2). 회귀 시험에 `숲을 베지 말고 기도하지 말고 돌을 캐라`를 더했다(3.8). 골든에는 `~지 말고`가 두 번 든 문장이 없어 이 수정으로 바뀐 골든은 없다. Godot 판도 모든 일치를 바꾼다 (6.2 `split_dont`).
+3. ~~**`interpreter.js:225` 주석이 동작과 어긋난다**: "규칙마다 첫 후보만 쓰던 동작은 양의 말이 없을 때 그대로 (골든과 같은 결과)"라고 했지만, 실제로는 이미 명령한 칸·키를 건너뛴 **첫 빈 후보**를 고른다.~~ — **고침** `e68a240`: 주석이 "양의 말이 없으면 규칙마다 비어 있는 첫 후보 하나만 쓴다"(`interpreter.js:235`)로 바뀌었다. 동작은 그대로다 — `afab303` 전(첫 후보만, 쓰였으면 포기)과 결과가 다르다: `곡식을 거두라` 네 번은 예전 1개, 지금 2개; `검은숲에서 일하라`는 예전 A1만, 지금 A1+C3.
 4. **석판 해석문은 금지로 거르기 전 명령으로 만든다** (`interpreter.js:230-236`) — 금지된 행동을 말할 수 있다 (드문 경우).
-5. **석판이 대신한 뒤에는 다시 해석할 수 없다**: 다시 해석 버튼은 `pending.result.source === 'tablet'`이면 숨는다 (`main.js:2087`). LLM이 실패·타임아웃해서 석판이 대신한 경우에도 숨어, 그 장에는 대사제에게 다시 물을 길이 없다 (`R` 키도 버튼이 없으면 아무것도 안 한다). 석판 모드의 결정론 때문이라면 `aiMode === 'tablet'`을 보는 편이 뜻에 맞다. 의도인지?
-6. **죽은 필드·키·주석** (기이한 해석·성언을 뺀 흔적): `state.oddUsed`·`state.liturgy` (`createState` `engine.js:80`, `82`; `hydrateState` `1127`, `1130`), 언어팩 `ui.tag.odd`, `ui.tag.liturgy`, `ui.grace.odd`, `ui.verdict.odd`와 `ui.verdict.text`의 `odd` 갈래, `log.liturgy`, `kw.liturgyStrip`; 주석 `lore.js:63`(성언), `engine.js:1031`·`1040`(성언), `main.js:582`("…기이한 해석을 다시 계산한다"); `tools/golden.mjs:175` `pending.odd = false`, `:293` `d.liturgy`. 그리고 `DOCTRINE_LABOR.abundance = ['gather']`는 늘 건너뛰는 빈 항목이다. Godot 판에는 옮기지 않는다 (옛 저장본을 읽을 때 무시만 한다).
+5. ~~**석판이 대신한 뒤에는 다시 해석할 수 없다**: 다시 해석 버튼이 `pending.result.source === 'tablet'`이면 숨어, LLM 실패·타임아웃으로 석판이 대신한 장에는 대사제에게 다시 물을 길이 없었다.~~ — **고침** `e68a240`: 버튼은 `aiMode === 'llm'`일 때만 보인다(`main.js:2092`) — 석판 모드에서는 없고, LLM 모드에서는 석판이 대신한 뒤에도 있다. 튜토리얼 대사(`tut.confirm1.1`)와 단축키 도움말(`ui.rules.keys1` "R 다시 해석(대사제)")도 이에 맞췄다.
+6. ~~**죽은 필드·키·주석** (기이한 해석·성언을 뺀 흔적): `state.oddUsed`·`state.liturgy`, 언어팩 `ui.tag.odd`·`ui.tag.liturgy`·`ui.grace.odd`·`ui.grace.otherDeed`·`ui.verdict.odd`·`log.liturgy`·`kw.liturgyStrip`, 없어진 장치를 말하는 주석, `tools/golden.mjs`의 `pending.odd`·`d.liturgy`, 늘 건너뛰는 `DOCTRINE_LABOR.abundance`.~~ — **고침** `e68a240`: 모두 지웠다. 남은 것은 `ui.verdict.text`의 `odd` 갈래(옛 저장본의 판결용)와 언어팩 파일의 주석 두 줄(`i18n/ko/engine.js:185`, `i18n/ko/interp.js:136`)뿐이다. Godot 판에는 옮기지 않는다 (옛 저장본을 읽을 때 무시만 한다).
 7. **청원 외면에 침묵이 포함된다** (`wordsAfter`가 침묵에도 불린다). 의도인지?
 8. **예언 `fall`은 공격 점령만 센다** (`stats.captured`). 선교로 넘어온 마을(`stats.turned`)은 "마을이 무너지리라"를 이루지 못한다.
 9. **`linkWords`는 석판과 조금 다르게 본다**: 노트 비교에서 건설 종류를 보지 않고(석판의 노트 규칙은 본다), `except`·`splitDont`·절 나누기 없이 원문 전체의 첫 일치를 쓴다. 밑줄 낱말이 명령을 실제로 만든 낱말과 다를 수 있다.
@@ -1509,9 +1532,9 @@ console.log(JSON.stringify({
 12. **옛 문서와 코드 차이**: `docs/DESIGN.md`의 초안 스키마(해석문 먼저, 80자, 좌표 객체)와 `docs/EXPERIMENTS.md` v4/v5의 생성 순서(해석 → 금지 → 행동 → 교리)는 지금 코드(금지 → 행동 → 교리 → 해석문, 110자)와 다르다. 코드가 기준.
 13. **쓰이지 않는 것**: `data.js:58` `revelationCost`, `leaderLine` 주석의 `win`/`lose` 종류.
 14. **`너의 신의 이름은 ${god}이다`** 는 받침을 보지 않는다 (`interp.prompt`).
-15. **Godot `RegEx`의 유니코드 속성 지원**: Godot가 PCRE2를 어떤 옵션(UTF/UCP)으로 컴파일하는지에 따라 `\p{Hangul}`, `\s`의 동작이 다를 수 있다. 이식 첫날 `\p{Hangul}`·`[가-힣]`·`(*UCP)\s`·`\p{P}`, 석판의 뒤 보기(`(?<![가-힣])강`, `(?<!돌아|들어)가라`)를 작은 테스트로 확인할 것 (가장 빠른 길은 3.8의 253문장 회귀 시험을 그대로 돌리는 것).
+15. **Godot `RegEx`의 유니코드 속성 지원**: Godot가 PCRE2를 어떤 옵션(UTF/UCP)으로 컴파일하는지에 따라 `\p{Hangul}`, `\s`의 동작이 다를 수 있다. 이식 첫날 `\p{Hangul}`·`[가-힣]`·`(*UCP)\s`·`\p{P}`, 석판의 뒤 보기(`(?<![가-힣])강`, `(?<!돌아|들어)가라`)를 작은 테스트로 확인할 것 (가장 빠른 길은 3.8의 254문장 회귀 시험을 그대로 돌리는 것).
 16. **Claude 구조화 출력의 배열 제약**: `minItems`/`maxItems`가 받아들여지는지(“복잡한 배열 제약” 미지원 목록에 드는지) 실제 요청으로 확인. `maxLength`는 미지원이 확실하다.
 17. **로컬 LLM 애드온**: 어떤 Godot llama.cpp 애드온이 GBNF/JSON 스키마 제약을 GDScript로 노출하는지, 한국어 품질이 되는 모델 크기는 무엇인지 — 6.5의 LLM 품질 평가로 정한다.
 18. **이모지 등 BMP 밖 문자**: 비용(30자)·이름 길이·`hashPick`에서 JS(UTF-16)와 Godot(코드 포인트)가 달라질 수 있다. 골든에 이모지 사례를 하나 넣어 둘 것.
-19. **"할 수 없다"의 사유가 늘 맞지는 않다**: `interp.tablet.cannot`/`ui.heard.cannot`의 사유는 종류별 고정 문구다. 계명 `noSword`나 시련 「대지모」로 공격이 목록에서 빠져도 `공격(닿는 율법파 땅이 없다)`, 계명 `noExpand`로 마을이 막혀도 `마을(자원이나 빈 땅이 없다)`라고 말한다.
-20. **석판 이해율 수치는 과적합돼 있다**: 회귀 시험 253/253은 튜닝에 쓴 문장들이다. 처음 보는 문장의 이해율은 마지막 눈 가린 측정 90%(3.8)가 가장 가까운 값이고, 은유 문장은 68%였다. 튜토리얼이 "은유도 헤아린다"고 말하던 약속은 `tut.speak5.1`에서 "알아들은 말을 보며 고쳐 쓰라"로 바뀌었다.
+19. ~~**"할 수 없다"의 사유가 늘 맞지는 않다**: 사유가 종류별 고정 문구라, 계명 `noSword`나 시련 「대지모」로 공격이 목록에서 빠져도 `공격(닿는 율법파 땅이 없다)`, 계명 `noExpand`로 마을이 막혀도 `마을(자원이나 빈 땅이 없다)`라고 말했다.~~ — **고침** `e68a240`: `cannotWhy`가 까닭 코드(`attack:law`·`attack:earth`·`village:law`·`temple:villages`)를 넣고 언어팩이 그 문장을 낸다(3.2). 남은 점: 코드는 계명·시련·대성당 마을 조건만 가리고, 그 밖의 까닭은 여전히 종류별 고정 문구다.
+20. **석판 이해율 수치는 과적합돼 있다**: 회귀 시험 254/254는 튜닝에 쓴 문장들이다. 처음 보는 문장의 이해율은 마지막 눈 가린 측정 90%(3.8)가 가장 가까운 값이고, 은유 문장은 68%였다. 튜토리얼이 "은유도 헤아린다"고 말하던 약속은 `tut.speak5.1`에서 "알아들은 말을 보며 고쳐 쓰라"로 바뀌었다.

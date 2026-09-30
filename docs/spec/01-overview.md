@@ -1,7 +1,7 @@
 # 01. 개요 — 말씀이 있으라 (Let There Be)
 
 > 이 폴더(`docs/spec/`)는 웹판(JS)을 **엔진과 무관한 명세**로 옮긴 것이다. Godot 4로 다시 만들 때 코드를 보지 않고도 같은 게임을 만들 수 있게 하는 것이 목표다.
-> 코드와 문서가 다르면 **코드가 기준**이다. 이 문서들은 2026-09-27 커밋(`8b91681`) 기준으로 쓰였고, 2026-09-30 재조정(`afab303`)·수도 막기 수정(`5b7a94f`)·휴대폰 배치(`3092cf1`)·석판 어휘(`1b582ee`)·남은 자(`448f553`)를 반영해 고쳤다. 문서마다 머리에 기준 커밋이 있다.
+> 코드와 문서가 다르면 **코드가 기준**이다. 이 문서들은 2026-09-27 커밋(`8b91681`) 기준으로 쓰였고, 2026-09-30 재조정(`afab303`)·수도 막기 수정(`5b7a94f`)·휴대폰 배치(`3092cf1`)·석판 어휘(`1b582ee`)·남은 자(`448f553`)·명세 검토 수정(`e68a240`: 막기 대칭, "~지 말고" 전부 금지, `RULESET` 5 등)을 반영해 고쳤다. 문서마다 머리에 기준 커밋이 있다.
 
 ## 한 줄
 
@@ -87,7 +87,7 @@ Godot 코드의 이름을 정할 때 오른쪽 열을 그대로 쓰면 JS 코드
 | 메아리 (지난 계시를 그대로 되풀이) | echo | `isEcho` |
 | 알아들은 말 | heard words (live parse line) | `heardHTML`, `interpretWithTablet().heard` |
 | 뜻을 헤아림 (교리를 따른 기본 노동) | heeded labour | `autoFill(…, doctrine)`, 행동 `heeded` |
-| ~~성언 (세 번 쓴 구절 = 전례)~~ | ~~sacred saying (liturgy)~~ | 없어졌다(`afab303`). `state.liturgy`는 쓰이지 않는 기본값 |
+| ~~성언 (세 번 쓴 구절 = 전례)~~ | ~~sacred saying (liturgy)~~ | 없어졌다(`afab303`). 남아 있던 `state.liturgy` 필드도 `e68a240`에서 지웠다 |
 | 오늘의 숨은 말 | hidden word of the day | `SACRED_WORDS`, `state.sacred` |
 | 영원한 계명 | eternal commandment | `COMMANDMENTS`, `commandments` |
 | 침묵 | silence | `applySilence`, `silentRun` |
