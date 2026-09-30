@@ -8,7 +8,7 @@ const DIRS = ['동', '북동', '북', '북서', '서', '남서', '남', '남동'
 export default {
   'ui.chip.heeded': '뜻을 헤아림',
   'ui.chip.heededTip': '{text} — 계시의 뜻(교리)을 헤아려 남은 신도가 스스로 한 일',
-  'ui.law.guard': (v) => `되풀이를 읽음: 선교·공격 방어 +${v.n}`,
+  'ui.law.guard': (v) => `우리를 읽음: 선교·공격 방어 +${v.n}`,
   'ui.law.rally': '결집: 행동 +1, 공격 먼저',
   'ui.law.march': (v) => `원정: 수도의 손 +${v.n}칸`,
   'ui.faithCostEcho': '신앙 {n} · 되풀이',
