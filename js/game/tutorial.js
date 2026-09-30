@@ -31,6 +31,10 @@ const SCRIPT = [
     { text: t('tut.speak3.1'), focus: '#matPlayer .stats' },
     { text: t('tut.speak3.2'), suggest: t('tut.speak3.2.suggest'), focus: '.seal-btn' },
   ] },
+  { phase: 'confirm', round: 3, lines: [
+    { text: t('tut.confirm3.0'), focus: '.orders' },
+    { text: t('tut.confirm3.1'), focus: '#boardFrame' },
+  ] },
   { phase: 'speak', round: 4, lines: [
     { text: t('tut.speak4.0'), focus: '#boardFrame' },
     { text: t('tut.speak4.1'), suggest: t('tut.speak4.1.suggest'), focus: '.seal-btn' },

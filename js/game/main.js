@@ -766,7 +766,7 @@ function wordsAfter(pd) {
   const pt = state.petition;
   if (pt?.need) {
     if (pd.answered) { state.stats.petitions += 1; state.petitionIgnored = 0; grantGrace(state, 1, t('ui.grace.petition', { from: pt.from })); }
-    else if (++state.petitionIgnored >= 2) {
+    else if (!state.tutorial && ++state.petitionIgnored >= 2) {
       state.petitionIgnored = 0;
       state.sides.player.faith = Math.max(0, state.sides.player.faith - 1);
       state.log.push({ round: state.round, side: 'player', text: t('ui.log.petitionIgnored'), fx: { kind: 'warn' }, snap: snapshot(state) });
@@ -1671,7 +1671,7 @@ async function useMiracle(id) {
 const sameKind = (a, b) => a.type === b.type && a.build === b.build && a.gather === b.gather;
 function moveChoices(key) {
   const a = pending?.accepted?.find((x) => x.key === key);
-  if (!a || state.tutorial) return [];
+  if (!a) return [];
   const taken = new Set(pending.accepted.filter((x) => x.key !== key).map((x) => x.tile));
   const banned = new Set(pending.result.forbidden.map((x) => x.key));
   return legalActions(state, 'player').filter((b) => sameKind(a, b) && b.key !== key && !taken.has(b.tile) && !banned.has(b.key));

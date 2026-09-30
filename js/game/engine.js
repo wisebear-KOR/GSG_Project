@@ -604,8 +604,8 @@ export function startRound(state) {
       state.reacted = heard;
     }
   }
-  // 선공은 승점이 뒤진 쪽 (같으면, 그리고 튜토리얼은 번갈아)
-  state.first = state.round % 2 === 1 ? 'player' : 'enemy';
+  // 선공은 승점이 뒤진 쪽 (같으면 번갈아). 튜토리얼은 늘 우리가 선공 — 배우는 일이 막히지 않게
+  state.first = state.tutorial || state.round % 2 === 1 ? 'player' : 'enemy';
   if (!state.tutorial) { const d = score(state, 'player') - score(state, 'enemy'); if (d < 0) state.first = 'player'; else if (d > 0) state.first = 'enemy'; }
   state.roundMods = {};
   state.dilemmaPick = null;
