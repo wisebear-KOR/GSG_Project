@@ -10,9 +10,11 @@ const CANNOT_WHY = {
   tile: '그 칸에는 이미 다른 일이 있다 — 한 칸에 한 가지', limit: '행동 수가 모자라다',
 };
 const FORBID_KIND = { 'gather:wood': '나무 베기', 'gather:stone': '돌 캐기', 'gather:food': '먹을 것 거두기', 'gather:faith': '묵상' };
+// 닿지 않는 곳의 이름 (해석기는 capital.enemy·capital.player·holy 또는 칸 이름을 넘긴다)
+const FAR_NAME = { 'capital.enemy': '율법파 수도', 'capital.player': '우리 수도', holy: '성지' };
 export const cannotLabel = (k) => {
   const [kind, why] = k.split(':');
-  if (kind === 'far') return `${why}(지금 그곳에서는 할 수 없다)`;
+  if (kind === 'far') return `${FAR_NAME[why] ?? why}(지금 그곳에서는 할 수 없다)`;
   if (why === 'villages') return '대성당(마을이 모자라다)';
   return `${CANNOT_KIND[kind] ?? kind}(${CANNOT_WHY[k] ?? CANNOT_WHY[why] ?? CANNOT_WHY[kind] ?? ''})`;
 };
@@ -132,9 +134,6 @@ ${v.event}${v.choice ? `\n이번 사건의 갈림길: ${v.choice}` : ''}${v.next
   'kw.notBut': '(\\S+?)(?:이|가)? 아니라|(\\S+?)(?:이|가)? 아닌 ',
   // "숲에서가 아니라 산에서"의 앞말: 금지가 아니라 곳이다 (그 말은 지운다)
   'kw.notButPlace': '에서가?$',
-  // 닿지 않는 곳을 알릴 때의 이름
-  'interp.place.capital': (v) => (v.side === 'enemy' ? '율법파 수도' : '우리 수도'),
-  'interp.place.holy': '성지',
   // "칼 대신 말씀으로": 앞의 것은 금지다
   'kw.instead': '(\\S+?) 대신(?:에)?',
   // 칸 이름만으로 된 낱말 ("D2 말고"의 D2는 금지가 아니라 피할 칸)
@@ -198,7 +197,7 @@ ${v.event}${v.choice ? `\n이번 사건의 갈림길: ${v.choice}` : ''}${v.next
   // 수도·성지·율법파가 노리는 곳·"옆에" (어느 쪽 수도인지는 foe/ours로 가린다)
   'kw.place.capital': '수도|본거지|도읍|도성|(?:적|율법파|저들|그들)의 성(?![벽채곽])|심장부|(?:율법파|적|저들|그들)의 탑|율법의 탑|저 탑',
   'kw.place.holy': '성지|거룩한 땅|가운데 언덕|가운데 땅',
-  'kw.place.aim': '노리는|노린|노려|넘보는|탐내는|오려는|향하는|가려는|쳐들어올|공격하려는|짓는 (?:마을 )?자리|지으려는|노리는 곳',
+  'kw.place.aim': '노리는|노린|노려|넘보는|탐내는|오려는|향하는|가려는|쳐들어올|공격하려는|짓는 (?:마을 )?자리|지으려는',
   'kw.place.near': '옆|곁|근처|가까이|둘레|주변|어귀|에워싸|포위|둘러싸',
   'kw.place.foe': '율법파|적|저들|그들|원수|놈들',
   'kw.place.ours': '우리|나의|내 ',

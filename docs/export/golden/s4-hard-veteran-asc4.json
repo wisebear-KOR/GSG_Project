@@ -567,9 +567,9 @@
       "accepted": ["attack:D1:"],
       "rejected": [],
       "petitionAnswered": false,
-      "auto": ["attack:C2:"],
+      "auto": ["attack:D3:"],
       "enemyPlan": ["build:C2:wall","attack:D2:","gather:B3:stone","pray:A3:","build:C3:wall","gather:A1:wood"],
-      "plan": ["attack:D1:","attack:C2:"],
+      "plan": ["attack:D1:","attack:D3:"],
       "ordered": ["attack:D1:"],
       "log": [
         {"side":"god","text":"“율법파의 마을을 쳐라”","ui":true},
@@ -603,10 +603,10 @@
         },
         {
           "side": "player",
-          "text": "신도들의 공격이 율법파 마을(C2)에서 막혔다. 공격자 1명이 쓰러졌다.",
-          "dice": {"attacker":2,"attackerBonus":1,"defender":6,"defenderBonus":2,"win":false},
-          "fx": {"kind":"attack","tile":"C2"},
-          "act": "attack:C2:"
+          "text": "신도들의 공격이 율법파 마을(D3)에서 막혔다. 공격자 1명이 쓰러졌다.",
+          "dice": {"attacker":2,"attackerBonus":1,"defender":6,"defenderBonus":0,"win":false},
+          "fx": {"kind":"attack","tile":"D3"},
+          "act": "attack:D3:"
         },
         {
           "side": "enemy",
@@ -618,7 +618,6 @@
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"player","text":"역병으로 우리 부족 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"enemy","text":"역병으로 율법파 1명을 잃었다.","fx":{"kind":"loss"}},
-        {"side":"enemy","text":"율법파가 되풀이되는 말씀을 읽고 율법을 굳혔다 — 다음 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A3"}},
         {"side":"player","text":"신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다 (판에 한 번).","fx":{"kind":"wrath","tile":"D2"}},
         {"side":"player","text":"이 땅은 이제 「분노의 마을」이라 불린다 — “율법파의 마을을 쳐라”.","fx":{"kind":"legend","tile":"D1"}},
         {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
@@ -694,6 +693,7 @@
       "plan": ["build:C1:village"],
       "ordered": ["build:C1:village"],
       "log": [
+        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A3"}},
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
         {"side":"priest","text":"수수께끼로 이르노니, 평원(C1)에 마을을 세운다!","ui":true},
         {"side":"player","text":"신도들이 우리 마을(C1)을 세웠다.","fx":{"kind":"build","tile":"C1"},"act":"build:C1:village"},

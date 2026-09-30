@@ -769,7 +769,6 @@
           "text": "잊힌 제단 — 이름 모를 신의 제단이 이끼에 덮여 있다. 신앙 +3.",
           "fx": {"kind":"treasure","tile":"G5","gain":{"faith":3}}
         },
-        {"side":"enemy","text":"율법파가 되풀이되는 말씀을 읽고 율법을 굳혔다 — 다음 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A6"}},
         {"side":"player","text":"신의 분노가 차오른다 (2/3) — 기적이 2만큼 싸진다.","fx":{"kind":"wrath","tile":"G2"}},
         {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"설교자 아모스: “'언덕'… 그 말을 돌판에 새길 수 있겠느냐?”","ui":true}
@@ -853,6 +852,7 @@
       "plan": ["gather:F1:food","gather:D1:wood","gather:E1:food"],
       "ordered": ["gather:F1:food","gather:D1:wood"],
       "log": [
+        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A6"}},
         {"side":"god","text":"“들판의 곡식을 거두고, 숲의 나무를 베어라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 평원(F1)에서 곡식을 거둔다, 그리고 숲(D1)에서 나무를 벤다!","ui":true},
         {
@@ -1315,7 +1315,6 @@
         },
         {"side":"player","text":"떠돌이 상인 — 보낸다. 아무 일도 없다.","fx":{"kind":"dilemma","tile":"G2"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
-        {"side":"enemy","text":"율법파가 되풀이되는 말씀을 읽고 율법을 굳혔다 — 다음 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A6"}},
         {"side":"player","text":"은총 — 칼을 거두는 서원을 지켰다. 신앙 +1.","fx":{"kind":"grace","tile":"G2","gain":{"faith":1}}},
         {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"설교자 아모스: “'싸우지'라… 그 말, 우리 율법에도 있다.”","ui":true}
@@ -1415,6 +1414,7 @@
       "plan": ["build:G2:temple","gather:E1:food","gather:C1:wood","gather:G3:stone"],
       "ordered": ["build:G2:temple"],
       "log": [
+        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A6"}},
         {"side":"god","text":"“높은 신전을 쌓아 나를 섬겨라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 신전을 높인다!","ui":true},
         {

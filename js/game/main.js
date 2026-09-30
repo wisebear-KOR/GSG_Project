@@ -1924,9 +1924,8 @@ function lawBackHTML() {
   const shown = all.filter((a) => a.shown);
   const hidden = all.length - shown.length;
   const lines = shown.map((a) => `<li class="it-${a.type}">${esc(enemyLabel(a))}</li>`).join('');
-  const g = state.lawGuard ?? {};
   const notes = [
-    g.attack || g.preach ? t('ui.law.guard', { n: Math.min(2, Math.max(g.attack ?? 0, g.preach ?? 0)) }) : '',
+    state.lawGuard ? t('ui.law.guard', { n: Math.min(2, state.lawGuard) }) : '',
     state.rally ? t('ui.law.rally') : '',
     marchRange(state, 'enemy') ? t('ui.law.march', { n: marchRange(state, 'enemy') }) : '',
   ].filter(Boolean);

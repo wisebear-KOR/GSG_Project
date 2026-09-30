@@ -307,7 +307,7 @@
         "orders": [],
         "forbidden": [],
         "doctrine": null,
-        "interpretation": "석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — 공격(닿는 율법파 땅이 없다), 율법파 수도(지금 그곳에서는 할 수 없다). 나머지는 각자 할 일을 하라."
+        "interpretation": "석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — 공격(닿는 율법파 땅이 없다). 나머지는 각자 할 일을 하라."
       },
       "accepted": [],
       "rejected": [],
@@ -318,11 +318,7 @@
       "ordered": [],
       "log": [
         {"side":"god","text":"“율법파에게 재앙을! 그들의 수도를 쳐라”","ui":true},
-        {
-          "side": "priest",
-          "text": "석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — 공격(닿는 율법파 땅이 없다), 율법파 수도(지금 그곳에서는 할 수 없다). 나머지는 각자 할 일을 하라.",
-          "ui": true
-        },
+        {"side":"priest","text":"석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — 공격(닿는 율법파 땅이 없다). 나머지는 각자 할 일을 하라.","ui":true},
         {"side":"player","text":"신도들은 숲(A1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"A1"}},
         {"side":"player","text":"신도들은 강(C2)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"C2"}},
         {
@@ -735,7 +731,6 @@
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
-        {"side":"enemy","text":"율법파가 되풀이되는 말씀을 읽고 율법을 굳혔다 — 다음 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A3"}},
         {"side":"player","text":"이 땅은 이제 「분노의 마을」이라 불린다 — “율법파에게 재앙을! 그들의 수도를 쳐라”.","fx":{"kind":"legend","tile":"C2"}},
         {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"장로 하르쿤: “'율법파'라니. 칼을 부르는 신은 칼로 망한다.”","ui":true}
@@ -808,6 +803,7 @@
       "plan": ["build:C2:wall","build:A2:village","gather:B1:stone","gather:A1:wood"],
       "ordered": ["build:C2:wall","build:A2:village"],
       "log": [
+        {"side":"enemy","text":"율법파가 되풀이된 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A3"}},
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 우리 마을(C2)에 성벽을 쌓는다, 그리고 숲(A2)에 마을을 세운다!","ui":true},
         {
