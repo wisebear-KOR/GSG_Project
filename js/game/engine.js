@@ -950,12 +950,15 @@ export function resolveRound(state, playerPlan, enemyPlan) {
 function updateLawGuard(state, playerPlan) {
   if (state.tutorial) return;
   state.lawGuard ??= { preach: 0, attack: 0 }; state.rally ??= false; state.doomUsed ??= false; state.miracleUses ??= {};
-  const spoken = new Set(playerPlan.filter((a) => !a.auto).map((a) => a.type));
+  // 되풀이는 하나의 규칙이다: 명령한 일들이 지난 두 계시 가운데 하나와 같으면(되풀이) 율법파가 그만큼 대비한다 — 선교·공격 방어 +1씩(최대 +2), 되풀이를 멈추면 풀린다
+  const kk = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);
+  const sig = [...new Set(playerPlan.filter((a) => !a.auto).map(kk))].sort().join('|');
+  const echoed = !!sig && [state.revelations?.at(-1)?.sig, state.revelations?.at(-2)?.sig].includes(sig);
   for (const k of ['preach', 'attack']) {
     const before = state.lawGuard[k];
-    state.lawGuard[k] = spoken.has(k) ? Math.min(2, before + 1) : 0;
-    if (state.lawGuard[k] > before && !state.winner) logEvent(state, 'enemy', t('log.lawGuard', { kind: k, n: state.lawGuard[k] }), null, { kind: 'guard', tile: capitalOf(state, 'enemy')?.id });
+    state.lawGuard[k] = echoed ? Math.min(2, before + 1) : 0;
   }
+  if (echoed && state.lawGuard.attack > 0 && !state.winner) logEvent(state, 'enemy', t('log.lawGuard', { n: state.lawGuard.attack }), null, { kind: 'guard', tile: capitalOf(state, 'enemy')?.id });
 }
 
 // 장마다 두 진영의 승점과 살림을 남긴다 (결산·그래프·회고용)
@@ -1334,8 +1337,6 @@ function upkeep(state) {
         logEvent(state, side, t('log.birth', { who: side }), null, { kind: 'birth' });
       }
     }
-    // 결집한 율법파에는 장마다 신도 하나가 모여든다
-    if (side === 'enemy' && state.rally) { s.pop += 1; logEvent(state, 'enemy', t('log.rallyJoin'), null, { kind: 'birth' }); }
     s.faith += faithIncome(state, side);
     if (state.event?.id === 'plague' && s.pop > 1 && !(side === 'player' && state.roundMods.ark)) { s.pop -= 1; logEvent(state, side, t('log.plague', { who: side }), null, { kind: 'loss' }); }
   }

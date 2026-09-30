@@ -917,11 +917,6 @@
           "act": "attack:E3:"
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
-        {
-          "side": "enemy",
-          "text": "율법파가 되풀이되는 칼에 맞서 율법을 굳혔다 — 다음 장 공격 방어 +1. 한 장 쉬면 풀린다.",
-          "fx": {"kind":"guard","tile":"A6"}
-        },
         {"side":"player","text":"신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다 (판에 한 번).","fx":{"kind":"wrath","tile":"G2"}},
         {"side":"player","text":"은총 — 산파 시브라의 청원에 응답했다. 신앙 +1.","fx":{"kind":"grace","tile":"G2","gain":{"faith":1}}},
         {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
@@ -1054,7 +1049,7 @@
         {
           "side": "player",
           "text": "신도들이 율법파 마을(F2)을 빼앗았다!",
-          "dice": {"attacker":5,"attackerBonus":1,"defender":2,"defenderBonus":3,"win":true},
+          "dice": {"attacker":5,"attackerBonus":1,"defender":2,"defenderBonus":2,"win":true},
           "fx": {"kind":"attack","tile":"F2","capture":true},
           "act": "attack:F2:"
         },
@@ -1073,11 +1068,7 @@
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
-        {
-          "side": "enemy",
-          "text": "율법파가 되풀이되는 칼에 맞서 율법을 굳혔다 — 다음 장 공격 방어 +2. 한 장 쉬면 풀린다.",
-          "fx": {"kind":"guard","tile":"A6"}
-        },
+        {"side":"enemy","text":"율법파가 되풀이되는 말씀을 읽고 율법을 굳혔다 — 다음 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"A6"}},
         {"side":"player","text":"이 땅은 이제 「분노의 마을」이라 불린다 — “율법파에게 재앙을! 그들의 수도를 쳐라”.","fx":{"kind":"legend","tile":"F2"}},
         {"side":"player","text":"은총 — 과부 나오미의 청원에 응답했다. 신앙 +1.","fx":{"kind":"grace","tile":"G2","gain":{"faith":1}}},
         {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
@@ -1531,11 +1522,6 @@
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
-        {
-          "side": "enemy",
-          "text": "율법파가 되풀이되는 칼에 맞서 율법을 굳혔다 — 다음 장 공격 방어 +1. 한 장 쉬면 풀린다.",
-          "fx": {"kind":"guard","tile":"A6"}
-        },
         {"side":"player","text":"신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다 (판에 한 번).","fx":{"kind":"wrath","tile":"G2"}},
         {"side":"leader","text":"건축가 네훔: “'번개'라… 그 말로 벽 하나라도 쌓겠느냐.”","ui":true}
       ],

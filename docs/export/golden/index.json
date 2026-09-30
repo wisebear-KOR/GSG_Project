@@ -1,6 +1,6 @@
 {
   "generator": "tools/golden.mjs",
-  "ruleset": 8,
+  "ruleset": 9,
   "lang": "ko",
   "games": [
     {
@@ -49,7 +49,7 @@
       "rounds": 12,
       "winner": "player",
       "winKind": "score",
-      "score": {"player":33,"enemy":33}
+      "score": {"player":38,"enemy":29}
     },
     {
       "file": "s7-hard-first.json",
@@ -65,7 +65,7 @@
       "rounds": 14,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":24,"enemy":66}
+      "score": {"player":25,"enemy":66}
     },
     {
       "file": "s4-easy-first-war.json",
@@ -73,7 +73,7 @@
       "rounds": 8,
       "winner": "player",
       "winKind": "score",
-      "score": {"player":24,"enemy":18}
+      "score": {"player":27,"enemy":13}
     },
     {
       "file": "s5-easy-first-war.json",
@@ -81,7 +81,7 @@
       "rounds": 12,
       "winner": "player",
       "winKind": "score",
-      "score": {"player":19,"enemy":17}
+      "score": {"player":36,"enemy":8}
     },
     {
       "file": "s4-hard-veteran-asc4.json",

@@ -791,11 +791,6 @@
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법 석판 +1 — 율법파가 성지에서 율법을 외웠다 (7/12).","fx":{"kind":"edict","tile":"A4","up":true}},
-        {
-          "side": "enemy",
-          "text": "율법파가 되풀이되는 칼에 맞서 율법을 굳혔다 — 다음 장 공격 방어 +1. 한 장 쉬면 풀린다.",
-          "fx": {"kind":"guard","tile":"A4"}
-        },
         {"side":"player","text":"신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다 (판에 한 번).","fx":{"kind":"wrath","tile":"E2"}},
         {"side":"player","text":"은총 — 파수꾼 요압의 청원에 응답했다. 신앙 +1.","fx":{"kind":"grace","tile":"E2","gain":{"faith":1}}},
         {"side":"leader","text":"설교자 아모스: “'율법파'를 외치는 신이라니, 신도들이 두려워하겠구나.”","ui":true}
@@ -1071,11 +1066,6 @@
         {"side":"enemy","text":"율법 석판 +1 — 율법파가 성지에서 율법을 외웠다 (9/12).","fx":{"kind":"edict","tile":"A4","up":true}},
         {"side":"enemy","text":"율법 석판 +1 — 율법파가 경건을 돌에 새겼다 (10/12).","fx":{"kind":"edict","tile":"A4","up":true}},
         {"side":"player","text":"율법 석판이 거의 완성되었다! 성지를 쥐거나 번개로 율법파 수도를 쳐서 막아야 한다.","fx":{"kind":"warn"}},
-        {
-          "side": "enemy",
-          "text": "율법파가 되풀이되는 선교에 맞서 율법을 굳혔다 — 다음 장 선교 방어 +1. 한 장 쉬면 풀린다.",
-          "fx": {"kind":"guard","tile":"A4"}
-        },
         {"side":"player","text":"청원이 거듭 외면당해 신도들이 서운해한다. 신앙 -1.","fx":{"kind":"warn"},"ui":true},
         {"side":"leader","text":"설교자 아모스: “너의 사랑은 조건이 붙어 있지.”","ui":true}
       ],
