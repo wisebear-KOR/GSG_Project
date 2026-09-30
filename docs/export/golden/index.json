@@ -65,7 +65,7 @@
       "rounds": 14,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":26,"enemy":64}
+      "score": {"player":30,"enemy":64}
     },
     {
       "file": "s4-easy-first-war.json",

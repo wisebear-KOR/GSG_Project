@@ -610,7 +610,10 @@ function spokenMiracle(text) {
     const home = capitalOf(state, 'player');
     const named = Object.entries(state.names).find(([tid, n]) => text.includes(n) && state.tileAt[tid].owner === 'enemy');
     const enemies = state.tiles.filter((t) => t.owner === 'enemy' && t.revealed).sort((a, b) => (a.building === 'village' ? 0 : 1) - (b.building === 'village' ? 0 : 1) || distance(a, home) - distance(b, home));
-    target = named?.[0] ?? enemies[0]?.id ?? null;
+    // "번개로 적의 수도를"이면 율법파 수도를 친다
+    const cap = capitalOf(state, 'enemy');
+    const atCap = cap?.revealed && new RegExp(t('kw.place.capital')).test(text) ? cap.id : null;
+    target = named?.[0] ?? atCap ?? enemies[0]?.id ?? null;
     if (!target) return null;
   }
   return { id, target, cost, key: `miracle:${id}` };
