@@ -124,8 +124,8 @@
 비용: 4/4/4, 4/4/4, 3/3/5 (돌/목재/신앙 — 합계가 `COST.cathedral`과 같다). 빠른 판(4×4)은 각 값 `ceil(v × 0.7)`. 셋째 단계를 지으면 즉시 승리(`winKind: 'cathedral'`).
 
 표에 없는 규칙 (engine, [02 §10](02-rules.md#10-대성당)):
-- 다음 단계에는 우리 마을이 `cathedralVillages = cathedral + 1`개(1·2·3) 있어야 한다 (`legalActions`).
-- 공사가 시작되면 율법파의 합법 행동에 우리 수도 공격이 거리와 무관하게 들어가고(`crusade: true`), `planEnemy`가 그것을 맨 앞에 둔다(rush).
+- 다음 단계에는 우리 마을이 `cathedralVillages = cathedral + 1 + max(0, rows − 5)`개 있어야 한다 (`legalActions`) — 5×5 이하 1·2·3, 6×6 2·3·4, 7×7 3·4·5 (`9b43bbf`에서 큰 판 더하기).
+- 공사가 시작되면 율법파의 합법 행동에 우리 수도 공격이 거리와 무관하게 들어가고(`crusade: true`), `planEnemy`가 그것을 맨 앞에 둔다(rush). 공사 중인 우리 수도를 치는 율법파 공격은 +1 (`siegeOf`, `9b43bbf`).
 - 율법파가 우리 수도를 치면 어느 단계든 한 단계 무너진다(`cathedral >= 1`).
 
 ### PLAYER_START · DIFFICULTY
@@ -144,7 +144,7 @@
 
 ### MAP_SIZES
 
-맵 한 변 → `{name, rounds}`. `4`: 8장("빠르게"), `5`: 12장, `6`: 12장, `7`: 14장. engine `createState`의 `maxRounds`(시련의 `rounds`가 먼저), main 설정 화면. 4×4는 "빠른 판"(`quick()`)이라 궁극·드래프트·분노·신앙 승리 조건이 앞당겨진다 (02 규칙).
+맵 한 변 → `{name, rounds}`. `4`: 8장("빠르게"), `5`: 12장, `6`: 12장, `7`: 14장. engine `createState`의 `maxRounds`(시련의 `rounds`가 먼저), main 설정 화면. 4×4는 "빠른 판"(`quick()`)이라 궁극·드래프트·분노·신앙 승리 조건(개종 2명 → 1명 포함)이 앞당겨진다 (02 규칙). 한 변의 길이는 표 밖에서도 쓰인다: 6×6·7×7은 대성당 단계마다 마을이 하나·둘 더 필요하고, 7×7은 율법파 행동 수가 +1이다(engine `cathedralVillages`·`actionLimit`, `9b43bbf`).
 
 ---
 
@@ -317,7 +317,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 `FIRST_HAND` = `['lightning', 'rain', 'bounty']` — 첫 판(과 튜토리얼)의 손패. 두 번째 판은 `hashPick`으로 번개/단비 중 하나 + 나머지에서 둘. 두 번째 판의 드래프트(5장, 빠른 판 3장)에서 손에 없는 기적 가운데 `deck` 난수로 셋을 보여 하나를 더한다.
 
-`DOOM` — 숨은 기적 「심판의 날」: `{id: 'doom', name, cost: 0, hidden: true, text}`. 신의 분노가 3이면(튜토리얼 제외) 쓸 수 있다: 율법파 수도 −1·신도 −1, 분노 0, 석판 −2. 드래프트에 나오지 않는다.
+`DOOM` — 숨은 기적 「심판의 날」: `{id: 'doom', name, cost: 0, hidden: true, text}`. 신의 분노가 3이면(튜토리얼 제외) **판에 한 번** 쓸 수 있다(`state.doomUsed`, `9b43bbf`): 율법파 수도 −1·신도 −1, 분노 0, 석판 −2. 드래프트에 나오지 않는다. 설명 `data.miracle.doom.text`도 "… 분노가 가라앉는다. 판에 한 번."으로 바뀌었다.
 
 ---
 
@@ -464,7 +464,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `MAX_COMMANDMENTS` | 2 | 판당 계명 수 |
 | `REVELATION_MAX` | 100 | 계시 글자 수 상한 (main `revMax`; 시련 `cloister`는 20) |
 | `MAX_ROUNDS` | 12 | **쓰이지 않는다** (`createState`는 `MAP_SIZES`가 없을 때 숫자 12를 직접 쓴다) |
-| `RULESET` | 5 | 규칙 판 번호. 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). `e68a240`에서 4 → 5로 올렸다 — `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)·`e68a240`(막기 대칭·헤아린 성벽 예산)의 규칙 변경이 한 번에 반영된다. 그 사이(`afab303`~`e68a240` 직전)에 둔 판은 재조정 전의 판과 같은 `-r4` 키로 남아 있다 |
+| `RULESET` | 5 | 규칙 판 번호. 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). `e68a240`에서 4 → 5로 올렸다 — `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)·`e68a240`(막기 대칭·헤아린 성벽 예산)의 규칙 변경이 한 번에 반영된다. 그 사이(`afab303`~`e68a240` 직전)에 둔 판은 재조정 전의 판과 같은 `-r4` 키로 남아 있다. `9b43bbf`(심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정)는 올리지 않아 `-r5`에 그 전후 판이 섞인다 |
 
 ---
 
@@ -490,7 +490,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `COMMANDMENTS.<id>.re` | `kw.data.commandment.<id>.re` | `kw.eternal`이 맞은 뒤 `new RegExp(re).test(text)` — 플래그 없음 |
 | `SACRED_WORDS[].word` | `kw.data.sacred.<i>.word` | `text.includes(word)` (정규식 아님) |
 
-나머지 `kw.*`(석판 규칙·부정어·명사 뽑기·말투·예언·이름 붙이기·청원 키 등)는 `data.js`를 거치지 않고 interp·lore·engine이 언어팩에서 직접 읽는다 — [05 해석기](05-interpreter.md)와 [`i18n-ko.json`](../export/i18n-ko.json).
+나머지 `kw.*`(석판 규칙·곳과 수의 말 `kw.place.*`·`kw.count2/3`(`78c891e`)·부정어·명사 뽑기·말투·예언·이름 붙이기·청원 키 등)는 `data.js`를 거치지 않고 interp·lore·engine이 언어팩에서 직접 읽는다 — [05 해석기](05-interpreter.md)와 [`i18n-ko.json`](../export/i18n-ko.json).
 
 ## 결정론 도우미 (요약)
 

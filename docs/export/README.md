@@ -5,7 +5,7 @@
 | 파일 | 내용 | 만드는 스크립트 |
 |---|---|---|
 | [`data.json`](data.json) | `js/game/data.js`의 내보내기 54개 전부 (지형·비용·카드·교리·기적·난이도·튜토리얼 …). 글 칸은 한국어 언어팩에서 풀어 넣은 값 | `node tools/export-data.mjs` |
-| [`i18n-ko.json`](i18n-ko.json) | 한국어 언어팩 전체 1287키 (`ko.js`가 합치는 `ko/*.js` 병합본, `e68a240`) | `node tools/export-data.mjs` |
+| [`i18n-ko.json`](i18n-ko.json) | 한국어 언어팩 전체 1311키 (`ko.js`가 합치는 `ko/*.js` 병합본, `78c891e`) | `node tools/export-data.mjs` |
 | [`golden/`](golden/README.md) | 엔진 동등성 골든 벡터: 정해 둔 계시로 끝까지 둔 11판의 장별 기록 | `node tools/golden.mjs` |
 | `svg/` | 그림 심볼을 낱장 SVG로 (있다면) | `node tools/export-svg.mjs` |
 
@@ -44,14 +44,14 @@ node tools/golden.mjs        # golden/*.json
 
 | 값 모양 | 개수 | 쓰는 법 (`t(key, vars)`) |
 |---|---|---|
-| 문자열 | 1121 | `vars`가 있으면 `{이름}` 자리를 `vars[이름]`으로 바꾼다 (없는 이름은 그대로 둔다) |
+| 문자열 | 1141 | `vars`가 있으면 `{이름}` 자리를 `vars[이름]`으로 바꾼다 (없는 이름은 그대로 둔다) |
 | 문자열 배열 | 42 | 그대로 돌려준다 (대사 후보·달 이름·청원자·금칙어 목록 등) |
 | 객체 | 2 | 그대로 (`kw.nameable`: 이름 붙일 낱말 → 지형, `kw.prophecy.numbers`: 한/두/세 → 1/2/3) |
-| 함수 `{"$fn": …}` | 122 | `fn(vars ?? {})`의 반환 문자열. 손으로 옮겨야 한다 (아래) |
+| 함수 `{"$fn": …}` | 126 | `fn(vars ?? {})`의 반환 문자열. 손으로 옮겨야 한다 (아래) |
 
 - 빠진 키는 키 이름을 그대로 돌려준다 (`t('없는.키') === '없는.키'`).
-- `kw.*` 키(93개)는 **번역이 아니라** 계시를 읽는 정규식 원본·낱말 목록이다. 코드가 `new RegExp(t('kw.…'), 플래그)`로 만든다. 플래그는 코드에 있다: 대부분 없음, `g`(모두 바꾸기)는 `kw.clean.coord`·`kw.clean.dangling`·`kw.clean.afterVerb`·`kw.clean.stem`·`kw.dontAnd`(interpreter.js) 다섯. `kw.dontAnd`는 `e68a240`부터 `kw` 도우미가 `'g'`를 실제로 넘겨 모든 "~지 말고"가 바뀐다(그 전에는 플래그를 버려 첫 번째만 — [05](../spec/05-interpreter.md)). 쓰이지 않던 `kw.liturgyStrip`은 `e68a240`에서 지웠다. `kw.dontAndNeg`는 정규식이 아니라 금지 절을 만드는 **함수**다. 배열 값 `kw.stop`·`kw.citeStop`·`kw.lessonStop`은 정규식이 아니라 낱말 집합이다.
-- 함수 값 122개: `ui.*` 61, `log.*` 42, `eng.*` 10, `interp.*` 7, `kw.*` 2. 인자는 늘 `v` 하나(변수 객체)이고 문자열을 돌려준다. 20개가 `josa`, 7개가 `batchim`을 부른다 — 둘 다 `js/game/i18n/ko/grammar.js`에 있다:
+- `kw.*` 키(112개 — `78c891e`에서 금지 절 `kw.nounAnd`·`kw.stopAnd`·`kw.enoughAnd`, `kw.tablet.attackExcept`, 곳을 가리키는 말 `kw.place.*` 13개, 수의 말 `kw.count2`·`kw.count3`을 더했다)는 **번역이 아니라** 계시를 읽는 정규식 원본·낱말 목록이다. 코드가 `new RegExp(t('kw.…'), 플래그)`로 만든다. 플래그는 코드에 있다: 대부분 없음, `g`(모두 바꾸기)는 `kw.clean.coord`·`kw.clean.dangling`·`kw.clean.afterVerb`·`kw.clean.stem`, 금지 절 `kw.dontAnd`·`kw.nounAnd`·`kw.stopAnd`·`kw.enoughAnd`, 장소가 된 지형 `kw.place.river`·`plain`·`forest`·`mountain`·`hill`·`desert`(interpreter.js) 열넷. `kw.dontAnd`는 `e68a240`부터 `kw` 도우미가 `'g'`를 실제로 넘겨 모든 "~지 말고"가 바뀐다(그 전에는 플래그를 버려 첫 번째만 — [05](../spec/05-interpreter.md)). 쓰이지 않던 `kw.liturgyStrip`은 `e68a240`에서 지웠다. `kw.dontAndNeg`는 정규식이 아니라 금지 절을 만드는 **함수**다. 배열 값 `kw.stop`·`kw.citeStop`·`kw.lessonStop`은 정규식이 아니라 낱말 집합이다.
+- 함수 값 126개: `ui.*` 64, `log.*` 43, `eng.*` 10, `interp.*` 7, `kw.*` 2 (`78c891e`에서 `ui.heard.also`·`ui.heard.forbid`·`ui.heard.kindWord`, `9b43bbf`에서 `log.wrathFull`이 함수가 되었다). 인자는 늘 `v` 하나(변수 객체)이고 문자열을 돌려준다. 20개가 `josa`, 7개가 `batchim`을 부른다 — 둘 다 `js/game/i18n/ko/grammar.js`에 있다. 3개(`interp.tablet.cannot`·`ui.heard.cannot`·`ui.heard.also`)는 `js/game/i18n/ko/interp.js`의 도우미 `cannotLabel`(까닭 코드 → "선교(닿는 율법파 땅이 없다)", 아래)을 부른다 — 원문이 JSON에 없으니 함께 옮긴다:
 
 ```js
 // 받침이 있는가 (마지막 글자가 한글 음절이고 종성이 있으면 true)
@@ -63,6 +63,22 @@ export function josa(name, withBatchim, without) {
   const has = code >= 0 && code <= 11171 ? code % 28 !== 0 : true;
   return name + (has ? withBatchim : without);
 }
+```
+
+```js
+// ko/interp.js:4-16 — "알아들었으나 못 한다"의 까닭 ('종류' 또는 '종류:까닭')
+const CANNOT_KIND = { preach: '선교', attack: '공격', wall: '성벽', village: '마을', temple: '신전', explore: '탐험', pray: '기도', gather: '채집' };
+const CANNOT_WHY = {
+  preach: '닿는 율법파 땅이 없다', attack: '닿는 율법파 땅이 없다', wall: '자원이 모자라거나 둘러쌀 곳이 없다', village: '자원이나 빈 땅이 없다',
+  temple: '자원이 모자라다', explore: '닿는 안개가 없다', gather: '닿는 곳에 그 자원이 없다', pray: '수도가 없다',
+  'attack:law': '계명이 칼을 금한다', 'attack:earth': '이 시련에서는 칼을 들 수 없다', 'village:law': '계명이 넓히기를 금한다',
+  tile: '그 칸에는 이미 다른 일이 있다 — 한 칸에 한 가지', limit: '행동 수가 모자라다',
+};
+export const cannotLabel = (k) => {
+  const [kind, why] = k.split(':');
+  if (why === 'villages') return '대성당(마을이 모자라다)';
+  return `${CANNOT_KIND[kind] ?? kind}(${CANNOT_WHY[k] ?? CANNOT_WHY[why] ?? CANNOT_WHY[kind] ?? ''})`;
+};
 ```
 
 ## `$fn` / `$re` 표식
@@ -98,7 +114,7 @@ func is_fn(v: Variant) -> bool:
 func t(key: String, vars: Dictionary = {}) -> Variant:
     if not KO.has(key): return key
     var v: Variant = KO[key]
-    if is_fn(v): return I18nFns.call_fn(key, vars)   # 113개는 GDScript로 옮긴 함수 표에서 찾는다
+    if is_fn(v): return I18nFns.call_fn(key, vars)   # 126개는 GDScript로 옮긴 함수 표에서 찾는다
     if v is String and not vars.is_empty():
         for k in vars: v = v.replace("{%s}" % k, str(vars[k]))
     return v

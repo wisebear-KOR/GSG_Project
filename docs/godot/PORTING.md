@@ -3,7 +3,7 @@
 웹판(JS, `js/game/`)을 Godot 4로 옮기기 위한 계획서다. 규칙과 화면의 세부는 [`docs/spec/`](../spec/01-overview.md)에 있고, 이 문서는 **어떻게 옮기고 어떻게 같다는 것을 증명할지**를 다룬다.
 
 > 이식 중 결정할 것(현재 웹판의 버그·이상 동작 모음)은 [KNOWN-ISSUES.md](KNOWN-ISSUES.md). 원칙은 "먼저 똑같이 재현하고, 그다음 JS와 함께 고친다".
-> 기준: 커밋 `448f553` (2026-09-30), 명세 검토 수정 `e68a240`까지 반영. 처음 쓴 뒤 규칙이 크게 바뀌었다(`afab303` 재조정, `5b7a94f` 수도 막기, `448f553` 남은 자, `e68a240` 막기 대칭·헤아린 성벽 예산·"~지 말고" 전부 금지·`RULESET` 5) — 명세 02·05·07과 골든은 모두 새 동작 기준이다.
+> 기준: 커밋 `448f553` (2026-09-30), 명세 검토 수정 `e68a240`, 3차 균형 `9b43bbf`, 석판의 곳·수의 말 `78c891e`까지 반영. 처음 쓴 뒤 규칙이 크게 바뀌었다(`afab303` 재조정, `5b7a94f` 수도 막기, `448f553` 남은 자, `e68a240` 막기 대칭·헤아린 성벽 예산·"~지 말고" 전부 금지·`RULESET` 5, `9b43bbf` 심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정·일 메아리, `78c891e` 곳을 가리키는 말·수의 말·한 칸에 한 가지·칩 옮기기) — 명세 02·05·07과 골든은 모두 새 동작 기준이다.
 
 ## 원칙
 
@@ -53,14 +53,14 @@ res://
 
 | JS | 줄 수 | Godot | 비고 |
 |---|---|---|---|
-| `engine.js` | 1453 | `core/engine.gd` | 순수 함수. 상태는 `Dictionary` 하나로 두면 골든 JSON과 바로 비교된다 |
+| `engine.js` | 1476 | `core/engine.gd` | 순수 함수. 상태는 `Dictionary` 하나로 두면 골든 JSON과 바로 비교된다. 메아리의 일 목록은 석판에서 받는다(`setPlanSig` — 아래 표) |
 | `data.js` | 395 | `data/data.json` + `core/data.gd` | 함수 값(`$fn`)은 GDScript로 다시 쓴다 ([03 데이터](../spec/03-data.md)) |
 | `mapgen.js` | 187 | `core/mapgen.gd` | 골든의 초기 맵으로 검증 |
-| `interpreter.js`, `lore.js` | 277+112 | `core/interpreter/*`, `core/lore.gd` | 정규식은 `kw.*` 문자열을 `RegEx`로 ([05 해석기](../spec/05-interpreter.md)). 석판 사전은 고정 길이 뒤보기·앞보기를 쓴다 |
+| `interpreter.js`, `lore.js` | 375+110 | `core/interpreter/*`, `core/lore.gd` | 정규식은 `kw.*` 문자열을 `RegEx`로 ([05 해석기](../spec/05-interpreter.md)). 석판 사전은 갈래마다 고정 길이인 뒤보기·앞보기를 쓴다. 곳을 가리키는 말(`placeOf`·`byPlace`)과 해결 단계(한 칸에 한 가지·행동 수)는 05 §3.2 |
 | `chronicle.js` | 151 | `core/chronicle.gd` | |
 | `meta.js` | 167 | `autoload/Meta.gd` | `localStorage` → `user://*.json` ([07 진행](../spec/07-progression.md)) |
-| `i18n.js` + `i18n/ko/*` | ~1620 | `autoload/I18n.gd` + `i18n-ko.json` | 함수 값 처리 방법은 아래 |
-| `main.js` | 2388 | `autoload/Game.gd` + `ui/*` | 단계 기계와 화면 갱신을 나눈다 ([04 구조](../spec/04-architecture.md)) |
+| `i18n.js` + `i18n/ko/*` | ~1650 | `autoload/I18n.gd` + `i18n-ko.json` | 함수 값 처리 방법은 아래 |
+| `main.js` | 2442 | `autoload/Game.gd` + `ui/*` | 단계 기계와 화면 갱신을 나눈다 ([04 구조](../spec/04-architecture.md)) |
 | `board.js`, `art.js` | 192+248 | `board/*`, `art/svg/*` | SVG 심볼은 파일로 뽑아 두었다 |
 | `fx.js` | 847 | `board/board_fx.gd`, `ui/*` | Tween, AnimationPlayer, 파티클 |
 | `sound.js` | 408 | `autoload/Sfx.gd`, `Music.gd` | Web Audio 합성 → 아래 [소리](#소리) |
@@ -86,7 +86,10 @@ res://
 | 도감 기록 | 튜토리얼에서는 도감(`gsg.seen`)에 아무것도 적지 않는다 — 카드·번개로 쓴 기적도 (`main.js:1653`, `1671`, `e68a240`) |
 | 지난 계시 인용 | `history.at(-1).text`를 다음 해석에 넘긴다 |
 | 지도자의 반박 대사 | 율법파 지도자가 지난 계시에 맞받아치는 기록 줄 |
-| 수락 순서 | 율법파 계획 확정 → 말한 기적 → 말투 효과·갈림길 비용 → 계명 새기기·예언 봉인(기준값 저장) → 해결(엔진 안에서 유지 → 굳은 율법 → 장 기록·결집) → 침묵·전설·서원·`wordsAfter` → 교리 기록(메아리면 교리 없음; 예전의 성언 갱신 `updateLiturgy`는 없어졌다) ([02 §3.6](../spec/02-rules.md#36-확정-accept)) |
+| 되풀이 판정은 말할 때 | 인장을 누를 때(비용 지불·이름 붙이기 전) `spokenOf(state, text)` = `{ sig, echo }`를 `speakSnap.spoken`에 두고, 수락의 `recordRevelation(…, spoken)`에 그대로 넘긴다 (`main.js:521`, `738`, `9b43bbf`). 해결 뒤 다시 판정하면 석판의 읽음이 달라져 교리·기록이 골든과 어긋날 수 있다. 골든 구동기와 `lib.mjs`는 `pending.spoken`으로 같은 일을 한다 |
+| 칩 옮기기 ⇄ | 확인 화면에서 받아들인 명령을 같은 종류(`type`·`build`·`gather`)의 다른 합법 행동으로 바꾼다 — 금지된 것·다른 받아들인 칩의 칸 제외, 튜토리얼 없음, 비용 없음 (`moveChoices`·`moveChip`, `main.js:1671-1690`, `78c891e`). `result.orders`를 바꿔 끼우고 `derivePending`을 다시 부른다. 골든 구동기는 칩을 옮기지 않는다 |
+| 선공 표시 | 확인 칩의 "선공 · 막음"/"빼앗김"은 우리 칩과 율법파의 뜻이 둘 다 집 안 행동이 아닐 때만 (`firstNote`, `9b43bbf`) — 엔진 막기 규칙과 같게 |
+| 수락 순서 | 율법파 계획 확정 → 말한 기적 → 말투 효과·갈림길 비용 → 계명 새기기·예언 봉인(기준값 저장) → 해결(엔진 안에서 유지 → 굳은 율법 → 장 기록·결집) → 침묵·전설·서원·`wordsAfter` → 교리 기록(말할 때 판정한 메아리면 교리 없음; 예전의 성언 갱신 `updateLiturgy`는 없어졌다) ([02 §3.6](../spec/02-rules.md#36-확정-accept)) |
 | 강제 선택 | 소명·기적 드래프트는 계시 전에 고른다 (웹판은 2.5초 뒤 모달, 이미 말했으면 건너뜀) |
 
 ## 결정론: 비트 단위로 맞추기
@@ -177,7 +180,8 @@ static func js_str(v) -> String:
 | 객체 키 순서 | 문자열 키는 삽입 순서, **정수처럼 보이는 키는 숫자 순서가 먼저** | Godot `Dictionary`는 삽입 순서. `{1:…, 2:…}` 같은 정수 키 표를 순회하는 곳은 키를 정렬해서 돈다 |
 | 난수 호출 순서 | 스트림별(`deck`, `dice`, 맵 생성용 시드 변형 4가지)로 호출 순서가 결과를 정한다 | [02 규칙](../spec/02-rules.md)의 RNG 순서를 그대로 따른다. 화면 쪽 연출에는 엔진 스트림을 쓰지 않는다 |
 | `for (const ch of str)` | 코드 포인트 단위 순회 | `unicode_at` 순회와 같다. 해시만 위 대리 문자 처리가 필요 |
-| 정규식 | JS 정규식 (`u` 플래그, `\p{Script=Hangul}`, 앞 보기 `kw.clean.coord`와 석판 사전(`kw.tablet.*`)의 앞 보기 `(?!…)`·**고정 길이 뒤 보기** `(?<!…)`, 메아리의 `[\s\p{P}]`). `\s`는 유니코드 공백 | Godot `RegEx`는 PCRE2. `\p{Script=Hangul}` → `\p{Hangul}`, 패턴 앞에 `(*UCP)`를 붙여 `\s`·`\w`를 유니코드로(또는 메아리처럼 `[\s\p{Z}\x{FEFF}\p{P}]`로 직접). PCRE2는 고정 길이 뒤 보기를 지원한다. 플래그는 `(?i)` 같은 인라인 옵션. 정규식 split·콜백 치환이 없어 도우미가 필요하다 — `splitDont`는 콜백 치환이고 JS에서 **첫 번째만** 바꾼다(KNOWN-ISSUES B7) ([05](../spec/05-interpreter.md)) |
+| 정규식 | JS 정규식 (`u` 플래그, `\p{Script=Hangul}`, 앞 보기 `kw.clean.coord`와 석판 사전(`kw.tablet.*`)의 앞 보기 `(?!…)`·**고정 길이 뒤 보기** `(?<!…)`, 메아리의 `[\s\p{P}]`). `\s`는 유니코드 공백 | Godot `RegEx`는 PCRE2. `\p{Script=Hangul}` → `\p{Hangul}`, 패턴 앞에 `(*UCP)`를 붙여 `\s`·`\w`를 유니코드로(또는 메아리처럼 `[\s\p{Z}\x{FEFF}\p{P}]`로 직접). PCRE2는 갈래마다 고정 길이인 뒤 보기를 지원한다(`(?<!돌아\|들어\|나)`처럼 갈래끼리 길이가 달라도 된다). 플래그는 `(?i)` 같은 인라인 옵션. 정규식 split·콜백 치환이 없어 도우미가 필요하다 — `splitDont`는 네 패턴(`kw.dontAnd`·`stopAnd`·`enoughAnd`·`nounAnd`)을 차례로 **모든 일치**에 콜백 치환한다(`e68a240`부터, KNOWN-ISSUES B7). 석판의 `text.search()` 위치는 같은 글 안의 순서 비교에만 쓰므로 코드 포인트 위치로 옮겨도 된다 ([05 §6.4](../spec/05-interpreter.md#64-정규식문자열-이식-노트)) |
+| 엔진 → 해석기 역참조 | `interpreter.js`가 읽힐 때 `setPlanSig(fn)`으로 석판 함수를 엔진에 넣고, 엔진의 `isEcho`·`spokenOf`가 부른다(`9b43bbf`) — import 순환은 없지만 실행 때 엔진이 석판에 기댄다 | 엔진에 `Callable`을 주입한다. 석판 없이 엔진만 돌리면 메아리가 글로만 판정되어 골든의 `cost`·`log.echo`와 어긋난다 |
 | 글자 수 | `String.length`는 UTF-16 단위 (계시 30자 비용 경계) | 이모지 같은 4바이트 문자는 2로 센다. `length()` 대신 UTF-16 길이를 세는 함수를 쓴다 |
 
 ## 검증: 골든 테스트
@@ -189,11 +193,11 @@ static func js_str(v) -> String:
 3. **석판 해석기**: 같은 계시 문장을 넣어 명령 키·교리·금지 목록이 같은지.
 4. 전부 맞으면 계시 문장만으로 한 판 전체를 돌려 최종 결과까지 같은지.
 
-JS 쪽 규칙을 고치면 `node tools/golden.mjs`로 기록을 다시 만들고 Godot 테스트도 같이 돌린다. 골든은 `afab303`에서 새 규칙으로 모두 다시 만들어졌고, 그 뒤 `1b582ee`(석판 어휘)·`448f553`(남은 자)의 코드로 다시 돌려도 12개 파일이 바이트까지 같았다(`448f553`에서 확인) — 골든 계시들이 바뀐 어휘·남은 자에 닿지 않는다는 뜻이지, 그 규칙을 검증한다는 뜻은 아니다. `e68a240`에서는 막기 대칭(후 진영의 기도·신전·대성당·성벽도 막히지 않음)과 헤아린 성벽 예산이 해결되는 행동을 바꿔 골든을 다시 뽑았다 — 판 파일 9개가 바뀌었고(결집 로그의 `fx.kind`가 `wrath`에서 `rally`로 바뀐 것 포함), 그중 네 판(`s5-hard-veteran`, `s6-normal-veteran`, `s7-hard-first`, `s4-hard-veteran-asc4`)의 최종 승점이 달라졌다. `index.json`의 `ruleset`은 5다. 규칙 밸런스는 골든이 아니라 `tools/tests/bench.mjs`로 본다([tools/tests](../../tools/tests/README.md)).
+JS 쪽 규칙을 고치면 `node tools/golden.mjs`로 기록을 다시 만들고 Godot 테스트도 같이 돌린다. 골든은 `afab303`에서 새 규칙으로 모두 다시 만들어졌고, 그 뒤 `1b582ee`(석판 어휘)·`448f553`(남은 자)의 코드로 다시 돌려도 12개 파일이 바이트까지 같았다(`448f553`에서 확인) — 골든 계시들이 바뀐 어휘·남은 자에 닿지 않는다는 뜻이지, 그 규칙을 검증한다는 뜻은 아니다. `e68a240`에서는 막기 대칭(후 진영의 기도·신전·대성당·성벽도 막히지 않음)과 헤아린 성벽 예산이 해결되는 행동을 바꿔 골든을 다시 뽑았다 — 판 파일 9개가 바뀌었고(결집 로그의 `fx.kind`가 `wrath`에서 `rally`로 바뀐 것 포함), 그중 네 판(`s5-hard-veteran`, `s6-normal-veteran`, `s7-hard-first`, `s4-hard-veteran-asc4`)의 최종 승점이 달라졌다. `9b43bbf`(7×7 율법파 행동 +1, 원정 +1, 신앙 승리는 장 끝·개종 조건, 일 메아리)에서 판 파일 9개가 다시 바뀌어 네 판의 결과가 달라졌고(`s5-easy-first-war`는 6장 신앙 승리 → 12장 승점 승리), `78c891e`(석판의 곳·수의 말, 해석문 머리말 `석판이 이르되,`)에서 11판 모두가 다시 바뀌었으나 결과는 그대로다 — 자세한 것은 [golden README](../export/golden/README.md). `index.json`의 `ruleset`은 5 그대로다. 규칙 밸런스는 골든이 아니라 `tools/tests/bench.mjs`로 본다([tools/tests](../../tools/tests/README.md)).
 
 ## 언어팩
 
-- `docs/export/i18n-ko.json`에 1,287개 키가 있다(`e68a240` — 없어진 성언·기이한 해석의 키 7개를 지우고 `ui.fx.rally`·`ui.fx.guard`를 더했다). 값은 문자열·배열·함수(`{"$fn": 원문}`) 셋 중 하나다 ([언어팩](../i18n.md)).
+- `docs/export/i18n-ko.json`에 1,311개 키가 있다(`78c891e` — 칩 옮기기·못 함·금함 `ui.*` 5개와 금지 절·곳·수의 말 `kw.*` 19개를 더했다; 그 전 `e68a240`은 1,287개). 값은 문자열·배열·객체·함수(`{"$fn": 원문}`) 중 하나다 ([언어팩](../i18n.md), [export README](../export/README.md)). 함수 셋(`interp.tablet.cannot`·`ui.heard.cannot`·`ui.heard.also`)은 키가 아닌 도우미 `cannotLabel`(`ko/interp.js:4-16`)을 부르므로 그것도 함께 옮긴다.
 - Godot 기본 번역(`TranslationServer`, CSV/PO)은 문자열만 다룬다. 이 게임은 한국어 조사(을/를, 이/가 …)와 조건 문장이 **함수 값**이라 그대로는 안 된다. 두 가지 길:
   1. **권장:** `I18n.gd` 오토로드가 JSON을 읽고, 함수 값 키는 GDScript 함수 표(`ko_fn.gd`)로 다시 쓴다. 조사는 `josa(name, "을", "를")` 도우미(`i18n/ko/grammar.js`와 같은 규칙: 괄호 앞 글자의 받침 기준).
   2. 함수 값을 `{place|을/를}` 같은 표기로 바꾸는 변환 단계를 두고 `I18n.gd`가 받침을 보고 조사를 고른다. 조건이 있는 문장은 키를 둘로 나눈다. 새 언어를 넣을 때는 이쪽이 번역가에게 편하다.
@@ -253,7 +257,7 @@ JS 쪽 규칙을 고치면 `node tools/golden.mjs`로 기록을 다시 만들고
 | 경로 | 무엇 | 다시 만드는 법 |
 |---|---|---|
 | `docs/export/data.json` | 데이터 표 전부 (한국어 문구 포함) | `node tools/export-data.mjs` |
-| `docs/export/i18n-ko.json` | 한국어팩 1,287키 | 같음 |
+| `docs/export/i18n-ko.json` | 한국어팩 1,311키 | 같음 |
 | `docs/export/golden/*.json` | 결정론 판 기록 (골든 테스트) | `node tools/golden.mjs` |
 | `docs/export/svg/*.svg` | 그림 심볼 47개 (+ `index.html` 미리보기·PNG 받기) | `node tools/export-svg.mjs` |
 | `tools/tests/` | 결정론·퍼징 검사 (불변식 목록은 04 문서 §5.2), 석판 회귀 시험, 밸런스 벤치마크 ([README](../../tools/tests/README.md)) | `node tools/tests/fuzz.mjs`, `node tools/tests/tablet-cases.mjs`, `node tools/tests/bench.mjs` |

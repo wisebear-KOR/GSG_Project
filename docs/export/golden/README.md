@@ -5,7 +5,7 @@ JS 엔진으로 끝까지 둔 판의 **장별 기록**이다. Godot판이 같은
 - 구동기는 **석판(키워드) 해석기** 경로를 `js/game/main.js` 그대로 따라 한다 (LLM·화면 연출·메타 저장은 뺀다).
 - 결정론: 난수는 엔진의 시드 스트림(`state.rng.deck`, `state.rng.dice`)뿐이고 시각을 넣지 않는다. 두 번 돌려도 바이트까지 같다 (아래 "다시 만들기").
 - 글(로그 문장·해석문·거절 이유)은 한국어 언어팩 그대로다.
-- 지금 파일은 `e68a240`에서 다시 만든 것이다(`ruleset` 5). `afab303`(재조정: 율법파의 원정·결집·굳은 율법, 메아리, 대성당 조건, 뜻을 헤아린 노동 등)에서 만든 파일이 `1b582ee`·`448f553`까지 바이트째 같았는데, `e68a240`의 막기 대칭(후 진영의 기도·신전·대성당·성벽도 막히지 않음)·헤아린 성벽 예산·결집 로그의 `fx.kind` `rally`로 판 파일 9개가 바뀌었고, 그중 네 판(`s5-hard-veteran`, `s6-normal-veteran`, `s7-hard-first`, `s4-hard-veteran-asc4`)의 최종 승점이 달라졌다.
+- 지금 파일은 `78c891e`에서 다시 만든 것이다(`ruleset` 5 — 이 문서를 고치며 `node tools/golden.mjs`를 다시 돌려 커밋된 파일과 바이트까지 같음을 확인했다). `9b43bbf`(7×7 율법파 행동 +1, 대성당 원정 +1, 신앙 승리는 장 끝·개종 조건, 심판의 날 한 번, 일로도 보는 메아리)에서 판 파일 9개가 바뀌어 네 판의 결과가 달라졌고 — `s4-easy-first` 18:24 → 16:24, `s7-hard-first` 25:55 → 37:49, `s7-normal-veteran` 15:67 → 15:69, `s5-easy-first-war`는 6장 신앙 승리(28:11) → 12장 승점 승리(39:9, 개종 없이 인구만 채운 신앙 승리가 막힘) — `78c891e`(석판의 곳·수의 말, 한 칸에 한 가지, 해석문 머리말 `석판이 이르되,`)에서 11판 모두가 다시 바뀌었으나 결과는 그대로다. 그 전 기록: `afab303`(재조정: 율법파의 원정·결집·굳은 율법, 메아리, 대성당 조건, 뜻을 헤아린 노동 등)에서 만든 파일이 `1b582ee`·`448f553`까지 바이트째 같았는데, `e68a240`의 막기 대칭(후 진영의 기도·신전·대성당·성벽도 막히지 않음)·헤아린 성벽 예산·결집 로그의 `fx.kind` `rally`로 판 파일 9개가 바뀌었고, 그중 네 판(`s5-hard-veteran`, `s6-normal-veteran`, `s7-hard-first`, `s4-hard-veteran-asc4`)의 최종 승점이 달라졌다.
 
 ## 판 목록
 
@@ -14,16 +14,16 @@ JS 엔진으로 끝까지 둔 판의 **장별 기록**이다. Godot판이 같은
 | 파일 | 맵 | 난이도 | 두 번째 판 | 시드 | 지도자 / 심판 | 장 | 결과 (승점) | 크기 |
 |---|---|---|---|---|---|---|---|---|
 | [tutorial-3x3.json](tutorial-3x3.json) | 3×3 튜토리얼 | — | 아니오 | 7 (고정) | — / classic | 5/5 | player · tutorial (18:18) | 23 KB |
-| [s4-easy-first.json](s4-easy-first.json) | 4×4 | easy | 아니오 | 4101 | elder / classic | 8/8 | enemy · score (18:24) | 38 KB |
-| [s5-normal-first.json](s5-normal-first.json) | 5×5 | normal | 아니오 | 2026 | iron / classic | 12/12 | player · score (30:22) | 62 KB |
-| [s5-hard-veteran.json](s5-hard-veteran.json) | 5×5 | hard | 예 | 5303 | preacher / steadfast | 9/12 | enemy · edict (28:46) | 53 KB |
-| [s6-normal-veteran.json](s6-normal-veteran.json) | 6×6 | normal | 예 | 6202 | iron / wide | 12/12 | enemy · score (13:60) | 71 KB |
-| [s6-easy-veteran.json](s6-easy-veteran.json) | 6×6 | easy | 예 | 6605 | builder / pious | 12/12 | enemy · score (26:34) | 63 KB |
-| [s7-hard-first.json](s7-hard-first.json) | 7×7 | hard | 아니오 | 7304 | builder / classic | 14/14 | enemy · score (25:55) | 82 KB |
-| [s7-normal-veteran.json](s7-normal-veteran.json) | 7×7 | normal | 예 | 7707 | preacher / steadfast | 14/14 | enemy · score (15:67) | 80 KB |
-| [s4-easy-first-war.json](s4-easy-first-war.json) | 4×4 | easy | 아니오 | 404 | elder / classic | 8/8 | player · score (27:11) | 37 KB |
-| [s5-easy-first-war.json](s5-easy-first-war.json) | 5×5 | easy | 아니오 | 202 | preacher / classic | 6/12 | player · faith (28:11) | 30 KB |
-| [s4-hard-veteran-asc4.json](s4-hard-veteran-asc4.json) | 4×4 | hard | 예 | 4404 · 승천 4 · 은사 mason | iron / fertile | 8/8 | enemy · score (14:44) | 44 KB |
+| [s4-easy-first.json](s4-easy-first.json) | 4×4 | easy | 아니오 | 4101 | elder / classic | 8/8 | enemy · score (16:24) | 38 KB |
+| [s5-normal-first.json](s5-normal-first.json) | 5×5 | normal | 아니오 | 2026 | iron / classic | 12/12 | player · score (30:22) | 63 KB |
+| [s5-hard-veteran.json](s5-hard-veteran.json) | 5×5 | hard | 예 | 5303 | preacher / steadfast | 9/12 | enemy · edict (28:46) | 54 KB |
+| [s6-normal-veteran.json](s6-normal-veteran.json) | 6×6 | normal | 예 | 6202 | iron / wide | 12/12 | enemy · score (13:60) | 73 KB |
+| [s6-easy-veteran.json](s6-easy-veteran.json) | 6×6 | easy | 예 | 6605 | builder / pious | 12/12 | enemy · score (26:34) | 64 KB |
+| [s7-hard-first.json](s7-hard-first.json) | 7×7 | hard | 아니오 | 7304 | builder / classic | 14/14 | enemy · score (37:49) | 84 KB |
+| [s7-normal-veteran.json](s7-normal-veteran.json) | 7×7 | normal | 예 | 7707 | preacher / steadfast | 14/14 | enemy · score (15:69) | 83 KB |
+| [s4-easy-first-war.json](s4-easy-first-war.json) | 4×4 | easy | 아니오 | 404 | elder / classic | 8/8 | player · score (27:11) | 38 KB |
+| [s5-easy-first-war.json](s5-easy-first-war.json) | 5×5 | easy | 아니오 | 202 | preacher / classic | 12/12 | player · score (39:9) | 57 KB |
+| [s4-hard-veteran-asc4.json](s4-hard-veteran-asc4.json) | 4×4 | hard | 예 | 4404 · 승천 4 · 은사 mason | iron / fertile | 8/8 | enemy · score (14:44) | 45 KB |
 
 "두 번째 판" = `config.veteran` (율법 석판·심판의 기준·소명·교리 대립·갈림길·세 막 등이 켜진다). 튜토리얼의 `config`에는 `DEFAULT_CONFIG`(size 5, normal, seed 2026)가 섞여 있지만 튜토리얼에서는 쓰이지 않는다.
 
@@ -38,7 +38,7 @@ JS 엔진으로 끝까지 둔 판의 **장별 기록**이다. Godot판이 같은
 3. **계시** (`speak` → `interpret` → `derivePending`). 칩을 빼지 않고, 다시 해석·말 거두기·버튼 기적·계절 고르기·갈림길 버튼은 쓰지 않는다.
    1. 글자가 없으면(`kw.ui.speech` 불일치, 예: `…`) **침묵** 경로로 (아래).
    2. `cost = revelationCostFor(state, text)`. `faith < cost`면 화면은 인장을 받지 않는다 — 구동기는 이때 침묵으로 넘기고 `unaffordable: cost`를 남긴다 (지금 골든에는 이런 장이 없다).
-   3. `faith -= cost`.
+   3. `spoken = spokenOf(state, text)` — 되풀이 판정 `{sig, echo}`를 **지금** 해 두고(화면의 `speakSnap.spoken`, `9b43bbf`) 4-14에 넘긴다. 그다음 `faith -= cost`.
    4. `naming = nameTile(state, parseNaming(text))` — 이름은 **해석 전에** 새긴다 (새 이름이 석판 규칙에 들어간다).
    5. `result = interpretWithTablet(state, text)`.
    6. `tone = detectTone(text)`, `prophecy = state.prophecy ? null : parseProphecy(text)`.
@@ -60,7 +60,7 @@ JS 엔진으로 끝까지 둔 판의 **장별 기록**이다. Godot판이 같은
    11. 승부가 안 났으면 `applySilence(state, !!text)`.
    12. 승부가 안 났고 글이 있으면 `markLegends(state, text, result.doctrine, ordered, logsSince)`, 이어서 `keepVows(state, result.forbidden, plan)`.
    13. 승부가 안 났으면 청원·이름의 은총 (`wordsAfter`): `answered`면 `stats.petitions += 1`, `petitionIgnored = 0`, `grantGrace(state, 1, …)`; 아니면 `++petitionIgnored >= 2`일 때 0으로 되돌리고 신앙 −1과 [ui] 한 줄. 이름을 붙였으면 `grantGrace(state, 1, …)`. (예전의 기이한 해석 은총은 `afab303`에서 없어졌다.)
-   14. 글이 있으면 `recordRevelation(state, text, result.doctrine, tone === 'metaphor' ? 1 : 0)` — 지난 계시를 그대로 되풀이한 메아리면 교리가 오르지 않는다. (예전의 `updateLiturgy`는 없어졌다.)
+   14. 글이 있으면 `recordRevelation(state, text, result.doctrine, tone === 'metaphor' ? 1 : 0, spoken)` — 3-3에서 판정한 메아리(지난 계시와 글이 같거나, 석판이 읽은 일의 종류가 같음)면 교리가 오르지 않는다. (예전의 `updateLiturgy`는 없어졌다.)
    15. 첫 이름이고 지혜 교리가 `RULES.graceDoctrineBelow`(3)보다 낮으면 지혜 +1.
    16. `state.history.at(-1).text = text`.
    17. 글이 있고 지도자가 있으면 [ui] `leader` 한 줄: `leaderLine(state, 'rebuttal', { doctrine: result.doctrine, word: nouns(text)[0] })`.
@@ -147,7 +147,7 @@ JS 엔진으로 끝까지 둔 판의 **장별 기록**이다. Godot판이 같은
 
 **result**: `rounds`, `winner`, `winKind`, `winReason`(한국어), `score{player, enemy}`, `breakdown{player, enemy}`(`scoreBreakdown().parts`의 `{key, n, w}`), `history[]`(`{round, ps, es}`), `revelations[]`(`{round, doctrine}`), `stats`.
 
-digest에 **없는** 새 상태: `lawGuard`(굳은 율법), `rally`(결집), `revelations[].echo`(메아리). 이 값은 다음 장의 계획·판정(율법파 행동 수, 방어 보너스)과 로그(`log.lawGuard`·`log.rally`·`log.echo`, `fx.kind` `guard`·`rally`·`doctrine` — 결집은 `e68a240` 전에는 `wrath`였다)로만 드러나므로, 어긋나면 그다음 장의 `enemyPlan`·`dice`에서 처음 보인다. 이식판 하네스는 이 셋을 따로 찍어 두면 원인을 빨리 찾는다.
+digest에 **없는** 새 상태: `lawGuard`(굳은 율법), `rally`(결집), `revelations[].echo`(메아리)와 `revelations[].sig`(일 목록, `9b43bbf`), `doomUsed`(심판의 날을 썼나 — 골든은 심판의 날을 쓰지 않아 늘 거짓). 이 값은 다음 장의 계획·판정(율법파 행동 수, 방어 보너스)과 비용(`cost` — 메아리면 +1), 로그(`log.lawGuard`·`log.rally`·`log.echo`, `fx.kind` `guard`·`rally`·`doctrine` — 결집은 `e68a240` 전에는 `wrath`였다)로만 드러나므로, 어긋나면 그다음 장의 `cost`·`enemyPlan`·`dice`에서 처음 보인다. 이식판 하네스는 이 값들을 따로 찍어 두면 원인을 빨리 찾는다. 특히 일 목록은 **석판**이 만들므로 석판을 이식하지 않은 B 방식(아래)에서는 기록된 `tablet.orders`로 목록을 만들어 넣어야 `cost`가 맞는다.
 
 ## Godot 하네스
 
@@ -183,6 +183,7 @@ func run_golden(path: String) -> void:
 - `silent`이면 침묵 경로.
 - 아니면 `faith -= cost`; `naming`이 있으면 `state.names[naming.tile] = naming.name` (`nameTile`이 하는 일, `first`는 기록을 쓴다).
 - 해석 결과 = `{orders, forbidden, doctrine}`: `tablet.orders`/`tablet.forbidden`의 key를 **이름 붙이기 뒤의** `legal_actions(state, "player")`에서 key로 찾아 행동 객체로 바꾼다. `doctrine = tablet.doctrine`.
+- 메아리의 일 목록(`sig`)은 비용 전에 석판으로 만든다. 석판이 없으면 이 장의 `tablet.orders`에서 종류 키(`gather:<자원>`/`build:<건물>`/type)를 뽑아 중복 없이 정렬해 `|`로 이어 쓴다 — 골든 구동기는 이름 붙이기 **전** 상태로 석판을 돌리므로, 이름을 붙인 장에서는 드물게 다를 수 있다. `cost`가 기록과 같은지로 확인한다.
 - 그다음 `validateOrders`·`autoFill`·`petitionAnswered`·`dilemmaByText`·`spokenMiracle`·`parseCommandment`를 그대로 돌리고 `accepted`/`auto`/`petitionAnswered`/`dilemma`/`miracle`과 맞는지 본다. `tone`은 `detectTone`을 이식하지 않았다면 기록값을 쓴다.
 - 엔진만 먼저 맞추고 싶다면 `plan`(`ordered`에 없는 key는 `auto: true`로 표시)과 `enemyPlan`을 기록에서 바로 만들어 `resolveRound`에 넣어도 된다. 이때도 3-3·3-4, 4-3~4-9, 4-11~4-17을 같은 순서로 불러야 digest가 맞는다.
 
@@ -196,7 +197,7 @@ func run_golden(path: String) -> void:
 
 ## 다루는 것 / 다루지 않는 것
 
-다룬다: 맵 3×3~7×7, 쉬움·보통·어려움, 첫 판·두 번째 판, 튜토리얼 고정 덱, 승천 4(`enemyZeal`) + 은사(석공), 지도자 넷 전부, 심판의 기준 다섯 전부, 결과 네 가지(score·tutorial·edict·faith), 율법파의 원정·막마다 칼·퇴각(여러 판), 굳은 율법(8판), 결집(3판), 메아리(3판), 뜻을 헤아린 기본 노동, 석판 규칙, 부정 절(금지), 이름 붙이기와 이름으로 부르기, 말투 넷, 예언 봉인(성취·실패), 계명 셋(굶기지 말라·칼을 들지 말라·안식), 말한 기적(단비·번개), 기적 드래프트, 소명, 갈림길(말로 답함·기본값), 분열의 예언자 미라, 발견지(보물·유목민 선택), 검열 카드, 율법파의 반응 카드, 신의 분노, 성인, 전설의 땅, 연속 교리 기적, 두 번째 판의 침묵 3연속, 지혜 궁극의 계절 선택지 등장.
+다룬다: 맵 3×3~7×7, 쉬움·보통·어려움, 첫 판·두 번째 판, 튜토리얼 고정 덱, 승천 4(`enemyZeal`) + 은사(석공), 지도자 넷 전부, 심판의 기준 다섯 전부, 결과 세 가지(score·tutorial·edict — `9b43bbf`부터 신앙 승리 판이 없다), 율법파의 원정·막마다 칼·퇴각(여러 판), 굳은 율법(9판), 결집(3판), 메아리(9판 — 그중 8판은 말만 바꾼 일 메아리, `9b43bbf`), 7×7 율법파 행동 +1(7×7 두 판), 신의 분노가 가득 참(5판, "판에 한 번" 문구), 석판의 곳을 가리키는 말("그들의 수도를 쳐라", "숲에 들어가", "언덕에 올라", 붙인 이름 "시온에서"·"검은숲에서"), 뜻을 헤아린 기본 노동, 석판 규칙, 부정 절(금지), 이름 붙이기와 이름으로 부르기, 말투 넷, 예언 봉인(성취·실패), 계명 셋(굶기지 말라·칼을 들지 말라·안식), 말한 기적(단비·번개), 기적 드래프트, 소명, 갈림길(말로 답함·기본값), 분열의 예언자 미라, 발견지(보물·유목민 선택), 검열 카드, 율법파의 반응 카드, 신의 분노, 성인, 전설의 땅, 연속 교리 기적, 두 번째 판의 침묵 3연속, 지혜 궁극의 계절 선택지 등장.
 
 다루지 않는다 (필요하면 `tools/golden.mjs`의 `GAMES`에 판을 더한다):
 
@@ -204,7 +205,7 @@ func run_golden(path: String) -> void:
 - 버튼으로 쓰는 기적(심판의 날 포함), 지혜 궁극으로 계절 바꾸기(`chooseEvent`), 갈림길 버튼.
 - 시련(`config.trial`), 오늘의 계시(`config.daily`, 숨은 말), 정경·전생의 유적·신의 이름(`config.canon`/`legacy`/`god`).
 - 저장·불러오기(`serializeState`/`hydrateState`).
-- 승리 종류 `capital`(공격·남은 자), `cathedral`(대성당 원정·마을 조건 포함), `doom`; 남은 자(`448f553` — 골든 판은 인구 0에 닿지 않는다); `extinct`·`convertAll`·`bothExtinct`(이제 튜토리얼에서만 날 수 있다); 계명 `noExpand`; 갈림길 비용을 못 내 다른 선택으로 바뀌는 경우; 신앙이 모자라 말하지 못한 장(`unaffordable`); 두 개 이상의 "~지 말고"(`e68a240`부터 모두 금지 절이 된다 — 석판 회귀 시험 `tools/tests/tablet-cases.mjs`가 다룬다).
+- 승리 종류 `capital`(공격·남은 자), `cathedral`(대성당 원정 +1·큰 판 마을 조건 포함), `doom`(판에 한 번), `faith`(장 끝·개종 조건 — `9b43bbf` 뒤로 골든 판은 여기에 닿지 않는다); 수의 말(`두 곳`·`세 번`), 한 칸을 다투는 `heard …:tile`·행동 수 `…:limit`(해석 결과의 `heard`는 골든에 없다 — 석판 회귀 시험이 다룬다), 확인 칩 옮기기(⇄); 남은 자(`448f553` — 골든 판은 인구 0에 닿지 않는다); `extinct`·`convertAll`·`bothExtinct`(이제 튜토리얼에서만 날 수 있다); 계명 `noExpand`; 갈림길 비용을 못 내 다른 선택으로 바뀌는 경우; 신앙이 모자라 말하지 못한 장(`unaffordable`); 두 개 이상의 "~지 말고"(`e68a240`부터 모두 금지 절이 된다 — 석판 회귀 시험 `tools/tests/tablet-cases.mjs`가 다룬다).
 
 ## 다시 만들기
 

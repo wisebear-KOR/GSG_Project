@@ -1,7 +1,7 @@
 # 04. 소프트웨어 구조 — 모듈 · 상태 · 결정론 · 화면 컨트롤러
 
 > 웹판(정적 ES 모듈, 빌드 없음)의 **현재 구조**를 적는다. 규칙 자체는 [02 규칙](02-rules.md), 데이터 값은 [03 데이터](03-data.md), 해석기는 [05 해석기](05-interpreter.md), 화면과 연출은 [06 UI/UX](06-ui-ux.md), 판 밖 저장은 [07 진행](07-progression.md)에 있다.
-> 기준: 커밋 `448f553` (2026-09-30), 명세 검토 수정 `e68a240`까지 반영. 코드와 문서가 다르면 **코드가 기준**이다. 인용은 `파일:줄` 형식 (`engine.js`는 `js/game/engine.js`). `e68a240`에서 줄이 밀린 곳(`engine.js` 460행 뒤 +4~5, `main.js` 1591행 뒤 +5·2190행 뒤 +10, `interpreter.js` 193행 뒤 +10) 중 이번에 고치지 않은 인용은 `448f553` 기준이다.
+> 기준: 커밋 `448f553` (2026-09-30), 명세 검토 수정 `e68a240`, 3차 균형 `9b43bbf`(`doomUsed`, 계시의 `sig`, `speakSnap.spoken`, 엔진↔해석기 `setPlanSig`)와 석판의 곳·수의 말·칩 옮기기 `78c891e`까지 반영. 코드와 문서가 다르면 **코드가 기준**이다. 인용은 `파일:줄` 형식 (`engine.js`는 `js/game/engine.js`). `e68a240`에서 줄이 밀린 곳(`engine.js` 460행 뒤 +4~5, `main.js` 1591행 뒤 +5·2190행 뒤 +10, `interpreter.js` 193행 뒤 +10)과 `9b43bbf`·`78c891e`에서 밀린 곳(`e68a240`의 줄 기준으로 `engine.js` 201행 뒤 +2, 222행 뒤 +3, 259행 뒤 +5, 734행 뒤 +15, 760행 뒤 +16, 1397행 뒤 +17~18; `main.js` 359행 뒤 +1, 697행 뒤 +2, 1665행 뒤 +26, 1797행 뒤 +27, 1871행 뒤 +28, 2207행 뒤 +39, 2301행 뒤 +44; `interpreter.js`는 155행 뒤 석판 부분이 새로 짜였다) 중 이번에 고치지 않은 인용은 `448f553` 기준이다.
 
 ---
 
@@ -10,7 +10,7 @@
 - **진입점**: `game/index.html`이 import map으로 모든 모듈 주소 뒤에 `?v=202609300826`을 붙이고(`game/index.html:14-42`), `<script type="module" src="../js/game/main.js?v=…">`(`game/index.html:177`)로 컨트롤러를 연다. 배포할 때 `v`를 바꿔 브라우저 캐시를 깬다. 루트 `index.html`은 `game/index.html`로 넘기는 리다이렉트뿐이다.
 - **층**: 데이터(`data.js`, 언어팩) → 순수 규칙(`engine.js`, `mapgen.js`, `lore.js`) → 해석(`interpreter.js`, `llm.js`) · 기록(`chronicle.js`) · 저장(`meta.js`) → 표현(`board.js`, `art.js`, `fx.js`, `sound.js`, `tutorial.js`) → 컨트롤러(`main.js`).
 - **핵심 원칙**: 수치·판정은 전부 `engine.js`가 한다. LLM은 엔진이 만든 "가능한 행동 목록"에서 고르기만 한다(`engine.js:1-2`). 엔진은 DOM·시간·`Math.random`을 쓰지 않고 시드 RNG 두 흐름과 문자열 해시만 쓴다 → 같은 시드와 같은 입력이면 같은 결과.
-- **주의**: `main.js`(UI)도 규칙 일부를 갖고 있다 — 계시 비용 지불, 이름 붙이기 시점, 은총(청원·이름), 외면당한 청원 벌칙, 신학 노트, 말한 기적의 표적, 갈림길 기본 선택, 자동 노동에 계시의 교리 넘기기(`autoFill(…, result.doctrine)` — 남은 손 하나가 그 뜻을 따른다), 계명 새긴 뒤 재배치, 판결, 말 거두기 비용 등(§4.4). 이식할 때는 이 부분을 규칙 층으로 옮겨야 한다.
+- **주의**: `main.js`(UI)도 규칙 일부를 갖고 있다 — 계시 비용 지불, 이름 붙이기 시점, 은총(청원·이름), 외면당한 청원 벌칙, 신학 노트, 말한 기적의 표적, 갈림길 기본 선택, 자동 노동에 계시의 교리 넘기기(`autoFill(…, result.doctrine)` — 남은 손 하나가 그 뜻을 따른다), 계명 새긴 뒤 재배치, 판결, 말 거두기 비용, 되풀이 판정을 말할 때 해 두었다가 교리 기록에 넘기기(`speakSnap.spoken`), 확인 칩 옮기기(⇄, 같은 종류의 합법 행동으로만) 등(§4.4). 이식할 때는 이 부분을 규칙 층으로 옮겨야 한다.
 
 ---
 
@@ -21,12 +21,12 @@
 | 파일 | 줄 | 층 | 책임 | 주요 export | 부작용·순수성 |
 |---|---|---|---|---|---|
 | `js/llm.js` | 58 | 외부 I/O | Chrome Prompt API(`LanguageModel`) 래퍼: 가용성, 시스템 프롬프트 세션 생성(언어 지정 실패 시 재시도), JSON 스키마 강제 스트리밍 응답 | `hasLanguageModel`, `availability`, `createBaseSession`, `promptJSON` | 비동기 I/O. `performance.now()`로 시간 측정 |
-| `js/game/main.js` | 2388 | 컨트롤러 | 단계 상태 기계, 모든 화면 그리기, 입력·단축키, 해결 재생, 모달, 설정, 메타 연동, 디버그 훅 | 없음 (모듈 끝에서 `init()` 실행, `main.js:2388`) | DOM·타이머·localStorage·클립보드. `Math.random`은 시드 뽑기에만 (`main.js:90`) |
-| `js/game/engine.js` | 1453 | 규칙 | 상태 생성, 육각 좌표, 가능한 행동, 명령 검증, 자동 노동(계시 교리를 헤아린 한 손 포함), 율법파 오토마(행군·결집·막별 공격·원정대 후퇴·대체 마을·대성당 공사 중 수도 공격), 장 시작·해결·유지, 굳은 율법·포위·메아리, 기적, 발견지, 예언, 석판, 소명, 막, 계명, 갈림길, 승점·승패(남은 자 규칙 포함), 저장 직렬화 | `createState`, `startRound`, `legalActions`, `validateOrders`, `autoFill`, `planEnemy`, `enemyIntent`, `resolveRound`, `castMiracle`, `recordRevelation`, `score`, `scoreBreakdown`, `checkVictory`, `snapshot`, `serializeState`, `hydrateState`, `rand`, `d6`, `cathedralVillages`, `marchRange`, `siegeOf`, `enemyZeal`, `lawGuardOf`, `isEcho` 등 전체 88개 (`updateLiturgy`는 없어졌다) | **결정론적**, DOM 없음. 상태를 제자리에서 바꾼다(불변 아님). `t()`로 로그 문장을 만든다. 모듈 변수 `currentAct` 하나(`engine.js:859`) |
+| `js/game/main.js` | 2442 | 컨트롤러 | 단계 상태 기계, 모든 화면 그리기, 입력·단축키, 해결 재생, 모달, 설정, 메타 연동, 디버그 훅 | 없음 (모듈 끝에서 `init()` 실행, `main.js:2442`) | DOM·타이머·localStorage·클립보드. `Math.random`은 시드 뽑기에만 (`main.js:90`) |
+| `js/game/engine.js` | 1476 | 규칙 | 상태 생성, 육각 좌표, 가능한 행동, 명령 검증, 자동 노동(계시 교리를 헤아린 한 손 포함), 율법파 오토마(행군·결집·막별 공격·원정대 후퇴·대체 마을·대성당 공사 중 수도 공격 +1·7×7 행동 +1), 장 시작·해결·유지, 굳은 율법·포위·메아리(글·일), 기적(심판의 날 판에 한 번), 발견지, 예언, 석판, 소명, 막, 계명, 갈림길, 승점·승패(남은 자 규칙, 장 끝의 신앙 승리 개종 조건 포함), 저장 직렬화 | `createState`, `startRound`, `legalActions`, `validateOrders`, `autoFill`, `planEnemy`, `enemyIntent`, `resolveRound`, `castMiracle`, `recordRevelation`, `score`, `scoreBreakdown`, `checkVictory`, `snapshot`, `serializeState`, `hydrateState`, `rand`, `d6`, `cathedralVillages`, `faithConverts`, `marchRange`, `siegeOf`, `enemyZeal`, `lawGuardOf`, `isEcho`, `spokenOf`, `setPlanSig` 등 전체 91개 (`updateLiturgy`는 없어졌다) | **결정론적**, DOM 없음. 상태를 제자리에서 바꾼다(불변 아님). `t()`로 로그 문장을 만든다. 모듈 변수 둘: `currentAct`(`engine.js:879`)와 해석기가 넣는 일 목록 함수 `planSigFn`(`engine.js:740`, `setPlanSig`로 한 번 설정) |
 | `js/game/data.js` | 395 | 데이터 | 지형·비용·규칙 수치·교리·사건·갈림길·미라·기적·율법 카드·지도자·난이도·맵 크기·튜토리얼·경외·은사·시련·승천·RULESET | `TERRAIN`, `COST`, `RULES`, `EVENTS`, `DILEMMAS`, `MIRA`, `MIRACLES`, `LAW_CARDS`, `ENEMY_LEADERS`, `DIFFICULTY`, `MAP_SIZES`, `TUTORIAL`, `AWE_LEVELS`, `BLESSINGS`, `TRIALS`, `ASCENSION`, `RULESET` 등 54개 | 순수. 이름·문장은 로드 시 `t()`로 한 번 채운다 |
 | `js/game/mapgen.js` | 187 | 규칙 | 시드 맵 생성(점대칭, 사막 제한, 수도 주변 자원 보장), 발견지·지형 특징·전생 유적 자리 | `generateMap`, `placeSites`, `placeFeatures`, `placeLegacy`, `capitalsFor`, `tileLabel`, `mapStats` | 순수. 자체 `mulberry32` 난수(§3.3) |
 | `js/game/lore.js` | 112 | 규칙(글) | 문자열 해시 선택, 명사 추출, 인용·말투·이름·예언·기적·계명 파싱, 지도자 대사 | `hashPick`, `nouns`, `frequentNoun`, `citedWords`, `parseMiracle`, `parseCommandment`, `detectTone`, `parseNaming`, `parseProphecy`, `leaderLine` (`findLiturgy`는 없어졌다) | 순수. 정규식 원본은 언어팩 `kw.*` |
-| `js/game/interpreter.js` | 277 | 해석 | LLM 프롬프트·스키마 조립과 호출(`interpretWithLLM(state, text, signal)` — 중단 신호는 `main.js`가 건다), 석판(키워드) 해석기("~지 말고" 나누기, 제외어, 양의 말이면 두 곳, 채집은 많이 나는 칸부터, 알아들었으나 지금 못 하는 일 `heard`), 말→행동 연결, 신학 노트 추출, 해석문 다듬기 | `buildPrompt`, `interpretWithLLM`, `interpretWithTablet`, `linkWords`, `extractLesson`, `cleanSpeech`, `llmStatus`, `prepareLLM`, `voiceOf`, `describeLesson` | LLM 부분은 비동기 I/O와 모듈 세션 캐시(`base`, `preparing`). 석판·연결·노트는 순수 |
+| `js/game/interpreter.js` | 375 | 해석 | LLM 프롬프트·스키마 조립과 호출(`interpretWithLLM(state, text, signal)` — 중단 신호는 `main.js`가 건다), 석판(키워드) 해석기("~지 말고"·"~말고"·"그만 ~고"·"~는 됐고" 나누기, 제외어, 곳을 가리키는 말로 칸 고르기(`placeOf`·`byPlace`), 수의 말이면 둘·셋, 채집은 많이 나는 칸부터, 한 칸에 한 가지·행동 수는 먼저 말한 순, 알아들었으나 지금 못 하는 일 `heard`와 까닭 코드, 대상 없는 금지 `banned`), 메아리용 일 목록(`setPlanSig` 등록), 말→행동 연결, 신학 노트 추출, 해석문 다듬기 | `buildPrompt`, `interpretWithLLM`, `interpretWithTablet`, `linkWords`, `extractLesson`, `cleanSpeech`, `llmStatus`, `prepareLLM`, `voiceOf`, `describeLesson` | LLM 부분은 비동기 I/O와 모듈 세션 캐시(`base`, `preparing`). 석판·연결·노트는 순수. **읽힐 때 한 번** `setPlanSig(…)`로 엔진에 함수를 넣는다(`interpreter.js:374-375`, `9b43bbf`) |
 | `js/game/chronicle.js` | 151 | 기록 | 판 결과 유형, 에필로그·칭호, 결정적 장면, 주사위 운, 판 요약, 업적 목록과 평가 | `outcomeKind`, `epilogue`, `summarizeGame`, `decisiveScene`, `diceLuck`, `topRevelations`, `topDoctrine`, `ACHIEVEMENTS`, `evaluateAchievements`, `closestAchievement` | 상태를 읽기만 한다. `summarizeGame`만 `new Date()` 사용 |
 | `js/game/meta.js` | 167 | 저장 | localStorage `gsg.*` 읽기·쓰기(모두 try/catch), 이어하기, 서고, 업적, 오늘의 계시, 정경, 세라의 과제, 최고 기록, 경외, 도감, 어휘집, 시련, 승천, 내보내기 | `get`, `set`, `saveGame`, `loadGame`, `clearSave`, `pushHistory`, `dailyConfig`, `bestKey` 외 — 전부 [07](07-progression.md) | localStorage·`Date` |
 | `js/game/board.js` | 192 | 표현 | 육각 보드 SVG 그리기(액자, 타일, 안개, 건물, 이름, 표식, 율법파의 뜻 고리, 예감, 선택 고리, 미플 — 한 칸에 같은 편 미플이 여럿이면 부채꼴로 벌림), 국경선, 좌표 변환 | `renderBoard`, `borderEdges`, `tileCenter`, `tileToHost`, `markerToScreen` | DOM. 모듈 `WeakMap lastEdges`로 새 국경선만 번지게 한다 |
@@ -42,15 +42,17 @@
 
 | 파일 | 키 접두사 (개수) | 쓰는 곳 |
 |---|---|---|
-| `ko/ui.js` | `ui.*` 568, `kw.ui.*` 2 | `main.js`, `index.html` 정적 글(`data-i18n*`) |
+| `ko/ui.js` | `ui.*` 573, `kw.ui.*` 2 | `main.js`, `index.html` 정적 글(`data-i18n*`) |
 | `ko/shell.js` | `shell.*` 6 | `fx.js`, `board.js` |
 | `ko/engine.js` | `eng.*` 79, `log.*` 80, `kw.*` 7 | `engine.js`(행동 설명·거부 사유·로그·승패 문구) |
 | `ko/data.js` | `data.*` 331, `kw.data.*` 26 | `data.js` |
-| `ko/interp.js` | `interp.*` 13, `kw.*` 58 | `interpreter.js`, `lore.js` (프롬프트, 석판·말의 장치 정규식) |
+| `ko/interp.js` | `interp.*` 13, `kw.*` 77 | `interpreter.js`, `lore.js` (프롬프트, 석판·말의 장치 정규식). 키 밖에 까닭 코드를 문장으로 바꾸는 도우미 `cannotLabel`을 내보내고 `ko/ui.js`가 import한다(`78c891e`) |
 | `ko/story.js` | `story.*` 84, `tut.*` 33 | `chronicle.js`, `tutorial.js` |
 | `ko/grammar.js` | — | `josa(name, 받침형, 무받침형)`, `batchim(w)` (`engine.js`도 직접 import해 다시 내보낸다, `engine.js:14,300`) |
 
-합계 1287키 (`node tools/i18n-check.mjs` 결과, `e68a240`). 번역 규칙은 [../i18n.md](../i18n.md).
+합계 1311키 (`node tools/i18n-check.mjs` 결과, `78c891e`). 번역 규칙은 [../i18n.md](../i18n.md).
+
+`78c891e`에서 더한 키 24개: `ui.move.tip`·`ui.notice.pickMove`(칩 옮기기), `ui.heard.also`·`ui.heard.forbid`·`ui.heard.kindWord`(알아들은 말 줄의 못 함·금함); `kw.nounAnd`·`kw.stopAnd`·`kw.enoughAnd`(금지 절로 떼어 내는 "공격 말고"·"그만 베고"·"기도는 됐고"), `kw.tablet.attackExcept`, `kw.place.river`·`plain`·`forest`·`mountain`·`hill`·`desert`·`capital`·`holy`·`aim`·`near`·`foe`·`ours`·`id`(곳을 가리키는 말), `kw.count2`·`kw.count3`(수의 말). `9b43bbf`는 키를 더하지 않았고 `log.wrathFull`을 문자열에서 `{doom}`을 받는 함수로 바꿨다.
 
 `e634489` 뒤에 생긴 키: `ui.heard.*`(알아들은 말 줄), `ui.law.guard`·`ui.law.rally`·`ui.law.march`(율법 카드 뒷면 메모), `ui.chip.heeded`·`ui.chip.heededTip`, `ui.echo.tip`, `ui.faithCostEcho`, `ui.rules.core`·`core1~5`, `ui.rules.enemy3`·`enemy4`; `log.rally`·`log.echo`·`log.attackRetreat`·`log.lawGuard`·`log.remnant`; `interp.tablet.cannot`; `kw.tablet.wallExcept`·`villageExcept`·`templeExcept`, `kw.tablet.gatherAny`, `kw.many`, `kw.dontAnd`, `kw.dontAndNeg`, `kw.fear`; `story.lose.edict`; `ui.fx.rally`·`ui.fx.guard`(결집·굳은 율법 재생 글, `e68a240`). 지운 규칙의 키 `log.liturgy`, `kw.liturgyStrip`, `ui.tag.liturgy`, `ui.tag.odd`, `ui.grace.odd`, `ui.grace.otherDeed`, `ui.verdict.odd`는 `e68a240`에서 지웠다(1292 → 1287키). `ui.verdict.text`의 `grade === 'odd'` 갈래만 옛 저장본의 판결을 읽으려고 남아 있다.
 
@@ -105,7 +107,7 @@ flowchart TD
   class LLM,META,MAIN,FX,SND,BOARD,ART,TUT io
 ```
 
-순환 의존은 없다. `mapgen.js`, `sound.js`, `art.js`, `llm.js`는 아무것도 import하지 않는다. `main.js`의 `?debug`에서만 `sound.js`·`engine.js`를 동적 import한다(`main.js:2383-2384`).
+순환 의존은 없다. 다만 **실행 때 거꾸로 부르는 곳이 하나** 있다: 메아리의 일 목록(`9b43bbf`) — `interpreter.js`가 읽힐 때 `setPlanSig(fn)`으로 석판 해석 함수를 엔진에 넣고, 엔진의 `isEcho`·`spokenOf`가 그것을 부른다. 엔진만 불러온 환경(해석기를 import하지 않은 스크립트)에서는 일 목록이 `''`이라 메아리가 글로만 판정된다. 언어팩 안에서는 `ko/ui.js`가 `ko/interp.js`의 `cannotLabel`을 import한다(`78c891e`). `mapgen.js`, `sound.js`, `art.js`, `llm.js`는 아무것도 import하지 않는다. `main.js`의 `?debug`에서만 `sound.js`·`engine.js`를 동적 import한다(`main.js:2383-2384`).
 
 ### 1.4 순수성 규칙
 
@@ -194,6 +196,7 @@ flowchart TD
 | `pendingSite` | tileId \| null | null | 선택이 필요한 발견지(유목민) | null |
 | `judgement` | string | `'classic'` | 심판의 기준 (`JUDGEMENTS` 키) | `'classic'` |
 | `wrath` | 0~3 | 0 | 신의 분노 | 0 |
+| `doomUsed` | bool | false | 심판의 날을 이미 내렸나 — 판에 한 번(`doomReady`가 본다, 심판의 날이 `true`로). `9b43bbf` | 없음 — `resolveRound`의 `updateLawGuard`가 `??= false`로 채운다. 그 전에는 `undefined`(거짓으로 읽혀 동작은 같다) |
 | `streak` | `{ doctrine, n }` \| null | null | 같은 교리 연속 | null |
 | `vowNext` | `'attack'` \| null | null | 공격을 금한 서원·도발 → 다음 장 율법파가 `REACT.vow`로 반응 | null |
 | `reacted` | string \| null | null | 이번 장 율법 카드를 바꾸게 한 "들은 말"(교리 또는 `'vow'`) | null |
@@ -218,7 +221,7 @@ flowchart TD
 | `miracleUsed` | bool | false | 이번 장 기적을 썼나 | — |
 | `reinterpretUsed` | bool | false | 이번 장 다시 해석/말 거두기를 썼나 | — |
 | `log` | LogEntry[] | `[]` | 모든 사건 기록 (§2.5) | — (`snap`은 null로) |
-| `revelations` | `{ round, text, doctrine, echo? }[]` | `[]` | 내린 계시. 직전 계시를 띄어쓰기·문장부호만 빼고 그대로 되풀이하면(`isEcho`) `echo: true`로 남고 교리는 오르지 않는다(`recordRevelation`) | — |
+| `revelations` | `{ round, text, doctrine, echo?, sig? }[]` | `[]` | 내린 계시. 직전 계시를 띄어쓰기·문장부호만 빼고 그대로 되풀이하거나, 석판이 알아듣는 일의 종류(`sig`)가 직전 계시와 같으면(`isEcho`, `9b43bbf`) `echo: true`로 남고 교리는 오르지 않는다(`recordRevelation`). `sig`는 `'gather:food\|pray'`처럼 종류 키를 정렬해 이은 문자열로, 말할 때 `spokenOf`가 계산해 `speakSnap.spoken`으로 넘긴 값이다(비었으면 필드가 없다) | — (옛 계시에는 `sig`가 없어 글로만 비교) |
 | `history` | `{ round, ps, es, res, text, verdict? }[]` | `[]` | 장마다 승점·살림 (그래프·회고). `verdict`는 `'full' \| 'half' \| 'miss'` (옛 저장본에는 `'odd'`가 있을 수 있다) | `[]` |
 | `winner` | `'player' \| 'enemy' \| 'draw'` \| null | null | | — |
 | `winReason` | string | `''` | 표시용 문구(언어팩) | — |
@@ -341,7 +344,7 @@ export function serializeState(state) {
 
 **이어 가기** (`resumeLoaded`, `main.js:287-308`, `async`): `resolved`면 `newRound()` — 다만 `state.pendingSite`(풀리지 않은 유목민 선택)가 남아 있으면 먼저 `phase='speak'`·`pending=null`로 그리고 `showSiteChoice()`를 기다린 뒤 넘어간다(`main.js:293-298`). `speak`면 `startRound`를 다시 부르지 않고 `phase='speak'`로 그리며 "이어서" 장 제목을 띄운다. 드래프트·소명 선택이 남아 있으면 다시 띄운다.
 
-**말 거두기**도 같은 직렬화를 쓴다: 계시를 내리기 직전 `speakSnap = { state: JSON.stringify(serializeState(state)), text, cost }`(`main.js:520`), 거두면 `hydrateState(JSON.parse(...))`로 되돌린다(`main.js:687`). 이때 이번 장 이전 로그의 `snap`도 사라진다(재생에는 영향 없음).
+**말 거두기**도 같은 직렬화를 쓴다: 계시를 내리기 직전 `speakSnap = { state: JSON.stringify(serializeState(state)), text, cost, spoken: spokenOf(state, text) }`(`main.js:521` — `spoken`은 `9b43bbf`부터, 말할 때의 되풀이 판정 `{ sig, echo }`를 수락 때 `recordRevelation`에 넘기려고 함께 둔다), 거두면 `hydrateState(JSON.parse(...))`로 되돌린다(`main.js:688`). 거두면 `speakSnap = null`이 되고 다시 말할 때 새로 만든다. 새 장(`newRound`)도 `null`로 비운다. 이때 이번 장 이전 로그의 `snap`도 사라진다(재생에는 영향 없음).
 
 ---
 
@@ -620,7 +623,7 @@ static func hash_pick(list: Array, salts: Array):
 | `pending` | 확인 화면의 해석 묶음 (아래) |
 | `resolved` | 해결 결과 `{ enemyPlan, playerPlan, logs, shown, words, incomingEnemy, ledger, verdict }` |
 | `view`, `matView`, `focusId` | 재생 보기(§2.7), 카메라가 비추는 칸 |
-| `targeting` | `'lightning'` 표적 고르는 중 |
+| `targeting` | `'lightning'` 번개 표적 고르는 중(speak), 또는 `{ move: key }` 확인 칩을 옮길 칸 고르는 중(confirm, `78c891e`). `newRound`·`speak`·`silence`·`accept`·Esc·칸 클릭이 `null`로 비운다 |
 | `draft`, `notice`, `progress` | 두루마리 입력, 제단 알림 한 줄, LLM 내려받기 진행률 |
 | `dealSeason`, `flipLaw`, `prevNums`, `prevDoctrine`, `lastAltarPhase`, `inCrisis` | 연출 상태 (카드 나눔·뒤집기, 숫자 튐, 새 교리 보석, 제단 전환, 신앙 위기) |
 | `tutorial` | `Tutorial` 인스턴스 또는 null |
@@ -630,9 +633,9 @@ static func hash_pick(list: Array, salts: Array):
 | `hintTiles`, `hintTimer` | 입력 중 석판 예감 칸. 같은 타이머(`scheduleHints`, 250ms)가 "알아들은 말" 줄 `#heardLine`도 고친다 |
 | `acceptLock` | Enter 연타 방지(300ms) |
 | `speed` | `'1' \| '2' \| 'instant'` (`gsg.speed`) |
-| `resolved_rebuttal`, `speakSnap`, `pendingLesson` | 이번 장 지도자 반박, 말 거두기용 직렬화, 새로 배운 말버릇 |
+| `resolved_rebuttal`, `speakSnap`, `pendingLesson` | 이번 장 지도자 반박, 말 거두기용 직렬화(`{ state, text, cost, spoken }` — `spoken`은 말할 때의 되풀이 판정), 새로 배운 말버릇 |
 
-`pending`의 모양: `{ text, result: { interpretation, orders, forbidden, doctrine, source: 'llm'|'tablet'|'silence', heard?, ms? }, fresh, naming, dropped: Set<key>, tone, cited, prophecy, seal, accepted, rejected, auto, links, answered, dilemma, miracle: { id, target, cost, key }|null, command, carve, incoming, prev }` (`heard`는 석판 결과에만: 알아들었으나 지금 할 수 없는 행동 종류). `derivePending()`(`main.js:583-598`)이 뺀 칩을 제외하고 `validateOrders`·`autoFill`(계시 교리 `result.doctrine`을 넘긴다, `main.js:590`)·연결·청원·갈림길·말한 기적·계명을 다시 계산한다. 기이한 해석(`pending.odd`)은 `afab303`에서 없어졌고, 함수 위 주석에 남아 있던 이름도 `e68a240`에서 지웠다.
+`pending`의 모양: `{ text, result: { interpretation, orders, forbidden, doctrine, source: 'llm'|'tablet'|'silence', heard?, banned?, ms? }, fresh, naming, dropped: Set<key>, tone, cited, prophecy, seal, accepted, rejected, auto, links, answered, dilemma, miracle: { id, target, cost, key }|null, command, carve, incoming, prev }` (`heard`·`banned`는 석판 결과에만: 알아들었으나 지금 할 수 없는 일의 까닭 코드, 대상이 없어도 금한 일의 종류 — [05 §1.4](05-interpreter.md#14-결과-객체-해석기-출력)). 칩 옮기기(⇄, `moveChip`)는 `result`를 `{ ...result, orders: 바꿔 끼운 목록 }`으로 새로 만들고 `derivePending()`을 다시 부른다. `derivePending()`(`main.js:583-598`)이 뺀 칩을 제외하고 `validateOrders`·`autoFill`(계시 교리 `result.doctrine`을 넘긴다, `main.js:590`)·연결·청원·갈림길·말한 기적·계명을 다시 계산한다. 기이한 해석(`pending.odd`)은 `afab303`에서 없어졌고, 함수 위 주석에 남아 있던 이름도 `e68a240`에서 지웠다.
 
 ### 4.2 단계 상태 기계
 
@@ -660,7 +663,7 @@ stateDiagram-v2
   confirm --> Main: Esc(말 거두기 불가일 때) / 집 버튼
 ```
 
-같은 세션에서 메인 화면을 띄웠다가 "돌아가기"를 누르면(`startFromMain('resume')`, 저장본에서 온 판이 아니면) 메인 화면만 걷히고 떠나기 전의 `phase`(speak·confirm·resolved)로 그대로 돌아간다(`main.js:267-269`). 판이 끝났으면(`inProgress()`가 거짓) 돌아가기 버튼이 없다(`main.js:135, 144`). thinking·playing 중에는 Esc로 메인 화면을 열 수 없다(`main.js:363`). 목록 모달(규칙서·설정·서고…)이나 연대기 서랍이 열려 있으면 Esc는 그것부터 닫고 끝난다(`main.js:358-361`). 집 버튼은 선택 모달만 없으면 단계와 상관없이 연다(`main.js:434`).
+같은 세션에서 메인 화면을 띄웠다가 "돌아가기"를 누르면(`startFromMain('resume')`, 저장본에서 온 판이 아니면) 메인 화면만 걷히고 떠나기 전의 `phase`(speak·confirm·resolved)로 그대로 돌아간다(`main.js:267-269`). 판이 끝났으면(`inProgress()`가 거짓) 돌아가기 버튼이 없다(`main.js:135, 144`). thinking·playing 중에는 Esc로 메인 화면을 열 수 없다(`main.js:364`). 목록 모달(규칙서·설정·서고…)이나 연대기 서랍이 열려 있으면 Esc는 그것부터 닫고 끝나고, 확인 칩을 옮길 칸을 고르는 중이면 그 고르기만 취소한다(`main.js:358-362`). 집 버튼은 선택 모달만 없으면 단계와 상관없이 연다(`main.js:434`).
 
 튜토리얼은 같은 기계를 쓰되 `Tutorial.on(phase, round)`를 `speak`(장 제목 뒤, `main.js:495-501`), `confirm`(해석문 타자 뒤, `main.js:2125`), `resolved`(`main.js:1385`), `end`(`main.js:1384, 1677`)에서 부른다. 튜토리얼 끝은 `finishGame`이 아니라 `endTutorial`(`main.js:341-346`)로 간다.
 
@@ -672,10 +675,11 @@ stateDiagram-v2
 | 메인 → 판 | 시작 버튼·Enter | `startFromMain(mode)` (`main.js:255-284`) | 오디오 열기(`unlockAudio`), LLM 세션 예열(`prepareLLM`), 850ms(연출 줄임 150ms) 퇴장 연출 뒤 모드별 `beginGame(config)` |
 | 새 판 | | `beginGame` (`main.js:310-321`) | 400ms 뒤 두 번째 판 안내, 튜토리얼 객체, `createState`, `newRound` |
 | 장 시작 | 새 판·다음 장 | `newRound` (`main.js:464-502`) | (전 장이 있으면) 미플 귀환 연출 → `startRound` → `phase='speak'` → 그리기 → 저장(speak) → 스크린리더 알림 → 도감 기록 → 드래프트(2.5초 뒤)·소명(2.6초 뒤)·지도자 대사·막 문구·미라 대사 예약 → 장 제목 |
-| 인장 | 인장 버튼·Ctrl+Enter | `speak` (`main.js:510-534`) | 빈 입력 거부, 길이 초과·신앙 부족이면 알림과 튕김 연출, 말줄임만 있으면(`kw.ui.speech` 불일치) 침묵, `speakSnap` 저장, 비용 지불, 이름 붙이기(해석 전), 해석 작업 시작과 인장·빛기둥 연출을 **동시에**, `interpret` |
+| 인장 | 인장 버튼·Ctrl+Enter | `speak` (`main.js:511-535`) | 빈 입력 거부, 길이 초과·신앙 부족이면 알림과 튕김 연출, 말줄임만 있으면(`kw.ui.speech` 불일치) 침묵, `speakSnap` 저장(말할 때의 되풀이 판정 `spoken` 포함), 비용 지불, 이름 붙이기(해석 전), 해석 작업 시작과 인장·빛기둥 연출을 **동시에**, `interpret` |
 | 해석 | | `interpret` (`main.js:565-580`) | `phase='thinking'` → 작업 대기(`runInterpretation`, `main.js:548-563`: 모델 준비가 끝난 뒤 LLM 호출에 30초 `AbortController` 시한을 걸고, 실패·시한 초과면 석판 + 알림 `ui.notice.llmFailed`, `main.js:553-559`) → `pending` 구성 → `derivePending` → `enterConfirm` |
 | 확인 진입 | | `enterConfirm` (`main.js:618-630`) | `phase='confirm'`, 매트 미플이 칸으로 날아감. 해석문 타자 → 칩 하나씩 → 수락 버튼 켜짐 → 빛줄기(`renderAltar`, `main.js:2116-2127`) |
-| 칩 토글 | 칩 클릭 | `bindAltar` (`main.js:2201-2216`) | 장당 2개까지 빼거나 되살림 → `derivePending` |
+| 칩 토글 | 칩 클릭 | `bindAltar` (`main.js:2251-2265`) | 장당 2개까지 빼거나 되살림 → `derivePending` |
+| 칩 옮기기 | 칩의 ⇄ → 빛나는 칸 클릭 | `bindAltar`의 `.chip-move` → `onTileClick` → `moveChip` (`main.js:1671-1690`, `2240-2250`; `78c891e`) | 수락 버튼이 켜진 뒤, 미플 착지 뒤만. ⇄를 누르면 `targeting = { move: key }`와 알림 `ui.notice.pickMove`, 보드의 `selectable` = `moveChoices(key)`의 칸(같은 종류·합법·금지 아님·다른 받아들인 칩의 칸 아님; 튜토리얼은 늘 빈 목록이라 ⇄도 없다). 같은 ⇄를 다시 누르거나 Esc면 취소. 칸을 고르면 `result.orders`의 그 명령을 바꿔 끼우고 `derivePending` → 다시 그림. 후보가 아닌 칸을 누르면 바꾸지 않고 취소 |
 | 다시 해석 | R | `reinterpret` (`main.js:654-665`) | 장당 한 번, 신앙 1. 이전 해석을 `pending.prev`로 남겨 `swapReading`으로 바꿀 수 있다. 버튼은 `aiMode === 'llm'`일 때만 있다(`main.js:2092`, `e68a240`) — 석판 모드에서는 없고(석판은 같은 글에 늘 같은 결과를 낸다), LLM 모드면 이번 해석이 LLM 실패로 석판이 대신한 것이어도 있다(다시 해석은 LLM에 다시 묻는다). `e68a240` 전에는 `result.source === 'tablet'`을 보아 석판 대체 뒤에도 숨었다 |
 | 말 거두기 | Esc·버튼 | `retract` (`main.js:682-696`) | 장당 한 번(다시 해석과 공유), 튜토리얼 불가. `speakSnap`으로 복원, 베테랑은 신앙 1, 원문을 두루마리로 |
 | 수락 | Enter·버튼 | `accept` (`main.js:698-760`) | §4.4 순서로 규칙 적용 후 `playback` |
@@ -698,7 +702,7 @@ stateDiagram-v2
 7. `findSacred`(계시가 있으면), 예언 봉인(체크했으면) `sealProphecy`.
 8. `resolveRound(state, plan, enemyPlan)`(`engine.js:871-901`) — 선점 막힘(선 진영 행동이 차지한 칸을 뒷 진영이 고르면 뒷 진영 행동이 막힌다. 다만 **집 안 행동** — 기도·신전·대성당·성벽 — 은 선 진영이면 칸을 차지하지 않고(`5b7a94f`), 뒷 진영이면 막히지 않는다(`e68a240`). 선 진영이 상대 수도를 쳐도 뒷 진영의 수도 안 기도·건설은 그대로 한다) → 6단계(`gather`→`build`→`pray`→`explore`→`preach`→`attack`, 단계마다 선 → 후) → 갈림길 결과 → 유지(`upkeep`, 끝에 `checkVictory` — 남은 자 규칙이 여기서 걸린다) → `updateLawGuard`(굳은 율법) → `recordHistory`(승점 한 줄 → 소명 → 신의 분노 → 율법파의 결집).
 9. 승자가 없으면: `applySilence`, `markLegends`(계시), `keepVows`(계시), `wordsAfter` — 청원 응답 은총·통계 또는 두 번 외면 시 신앙 -1, 이름 붙이기 은총. (기이한 해석 은총은 `afab303`에서 없어졌다.)
-10. 계시가 있으면 `recordRevelation`(비유면 +1 가속. 메아리면 `echo: true`로만 남기고 교리를 올리지 않는다 — `log.echo`). 첫 이름이면 지혜 +1(3 미만일 때, 메아리여도). (성언 `updateLiturgy`는 없어졌다.)
+10. 계시가 있으면 `recordRevelation(state, text, doctrine, 비유 ? 1 : 0, speakSnap?.spoken ?? spokenOf(state, text))`(`main.js:738`) — 되풀이 판정은 **말할 때** 보관한 값을 쓴다(`9b43bbf`). 비유면 +1 가속. 메아리면 `echo: true`로만 남기고 교리를 올리지 않는다 — `log.echo`. 첫 이름이면 지혜 +1(3 미만일 때, 메아리여도). (성언 `updateLiturgy`는 없어졌다.) 수락은 `targeting`도 비운다(칩 옮기기 중이었으면 취소).
 11. LLM 해석이면 `extractLesson` → `lessons`에 넣고 3개 넘으면 가장 오래된 것 버림.
 12. `history` 마지막 줄에 계시 원문. `resolved` 구성.
 13. 튜토리얼이 아니면 도감(`laws`, `commandments`, 찾은 `sites`, 말한 `miracles`)·어휘집 기록.
@@ -716,12 +720,12 @@ stateDiagram-v2
 | `renderTools` | 1692 | 상단 도구 | AI 칩(LLM/석판), 음악·효과음·연출 토글 아이콘 |
 | `renderTrack` | 1708 | 상단 장 트랙 | 장 노드(지난·지금), 달 이름 툴팁, 선공 표시, 넘치면 `fitTopbar`가 두 줄로 |
 | `renderSeason` | 1744 | 오른쪽 계절 카드 | 이번 계절(미라 인용), 지혜 궁극 바꾸기 버튼, 다음 계절 예고, 소명 줄 |
-| `renderBoardView` | 1782 | 보드 SVG | `renderBoard(board, V(), { markers, highlight, hints, intents, selectable, onTileClick, focus })` — 확인 단계 미플(번호·자동은 흐리게), 해결 단계 양쪽 미플, 번개 표적, 예감 칸, 율법파의 뜻 |
+| `renderBoardView` | 1782 | 보드 SVG | `renderBoard(board, V(), { markers, highlight, hints, intents, selectable, onTileClick, focus })` — 확인 단계 미플(번호·자동은 흐리게), 해결 단계 양쪽 미플, 번개 표적, 칩을 옮길 칸(`targeting.move`이면 `selectable = moveChoices(key)`의 칸, `78c891e`), 예감 칸, 율법파의 뜻 |
 | `renderMats` | 1820 | 양쪽 부족 판 | `matHTML`(자원·신앙 경고·석판 막대·신도 미플·행동 수·신전·마을·수도 방패·교리 보석과 특전·연속·계명·성인·세라의 과제 리본), 신앙 위기 비네트, 숫자 올림 → `renderLaw` |
 | `renderLaw` | 1837 | 율법 카드 칸 | speak~confirm: 뒷면에 "율법파의 뜻" 목록(`lawBackHTML`, `main.js:1882-1899`, 난이도만큼만)과 그 아래 `.law-notes` 메모(굳은 율법 선교·공격 +n, 결집, 행군 범위 `marchRange`), 재생부터 앞면으로 뒤집힘 |
-| `renderAltar` | 1981 | 아래 제단 | 기적 손패 + 단계별 두루마리: speak(청원·예언·숨은 말·갈림길·제안 칩·입력·"알아들은 말" 줄 `#heardLine`·비용 알약(`costPill(draft)`이 비용·라벨·클래스 `over`/`echo`/`cite`/`banned`·툴팁을 한 번에 계산해 그리기와 입력 갱신이 같이 쓴다, 되풀이가 인용보다 앞선다 — `main.js:2171-2180`)·인장·침묵), thinking(촛불·내려받기 %·점괘 릴), confirm(해석문·태그·칩(자동 칩은 "뜻을 헤아림"/자동)·결과 미리보기·예언/계명 체크·경고·버튼 — 다시 해석은 LLM 모드에서만), playing/resolved/over(율법파 계획·해결 기록·판결·장 결산·속도·건너뛰기/다음 장/다시 하기) → `bindAltar` |
+| `renderAltar` | 1981 | 아래 제단 | 기적 손패 + 단계별 두루마리: speak(청원·예언·숨은 말·갈림길·제안 칩·입력·"알아들은 말" 줄 `#heardLine`·비용 알약(`costPill(draft)`이 비용·라벨·클래스 `over`/`echo`/`cite`/`banned`·툴팁을 한 번에 계산해 그리기와 입력 갱신이 같이 쓴다, 되풀이가 인용보다 앞선다 — `main.js:2171-2180`)·인장·침묵), thinking(촛불·내려받기 %·점괘 릴), confirm(해석문·태그·칩(받아들인 칩 끝에 옮길 곳이 있으면 ⇄ `.chip-move`, 선공 표시는 집 안 행동에 붙지 않음; 자동 칩은 "뜻을 헤아림"/자동)·결과 미리보기·예언/계명 체크·경고·버튼 — 다시 해석은 LLM 모드에서만), playing/resolved/over(율법파 계획·해결 기록·판결·장 결산·속도·건너뛰기/다음 장/다시 하기) → `bindAltar` |
 
-그 밖: `renderSetup`(메인 설정·맵 미리보기·경외 막대·은사·승천, `main.js:211`), `renderMainStatus`(AI 상태 점, `242`), `renderSubtitle`(모드별 부제, `323`), `renderMetaLinks`(서고·성서·오늘·시련 버튼, `908`), `renderWelcome`(복귀 인사, `924`), `renderChron`(연대기 서랍과 신학 노트 지우기, `2368`), `tileTipHTML`(칸 툴팁, `413`), `ledgerHTML`(장 결산, `1433`), `scoreGraph`(승점 곡선 SVG, `894`), `heardHTML`(알아들은 말 줄: 입력을 석판으로 읽어 "낱말 → 일"을 보여 주고, LLM 모드면 '예감'으로 적는다. 알아들었으나 못 하는 일은 `ui.heard.cannot`, `2290-2301`).
+그 밖: `renderSetup`(메인 설정·맵 미리보기·경외 막대·은사·승천, `main.js:211`), `renderMainStatus`(AI 상태 점, `242`), `renderSubtitle`(모드별 부제, `323`), `renderMetaLinks`(서고·성서·오늘·시련 버튼, `908`), `renderWelcome`(복귀 인사, `924`), `renderChron`(연대기 서랍과 신학 노트 지우기, `2368`), `tileTipHTML`(칸 툴팁, `413`), `ledgerHTML`(장 결산, `1433`), `scoreGraph`(승점 곡선 SVG, `894`), `heardHTML`(알아들은 말 줄: 입력을 석판으로 읽어 "낱말 → 일"을 보여 주고, LLM 모드면 '예감'으로 적는다. 명령이 있어도 못 한 일은 `.heard-no` "못 함: …"(`ui.heard.also`), 금한 일은 "금함: …"(`ui.heard.forbid`)을 덧붙이고, 명령 없이 못 하는 일뿐이면 `ui.heard.cannot`, `2339-2355`, `78c891e`).
 
 ### 4.6 해결 재생 (`playback`, `main.js:1305-1392`)
 
@@ -745,16 +749,18 @@ stateDiagram-v2
 | R · r · ㄱ | confirm, 다시 해석 버튼이 있고 켜져 있을 때 (석판 모드면 버튼이 없어 아무 일도 없다) | 다시 해석 | `main.js:2342` |
 | Esc | 목록 모달(`.list-modal`)이 열림 | 그 모달의 닫기(`.list-head button`, 없으면 첫 버튼)를 누름 — 아래 Esc 처리는 하지 않는다 | `main.js:358-360` |
 | Esc | 연대기 서랍(`#chronicle.open`)이 열림 | 서랍 닫기(`#closeChron`) | `main.js:361` |
-| Esc | confirm이고 말 거두기 가능 | 말 거두기 | `main.js:362` |
-| Esc | 판 화면, thinking·playing 아님, 선택 모달 없음 | 메인 화면 | `main.js:363` |
+| Esc | 칩 옮길 칸을 고르는 중(`targeting.move`) | 옮기기 취소(알림도 지움) | `main.js:362` (`78c891e`) |
+| Esc | confirm이고 말 거두기 가능 | 말 거두기 | `main.js:363` |
+| Esc | 판 화면, thinking·playing 아님, 선택 모달 없음 | 메인 화면 | `main.js:364` |
 | Space | playing | 빨리 감기(건너뛰기) | `main.js:2334` |
 | Enter · Space | resolved | 다음 장 | `main.js:2336` |
 | L | speak (입력 밖) | 연대기 서랍 | `main.js:2337-2338` |
 | Alt+1~5 | speak (입력 중에도) | 손패 n번째 기적 | `main.js:2324-2328` |
-| 칸 클릭 | 번개 표적 모드 | 번개 | `main.js:1663` |
+| 칸 클릭 | 번개 표적 모드 | 번개 | `main.js:1693-1701` |
+| 칸 클릭 | confirm, 칩 옮기기 모드 | 그 칸으로 옮기기(`moveChip`) | `main.js:1694` |
 | 칸 호버 / 길게 누르기(450ms, 터치) | | 칸 툴팁 | `main.js:368-411` |
 
-`onKey`는 메인 화면이 떠 있거나 종료 화면·튜토리얼 대화·선택 모달이 있으면 아무것도 하지 않는다(`main.js:2321`). Esc 네 줄은 `onKey`가 아니라 `bindMain`의 keydown 리스너(`main.js:353-364`, `onKey`보다 먼저 등록)가 위에서부터 차례로 본다. 규칙서에 같은 목록이 있다(`ui.rules.keys1`).
+`onKey`는 메인 화면이 떠 있거나 종료 화면·튜토리얼 대화·선택 모달이 있으면 아무것도 하지 않는다(`main.js:2321`). Esc 다섯 줄은 `onKey`가 아니라 `bindMain`의 keydown 리스너(`main.js:353-365`, `onKey`보다 먼저 등록)가 위에서부터 차례로 본다. 규칙서에 같은 목록이 있다(`ui.rules.keys1`).
 
 ### 4.8 모달과 겹침 화면
 
@@ -818,7 +824,7 @@ window.__gsg = {
 1. `js/game` 아래 `.js`(언어팩 폴더 `i18n/` 제외)에서 **주석을 지운 뒤**(문자열·템플릿·정규식 리터럴 안의 `//`는 보존하는 간이 토크나이저, `tools/i18n-check.mjs:13-39`) 한글이 남은 줄을 찾는다. 기본은 파일당 8줄, `--all`이면 전부.
 2. 한국어팩(`i18n/ko.js`)의 키를 기준으로 다른 언어팩(`i18n/*.js`)의 빠진 키·남는 키 수를 보여 준다. `--keys`면 키 이름까지.
 
-현재 결과: 코드에 남은 한글 1줄(`i18n.js:8`의 언어 이름 `'한국어'` — 의도된 것), 한국어팩 1287키(`e68a240`), 다른 언어팩 없음.
+현재 결과: 코드에 남은 한글 1줄(`i18n.js:8`의 언어 이름 `'한국어'` — 의도된 것), 한국어팩 1311키(`78c891e`), 다른 언어팩 없음.
 
 ### 5.2 결정론·퍼징 검사 스크립트 (`tools/tests/`)
 
@@ -833,7 +839,7 @@ window.__gsg = {
 | `heresy.mjs` | 300판: 늘 30자 넘는 계시로 신앙을 말려 이단 이탈 로그가 나오는지, "두려워하지 말고 쳐라"가 공격을 **금지**로 잘못 읽지 않는지 |
 | `stats.mjs` | 퍼저 결과로 난이도×맵 크기 승률, 승리 유형, 장 수 등 밸런스 표 |
 | `sim.mjs`, `bench.mjs`(+`bench-worker.mjs`), `par.mjs` | `afab303`에서 더한 밸런스 측정기: `sim.mjs`가 `lib.mjs`로 고정 스크립트·영리한 봇 정책별 판을 돌려 지표를 모으고(`runGame`), `bench.mjs [quick\|full]`가 정책·맵·난이도 조합을 worker로 병렬 실행해 표로 낸다(목표치: 한 줄 스크립트 승률 < 50%, 공격 0회 판 < 20%, 대차 < 30%, 역전 25~35%). `par.mjs`는 작업 목록 JSON을 병렬로 돌리는 범용 실행기 |
-| `tablet-cases.mjs` | 석판 해석기 회귀 시험(`afab303`, 어휘는 `1b582ee`에서 넓힘): 새 플레이어가 쓸 법한 문장 254개(`e68a240`에서 "~지 말고"가 둘인 문장을 더함)마다 기대하는 행동 종류(`want`)가 모두 나오고 `avoid`가 나오지 않는지. 상태는 튜토리얼 3×3 1장 |
+| `tablet-cases.mjs` | 석판 해석기 회귀 시험(`afab303`, 어휘는 `1b582ee`·`78c891e`에서 넓힘): 새 플레이어가 쓸 법한 문장 549개(`e68a240`까지 254개 + `78c891e`의 평가자 A·B·C 문장과 눈 가린 묶음 7)마다 기대하는 행동 종류(`want`)가 모두 나오고 `avoid`가 나오지 않는지. `want`에는 `heard:<까닭 코드>`(예: `heard:pray:tile`)도 쓸 수 있다. 상태는 튜토리얼 3×3 1장 |
 | `sim3~5.mjs` (저장소에 없음) | 성향별 규칙 봇(침묵·실용·전쟁·평화·건설)으로 150시드씩 돌린 밸런스 시뮬레이션 |
 | `snap.mjs`, `snap_eng2.mjs`, `fuzz_eng.mjs`, `cov.mjs` (저장소에 없음) | 언어팩 추출 전후 회귀 검사: 결정론 플레이에서 사용자에게 보이는 모든 문자열을 덤프해 전후가 **바이트 단위로 같은지** 비교, 옛 엔진(HEAD)과 새 엔진을 같은 무작위 조작으로 돌려 로그 비교, 언어팩 문장 조각이 덤프에 실제로 나오는지(커버리지) |
 
@@ -857,7 +863,7 @@ window.__gsg = {
 
 - **`main.js`가 가진 규칙**(§4.4): 퍼저(`tools/tests/lib.mjs`)가 이를 복제해 검사했으나, 엔진 함수로 모이지 않아 두 곳이 어긋날 위험이 있다. 이식판에서는 한 곳으로 모으는 것을 권한다 — 옮긴 뒤 JS 결과와 같은지 골든 판으로 확인할 것.
 - **말 거두기와 로그 스냅숏**: 복원하면 이번 장 앞선 로그(예: 계시 전에 쓴 기적)의 `snap`이 사라진다. 재생에는 영향이 없지만(이미 지난 줄) 의도였는지는 코드에 적혀 있지 않다.
-- **저장본에 규칙 판이 없다**: `SAVE_VERSION`은 1 그대로이고 `RULESET`(5)은 저장하지 않는다. 규칙이 바뀐 뒤 옛 저장본을 불러오면 새 규칙으로 이어진다(hydrate 기본값만 채움). `afab303`·`5b7a94f`·`448f553`에서 규칙이 크게 바뀌는 동안 `RULESET`은 4 그대로였고 `e68a240`에서야 5로 올랐으므로, 서고·설정의 "규칙 판" 4에는 재조정 전후의 판이 섞여 있다. 옛 저장본은 `lawGuard`·`rally` 모두 기본값을 받는다(`rally`는 `e68a240`부터).
+- **저장본에 규칙 판이 없다**: `SAVE_VERSION`은 1 그대로이고 `RULESET`(5)은 저장하지 않는다. 규칙이 바뀐 뒤 옛 저장본을 불러오면 새 규칙으로 이어진다(hydrate 기본값만 채움). `afab303`·`5b7a94f`·`448f553`에서 규칙이 크게 바뀌는 동안 `RULESET`은 4 그대로였고 `e68a240`에서야 5로 올랐으므로, 서고·설정의 "규칙 판" 4에는 재조정 전후의 판이 섞여 있다. 옛 저장본은 `lawGuard`·`rally` 모두 기본값을 받는다(`rally`는 `e68a240`부터). `9b43bbf`도 규칙을 바꿨지만 `RULESET`은 5 그대로다. 그 전 저장본은 `doomUsed`가 없어(첫 해결 때 `false`로 채움) 이미 심판의 날을 내린 판이면 한 번 더 내릴 수 있고, 계시에 `sig`가 없어 다음 계시의 메아리는 글로만 본다.
 - **`makeView`의 반쪽 스냅숏**: 재생 중 보드는 `tiles`·`sides`만 과거 값이고 `names`·`legends`·`holyId`·`commandments` 등은 해결 뒤 값이다. 예: 이번 장 생긴 전설 이름이 재생 초반부터 보일 수 있다.
 - **`hydrateState`에 `first` 기본값이 없다**: `first`는 저장본에 늘 있으므로 문제는 없어 보이나, `startRound` 전 상태(round 0)를 저장하는 경로는 없다. (`rally`는 `e68a240`부터 `false`로 채운다.)
 - ~~**지운 규칙의 잔재** (`afab303`): `oddUsed`·`liturgy` 상태 필드, 언어팩 키 `log.liturgy`·`kw.liturgyStrip`·`ui.tag.liturgy`·`ui.tag.odd`·`ui.grace.odd`·`ui.grace.otherDeed`·`ui.verdict.odd`, `style.css`의 `.v-odd`, `derivePending` 위 주석.~~ — **고침** `e68a240`: 모두 지웠다. `ui.verdict.text`의 `'odd'` 갈래만 옛 저장본의 판결을 읽으려고 남았다. 이식판은 옛 저장본을 읽을 때 두 필드를 무시하기만 하면 된다.
@@ -876,7 +882,7 @@ window.__gsg = {
 | `mapgen.js`, `lore.js` | `class_name MapGen`, `class_name Lore` (정적) | `DetRng`(§3.6) 사용 |
 | `data.js` | `GameData` autoload (+ `docs/export/data.json` 적재) | 키 순서 유지 |
 | `i18n.js` + 언어팩 | `I18n` autoload, `t(key, vars)` | 값이 함수인 키(조사·복수·조건 문장)가 많아 `TranslationServer`의 CSV/PO만으로는 부족하다. 함수 키는 GDScript `Callable` 사전으로 옮긴다 |
-| `interpreter.js` (석판) | `class_name TabletInterpreter` | 정규식은 `RegEx`(PCRE2) — JS 문법 차이 점검은 [05](05-interpreter.md) |
+| `interpreter.js` (석판) | `class_name TabletInterpreter` | 정규식은 `RegEx`(PCRE2) — JS 문법 차이 점검은 [05](05-interpreter.md). 엔진의 메아리가 석판의 일 목록을 쓰므로(`setPlanSig`, §1.3) `Rules`에 `Callable`로 넣어 주거나 `Rules`가 `TabletInterpreter`를 직접 부르게 한다 — 어느 쪽이든 순환 로드가 생기지 않게 한다 |
 | `interpreter.js` (LLM) + `llm.js` | `LlmClient` 노드 (비동기 `await`) | Chrome Prompt API는 없다. 로컬 LLM(HTTP로 Ollama·llama.cpp 서버, 또는 GDExtension) 또는 석판만. 스키마 강제(JSON enum)는 서버가 지원해야 한다 |
 | `chronicle.js` | `class_name Chronicle` (정적) | |
 | `meta.js` | `Meta` autoload | [07](07-progression.md) — `user://` JSON |
