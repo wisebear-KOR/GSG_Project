@@ -59,9 +59,15 @@ export function distance(a, b) {
 }
 
 // ---------- 상태 ----------
-// config: { mode: 'standard' | 'tutorial', size: 5|6|7, difficulty: 'easy'|'normal'|'hard', seed, veteran }
-// veteran: 한 판이라도 끝낸 적이 있으면 true (검열 카드 등 두 번째 판부터 나오는 것들)
+// config: { mode: 'standard' | 'tutorial', size: 5|6|7, difficulty: 'easy'|'normal'|'hard', seed, veteran, unlock }
+// veteran: 한 판이라도 끝낸 적이 있으면 true. unlock: 끝낸 판 수(0~4) — 모듈이 한 판에 한 묶음씩 열린다 (없으면 veteran이면 전부)
 export const DEFAULT_CONFIG = { mode: 'standard', size: 5, difficulty: 'normal', seed: 2026 };
+
+// 모듈은 판을 끝낼 때마다 한 묶음씩 열린다: 1 율법 석판 · 2 심판의 기준·소명 · 3 대사제 성향·기적 드래프트·두 갈래 사건·세 막 ·
+// 4 교리 대립·영원한 계명·검열(분열의 예언자). unlock이 없으면 veteran이면 전부 (오늘의 계시·시련·도전·골든)
+export const MODULES = 4;
+const unlockedCfg = (cfg, level) => (cfg.unlock ?? (cfg.veteran ? MODULES : 0)) >= level;
+export const unlocked = (state, level) => !state.tutorial && unlockedCfg(state.config, level);
 
 export function createState(config = DEFAULT_CONFIG) {
   const cfg = { ...DEFAULT_CONFIG, ...config };
@@ -78,7 +84,7 @@ export function createState(config = DEFAULT_CONFIG) {
     priest: 'loyal', names: {}, lessons: [], petition: null, petitionIgnored: 0, prophecy: null,
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
     judgement: 'classic', wrath: 0, streak: null, vowNext: null, reacted: null, doomUsed: false, miracleUses: {}, lawGuard: { preach: 0, attack: 0 }, rally: false,
-    edictOn: !!cfg.veteran && !tutorial, destiny: null, destinyOffer: null, holyId: null,
+    edictOn: !tutorial && (cfg.unlock ?? (cfg.veteran ? MODULES : 0)) >= 1, destiny: null, destinyOffer: null, holyId: null,
     commandments: [], saints: [], deeds: {}, fallen: [], silentRun: 0, legends: {},
     miraDone: false, miraQuote: null, bloodKills: 0, pendingDilemma: null,
     sacred: cfg.daily ? hashPick(SACRED_WORDS, 'sacred', cfg.daily) : null, stats: { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 },
@@ -115,8 +121,8 @@ export function createState(config = DEFAULT_CONFIG) {
     holy.feature = null;
     state.holyId = holy.id;
   }
-  // 소명: 두 번째 판부터 셋 중 하나 (고르지 않으면 첫째)
-  if (cfg.veteran && !tutorial && !cfg.challenge) {
+  // 소명: 세 번째 판부터 셋 중 하나 (고르지 않으면 첫째)
+  if (unlockedCfg(cfg, 2) && !tutorial && !cfg.challenge) {
     const ids = Object.keys(DESTINIES).filter((d) => !(cfg.trial === 'earth' && d === 'sword')).sort((a, b) => hashPick([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], cfg.seed, 'dest', a) - hashPick([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], cfg.seed, 'dest', b) || a.localeCompare(b));
     state.destinyOffer = ids.slice(0, 3);
     state.destiny = { id: ids[0], done: false };
@@ -136,12 +142,12 @@ export function createState(config = DEFAULT_CONFIG) {
     const leaders = Object.entries(ENEMY_LEADERS).filter(([, l]) => !l.notOn?.includes(cfg.difficulty)).map(([id]) => id);
     state.leader = cfg.trial === 'sword' ? 'iron' : hashPick(leaders, 'leader', cfg.seed, cfg.difficulty);
     // 첫 판은 충직한 사제. 그 뒤로는 판마다 다른 성향
-    if (cfg.veteran) state.priest = hashPick(Object.keys(PRIESTS).filter((k) => k !== 'loyal'), 'priest', cfg.seed);
+    if (unlockedCfg(cfg, 3)) state.priest = hashPick(Object.keys(PRIESTS).filter((k) => k !== 'loyal'), 'priest', cfg.seed);
     // 두 번째 판부터 심판의 기준이 판마다 바뀐다
-    if (cfg.veteran) state.judgement = hashPick(Object.keys(JUDGEMENTS), 'judgement', cfg.seed);
+    if (unlockedCfg(cfg, 2)) state.judgement = hashPick(Object.keys(JUDGEMENTS), 'judgement', cfg.seed);
     // 두 번째 판부터 기적은 판마다 셋을 받는다 (번개·단비 중 하나는 꼭 든다)
     if (cfg.trial === 'storm') state.miracleHand = ['lightning', 'bounty', 'pillar'];
-    else if (cfg.veteran) {
+    else if (unlockedCfg(cfg, 3)) {
       const rest = MIRACLES.map((m) => m.id).filter((id) => !['lightning', 'rain'].includes(id));
       const a = hashPick(['lightning', 'rain'], 'hand0', cfg.seed);
       const b = hashPick(rest, 'hand1', cfg.seed);
@@ -150,7 +156,7 @@ export function createState(config = DEFAULT_CONFIG) {
     }
     // 판 전체에 쓸 카드를 미리 나눠 둔다 (어려움은 장마다 두 장을 보므로 두 배)
     // 두 갈래 사건은 판마다 셋만 (시드 해시로 고른다)
-    const dilemmas = cfg.veteran ? [...DILEMMAS].sort((a, b) => hashPick([...Array(97).keys()], cfg.seed, 'dil', a.id) - hashPick([...Array(97).keys()], cfg.seed, 'dil', b.id)).slice(0, 3) : [];
+    const dilemmas = unlockedCfg(cfg, 3) ? [...DILEMMAS].sort((a, b) => hashPick([...Array(97).keys()], cfg.seed, 'dil', a.id) - hashPick([...Array(97).keys()], cfg.seed, 'dil', b.id)).slice(0, 3) : [];
     state.eventDeck = dealDeck(state, [...EVENTS, ...dilemmas], state.maxRounds + 2);
     state.lawDeck = dealDeck(state, lawPool(state), state.maxRounds * 2 + 2);
   }
@@ -175,7 +181,7 @@ function dealDeck(state, pool, n) {
 function lawPool(state) {
   if (state.tutorial) return LAW_CARDS.filter((c) => !['L5', 'L7', 'L10'].includes(c.id));
   const leader = ENEMY_LEADERS[state.leader];
-  const censor = state.config.veteran && state.config.difficulty !== 'easy';
+  const censor = unlocked(state, 4) && state.config.difficulty !== 'easy';
   const pool = LAW_CARDS.filter((c) => (c.id !== 'L10' || censor) && !leader?.deck.remove.includes(c.id));
   for (const id of leader?.deck.add ?? []) pool.push(LAW_CARDS.find((c) => c.id === id));
   if (state.config.trial === 'sword') pool.push(LAW_CARDS.find((c) => c.id === 'L5'), LAW_CARDS.find((c) => c.id === 'L5'));
@@ -558,16 +564,16 @@ export function startRound(state) {
   if (!state.eventDeck.length) state.eventDeck = dealDeck(state, EVENTS, 6);
   if (state.lawDeck.length < 2) state.lawDeck.unshift(...dealDeck(state, lawPool(state), 9));
   // 세 막 (두 번째 판부터): 2막에 들어서면 성전 카드 한 장을 덱에 넣고, 3막에는 평온한 계절이 오지 않는다
-  if (state.config.veteran && !state.tutorial && actStart(state)) {
+  if (unlocked(state, 3) && actStart(state)) {
     if (actOf(state) === 2 && lawPool(state).some((c) => c.id === 'L5')) state.lawDeck.splice(Math.max(0, state.lawDeck.length - 3), 0, LAW_CARDS.find((c) => c.id === 'L5'));
     if (actOf(state) === 3) state.eventDeck = state.eventDeck.filter((e) => e.id !== 'calm');
   }
-  if (!state.eventDeck.length) state.eventDeck = dealDeck(state, state.config.veteran && actOf(state) === 3 ? EVENTS.filter((e) => e.id !== 'calm') : EVENTS, 6);
+  if (!state.eventDeck.length) state.eventDeck = dealDeck(state, unlocked(state, 3) && actOf(state) === 3 ? EVENTS.filter((e) => e.id !== 'calm') : EVENTS, 6);
   state.event = state.eventDeck.pop();
   // 분열의 예언자: 두 번째 판·2막부터 한 번. 대립 교리가 둘 다 3 이상이거나 신앙 바닥으로 한 장을 버텼을 때
   const d0 = state.sides.player.doctrine;
   const split = (d0.peace >= 3 && d0.war >= 3) || (d0.abundance >= 3 && d0.wisdom >= 3);
-  if (state.config.veteran && !state.tutorial && !state.miraDone && actOf(state) >= 2 && (split || state.sides.player.faithless >= 1)) {
+  if (unlocked(state, 4) && !state.miraDone && actOf(state) >= 2 && (split || state.sides.player.faithless >= 1)) {
     state.eventDeck.push(state.event);
     state.event = MIRA;
     state.miraDone = true;
@@ -612,7 +618,7 @@ export function startRound(state) {
   state.dilemmaPick = null;
   if (state.round > 1) state.destinyOffer = null; // 1장에 고르지 않았으면 첫 소명 그대로
   state.petition = makePetition(state);
-  if (state.round === draftRound(state) && state.config.veteran && !state.tutorial) {
+  if (state.round === draftRound(state) && unlocked(state, 3)) {
     const pool = MIRACLES.map((m) => m.id).filter((id) => !state.miracleHand.includes(id) && !(state.config.trial === 'storm' && id === 'rain'));
     const offer = [];
     for (let i = 0; i < 3 && pool.length; i++) offer.push(pool.splice(Math.floor(rand(state, 'deck') * pool.length), 1)[0]);
@@ -1059,7 +1065,7 @@ export function markLegends(state, text, doctrine, orders, logs) {
 
 // ---------- 영원한 계명, 숨은 말 ----------
 export const carvable = (state, id) => !(state.config.trial === 'earth' && id === 'noSword');
-export const canCarve = (state) => state.config.veteran && !state.tutorial && state.round >= 3 && state.commandments.length < MAX_COMMANDMENTS;
+export const canCarve = (state) => unlocked(state, 4) && state.round >= 3 && state.commandments.length < MAX_COMMANDMENTS;
 export function carveCommandment(state, id) {
   if (!canCarve(state) || !COMMANDMENTS[id] || state.commandments.includes(id) || !carvable(state, id)) return false;
   state.commandments.push(id);
@@ -1440,7 +1446,7 @@ export function recordRevelation(state, text, doctrine, extra = 0, spoken = spok
   if (!doctrine) { state.streak = null; return; }
   // 교리 대립 (두 번째 판부터): 반대 교리가 흔들린다. 이미 얻은 특전 칸 아래로는 내려가지 않는다
   const opp = OPPOSED[doctrine];
-  if (state.config.veteran && !state.tutorial && d[opp] > perkFloor(d[opp])) {
+  if (unlocked(state, 4) && d[opp] > perkFloor(d[opp])) {
     d[opp] -= 1;
     logEvent(state, 'player', t('log.doctrineShaken', { doc: t(`eng.doctrine.${opp}`) }), null, { kind: 'doctrine' });
   }

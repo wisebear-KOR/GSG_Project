@@ -8,7 +8,7 @@ import {
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
   canCarve, carveCommandment, findSacred, distance, previewGains, ultRound, draftRound,
   applySilence, markLegends, serializeState, hydrateState, monthOf, payDilemma, carvable,
-  isEcho, spokenOf, marchRange,
+  isEcho, spokenOf, marchRange, unlocked, MODULES,
 } from './engine.js';
 import {
   DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, FESTIVALS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, TRIALS, ASCENSION, RULESET, LAW_CARDS, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
@@ -279,7 +279,7 @@ function startFromMain(mode = 'new') {
       setup = loadSetup();
       beginGame({ mode: 'standard', size: ch.size, difficulty: ch.difficulty, seed: ch.seed, veteran: ch.veteran, canon: null, challenge: { target: ch.target } });
     }
-    else beginGame({ ...setup, mode: 'standard', veteran, canon: veteran ? meta.getCanon()[0] ?? null : null, god: godConfig(), legacy: veteran ? legacyFor(setup.seed) : null, blessing: (setup.ascension ?? 0) >= 5 ? null : blessingPick(), ascension: setup.difficulty === 'hard' ? setup.ascension ?? 0 : 0 });
+    else beginGame({ ...setup, mode: 'standard', veteran, unlock: Math.min(MODULES, meta.getHistory().length), canon: veteran ? meta.getCanon()[0] ?? null : null, god: godConfig(), legacy: veteran ? legacyFor(setup.seed) : null, blessing: (setup.ascension ?? 0) >= 5 ? null : blessingPick(), ascension: setup.difficulty === 'hard' ? setup.ascension ?? 0 : 0 });
   }, fx.motion.reduced ? 150 : 850);
 }
 
@@ -489,7 +489,7 @@ async function newRound() {
   const act = hasAct ? ACTS[actOf(state) - 1].name : null;
   fx.chapter(frameEl(), t('ui.chapter.title', { n: state.round, month: state.tutorial ? null : monthOf(state) }), t('ui.chapter.sub', { first: state.round === 1, hasFest, fest, last, hasAct, act, event: state.event.name, judge }));
   if (state.event.id === 'mira') setTimeout(() => leaderSay(t('ui.miraSay', { quote: state.miraQuote })), fx.motion.reduced ? 300 : 2500);
-  if (actStart(state) && state.config.veteran && ACTS[actOf(state) - 1].text) setTimeout(() => leaderSay(ACTS[actOf(state) - 1].text), fx.motion.reduced ? 300 : 2600);
+  if (actStart(state) && unlocked(state, 3) && ACTS[actOf(state) - 1].text) setTimeout(() => leaderSay(ACTS[actOf(state) - 1].text), fx.motion.reduced ? 300 : 2600);
   if (state.round === 1 && state.destinyOffer) setTimeout(showDestinyChoice, fx.motion.reduced ? 400 : 2600);
   if (state.round === 1 && state.leader) setTimeout(() => leaderSay(leaderLine(state, 'intro')), fx.motion.reduced ? 300 : 2400);
   else if (state.reacted && REACT[state.reacted]) setTimeout(() => leaderSay(REACT[state.reacted].line), fx.motion.reduced ? 300 : 2400);
@@ -1176,17 +1176,16 @@ function showRules() {
   listModal(t('ui.rules.title'), html);
 }
 
-// 두 번째 판을 시작할 때 한 번: 새로 열린 것
+// 판을 끝낼 때마다 모듈이 한 묶음씩 열린다: 새 판을 시작할 때 한 번, 이번에 열린 것과 다음에 열릴 것
 function showUnlockNote() {
-  if (meta.get('gsg.unlockNote', false) || meta.getHistory().length !== 1 || state.tutorial) return;
-  meta.set('gsg.unlockNote', true);
-  listModal(t('ui.unlock.title'), `<ul class="unlock-list">
-    <li>${t('ui.unlock.1')}</li>
-    <li>${t('ui.unlock.2')}</li>
-    <li>${t('ui.unlock.3')}</li>
-    <li>${t('ui.unlock.4')}</li>
-    <li>${t('ui.unlock.5')}</li>
-  </ul><p class="set-note">${t('ui.unlock.note')}</p>`);
+  const level = state.config.unlock;
+  if (state.tutorial || !level || level > MODULES) return;
+  const seen = Number(meta.get('gsg.unlockNote', 0)) || 0;
+  if (seen >= level) return;
+  meta.set('gsg.unlockNote', level);
+  const now = [t(`ui.unlock.${level}`), ...(level === 1 ? [t('ui.unlock.5')] : [])];
+  const next = level < MODULES ? `<p class="set-note">${t('ui.unlock.next', { what: t(`ui.unlock.${level + 1}`) })}</p>` : '';
+  listModal(t('ui.unlock.title'), `<ul class="unlock-list">${now.map((x) => `<li>${x}</li>`).join('')}</ul>${next}<p class="set-note">${t('ui.unlock.note')}</p>`);
 }
 
 // ---------- 음성 해설 (화면 읽기 프로그램) ----------
@@ -2098,7 +2097,7 @@ function renderAltar() {
     if (pending.dilemma) tags.push(`<span class="wtag ok">${t('ui.tag.dilemma', { label: esc(state.event.choice.find((o) => o.id === pending.dilemma).label) })}</span>`);
 
     if (pending.cited?.length) tags.push(`<span class="wtag">${t('ui.tag.cited', { words: pending.cited.map(esc) })}</span>`);
-    const opp = result.doctrine && state.config.veteran ? OPPOSED[result.doctrine] : null;
+    const opp = result.doctrine && unlocked(state, 4) ? OPPOSED[result.doctrine] : null;
     if (opp && state.sides.player.doctrine[opp] > [6, 4, 2, 0].find((f) => state.sides.player.doctrine[opp] >= f)) tags.push(`<span class="wtag tone-curse">${DOCTRINE[opp].name} -1</span>`);
     const st = state.streak;
     if (result.doctrine && st?.doctrine === result.doctrine && st.n === 2) tags.push(`<span class="wtag ok">${t('ui.tag.streak', { name: DOCTRINE[result.doctrine].name })}</span>`);
