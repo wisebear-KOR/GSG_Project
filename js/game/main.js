@@ -1162,7 +1162,7 @@ function blockedName(l) {
 function showRules() {
   const sec = (title, items, open = false) => `<details class="rule-sec"${open ? ' open' : ''}><summary>${title}</summary><ul>${items.map((x) => `<li>${x}</li>`).join('')}</ul></details>`;
   const html = `<div class="rules">
-    ${sec(t('ui.rules.core'), [t('ui.rules.core1'), t('ui.rules.core2'), t('ui.rules.core3'), t('ui.rules.core4'), t('ui.rules.core5')], true)}
+    ${sec(t('ui.rules.core'), [t('ui.rules.core1'), t('ui.rules.core2'), t('ui.rules.core3'), t('ui.rules.core4'), t('ui.rules.core6'), t('ui.rules.core5')], true)}
     ${sec(t('ui.rules.flow'), [t('ui.rules.flow1'), t('ui.rules.flow2'), t('ui.rules.flow3'), t('ui.rules.flow4')])}
     ${sec(t('ui.rules.win'), [t('ui.rules.win1'), t('ui.rules.win2'), t('ui.rules.win3'), t('ui.rules.win4'), t('ui.rules.win5')])}
     ${sec(t('ui.rules.faith'), [
