@@ -186,6 +186,7 @@ const INSTEAD = kw('kw.instead', 'g');
 const RATHER = kw('kw.rather', 'g');
 const ASIDE = kw('kw.aside', 'g');
 const ONLY_THIS = kw('kw.onlyThis', 'g');
+const NEITHER = kw('kw.neitherNor', 'g');
 const PLENTY_AND = kw('kw.plentyAnd', 'g');
 const IS_ID = kw('kw.place.idOnly');
 const NOT_BUT_PLACE = kw('kw.notButPlace');
@@ -193,7 +194,7 @@ const FEAR = kw('kw.fear');
 const toNeg = (m, verb) => (FEAR.test(verb) ? `${verb} ` : t('kw.dontAndNeg', { verb }));
 // 앞의 것을 금지 절로 떼어 낸다: "숲을 베지 말고 돌을 캐라" → "숲을 베지 마라, 돌을 캐라", "공격 말고 선교",
 // "나무는 그만 베고 돌을 캐라", "기도는 됐고 일이나 해". "두려워하지 말고 쳐라"는 금지가 아니다 → "두려워하 쳐라"
-const splitDont = (text) => text.replace(ONLY_THIS, (m, a) => `${a} `).replace(ASIDE, ' ').replace(RATHER, ' ').replace(PLENTY_AND, toNeg).replace(DONT_AND, toNeg).replace(STOP_AND, toNeg).replace(ENOUGH_AND, toNeg).replace(NOT_BUT, (m, a, b) => (NOT_BUT_PLACE.test(a ?? b) ? ' ' : IS_ID.test(a ?? b) ? m : toNeg(m, a ?? b))).replace(INSTEAD, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a))).replace(NOUN_AND, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a)));
+const splitDont = (text) => text.replace(NEITHER, toNeg).replace(ONLY_THIS, (m, a) => `${a} `).replace(ASIDE, ' ').replace(RATHER, ' ').replace(PLENTY_AND, toNeg).replace(DONT_AND, toNeg).replace(STOP_AND, toNeg).replace(ENOUGH_AND, toNeg).replace(NOT_BUT, (m, a, b) => (NOT_BUT_PLACE.test(a ?? b) ? ' ' : IS_ID.test(a ?? b) ? m : toNeg(m, a ?? b))).replace(INSTEAD, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a))).replace(NOUN_AND, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a)));
 // 같은 채집이면 더 많이 나오는 칸부터, 무엇을 거둘지 말하지 않았으면 가장 모자란 자원부터
 const WEAKEST = kw('kw.place.weakest');
 const FOEWARD = kw('kw.place.foeward');
@@ -287,7 +288,7 @@ function placeOf(state, clause) {
   const foeVillage = PLACE.foeVillage.test(clause);
   const generic = new Set();
   // "율법파가 마을을 세우려는 곳": 그 '마을'은 율법파가 세울 마을이다 (율법파 마을을 가리키지 않는다)
-  if (PLACE.village.test(clause) && (!PLACE.capital.test(clause) || foeVillage) && !(PLACE.aim.test(clause) && PLACE.aimBuild.test(clause))) {
+  if (PLACE.village.test(clause) && (!PLACE.capital.test(clause) || foeVillage) && !(PLACE.aim.test(clause) && PLACE.aimBuild.test(clause)) && !(PLACE.aimWall.test(clause) && PLACE.foe.test(clause))) {
     const side = foeVillage || PLACE.foe.test(clause) || PLACE.claim.test(clause) || HOSTILE.some((re) => re.test(clause)) ? 'enemy' : 'player';
     if (side === 'enemy' || !VILLAGE_WORD.test(clause) || VILLAGE_EXCEPT.test(clause)) {
       for (const x of state.tiles) if (x.owner === side && x.building === 'village') { anchors.add(x.id); generic.add(x.id); }
@@ -449,13 +450,13 @@ export function interpretWithTablet(state, revelation) {
           if (alt) holder.a = alt;
         }
         if (!free(a)) continue;
-        picks.push({ a, ci, pos, kind: rule.kind, alts: matches, aimed: place.anchors.size > 0, nth: implicit ? took : 0, cnt: Math.max(implicit ? 0 : many, Math.min(3, place.exact.size)) }); took += 1;
+        picks.push({ a, ci, pos, kind: rule.kind, alts: matches, aimed: place.anchors.size > 0, pinned: place.exact.has(a.tile) || (place.named.length > 0 && place.anchors.has(a.tile)), nth: implicit ? took : 0, cnt: Math.max(implicit ? 0 : many, Math.min(3, place.exact.size)) }); took += 1;
       }
       // 칸이 모두 찼으면 먼저 온 일을 다른 칸으로 옮길 수 있는지 본다 ("성벽을 쌓고 기도하라" → 성벽은 마을에)
       for (const a of took ? [] : matches) {
         const holder = picks.find((o) => o.a.tile === a.tile);
         const alt = holder?.alts.find((b) => b.key !== holder.a.key && b.tile !== a.tile && free(b));
-        if (!alt) continue;
+        if (!alt || holder.pinned) continue;
         holder.a = alt;
         picks.push({ a, ci, pos, kind: rule.kind, alts: matches }); took = 1;
         break;
