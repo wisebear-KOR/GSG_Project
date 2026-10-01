@@ -1257,6 +1257,17 @@ const CASES = [
   ['전쟁은 없다. 들에서 일하라', ['forbid:attack'], ['attack']],
   ['방어가 약한 율법파 마을을 쳐라', [], ['build:wall']],
   ['숲 가장자리에 마을을 세워라', ['build:village'], ['gather:wood']],
+  // 10차 평가자 문장
+  ['숲을 아끼고 강에서 먹을 것을 구하라', ['gather:food', 'forbid:gather:wood'], ['gather:wood']],
+  ['나무는 충분하다, 돌을 캐라', ['gather:stone'], ['gather:wood']],
+  ['산 자들이여 기뻐하라', [], ['gather:stone']],
+  ['적이 쳐들어올 것 같다', [], ['attack']],
+  ['율법파가 우리를 치려 한다, 대비하라', [], ['attack']],
+  ['낚시하러 가라', [], ['explore']],
+  ['겨울을 대비해 양식을 비축하라', ['gather:food'], ['build:wall']],
+  ['대성당의 벽을 올려라', [], ['build:wall']],
+  ['싸움은 내일 하고 오늘은 신전을 높여라', ['forbid:attack'], ['attack']],
+  ['성을 쌓아라', [], ['gather:stone']],
 ];
 
 const kindOf = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);

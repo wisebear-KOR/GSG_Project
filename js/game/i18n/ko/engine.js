@@ -221,7 +221,6 @@ export default {
   'log.attackWarSave': (v) => `${poss(v.who)} 공격이 ${v.place}에서 막혔다. 전쟁의 가호가 신앙 2를 태워 쓰러질 자를 살렸다.`,
   'log.attackArk': (v) => `${poss(v.who)} 공격이 ${v.place}에서 막혔다. 방주의 가호로 아무도 쓰러지지 않았다.`,
   'log.attackFail': (v) => `${poss(v.who)} 공격이 ${v.place}에서 막혔다. 공격자 1명이 쓰러졌다.`,
-  'log.cathedralFall': '대성당의 {part}이 무너졌다 ({stage}/3).',
   'log.attackCapital': (v) => `${subj(v.who)} ${josa(v.place, '을', '를')} 쳤다! 수도 내구도 ${v.hp}.`,
   'log.capture': (v) => `${subj(v.who)} ${josa(v.place, '을', '를')} 빼앗았다!`,
 

@@ -210,7 +210,8 @@ export const hasUlt = (state, side, key) => side === 'player' && state.sides[sid
 // 대성당 단계마다 필요한 마을: 1·2·3, 큰 판은 판이 넓은 만큼 더 (6×6 +1, 7×7 +2)
 // 판 크기 표 (튜토리얼·시련의 작은 판은 5×5 값을 따른다)
 export const sizeRules = (state) => MAP_SIZES[state.rows] ?? MAP_SIZES[5];
-export const cathedralVillages = (state) => (state.sides.player.cathedral ?? 0) + 1 + (state.tutorial ? 0 : sizeRules(state).cathedralVillages);
+// 대성당 단계마다 우리 마을이 있어야 한다: 5×5는 하나 (큰 판은 판 크기 표만큼 더)
+export const cathedralVillages = (state) => 1 + (state.tutorial ? 0 : sizeRules(state).cathedralVillages);
 // 신앙 승리에 필요한 개종 (선교로 데려온 율법파 신도)
 export const faithConverts = (state) => sizeRules(state).faith.converts;
 export const popCap = (state, side) => 3 + 2 * villageCount(state, side) + (hasUlt(state, side, 'abundance') ? 2 : 0);
@@ -1306,7 +1307,6 @@ function resolveAction(state, a) {
       if (!(foe === 'player' && state.roundMods.ark)) f.pop = Math.max(0, f.pop - 1);
       if (tl.building === 'capital') {
         f.capitalHp -= 1;
-        if (foe === 'player' && (f.cathedral ?? 0) >= 1) { f.cathedral -= 1; logEvent(state, side, t('log.cathedralFall', { part: CATHEDRAL[f.cathedral].name, stage: f.cathedral }), null, { tile: tl.id, kind: 'loss' }); }
         logEvent(state, side, t('log.attackCapital', { who: side, place, hp: f.capitalHp }), dice, { tile: tl.id, kind: 'attack', capital: true });
         if (f.capitalHp <= 0) { state.winner = side; state.winReason = t('eng.win.capital', { who: side }); state.winKind = 'capital'; }
         return;
@@ -1421,7 +1421,6 @@ function remnant(state) {
     const s = state.sides[side]; const cap = capitalOf(state, side);
     if (s.pop > 0 || !cap || s.capitalHp <= 0 || state.winner) continue;
     s.capitalHp -= 1;
-    if (side === 'player' && (s.cathedral ?? 0) >= 1) s.cathedral -= 1;
     logEvent(state, side, t('log.remnant', { who: side, hp: s.capitalHp }), null, { tile: cap.id, kind: 'loss' });
     if (s.capitalHp > 0) s.pop = 1;
     else { state.winner = other(side); state.winReason = t('eng.win.capital', { who: other(side) }); state.winKind = 'capital'; }

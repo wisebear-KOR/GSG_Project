@@ -160,14 +160,9 @@
       "revelation": "땅을 넓혀 새 마을을 세워라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:C1:village","build:C2:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판이 이르되, 숲(C1)에 마을을 세운다, 그리고 채석장(C2)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:C1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 숲(C1)에 마을을 세운다!"},
       "accepted": ["build:C1:village"],
-      "rejected": [{"key":"build:C2:village","reason":"자원 부족"}],
+      "rejected": [],
       "petitionAnswered": false,
       "auto": ["gather:D2:food","gather:C2:stone"],
       "enemyPlan": ["gather:A3:stone","pray:A4:","gather:C4:stone","gather:B5:wood"],
@@ -175,7 +170,7 @@
       "ordered": ["build:C1:village"],
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판이 이르되, 숲(C1)에 마을을 세운다, 그리고 채석장(C2)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 숲(C1)에 마을을 세운다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 평원(D2)에서 식량을 2 얻었다.",
@@ -1390,22 +1385,22 @@
       "cost": 2,
       "tone": "command",
       "tablet": {
-        "orders": ["attack:D1:","attack:E1:"],
+        "orders": ["attack:D1:","attack:D2:"],
         "forbidden": [],
         "doctrine": "war",
-        "interpretation": "곳간이 노래하노니, 율법파 마을(D1)을 공격한다, 그리고 율법파 마을(E1)을 공격한다!"
+        "interpretation": "곳간이 노래하노니, 율법파 마을(D1)을 공격한다, 그리고 율법파 마을(D2)을 공격한다!"
       },
-      "accepted": ["attack:D1:","attack:E1:"],
+      "accepted": ["attack:D1:","attack:D2:"],
       "rejected": [],
       "petitionAnswered": true,
       "auto": ["build:C2:wall"],
       "enemyPlan": ["attack:C2:","attack:C1:","attack:E2:","gather:A1:food"],
       "miracle": {"id":"lightning","target":"D1","cost":2,"ok":true},
-      "plan": ["attack:D1:","attack:E1:","build:C2:wall"],
-      "ordered": ["attack:D1:","attack:E1:"],
+      "plan": ["attack:D1:","attack:D2:","build:C2:wall"],
+      "ordered": ["attack:D1:","attack:D2:"],
       "log": [
         {"side":"god","text":"“번개를 내려 율법파를 벌하라”","ui":true},
-        {"side":"priest","text":"곳간이 노래하노니, 율법파 마을(D1)을 공격한다, 그리고 율법파 마을(E1)을 공격한다!","ui":true},
+        {"side":"priest","text":"곳간이 노래하노니, 율법파 마을(D1)을 공격한다, 그리고 율법파 마을(D2)을 공격한다!","ui":true},
         {"side":"player","text":"⚡ 번개가 율법파 마을(D1)에 떨어져 율법파 1명이 쓰러졌다.","fx":{"kind":"lightning","tile":"D1"}},
         {
           "side": "enemy",
@@ -1423,10 +1418,10 @@
         },
         {
           "side": "player",
-          "text": "신도들의 공격이 율법파 마을(E1)에서 막혔다. 공격자 1명이 쓰러졌다.",
-          "dice": {"attacker":2,"attackerBonus":1,"defender":6,"defenderBonus":0,"win":false},
-          "fx": {"kind":"attack","tile":"E1"},
-          "act": "attack:E1:"
+          "text": "신도들의 공격이 율법파 마을(D2)에서 막혔다. 공격자 1명이 쓰러졌다.",
+          "dice": {"attacker":2,"attackerBonus":1,"defender":6,"defenderBonus":2,"win":false},
+          "fx": {"kind":"attack","tile":"D2"},
+          "act": "attack:D2:"
         },
         {
           "side": "enemy",

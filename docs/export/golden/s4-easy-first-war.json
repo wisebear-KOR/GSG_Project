@@ -97,13 +97,13 @@
       "cost": 1,
       "tone": "command",
       "tablet": {
-        "orders": ["build:B1:village","build:B2:village"],
+        "orders": ["build:B1:village"],
         "forbidden": [],
         "doctrine": "abundance",
-        "interpretation": "석판이 이르되, 채석장(B1)에 마을을 세운다, 그리고 성스러운 언덕(B2)에 마을을 세운다!"
+        "interpretation": "석판이 이르되, 채석장(B1)에 마을을 세운다!"
       },
       "accepted": ["build:B1:village"],
-      "rejected": [{"key":"build:B2:village","reason":"자원 부족"}],
+      "rejected": [],
       "petitionAnswered": false,
       "auto": ["gather:D1:food"],
       "enemyPlan": ["gather:B1:stone","pray:A3:","gather:A1:wood"],
@@ -111,7 +111,7 @@
       "ordered": ["build:B1:village"],
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판이 이르되, 채석장(B1)에 마을을 세운다, 그리고 성스러운 언덕(B2)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 채석장(B1)에 마을을 세운다!","ui":true},
         {"side":"enemy","text":"율법파는 채석장(B1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"B1"}},
         {
           "side": "player",
@@ -393,14 +393,9 @@
       "revelation": "성벽을 쌓아 우리 땅을 지켜라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:B1:wall","build:D2:wall"],
-        "forbidden": [],
-        "doctrine": "war",
-        "interpretation": "석판이 이르되, 우리 마을(B1)에 성벽을 쌓는다, 그리고 우리 수도(D2)에 성벽을 쌓는다!"
-      },
+      "tablet": {"orders":["build:B1:wall"],"forbidden":[],"doctrine":"war","interpretation":"석판이 이르되, 우리 마을(B1)에 성벽을 쌓는다!"},
       "accepted": ["build:B1:wall"],
-      "rejected": [{"key":"build:D2:wall","reason":"자원 부족"}],
+      "rejected": [],
       "petitionAnswered": false,
       "auto": ["gather:D1:food","gather:B3:food","gather:A1:wood"],
       "enemyPlan": ["preach:B1:","preach:D2:","pray:A3:"],
@@ -408,7 +403,7 @@
       "ordered": ["build:B1:wall"],
       "log": [
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
-        {"side":"priest","text":"석판이 이르되, 우리 마을(B1)에 성벽을 쌓는다, 그리고 우리 수도(D2)에 성벽을 쌓는다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 우리 마을(B1)에 성벽을 쌓는다!","ui":true},
         {
           "side": "player",
           "text": "신도들이 평원(D1)에서 식량을 3 얻었다.",
@@ -504,14 +499,9 @@
       "revelation": "땅을 넓혀 새 마을을 세워라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:A1:village","build:A2:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판이 이르되, 숲(A1)에 마을을 세운다, 그리고 숲(A2)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:A1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 숲(A1)에 마을을 세운다!"},
       "accepted": ["build:A1:village"],
-      "rejected": [{"key":"build:A2:village","reason":"자원 부족"}],
+      "rejected": [],
       "petitionAnswered": false,
       "auto": ["gather:D1:food","gather:B3:food","gather:B1:stone"],
       "enemyPlan": ["build:C3:village","build:D1:village","gather:A1:wood"],
@@ -519,7 +509,7 @@
       "ordered": ["build:A1:village"],
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판이 이르되, 숲(A1)에 마을을 세운다, 그리고 숲(A2)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 숲(A1)에 마을을 세운다!","ui":true},
         {"side":"player","text":"신도들은 숲(A1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"A1"}},
         {"side":"player","text":"신도들은 평원(D1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"D1"}},
         {
@@ -812,14 +802,9 @@
       "revelation": "성벽을 쌓아 우리 땅을 지켜라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:A1:village","build:A2:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판이 이르되, 숲(A1)에 마을을 세운다, 그리고 숲(A2)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:A1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 숲(A1)에 마을을 세운다!"},
       "accepted": ["build:A1:village"],
-      "rejected": [{"key":"build:A2:village","reason":"자원 부족"}],
+      "rejected": [],
       "petitionAnswered": false,
       "auto": ["gather:C2:food","gather:B3:food","gather:B1:stone"],
       "enemyPlan": ["gather:A4:food","gather:B3:food","pray:A3:"],
@@ -828,7 +813,7 @@
       "log": [
         {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"D2"}},
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
-        {"side":"priest","text":"석판이 이르되, 숲(A1)에 마을을 세운다, 그리고 숲(A2)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 숲(A1)에 마을을 세운다!","ui":true},
         {"side":"player","text":"신도들은 강(B3)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"B3"}},
         {
           "side": "enemy",

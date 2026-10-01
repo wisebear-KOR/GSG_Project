@@ -293,14 +293,9 @@
       "revelation": "땅을 넓혀 새 마을을 세워라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:E1:village","build:E2:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판이 이르되, 강(E1)에 마을을 세운다, 그리고 오아시스(E2)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:E1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 강(E1)에 마을을 세운다!"},
       "accepted": ["build:E1:village"],
-      "rejected": [{"key":"build:E2:village","reason":"자원 부족"}],
+      "rejected": [],
       "petitionAnswered": false,
       "auto": [],
       "enemyPlan": ["gather:B4:wood","gather:C5:wood","gather:B3:wood","gather:A4:stone","gather:A7:food"],
@@ -308,7 +303,7 @@
       "ordered": ["build:E1:village"],
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판이 이르되, 강(E1)에 마을을 세운다, 그리고 오아시스(E2)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 강(E1)에 마을을 세운다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(B4)에서 목재를 2 얻었다.",
@@ -958,22 +953,23 @@
       "revelation": "땅을 넓혀 새 마을을 세워라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:D1:village","build:E2:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판이 이르되, 숲(D1)에 마을을 세운다, 그리고 오아시스(E2)에 마을을 세운다!"
-      },
-      "accepted": ["build:D1:village","build:E2:village"],
+      "tablet": {"orders":["build:D1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 숲(D1)에 마을을 세운다!"},
+      "accepted": ["build:D1:village"],
       "rejected": [],
       "petitionAnswered": false,
-      "auto": [],
+      "auto": ["gather:E2:food"],
       "enemyPlan": ["build:E3:village","build:D2:village","pray:A6:","build:E4:village","build:C2:village","gather:B3:wood"],
-      "plan": ["build:D1:village","build:E2:village"],
-      "ordered": ["build:D1:village","build:E2:village"],
+      "plan": ["build:D1:village","gather:E2:food"],
+      "ordered": ["build:D1:village"],
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
-        {"side":"priest","text":"석판이 이르되, 숲(D1)에 마을을 세운다, 그리고 오아시스(E2)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 숲(D1)에 마을을 세운다!","ui":true},
+        {
+          "side": "player",
+          "text": "신도들이 오아시스(E2)에서 식량을 3 얻었다.",
+          "fx": {"kind":"gain","tile":"E2","gain":{"food":3}},
+          "act": "gather:E2:food"
+        },
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(B3)에서 목재를 2 얻었다.",
@@ -981,7 +977,6 @@
           "act": "gather:B3:wood"
         },
         {"side":"player","text":"신도들이 우리 마을(D1)을 세웠다.","fx":{"kind":"build","tile":"D1"},"act":"build:D1:village"},
-        {"side":"player","text":"신도들이 우리 마을(E2)을 세웠다.","fx":{"kind":"build","tile":"E2"},"act":"build:E2:village"},
         {"side":"enemy","text":"율법파가 율법파 마을(E3)을 세웠다.","fx":{"kind":"build","tile":"E3"},"act":"build:E3:village"},
         {"side":"enemy","text":"율법파가 율법파 마을(D2)을 세웠다.","fx":{"kind":"build","tile":"D2"},"act":"build:D2:village"},
         {"side":"enemy","text":"율법파는 자원이 모자라 숲(E4)에 짓지 못했다.","fx":{"kind":"fail","tile":"E4"},"act":"build:E4:village"},
@@ -992,21 +987,22 @@
           "fx": {"kind":"gain","tile":"A6","gain":{"faith":2}},
           "act": "pray:A6:"
         },
+        {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"leader","text":"설교자 아모스: “'넓혀'… 그 말을 돌판에 새길 수 있겠느냐?”","ui":true}
       ],
       "digest": {
         "player": {
-          "food": 3,
-          "wood": 2,
+          "food": 4,
+          "wood": 4,
           "stone": 9,
           "faith": 26,
-          "pop": 4,
+          "pop": 5,
           "templeLevel": 1,
           "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
-          "villages": 3,
+          "villages": 2,
           "score": 22,
           "faithless": 0,
           "doctrine": {"peace":1,"war":0,"abundance":2,"wisdom":0}
@@ -1034,7 +1030,6 @@
           "D3": "enemy",
           "D4": "enemy",
           "E1": "player",
-          "E2": "player",
           "E3": "enemy",
           "G2": "player"
         },
@@ -1048,7 +1043,6 @@
           "D3": "village",
           "D4": "village",
           "E1": "village",
-          "E2": "village",
           "E3": "village",
           "G2": "capital"
         },
@@ -1094,7 +1088,7 @@
         {"side":"priest","text":"석판이 이르되, 율법파 마을(D2)의 율법파에게 신의 뜻을 전한다, 그리고 율법파 마을(E3)의 율법파에게 신의 뜻을 전한다!","ui":true},
         {
           "side": "player",
-          "text": "신도들이 우리 마을(E2)에서 식량을 4 얻었다.",
+          "text": "신도들이 오아시스(E2)에서 식량을 4 얻었다.",
           "fx": {"kind":"gain","tile":"E2","gain":{"food":4}},
           "act": "gather:E2:food"
         },
@@ -1160,16 +1154,16 @@
       ],
       "digest": {
         "player": {
-          "food": 6,
-          "wood": 2,
+          "food": 5,
+          "wood": 4,
           "stone": 9,
-          "faith": 29,
-          "pop": 5,
+          "faith": 30,
+          "pop": 6,
           "templeLevel": 1,
           "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
-          "villages": 3,
+          "villages": 2,
           "score": 24,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":2,"wisdom":0}
@@ -1197,7 +1191,6 @@
           "D3": "enemy",
           "D4": "enemy",
           "E1": "player",
-          "E2": "player",
           "E3": "enemy",
           "G2": "player"
         },
@@ -1211,7 +1204,6 @@
           "D3": "village",
           "D4": "village",
           "E1": "village",
-          "E2": "village",
           "E3": "village",
           "G2": "capital"
         },
@@ -1236,7 +1228,7 @@
       "first": "player",
       "act": 3,
       "reacted": "peace",
-      "petition": {"from":"늙은 사관 갈렙","need":{"type":"build","build":"wall"}},
+      "petition": {"from":"늙은 사관 갈렙","need":{"type":"gather","gather":"food"}},
       "revelation": "싸우지 마라, 이웃을 사랑하라",
       "cost": 2,
       "tone": "command",
@@ -1248,19 +1240,19 @@
       },
       "accepted": ["preach:D2:","preach:E3:"],
       "rejected": [],
-      "petitionAnswered": true,
+      "petitionAnswered": false,
       "auto": ["pray:G2:","gather:E2:food"],
-      "enemyPlan": ["preach:D1:","attack:E2:","build:F2:village","pray:A6:","build:F3:village","build:E4:village"],
+      "enemyPlan": ["preach:D1:","build:F2:village","build:E2:village","pray:A6:","build:F3:village","build:E4:village"],
       "dilemma": {"pick":"trade","byText":false,"paid":"trade"},
       "plan": ["preach:D2:","preach:E3:","pray:G2:","gather:E2:food"],
       "ordered": ["preach:D2:","preach:E3:"],
       "log": [
         {"side":"god","text":"“싸우지 마라, 이웃을 사랑하라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 율법파 마을(D2)의 율법파에게 신의 뜻을 전한다, 그리고 율법파 마을(E3)의 율법파에게 신의 뜻을 전한다!","ui":true},
-        {"side":"enemy","text":"율법파는 우리 마을(E2)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"E2"}},
+        {"side":"enemy","text":"율법파는 오아시스(E2)를 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"E2"}},
         {
           "side": "player",
-          "text": "신도들이 우리 마을(E2)에서 식량을 4 얻었다.",
+          "text": "신도들이 오아시스(E2)에서 식량을 4 얻었다.",
           "fx": {"kind":"gain","tile":"E2","gain":{"food":4}},
           "act": "gather:E2:food"
         },
@@ -1301,7 +1293,6 @@
           "act": "preach:D1:"
         },
         {"side":"player","text":"떠돌이 상인 — 곡식을 내준다. 식량 -3, 돌 +2, 목재 +2.","fx":{"kind":"dilemma","tile":"G2"}},
-        {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"player","text":"은총 — 칼을 거두는 서원을 지켰다. 신앙 +1.","fx":{"kind":"grace","tile":"G2","gain":{"faith":1}}},
         {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
@@ -1309,17 +1300,17 @@
       ],
       "digest": {
         "player": {
-          "food": 5,
-          "wood": 4,
+          "food": 4,
+          "wood": 6,
           "stone": 11,
-          "faith": 33,
+          "faith": 34,
           "pop": 6,
           "templeLevel": 1,
           "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
-          "villages": 3,
-          "score": 26,
+          "villages": 2,
+          "score": 24,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":2,"wisdom":0}
         },
@@ -1346,7 +1337,6 @@
           "D3": "enemy",
           "D4": "enemy",
           "E1": "player",
-          "E2": "player",
           "E3": "enemy",
           "E4": "enemy",
           "F2": "enemy",
@@ -1363,7 +1353,6 @@
           "D3": "village",
           "D4": "village",
           "E1": "village",
-          "E2": "village",
           "E3": "village",
           "E4": "village",
           "F2": "village",
@@ -1380,7 +1369,7 @@
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
         "vowNext": "attack",
-        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":2,"vows":1},
+        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":1,"vows":1},
         "rng": {"deck":-106831468,"dice":1071855456},
         "winner": null,
         "winKind": null
@@ -1410,7 +1399,7 @@
         {"side":"priest","text":"석판이 이르되, 신전을 높인다!","ui":true},
         {
           "side": "player",
-          "text": "신도들이 우리 마을(E2)에서 식량을 4 얻었다.",
+          "text": "신도들이 오아시스(E2)에서 식량을 4 얻었다.",
           "fx": {"kind":"gain","tile":"E2","gain":{"food":4}},
           "act": "gather:E2:food"
         },
@@ -1458,7 +1447,6 @@
           "fx": {"kind":"attack","tile":"D1","capture":true},
           "act": "attack:D1:"
         },
-        {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법파가 검열을 선포했다. 다음 장에는 '이웃'이라는 말을 쓰지 못한다.","fx":{"kind":"ban"}},
         {"side":"leader","text":"설교자 아모스: “'신전'… 그 말을 돌판에 새길 수 있겠느냐?”","ui":true}
@@ -1466,16 +1454,16 @@
       "digest": {
         "player": {
           "food": 9,
-          "wood": 2,
+          "wood": 4,
           "stone": 9,
           "faith": 36,
-          "pop": 6,
+          "pop": 5,
           "templeLevel": 2,
           "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
-          "villages": 2,
-          "score": 26,
+          "villages": 1,
+          "score": 22,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":2,"wisdom":1}
         },
@@ -1502,7 +1490,6 @@
           "D3": "enemy",
           "D4": "enemy",
           "E1": "player",
-          "E2": "player",
           "E3": "enemy",
           "E4": "enemy",
           "F2": "enemy",
@@ -1519,7 +1506,6 @@
           "D3": "village",
           "D4": "village",
           "E1": "village",
-          "E2": "village",
           "E3": "village",
           "E4": "village",
           "F2": "village",
@@ -1536,7 +1522,7 @@
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
         "bannedNext": "이웃",
-        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":2,"vows":1},
+        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":1,"vows":1},
         "rng": {"deck":-106831468,"dice":440019786},
         "winner": null,
         "winKind": null
@@ -1616,16 +1602,16 @@
       "digest": {
         "player": {
           "food": 7,
-          "wood": 2,
+          "wood": 4,
           "stone": 13,
           "faith": 38,
-          "pop": 5,
+          "pop": 4,
           "templeLevel": 2,
           "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
-          "villages": 1,
-          "score": 22,
+          "villages": 0,
+          "score": 18,
           "faithless": 0,
           "doctrine": {"peace":2,"war":0,"abundance":3,"wisdom":0}
         },
@@ -1652,7 +1638,6 @@
           "D3": "enemy",
           "D4": "enemy",
           "E1": "enemy",
-          "E2": "player",
           "E3": "enemy",
           "E4": "enemy",
           "F1": "enemy",
@@ -1670,7 +1655,6 @@
           "D3": "village",
           "D4": "village",
           "E1": "village",
-          "E2": "village",
           "E3": "village",
           "E4": "village",
           "F1": "village",
@@ -1686,7 +1670,7 @@
         "silentRun": 0,
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
-        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":2,"vows":1},
+        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":1,"vows":1},
         "rng": {"deck":-106831468,"dice":-191815884},
         "winner": null,
         "winKind": null
@@ -1703,25 +1687,21 @@
       "cost": 1,
       "tone": "command",
       "tablet": {
-        "orders": ["build:E2:wall","build:G2:wall","build:G1:village","build:G3:village"],
+        "orders": ["build:G2:wall","build:E2:village"],
         "forbidden": [],
         "doctrine": "war",
-        "interpretation": "곳간이 노래하노니, 우리 마을(E2)에 성벽을 쌓는다, 그리고 우리 수도(G2)에 성벽을 쌓는다, 그리고 평원(G1)에 마을을 세운다, 그리고 산(G3)에 마을을 세운다!"
+        "interpretation": "곳간이 노래하노니, 우리 수도(G2)에 성벽을 쌓는다, 그리고 오아시스(E2)에 마을을 세운다!"
       },
-      "accepted": ["build:E2:wall","build:G2:wall","build:G1:village"],
-      "rejected": [{"key":"build:G3:village","reason":"자원 부족"}],
+      "accepted": ["build:G2:wall","build:E2:village"],
+      "rejected": [],
       "petitionAnswered": true,
       "auto": [],
-      "enemyPlan": ["build:F1:wall","attack:E2:","gather:A4:stone","pray:A6:","build:F2:wall","gather:A5:stone"],
-      "plan": ["build:E2:wall","build:G2:wall","build:G1:village"],
-      "ordered": ["build:E2:wall","build:G2:wall","build:G1:village"],
+      "enemyPlan": ["build:F1:wall","attack:G2:","gather:A4:stone","pray:A6:","build:F2:wall","gather:A5:stone"],
+      "plan": ["build:G2:wall","build:E2:village"],
+      "ordered": ["build:G2:wall","build:E2:village"],
       "log": [
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
-        {
-          "side": "priest",
-          "text": "곳간이 노래하노니, 우리 마을(E2)에 성벽을 쌓는다, 그리고 우리 수도(G2)에 성벽을 쌓는다, 그리고 평원(G1)에 마을을 세운다, 그리고 산(G3)에 마을을 세운다!",
-          "ui": true
-        },
+        {"side":"priest","text":"곳간이 노래하노니, 우리 수도(G2)에 성벽을 쌓는다, 그리고 오아시스(E2)에 마을을 세운다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(A4)에서 돌을 2 얻었다.",
@@ -1734,9 +1714,8 @@
           "fx": {"kind":"gain","tile":"A5","gain":{"stone":2}},
           "act": "gather:A5:stone"
         },
-        {"side":"player","text":"신도들이 우리 마을(E2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"E2"},"act":"build:E2:wall"},
         {"side":"player","text":"신도들이 우리 수도(G2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"G2"},"act":"build:G2:wall"},
-        {"side":"player","text":"신도들이 우리 마을(G1)을 세웠다.","fx":{"kind":"build","tile":"G1"},"act":"build:G1:village"},
+        {"side":"player","text":"신도들이 우리 마을(E2)을 세웠다.","fx":{"kind":"build","tile":"E2"},"act":"build:E2:village"},
         {"side":"enemy","text":"율법파가 율법파 마을(F1)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"F1"},"act":"build:F1:wall"},
         {"side":"enemy","text":"율법파가 율법파 마을(F2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"F2"},"act":"build:F2:wall"},
         {
@@ -1745,12 +1724,13 @@
           "fx": {"kind":"gain","tile":"A6","gain":{"faith":2}},
           "act": "pray:A6:"
         },
+        {"side":"player","text":"파수꾼 요압이 성인으로 추앙받는다 — 수호자 성인.","fx":{"kind":"saint","tile":"G2"},"act":"attack:G2:"},
         {
           "side": "enemy",
-          "text": "율법파 원정대가 우리 마을(E2)을 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":1,"attackerBonus":0,"defender":4,"defenderBonus":2,"win":false},
-          "fx": {"kind":"attack","tile":"E2"},
-          "act": "attack:E2:"
+          "text": "율법파 원정대가 우리 수도(G2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
+          "dice": {"attacker":1,"attackerBonus":0,"defender":4,"defenderBonus":3,"win":false},
+          "fx": {"kind":"attack","tile":"G2"},
+          "act": "attack:G2:"
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"player","text":"역병으로 우리 부족 1명을 잃었다.","fx":{"kind":"loss"}},
@@ -1762,16 +1742,16 @@
       "digest": {
         "player": {
           "food": 3,
-          "wood": 0,
-          "stone": 9,
-          "faith": 42,
-          "pop": 5,
+          "wood": 2,
+          "stone": 11,
+          "faith": 41,
+          "pop": 4,
           "templeLevel": 2,
           "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
-          "villages": 2,
-          "score": 26,
+          "villages": 1,
+          "score": 21,
           "faithless": 0,
           "doctrine": {"peace":2,"war":1,"abundance":3,"wisdom":0}
         },
@@ -1804,7 +1784,6 @@
           "F1": "enemy",
           "F2": "enemy",
           "F3": "enemy",
-          "G1": "player",
           "G2": "player"
         },
         "buildings": {
@@ -1823,10 +1802,9 @@
           "F1": "village",
           "F2": "village",
           "F3": "village",
-          "G1": "village",
           "G2": "capital"
         },
-        "walls": ["A6","B4","E2","F1","F2","G2"],
+        "walls": ["A6","B4","F1","F2","G2"],
         "revealed": "0000000110000011100001111000111110011111001111100",
         "holyOwner": null,
         "wrath": 3,
@@ -1834,7 +1812,8 @@
         "silentRun": 0,
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
-        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":3,"vows":1},
+        "saints": [{"name":"파수꾼 요압","kind":"guardian"}],
+        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":2,"vows":1},
         "rng": {"deck":-106831468,"dice":-823651554},
         "winner": null,
         "winKind": null
@@ -1856,13 +1835,13 @@
       "rejected": [],
       "petitionAnswered": false,
       "auto": ["gather:E2:food","gather:G1:food"],
-      "enemyPlan": ["gather:A4:stone","attack:G1:","build:E1:wall","gather:B3:wood","gather:A5:stone","build:E3:wall"],
+      "enemyPlan": ["gather:A4:stone","attack:E2:","build:E1:wall","gather:B3:wood","gather:A5:stone","build:E3:wall"],
       "plan": ["pray:G2:","gather:E2:food","gather:G1:food"],
       "ordered": ["pray:G2:"],
       "log": [
         {"side":"god","text":"“신전에서 기도하라”","ui":true},
         {"side":"priest","text":"곳간이 노래하노니, 신전에서 기도한다!","ui":true},
-        {"side":"enemy","text":"율법파는 우리 마을(G1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"G1"}},
+        {"side":"enemy","text":"율법파는 우리 마을(E2)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"E2"}},
         {
           "side": "player",
           "text": "신도들이 우리 마을(E2)에서 식량을 4 얻었다.",
@@ -1871,7 +1850,7 @@
         },
         {
           "side": "player",
-          "text": "신도들이 우리 마을(G1)에서 식량을 4 얻었다.",
+          "text": "신도들이 평원(G1)에서 식량을 4 얻었다.",
           "fx": {"kind":"gain","tile":"G1","gain":{"food":4}},
           "act": "gather:G1:food"
         },
@@ -1913,16 +1892,16 @@
       "digest": {
         "player": {
           "food": 8,
-          "wood": 0,
-          "stone": 9,
-          "faith": 47,
-          "pop": 6,
+          "wood": 2,
+          "stone": 11,
+          "faith": 45,
+          "pop": 5,
           "templeLevel": 2,
           "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
-          "villages": 2,
-          "score": 33,
+          "villages": 1,
+          "score": 28,
           "faithless": 0,
           "doctrine": {"peace":2,"war":1,"abundance":3,"wisdom":1}
         },
@@ -1955,7 +1934,6 @@
           "F1": "enemy",
           "F2": "enemy",
           "F3": "enemy",
-          "G1": "player",
           "G2": "player"
         },
         "buildings": {
@@ -1974,10 +1952,9 @@
           "F1": "village",
           "F2": "village",
           "F3": "village",
-          "G1": "village",
           "G2": "capital"
         },
-        "walls": ["A6","B4","E1","E2","E3","F1","F2","G2"],
+        "walls": ["A6","B4","E1","E3","F1","F2","G2"],
         "revealed": "0000000110000011100001111000111110011111001111100",
         "holyOwner": null,
         "wrath": 3,
@@ -1985,7 +1962,8 @@
         "silentRun": 0,
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":true},
-        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":3,"vows":1},
+        "saints": [{"name":"파수꾼 요압","kind":"guardian"}],
+        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":2,"vows":1},
         "rng": {"deck":-106831468,"dice":-823651554},
         "winner": "enemy",
         "winKind": "score"
@@ -1996,15 +1974,15 @@
     "rounds": 14,
     "winner": "enemy",
     "winKind": "score",
-    "winReason": "14장 종료 — 승점 33 : 66",
-    "score": {"player":33,"enemy":66},
+    "winReason": "14장 종료 — 승점 28 : 66",
+    "score": {"player":28,"enemy":66},
     "breakdown": {
       "player": [
-        {"key":"pop","n":6,"w":2},
-        {"key":"village","n":2,"w":2},
+        {"key":"pop","n":5,"w":2},
+        {"key":"village","n":1,"w":2},
         {"key":"temple","n":2,"w":2},
         {"key":"hp","n":2,"w":3},
-        {"key":"wall","n":2,"w":1},
+        {"key":"wall","n":1,"w":1},
         {"key":"destiny","n":1,"w":5}
       ],
       "enemy": [
@@ -2025,11 +2003,11 @@
       {"round":7,"ps":18,"es":32},
       {"round":8,"ps":22,"es":38},
       {"round":9,"ps":24,"es":40},
-      {"round":10,"ps":26,"es":48},
-      {"round":11,"ps":26,"es":52},
-      {"round":12,"ps":22,"es":60},
-      {"round":13,"ps":26,"es":62},
-      {"round":14,"ps":33,"es":66}
+      {"round":10,"ps":24,"es":48},
+      {"round":11,"ps":22,"es":52},
+      {"round":12,"ps":18,"es":60},
+      {"round":13,"ps":21,"es":62},
+      {"round":14,"ps":28,"es":66}
     ],
     "revelations": [
       {"round":1,"doctrine":null},
@@ -2047,6 +2025,6 @@
       {"round":13,"doctrine":"war"},
       {"round":14,"doctrine":"wisdom"}
     ],
-    "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":3,"vows":1}
+    "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":2,"vows":1}
   }
 }

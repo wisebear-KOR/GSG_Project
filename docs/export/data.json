@@ -3,7 +3,7 @@
     "source": "js/game/data.js",
     "generator": "tools/export-data.mjs",
     "lang": "ko",
-    "ruleset": 13,
+    "ruleset": 14,
     "conventions": [
       "A function value is written as an object whose only key is \"$fn\" (its JS source text). Port the logic by hand; see docs/spec/03-data.md.",
       "A RegExp value is written as an object with keys \"$re\" (source) and \"flags\"."
@@ -79,17 +79,17 @@
     {
       "name": "기초",
       "cost": {
-        "stone": 4,
-        "wood": 4,
-        "faith": 4
+        "stone": 3,
+        "wood": 3,
+        "faith": 3
       }
     },
     {
       "name": "벽",
       "cost": {
-        "stone": 4,
-        "wood": 4,
-        "faith": 4
+        "stone": 3,
+        "wood": 3,
+        "faith": 3
       }
     },
     {
@@ -97,7 +97,7 @@
       "cost": {
         "stone": 3,
         "wood": 3,
-        "faith": 5
+        "faith": 3
       }
     }
   ],
@@ -1267,7 +1267,7 @@
     "graceDoctrineBelow": 3,
     "maxNames": 3
   },
-  "RULESET": 13,
+  "RULESET": 14,
   "SACRED_WORDS": [
     {
       "word": "무지개",

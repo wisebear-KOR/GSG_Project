@@ -54,7 +54,7 @@ export function smartChooseText(state, rng, { cands = SMART_REVS, samples = 2, r
   return best;
 }
 const CLAUSES = ['강에서 물고기를 잡아라', '들판에서 곡식을 거두라', '숲의 나무를 베어라', '산에서 돌을 캐라', '마을을 넓혀라', '이웃에게 사랑을 전하라',
-  '쳐라', '성벽을 쌓아 지켜라', '신전을 높이 세우라', '대성당을 지어라', '기도하라', '안개 너머를 탐험하라'];
+  '쳐라', '성벽을 쌓아 지켜라', '신전을 높이 세우라', '대성당을 지어라', '기도하라', '안개 너머를 탐험하라', '가장 약한 율법파 마을을 쳐라', '약한 율법파 마을에 사랑을 전하라'];
 function valueOf(state, text, rng, samples = 2) {
   let v = 0;
   for (let k = 0; k < samples; k++) {

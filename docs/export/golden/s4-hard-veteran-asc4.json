@@ -461,14 +461,9 @@
       "revelation": "성벽을 쌓아 우리 땅을 지켜라",
       "cost": 1,
       "tone": "command",
-      "tablet": {
-        "orders": ["build:B1:village","build:B2:village"],
-        "forbidden": [],
-        "doctrine": "abundance",
-        "interpretation": "석판이 이르되, 평원(B1)에 마을을 세운다, 그리고 성스러운 언덕(B2)에 마을을 세운다!"
-      },
+      "tablet": {"orders":["build:B1:village"],"forbidden":[],"doctrine":"abundance","interpretation":"석판이 이르되, 평원(B1)에 마을을 세운다!"},
       "accepted": ["build:B1:village"],
-      "rejected": [{"key":"build:B2:village","reason":"자원 부족"}],
+      "rejected": [],
       "petitionAnswered": true,
       "auto": ["gather:B3:stone"],
       "enemyPlan": ["attack:D2:","build:D3:village","build:B1:village","gather:A4:food","build:B2:village","build:B3:village"],
@@ -477,7 +472,7 @@
       "ordered": ["build:B1:village"],
       "log": [
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
-        {"side":"priest","text":"석판이 이르되, 평원(B1)에 마을을 세운다, 그리고 성스러운 언덕(B2)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 평원(B1)에 마을을 세운다!","ui":true},
         {"side":"enemy","text":"율법파는 평원(B1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"B1"}},
         {"side":"enemy","text":"율법파는 산(B3)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"B3"}},
         {
@@ -571,21 +566,21 @@
       "cost": 2,
       "tone": "command",
       "tablet": {
-        "orders": ["attack:D1:","attack:D3:"],
+        "orders": ["attack:C2:","attack:C3:"],
         "forbidden": [],
         "doctrine": "war",
-        "interpretation": "석판이 이르되, 율법파 마을(D1)을 공격한다, 그리고 율법파 마을(D3)을 공격한다!"
+        "interpretation": "석판이 이르되, 율법파 마을(C2)을 공격한다, 그리고 율법파 마을(C3)을 공격한다!"
       },
-      "accepted": ["attack:D1:","attack:D3:"],
+      "accepted": ["attack:C2:","attack:C3:"],
       "rejected": [],
       "petitionAnswered": true,
       "auto": [],
       "enemyPlan": ["build:C2:wall","attack:B1:","gather:B3:stone","pray:A3:","build:C3:wall","gather:A1:wood"],
-      "plan": ["attack:D1:","attack:D3:"],
-      "ordered": ["attack:D1:","attack:D3:"],
+      "plan": ["attack:C2:","attack:C3:"],
+      "ordered": ["attack:C2:","attack:C3:"],
       "log": [
         {"side":"god","text":"“율법파의 마을을 쳐라”","ui":true},
-        {"side":"priest","text":"석판이 이르되, 율법파 마을(D1)을 공격한다, 그리고 율법파 마을(D3)을 공격한다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 율법파 마을(C2)을 공격한다, 그리고 율법파 마을(C3)을 공격한다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 산(B3)에서 돌을 2 얻었다.",
@@ -608,17 +603,17 @@
         },
         {
           "side": "player",
-          "text": "신도들이 율법파 마을(D1)을 빼앗았다!",
-          "dice": {"attacker":5,"attackerBonus":0,"defender":1,"defenderBonus":0,"win":true},
-          "fx": {"kind":"attack","tile":"D1","capture":true},
-          "act": "attack:D1:"
+          "text": "신도들이 율법파 마을(C2)을 빼앗았다!",
+          "dice": {"attacker":5,"attackerBonus":0,"defender":1,"defenderBonus":2,"win":true},
+          "fx": {"kind":"attack","tile":"C2","capture":true},
+          "act": "attack:C2:"
         },
         {
           "side": "player",
-          "text": "신도들의 공격이 율법파 마을(D3)에서 막혔다. 공격자 1명이 쓰러졌다.",
-          "dice": {"attacker":2,"attackerBonus":0,"defender":6,"defenderBonus":0,"win":false},
-          "fx": {"kind":"attack","tile":"D3"},
-          "act": "attack:D3:"
+          "text": "신도들의 공격이 율법파 마을(C3)에서 막혔다. 공격자 1명이 쓰러졌다.",
+          "dice": {"attacker":2,"attackerBonus":0,"defender":6,"defenderBonus":2,"win":false},
+          "fx": {"kind":"attack","tile":"C3"},
+          "act": "attack:C3:"
         },
         {
           "side": "enemy",
@@ -631,7 +626,7 @@
         {"side":"player","text":"역병으로 우리 부족 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"enemy","text":"역병으로 율법파 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"player","text":"신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다 (판에 한 번).","fx":{"kind":"wrath","tile":"D2"}},
-        {"side":"player","text":"이 땅은 이제 「분노의 마을」이라 불린다 — “율법파의 마을을 쳐라”.","fx":{"kind":"legend","tile":"D1"}},
+        {"side":"player","text":"이 땅은 이제 「분노의 마을」이라 불린다 — “율법파의 마을을 쳐라”.","fx":{"kind":"legend","tile":"C2"}},
         {"side":"player","text":"은총 — 파수꾼 요압의 청원에 응답했다. 신앙 +1.","fx":{"kind":"grace","tile":"D2","gain":{"faith":1}}},
         {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"철의 대제사장 바락: “'율법파'? 좋다, 칼로 답해 주마.”","ui":true}
@@ -665,15 +660,15 @@
           "villages": 3,
           "score": 25
         },
-        "owners": {"A3":"enemy","B1":"player","C2":"enemy","C3":"enemy","D1":"player","D2":"player","D3":"enemy"},
+        "owners": {"A3":"enemy","B1":"player","C2":"player","C3":"enemy","D1":"enemy","D2":"player","D3":"enemy"},
         "buildings": {"A3":"capital","B1":"village","C2":"village","C3":"village","D1":"village","D2":"capital","D3":"village"},
-        "walls": ["C2","C3"],
+        "walls": ["C3"],
         "revealed": "1100111011111111",
         "holyOwner": null,
         "wrath": 3,
         "streak": {"doctrine":"war","n":1},
         "silentRun": 0,
-        "legends": {"D1":"분노의 마을"},
+        "legends": {"C2":"분노의 마을"},
         "destiny": {"id":"convert","done":false},
         "saints": [{"name":"석공 브엘","kind":"guardian"}],
         "stats": {"converted":0,"captured":2,"miracles":0,"prophecies":0,"petitions":3},
@@ -702,7 +697,7 @@
       "rejected": [],
       "petitionAnswered": false,
       "auto": ["gather:A1:wood"],
-      "enemyPlan": ["preach:B1:","attack:D1:","preach:D2:","pray:A3:","build:B2:village"],
+      "enemyPlan": ["preach:B1:","attack:C2:","preach:D2:","pray:A3:","build:B2:village"],
       "plan": ["gather:A1:wood"],
       "ordered": [],
       "log": [
@@ -738,10 +733,10 @@
         },
         {
           "side": "enemy",
-          "text": "율법파가 우리 마을(D1)을 빼앗았다!",
+          "text": "율법파가 우리 마을(C2)을 빼앗았다!",
           "dice": {"attacker":5,"attackerBonus":1,"defender":1,"defenderBonus":0,"win":true},
-          "fx": {"kind":"attack","tile":"D1","capture":true},
-          "act": "attack:D1:"
+          "fx": {"kind":"attack","tile":"C2","capture":true},
+          "act": "attack:C2:"
         },
         {"side":"player","text":"우리 부족의 마지막 신도가 쓰러졌다 — 수도가 무너졌다.","fx":{"kind":"loss","tile":"D2"}},
         {"side":"leader","text":"철의 대제사장 바락: “'넓혀'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
@@ -786,13 +781,13 @@
           "D2": "capital",
           "D3": "village"
         },
-        "walls": ["C2","C3"],
+        "walls": ["C3"],
         "revealed": "1100111011111111",
         "holyOwner": null,
         "wrath": 3,
         "streak": {"doctrine":"war","n":1},
         "silentRun": 0,
-        "legends": {"D1":"분노의 마을"},
+        "legends": {"C2":"분노의 마을"},
         "destiny": {"id":"convert","done":false},
         "saints": [{"name":"석공 브엘","kind":"guardian"}],
         "stats": {"converted":0,"captured":2,"miracles":0,"prophecies":0,"petitions":3},

@@ -23,9 +23,9 @@ export const COST = {
 };
 // 대성당은 세 단계로 올린다 (합계는 한 번에 짓던 비용과 같다)
 export const CATHEDRAL = [
-  { name: t('data.cathedral.0.name'), cost: { stone: 4, wood: 4, faith: 4 } },
-  { name: t('data.cathedral.1.name'), cost: { stone: 4, wood: 4, faith: 4 } },
-  { name: t('data.cathedral.2.name'), cost: { stone: 3, wood: 3, faith: 5 } },
+  { name: t('data.cathedral.0.name'), cost: { stone: 3, wood: 3, faith: 3 } },
+  { name: t('data.cathedral.1.name'), cost: { stone: 3, wood: 3, faith: 3 } },
+  { name: t('data.cathedral.2.name'), cost: { stone: 3, wood: 3, faith: 3 } },
 ];
 export const EDICT_MAX = 10;         // 율법 석판이 이만큼 차면 율법파가 이긴다 (오름: 율법파가 성지를 쥠·신전을 높임 / 내림: 우리가 성지를 쥠·번개·심판의 날)
 
@@ -242,7 +242,7 @@ export const BLESSINGS = {
 export const AWE_TITLES = t('data.aweTitles');
 
 // 규칙 판: 규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)
-export const RULESET = 13;
+export const RULESET = 14;
 
 // 시련: 고정된 맵과 한 가지 비틀린 규칙. 별 셋 (승리 / 10점 차 / 20점 차 또는 일찍 끝냄)
 export const TRIALS = {
