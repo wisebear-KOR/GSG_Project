@@ -22,7 +22,7 @@
 | [`RESOURCE_NAME`](#resource_name--gather_verb) | 객체 | 4 | engine, main | 자원 표시 이름 |
 | [`GATHER_VERB`](#resource_name--gather_verb) | 객체 | 4 | engine | 채집 동사 |
 | [`COST`](#cost) | 객체 | 4 | engine | 건설 비용 (`temple`은 함수) |
-| [`CATHEDRAL`](#cathedral) | 배열 | 3 | engine | 대성당 세 단계 |
+| [`CATHEDRAL`](#cathedral) | 객체 | 3 키 | engine | 대성당 — 비용·원정·마을 (`3f33be1`; 그 전에는 세 단계 배열) |
 | [`PLAYER_START`](#player_start--difficulty) | 객체 | 5 | engine | 우리 부족 시작 자원 |
 | [`DIFFICULTY`](#player_start--difficulty) | 객체 | 3 | engine, main, chron | 난이도: 율법파 보너스·시작 자원 |
 | [`MAP_SIZES`](#map_sizes) | 객체 | 4 | engine, main | 판 크기 표: 맵 크기 → 장 수와 판마다 다른 규칙 수 전부 (`7a28084`) |
@@ -60,7 +60,7 @@
 | [`BLESSINGS`](#awe_levels--awe_titles--blessings) | 객체 | 4 | main (+engine이 `config.blessing`으로) | 은사 |
 | [`SIGILS`](#sigils) | 객체 | 6 | main | 신의 인장 → SVG 심볼 |
 | [`RULES`](#rules) | 객체 | 8 | engine, main | 규칙 수치 모음 (`superiority`는 `435c3cc`에서 지웠다) |
-| [상수](#상수) | 수 | — | — | `CAPITAL_HP` 2, `MAX_TEMPLE` 3, `MAX_ACTIONS` 6, `DOCTRINE_MAX` 6, `EDICT_MAX` 10, `DESTINY_POINTS` 5, `MAX_COMMANDMENTS` 2, `REVELATION_MAX` 100, `MAX_ROUNDS` 12, `RULESET` 15 (engine의 `MODULES` 4는 `data.js` 밖) |
+| [상수](#상수) | 수 | — | — | `CAPITAL_HP` 2, `MAX_TEMPLE` 3, `MAX_ACTIONS` 6, `DOCTRINE_MAX` 6, `EDICT_MAX` 10, `DESTINY_POINTS` 5, `MAX_COMMANDMENTS` 2, `REVELATION_MAX` 100, `MAX_ROUNDS` 12, `RULESET` 16 (engine의 `MODULES` 4는 `data.js` 밖) |
 | ~~[`revelationCost`](#함수-칸-fn)~~ | — | — | — | **없어짐** `0c95856` — 쓰이지 않던 길이 비용 함수. 계시 비용은 engine `revelationCostFor` ([02 §14.1](02-rules.md#141-계시-비용과-길이)) |
 
 ---
@@ -108,24 +108,27 @@
 | `village` | `{wood: 2, food: 1}` | |
 | `wall` | `{stone: 2}` | |
 | `temple` | **함수** `(level) => ({stone: level*2, wood: level+1})` | 현재 신전 단계로 다음 단계 비용: 1→2 돌 2·목재 2, 2→3 돌 4·목재 3 |
-| `cathedral` | `{stone: 11, wood: 11, faith: 13}` | **쓰이지 않는다** (한 번에 짓던 시절의 합계 — `d7ad6e0`부터는 단계 합계 9·9·9와도 다르다). 실제 비용은 `CATHEDRAL` 단계별 |
+| ~~`cathedral`~~ | ~~`{stone: 11, wood: 11, faith: 13}`~~ | **없어짐** `3f33be1` — 한 번에 짓던 시절의 합계로 쓰이지 않은 채 남아 있었다. 비용은 `CATHEDRAL.cost` |
 
-- engine: `buildCost(state, side, build)`가 `temple`에 계명 `noExpand`(돌 −1)·은사 `mason`(1단계일 때 돌 −1)을 적용하고, `cathedral`은 `CATHEDRAL`로 돌린다. 나머지는 `COST[build]` 그대로. `legalActions`는 `COST.village`·`COST.wall`로 지을 수 있는지 본다.
+- engine: `buildCost(state, side, build)`가 `temple`에 계명 `noExpand`(돌 −1)·은사 `mason`(1단계일 때 돌 −1)을 적용하고, `cathedral`은 `CATHEDRAL.cost`로 돌린다. 나머지는 `COST[build]` 그대로. `legalActions`는 `COST.village`·`COST.wall`로 지을 수 있는지 본다.
 
 ### CATHEDRAL
 
-대성당 세 단계 (플레이어만, 신전 3단계 뒤). 배열 순서 = 단계.
+대성당 (플레이어만, 신전 3단계 뒤 한 번 — `3f33be1`). `data.js:25`: `{ cost: {stone: 6, wood: 6, faith: 6}, crusade: {attacks: 3, bonus: 1}, villages: 2 }`.
 
 | 칸 | 형 | 뜻 |
 |---|---|---|
-| `name` | 문자열 | 단계 이름 (`data.cathedral.<i>.name`) |
-| `cost` | 비용 객체 | 이 단계의 비용 |
+| `cost` | 비용 객체 | 돌 6·목재 6·신앙 6 — 판 크기 표의 `cathedralCost`로 각 값 `ceil(v × k)` (`buildCost`) |
+| `crusade` | `{attacks, bonus}` | 원정: 지은 다음 장 율법파가 우리 수도를 `attacks`(3)번 계획하고(`planEnemy`), 대성당이 서 있는 동안 율법파의 우리 수도 공격 +`bonus`(1) |
+| `villages` | 정수 | 필요한 우리 마을의 기본 수(2) → `cathedralVillages()` = 이 값 + 판 크기 표의 `cathedralVillages` |
 
-비용: 단계마다 3/3/3 (돌/목재/신앙, `d7ad6e0` — 그 전에는 4/4/4, 4/4/4, 3/3/5로 합계가 `COST.cathedral`과 같았다; `data.js` 주석 "합계는 한 번에 짓던 비용과 같다"는 `e174a18`에서 "단계마다 돌 3·나무 3·신앙 3 — 큰 판은 판 크기 표의 배율"로 고쳤다). 판 크기 표의 `MAP_SIZES[n].cathedralCost`가 1이 아니면 각 값 `ceil(v × k)`: 4×4 ×0.7 → 3/3/3(그대로), 7×7 ×1.5 → 5/5/5(`7a28084`; 그 전 6/6/6, 6/6/6, 5/5/8). 튜토리얼은 ×1. 셋째 단계를 지으면 즉시 승리(`winKind: 'cathedral'`).
+판별 비용·마을: 4×4 5/5/5·2, 5×5 6/6/6·2, 6×6 9/9/9·3, 7×7 12/12/12·5(돌/목재/신앙·마을). 튜토리얼은 ×1·더하기 0. 지은 다음 장(`state.crusadeEnd`) 끝에 우리 수도가 서 있으면 승리(`winKind: 'cathedral'`, `checkVictory`).
+
+**그 전**(`afab303`~`e174a18`): 세 단계 배열 `[{name, cost}]`(이름 `data.cathedral.0~2.name` 기초·벽·첨탑 — `3f33be1`에서 키도 지웠다). 비용은 `d7ad6e0`부터 단계마다 3/3/3(그 전 4/4/4, 4/4/4, 3/3/5로 합계가 `COST.cathedral`과 같았다), 7×7 ×1.5 → 5/5/5. 셋째 단계를 지으면 즉시 승리, 단계마다 승점 +1.
 
 표에 없는 규칙 (engine, [02 §10](02-rules.md#10-대성당)):
-- 다음 단계에는 우리 마을이 `cathedralVillages = 1 + MAP_SIZES[n].cathedralVillages`개 있어야 한다 (`legalActions`) — 4×4·5×5 1, 6×6 2, 7×7 3, 단계와 무관(`d7ad6e0`; 그 전에는 `cathedral + 1 + …`로 1·2·3, 2·3·4, 3·4·5. `9b43bbf`에서 큰 판 더하기, `7a28084`부터 판 크기 표에서 읽는다. 튜토리얼은 더하기 0).
-- 공사가 시작되면 율법파의 합법 행동에 우리 수도 공격이 거리와 무관하게 들어가고(`crusade: true`), `planEnemy`가 그것을 맨 앞에 둔다(rush). 공사 중에는 율법파가 선공이다(`0c95856`). 공사 중인 우리 수도를 치는 율법파 공격 +1(`siegeOf`, `9b43bbf`)은 `55d33dd`에서 지웠다.
+- 우리 마을이 `cathedralVillages = CATHEDRAL.villages + MAP_SIZES[n].cathedralVillages`개 있어야 하고, 마지막 장에는 짓지 못한다 (`legalActions`) — 4×4·5×5 2, 6×6 3, 7×7 5(`3f33be1`; `d7ad6e0`~`e174a18`에는 `1 + …`로 1·1·2·3, 그 전에는 `cathedral + 1 + …`로 단계마다 하나씩 더. `9b43bbf`에서 큰 판 더하기, `7a28084`부터 판 크기 표에서 읽는다. 튜토리얼은 더하기 0).
+- 대성당이 서면 율법파의 합법 행동에 우리 수도 공격이 거리와 무관하게 들어가고(`crusade: true`), `planEnemy`가 그것을 맨 앞에 세 번 둔다(rush — 한 칸에 한 가지의 예외). 그 장 율법파가 선공이다(`0c95856`). 율법파의 우리 수도 공격 +1은 `9b43bbf`~`c12a1e9`(`siegeOf`, 공사 중)에 있었고 `3f33be1`에서 `crusade.bonus`로 다시 생겼다.
 - ~~율법파가 우리 수도를 치면 어느 단계든 한 단계 무너진다(`cathedral >= 1`).~~ — `d7ad6e0`에서 없어졌다: 올린 단계는 맞아도, 남은 자 규칙에도 무너지지 않는다.
 
 ### PLAYER_START · DIFFICULTY
@@ -144,14 +147,14 @@
 
 ### MAP_SIZES
 
-**판 크기 표** (`7a28084`): 맵 한 변 → 그 크기의 모든 규칙 수. 판마다 다른 수는 이 표에만 있다(규칙서 `docs/RULEBOOK.md`의 "판 크기 표"와 같다). 그 전에는 `{name, rounds}`뿐이었고 나머지는 엔진의 흩어진 예외(`quick()`, `max(0, rows − 5)`, `rows >= 7`)였다 — 값은 7×7 대성당 비용 말고는 같다.
+**판 크기 표** (`7a28084`): 맵 한 변 → 그 크기의 모든 규칙 수. 판마다 다른 수는 이 표에만 있다(규칙서 `docs/RULEBOOK.md`의 "판 크기 표"와 같다). 그 전에는 `{name, rounds}`뿐이었고 나머지는 엔진의 흩어진 예외(`quick()`, `max(0, rows − 5)`, `rows >= 7`)였다 — 값은 7×7 대성당 비용 말고는 같다. `3f33be1`에서 대성당 칸을 바꿨다(6×6 비용 1 → 1.5, 7×7 1.5 → 2, 7×7 마을 2 → 3).
 
 | 칸 | 형 | 뜻 · 쓰는 곳 |
 |---|---|---|
 | `name` | 문자열 | `data.mapSize.<n>.name` — 설정 화면 |
 | `rounds` | 정수 | 장 수 → `createState`의 `maxRounds`(시련의 `rounds`가 먼저), main 설정·시련 목록 |
 | `cathedralCost` | 수 (실수일 수 있다) | 대성당 비용 배율 → `buildCost(…, 'cathedral')`가 1이 아니면 `ceil(v × k)` |
-| `cathedralVillages` | 정수 | 대성당 단계에 더 필요한 마을 → `cathedralVillages()` = 1 + 이 값 (`d7ad6e0`부터 단계와 무관) |
+| `cathedralVillages` | 정수 | 대성당에 더 필요한 마을 → `cathedralVillages()` = `CATHEDRAL.villages`(2) + 이 값 (`3f33be1` — 그 전에는 1 + 이 값) |
 | `enemyActions` | 정수 | 율법파 행동 수 더하기 → `actionLimit('enemy')` |
 | `faith` | `{pop, round, converts}` | 신앙 승리 문턱: 두 부족 인구 합, 그 장부터, 선교로 데려온 수 → `checkVictory`·`faithConverts()` |
 | `at` | `{ult, draft, wrath}` | 교리 궁극이 깨어나는 장·기적 드래프트 장·신의 분노가 차기 시작하는 장 → `ultRound()`·`draftRound()`·`wrathRound()` (시련 `last`는 분노 1장) |
@@ -160,8 +163,8 @@
 |---|---|---|---|---|---|---|---|
 | `4` | 빠르게 | 8 | 0.7 | 0 | 0 | `{pop:6, round:4, converts:1}` | `{ult:6, draft:3, wrath:3}` |
 | `5` | 작게 | 12 | 1 | 0 | 0 | `{pop:8, round:6, converts:2}` | `{ult:8, draft:5, wrath:4}` |
-| `6` | 보통 | 12 | 1 | 1 | 0 | `{pop:8, round:6, converts:2}` | `{ult:8, draft:5, wrath:4}` |
-| `7` | 크게 | 14 | **1.5** | 2 | 1 | `{pop:8, round:6, converts:2}` | `{ult:8, draft:5, wrath:4}` |
+| `6` | 보통 | 12 | **1.5** | 1 | 0 | `{pop:8, round:6, converts:2}` | `{ult:8, draft:5, wrath:4}` |
+| `7` | 크게 | 14 | **2** | **3** | 1 | `{pop:8, round:6, converts:2}` | `{ult:8, draft:5, wrath:4}` |
 
 - engine은 `sizeRules(state) = MAP_SIZES[state.rows] ?? MAP_SIZES[5]`로 읽는다. 튜토리얼(3×3)은 5×5 줄을 받되 `cathedralCost`·`cathedralVillages`·`enemyActions`는 `tutorial`이면 쓰지 않는다(×1, 0, 0). 시련의 판도 크기대로 이 표를 쓴다.
 - JSON에서는 키가 문자열(`"4"`~`"7"`)이다. `data.js` 주석은 `at`을 `rounds.ult/draft/wrath`라 적었지만 실제 칸 이름은 `at`이다.
@@ -256,7 +259,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 행 10: L1 확장(마을·목재·식량), L2 식량·식량·기도, L3 돌·성벽·목재, L4 성벽·돌·기도, L5 공격·공격·식량, L6 기도·신전·식량, L7 선교·선교·기도, L8 식량·신전·마을, L9 마을·마을·목재, L10 식량·목재·기도(검열).
 
-- engine `planEnemy`: `rules = [rush?, rally?, ...tail, ...card.rules]`. 표에 없는 합성 규칙이 셋 끼어든다 — `rush` `{type: 'attack', target: 'capital'}`(우리 대성당 공사가 시작되면), `rally` `{type: 'attack'}`(율법파 결집 중), 그리고 `tail`은 막마다 칼(`ZEAL_ACT`: 보통 3막·어려움 2막부터)이면 `[rules[0], {type: 'attack'}, rules[1], rules[2]]`, 아니면 `card.rules`. 공격·선교는 율법파 신도가 2 이상일 때만, 대상이 없으면(튜토리얼 제외) 우리 쪽으로 마을을 짓는다. 남는 행동은 `autoFill`. 자세한 것은 [02 §4.4·§4.9](02-rules.md#44-계획-planenemy).
+- engine `planEnemy`: `rules = [rush?, rally?, ...tail, ...card.rules]`. 표에 없는 합성 규칙이 셋 끼어든다 — `rush` `{type: 'attack', target: 'capital', crusade: true}` × `CATHEDRAL.crusade.attacks`(3)(우리 대성당이 서면 — `3f33be1` 전에는 공사가 시작되면 한 줄), `rally` `{type: 'attack'}`(율법파 결집 중), 그리고 `tail`은 막마다 칼(`ZEAL_ACT`: 보통 3막·어려움 2막부터)이면 `[rules[0], {type: 'attack'}, rules[1], rules[2]]`, 아니면 `card.rules`. 공격·선교는 율법파 신도가 2 이상일 때만, 대상이 없으면(튜토리얼 제외) 우리 쪽으로 마을을 짓는다. 남는 행동은 `autoFill`. 자세한 것은 [02 §4.4·§4.9](02-rules.md#44-계획-planenemy).
 - `lawPool`: 튜토리얼은 L5·L7·L10 제외. 검열 L10은 해금 4(다섯 번째 판부터) + 보통 이상. 지도자 `deck.remove`/`deck.add`를 적용 (add는 **한 장 더** — 같은 id가 두 번 들어갈 수 있다). 해금 3(네 번째 판부터)이면 2막 첫 장에 (풀에 L5가 있으면) L5 한 장을 덱 끝에서 네 번째 자리(`splice(len − 3, 0, L5)` — 다음에 뽑을 세 장 바로 밑)에 끼운다.
 - `lawThreat`(어려움의 두 장 비교): 실제로 할 수 있는 규칙마다 가중치 attack 3, preach 2, build 2, pray 1, gather 1.
 
@@ -418,7 +421,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `name`, `text` | 문자열 | |
 | `w` | `{pop, village, temple, hp, wall?, faith?}` | 가중치 |
 
-`scoreBreakdown`: 인구×`w.pop` + 마을 수×`w.village` + 신전 단계×`w.temple` + 수도 내구도×`w.hp` + (`w.wall`이면) 성벽 칸 수×`w.wall` + 성지 2 + 대성당 단계×1 + 소명 5 + (`w.faith`이면) `floor(신앙 / w.faith)`. **`w.faith`는 곱하는 값이 아니라 나누는 값**이다.
+`scoreBreakdown`: 인구×`w.pop` + 마을 수×`w.village` + 신전 단계×`w.temple` + 수도 내구도×`w.hp` + (`w.wall`이면) 성벽 칸 수×`w.wall` + 성지 2 + 소명 5 + (`w.faith`이면) `floor(신앙 / w.faith)`. **`w.faith`는 곱하는 값이 아니라 나누는 값**이다. (대성당 단계×1은 `3f33be1`에서 단계와 함께 없어졌다.)
 행 5: `classic`(2·3·2·1), `wide`(1·5·2·1), `fertile`(3·2·1·1), `pious`(2·2·3·1, 신앙 3당 1), `steadfast`(2·2·2·3, 성벽 1).
 
 ### ACTS · FESTIVALS · MONTHS
@@ -481,12 +484,12 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `MAX_TEMPLE` | 3 | 신전 최고 단계 |
 | `MAX_ACTIONS` | 6 | 행동 수 상한 (`actionLimit`) |
 | `DOCTRINE_MAX` | 6 | 교리 트랙 끝 = 궁극 |
-| `EDICT_MAX` | 10 | 율법 석판이 이만큼 차면 율법파 승리 (`edictMax`: 승천 2부터 −2 → 8; `data.js:30`). `c12a1e9`에서 12 → 10 — 같은 커밋에서 율법파 신앙 → 석판 전환과 피의 율법을 지워 석판은 성지·율법파 신전·번개·심판의 날(과 미라 「품는다」)로만 움직인다([02 §9](02-rules.md#9-율법-석판과-성지)). 코드 주석은 오르내리는 원인을 적는다 |
+| `EDICT_MAX` | 10 | 율법 석판이 이만큼 차면 율법파 승리 (`edictMax`: 승천 2부터 −2 → 8; `data.js:26`). `c12a1e9`에서 12 → 10 — 같은 커밋에서 율법파 신앙 → 석판 전환과 피의 율법을 지워 석판은 성지·율법파 신전·번개·심판의 날(과 미라 「품는다」)로만 움직인다([02 §9](02-rules.md#9-율법-석판과-성지)). 코드 주석은 오르내리는 원인을 적는다 |
 | `DESTINY_POINTS` | 5 | 소명 승점 |
 | `MAX_COMMANDMENTS` | 2 | 판당 계명 수 |
 | `REVELATION_MAX` | 100 | 계시 글자 수 상한 (main `revMax`; 시련 `cloister`는 20) |
 | `MAX_ROUNDS` | 12 | **쓰이지 않는다** (`createState`는 `MAP_SIZES`가 없을 때 숫자 12를 직접 쓴다) |
-| `RULESET` | 15 | 규칙 판 번호 (`data.js:245`). 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). `55d33dd`부터 새 상태에 `state.ruleset`으로도 적혀, 불러올 때 10 미만(없으면 0)이면 석판을 새 한계 아래로 자른다(engine `hydrateState`). `e68a240`에서 4 → 5로 올렸다 — `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)·`e68a240`(막기 대칭·헤아린 성벽 예산)의 규칙 변경이 한 번에 반영된다. 그 사이(`afab303`~`e68a240` 직전)에 둔 판은 재조정 전의 판과 같은 `-r4` 키로 남아 있다. `9b43bbf`(심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정)는 올리지 않아 `-r5`에 그 전후 판이 섞인다. `87a0fce`에서 5 → 6(승점으로 정하는 선공, 결집 12·6점과 신도 +1, 같은 기적 재사용 +1, 두 장 전 메아리). `7a28084`의 7×7 대성당 ×1.5는 올리지 않고 `-r6` 안에서 바뀌었다. `435c3cc`에서 6 → 7(신도 수 우위 삭제, 수도 내구도 2). `8ba0ef8`의 해금 단계는 올리지 않았다. `0c95856`에서 7 → 8(대성당 공사 중 율법파 선공, 30자 가산·인용 할인 삭제 — 같은 커밋부터 최고 기록 키에 해금 단계 `-u{n}`도 붙는다, [07 §13](07-progression.md#13-시드별-최고-기록-metajs105-115)). `0a0a974`(대사제 성향 노동, 어려움의 건설 공개)는 올리지 않았다. `df1cb16`에서 8 → 9(되풀이 규칙을 하나로 — 되풀이면 율법파가 선교·공격에 대비, 결집의 신도 +1 삭제). `16492f4`(보통의 율법파 뜻 공개, 예고된 성벽을 세는 승률, 석판 해석기)는 올리지 않았다. `c12a1e9`에서 9 → 10(석판의 신앙 전환·피의 율법 삭제, `EDICT_MAX` 12 → 10). `55d33dd`(대성당 원정 +1 삭제, 율법파의 대비를 메아리 판정으로)는 올리지 않아 `-r10`에 그 전후 판이 섞인다. `846fd60`에서 10 → 11(포위·성인 보정·청원 외면 벌 삭제), `88878b6`에서 11 → 12(연속 기적 대신 율법파가 읽음, 전쟁 4칸은 성벽 돌 1), `8250dd7`에서 12 → 13(은총 하나 — 말투 수치 삭제·예언 은총, 절 하나에 손 둘, 남는 손은 모자란 것만), `d7ad6e0`에서 13 → 14(대성당은 무너지지 않고 단계마다 마을 하나·3/3/3, 석판의 공격·선교 과녁은 가까운 곳, 짓는 일은 한 손), `e174a18`에서 14 → 15(살림뿐인 계시는 되풀이가 아님, 율법파는 전쟁·평화의 세 장만 읽음, 석판의 금지어·먼저 차지될 칸 피하기) |
+| `RULESET` | 16 | 규칙 판 번호 (`data.js:241`). 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). `55d33dd`부터 새 상태에 `state.ruleset`으로도 적혀, 불러올 때 10 미만(없으면 0)이면 석판을 새 한계 아래로 자른다(engine `hydrateState`). `e68a240`에서 4 → 5로 올렸다 — `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)·`e68a240`(막기 대칭·헤아린 성벽 예산)의 규칙 변경이 한 번에 반영된다. 그 사이(`afab303`~`e68a240` 직전)에 둔 판은 재조정 전의 판과 같은 `-r4` 키로 남아 있다. `9b43bbf`(심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정)는 올리지 않아 `-r5`에 그 전후 판이 섞인다. `87a0fce`에서 5 → 6(승점으로 정하는 선공, 결집 12·6점과 신도 +1, 같은 기적 재사용 +1, 두 장 전 메아리). `7a28084`의 7×7 대성당 ×1.5는 올리지 않고 `-r6` 안에서 바뀌었다. `435c3cc`에서 6 → 7(신도 수 우위 삭제, 수도 내구도 2). `8ba0ef8`의 해금 단계는 올리지 않았다. `0c95856`에서 7 → 8(대성당 공사 중 율법파 선공, 30자 가산·인용 할인 삭제 — 같은 커밋부터 최고 기록 키에 해금 단계 `-u{n}`도 붙는다, [07 §13](07-progression.md#13-시드별-최고-기록-metajs105-115)). `0a0a974`(대사제 성향 노동, 어려움의 건설 공개)는 올리지 않았다. `df1cb16`에서 8 → 9(되풀이 규칙을 하나로 — 되풀이면 율법파가 선교·공격에 대비, 결집의 신도 +1 삭제). `16492f4`(보통의 율법파 뜻 공개, 예고된 성벽을 세는 승률, 석판 해석기)는 올리지 않았다. `c12a1e9`에서 9 → 10(석판의 신앙 전환·피의 율법 삭제, `EDICT_MAX` 12 → 10). `55d33dd`(대성당 원정 +1 삭제, 율법파의 대비를 메아리 판정으로)는 올리지 않아 `-r10`에 그 전후 판이 섞인다. `846fd60`에서 10 → 11(포위·성인 보정·청원 외면 벌 삭제), `88878b6`에서 11 → 12(연속 기적 대신 율법파가 읽음, 전쟁 4칸은 성벽 돌 1), `8250dd7`에서 12 → 13(은총 하나 — 말투 수치 삭제·예언 은총, 절 하나에 손 둘, 남는 손은 모자란 것만), `d7ad6e0`에서 13 → 14(대성당은 무너지지 않고 단계마다 마을 하나·3/3/3, 석판의 공격·선교 과녁은 가까운 곳, 짓는 일은 한 손), `e174a18`에서 14 → 15(살림뿐인 계시는 되풀이가 아님, 율법파는 전쟁·평화의 세 장만 읽음, 석판의 금지어·먼저 차지될 칸 피하기), `3f33be1`에서 15 → 16(번갈아 말한 전쟁·평화도 읽음, 대성당은 한 번 짓고 원정을 버팀, 성지 자리가 시드마다 — 불러올 때 16 미만이고 대성당 공사가 있었으면 지은 것으로 바꾼다, engine `hydrateState`) |
 
 `data.js` 밖의 상수 하나: engine의 **`MODULES` = 4**(`engine.js:68`, `8ba0ef8`) — 모듈 해금 단계의 최대(끝낸 판 수를 이 값에서 자른다). main이 import해 `unlock: min(MODULES, 서고 길이)`로 넘기고 해금 안내의 끝을 정한다. `data.json`에는 없다.
 
@@ -500,7 +503,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 |---|---|---|
 | `COST.temple` | `(level) => ({ stone: level * 2, wood: level + 1 })` | `func temple_cost(level: int) -> Dictionary: return {"stone": level * 2, "wood": level + 1}` |
 | `DESTINIES.<id>.test` (8개) | `(st, v) => …` — 예 `villages`: `(st, v) => st.round <= 8 && v.villages >= 4` | id → `Callable(state, v) -> bool` 표. `ultimate`는 `Object.values(st.sides.player.doctrine).some((x) => x >= 6)`, `namer`는 `Object.keys(st.names ?? {}).length >= 3`처럼 상태 필드를 직접 읽으므로 04의 상태 필드 이름을 따른다 |
-| ~~`revelationCost` (최상위)~~ | ~~`(text) => (text.trim().length > 30 ? 2 : 1)`~~ | **없어짐** `0c95856` (쓰이지 않던 함수; `data.js:58`에는 주석 한 줄만 남았다). 비용은 engine `revelationCostFor`: 신앙 1, 봉인된 말을 쓰면 +1, 지난 계시를 되풀이하면(메아리 `isEcho`) +1 — 길이와 인용은 보지 않는다 |
+| ~~`revelationCost` (최상위)~~ | ~~`(text) => (text.trim().length > 30 ? 2 : 1)`~~ | **없어짐** `0c95856` (쓰이지 않던 함수; `data.js:54`에는 주석 한 줄만 남았다). 비용은 engine `revelationCostFor`: 신앙 1, 봉인된 말을 쓰면 +1, 지난 계시를 되풀이하면(메아리 `isEcho`) +1 — 길이와 인용은 보지 않는다 |
 
 글자 수(`length`)는 JS 문자열 길이(UTF-16 단위)다. 한글 음절은 한 단위이므로 Godot `String.length()`와 같다.
 
