@@ -627,8 +627,8 @@
         {"side":"priest","text":"석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — 공격(닿는 율법파 땅이 없다). 나머지는 각자 할 일을 하라.","ui":true},
         {
           "side": "player",
-          "text": "신도들이 평원(G3)에서 식량을 2 얻었다.",
-          "fx": {"kind":"gain","tile":"G3","gain":{"food":2}},
+          "text": "신도들이 평원(G3)에서 식량을 1 얻었다.",
+          "fx": {"kind":"gain","tile":"G3","gain":{"food":1}},
           "act": "gather:G3:food"
         },
         {
@@ -656,7 +656,7 @@
       ],
       "digest": {
         "player": {
-          "food": 4,
+          "food": 3,
           "wood": 4,
           "stone": 4,
           "faith": 9,
@@ -725,8 +725,8 @@
         {"side":"priest","text":"석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — 공격(닿는 율법파 땅이 없다). 나머지는 각자 할 일을 하라.","ui":true},
         {
           "side": "player",
-          "text": "신도들이 평원(G3)에서 식량을 4 얻었다.",
-          "fx": {"kind":"gain","tile":"G3","gain":{"food":4}},
+          "text": "신도들이 평원(G3)에서 식량을 5 얻었다.",
+          "fx": {"kind":"gain","tile":"G3","gain":{"food":5}},
           "act": "gather:G3:food"
         },
         {
@@ -1085,20 +1085,20 @@
         {"side":"priest","text":"곳간이 노래하노니, 신전을 높인다!","ui":true},
         {
           "side": "player",
-          "text": "신도들이 평원(G3)에서 식량을 4 얻었다.",
-          "fx": {"kind":"gain","tile":"G3","gain":{"food":4}},
+          "text": "신도들이 평원(G3)에서 식량을 5 얻었다.",
+          "fx": {"kind":"gain","tile":"G3","gain":{"food":5}},
           "act": "gather:G3:food"
         },
         {
           "side": "enemy",
-          "text": "율법파가 안개 지대(A3)에서 식량을 1 얻었다.",
-          "fx": {"kind":"gain","tile":"A3","gain":{"food":1}},
+          "text": "율법파가 안개 지대(A3)에서 식량을 3 얻었다.",
+          "fx": {"kind":"gain","tile":"A3","gain":{"food":3}},
           "act": "gather:A3:food"
         },
         {
           "side": "enemy",
-          "text": "율법파가 안개 지대(A5)에서 식량을 3 얻었다.",
-          "fx": {"kind":"gain","tile":"A5","gain":{"food":3}},
+          "text": "율법파가 안개 지대(A5)에서 식량을 4 얻었다.",
+          "fx": {"kind":"gain","tile":"A5","gain":{"food":4}},
           "act": "gather:A5:food"
         },
         {
@@ -1109,8 +1109,8 @@
         },
         {
           "side": "enemy",
-          "text": "율법파가 안개 지대(B3)에서 식량을 3 얻었다.",
-          "fx": {"kind":"gain","tile":"B3","gain":{"food":3}},
+          "text": "율법파가 안개 지대(B3)에서 식량을 4 얻었다.",
+          "fx": {"kind":"gain","tile":"B3","gain":{"food":4}},
           "act": "gather:B3:food"
         },
         {"side":"player","text":"신도들의 신전이 2단계로 높아졌다.","fx":{"kind":"build","tile":"G2"},"act":"build:G2:temple"},
@@ -1133,7 +1133,7 @@
       ],
       "digest": {
         "player": {
-          "food": 8,
+          "food": 9,
           "wood": 2,
           "stone": 2,
           "faith": 13,
@@ -1148,7 +1148,7 @@
           "doctrine": {"peace":0,"war":1,"abundance":3,"wisdom":1}
         },
         "enemy": {
-          "food": 10,
+          "food": 14,
           "wood": 4,
           "stone": 6,
           "faith": 41,
@@ -1263,7 +1263,7 @@
       ],
       "digest": {
         "player": {
-          "food": 9,
+          "food": 10,
           "wood": 6,
           "stone": 2,
           "faith": 15,
@@ -1278,7 +1278,7 @@
           "doctrine": {"peace":0,"war":1,"abundance":4,"wisdom":1}
         },
         "enemy": {
-          "food": 8,
+          "food": 12,
           "wood": 2,
           "stone": 6,
           "faith": 45,
@@ -1366,20 +1366,20 @@
         },
         {
           "side": "enemy",
-          "text": "율법파가 안개 지대(A5)에서 식량을 1 얻었다.",
-          "fx": {"kind":"gain","tile":"A5","gain":{"food":1}},
+          "text": "율법파가 안개 지대(A5)에서 식량을 0 얻었다.",
+          "fx": {"kind":"gain","tile":"A5","gain":{"food":0}},
           "act": "gather:A5:food"
         },
         {
           "side": "enemy",
-          "text": "율법파가 안개 지대(B2)에서 식량을 1 얻었다.",
-          "fx": {"kind":"gain","tile":"B2","gain":{"food":1}},
+          "text": "율법파가 안개 지대(B2)에서 식량을 0 얻었다.",
+          "fx": {"kind":"gain","tile":"B2","gain":{"food":0}},
           "act": "gather:B2:food"
         },
         {
           "side": "enemy",
-          "text": "율법파가 안개 지대(B3)에서 식량을 1 얻었다.",
-          "fx": {"kind":"gain","tile":"B3","gain":{"food":1}},
+          "text": "율법파가 안개 지대(B3)에서 식량을 0 얻었다.",
+          "fx": {"kind":"gain","tile":"B3","gain":{"food":0}},
           "act": "gather:B3:food"
         },
         {
@@ -1415,7 +1415,7 @@
       ],
       "digest": {
         "player": {
-          "food": 9,
+          "food": 10,
           "wood": 6,
           "stone": 2,
           "faith": 15,
@@ -1430,7 +1430,7 @@
           "doctrine": {"peace":0,"war":2,"abundance":4,"wisdom":1}
         },
         "enemy": {
-          "food": 14,
+          "food": 15,
           "wood": 2,
           "stone": 6,
           "faith": 51,
@@ -1542,7 +1542,7 @@
       ],
       "digest": {
         "player": {
-          "food": 8,
+          "food": 9,
           "wood": 4,
           "stone": 2,
           "faith": 17,
@@ -1557,7 +1557,7 @@
           "doctrine": {"peace":0,"war":2,"abundance":5,"wisdom":1}
         },
         "enemy": {
-          "food": 15,
+          "food": 16,
           "wood": 2,
           "stone": 6,
           "faith": 57,
@@ -1671,7 +1671,7 @@
       ],
       "digest": {
         "player": {
-          "food": 7,
+          "food": 8,
           "wood": 4,
           "stone": 2,
           "faith": 21,
@@ -1686,7 +1686,7 @@
           "doctrine": {"peace":0,"war":2,"abundance":5,"wisdom":2}
         },
         "enemy": {
-          "food": 16,
+          "food": 17,
           "wood": 2,
           "stone": 6,
           "faith": 62,
@@ -1813,7 +1813,7 @@
       ],
       "digest": {
         "player": {
-          "food": 7,
+          "food": 8,
           "wood": 4,
           "stone": 0,
           "faith": 23,
@@ -1828,7 +1828,7 @@
           "doctrine": {"peace":0,"war":3,"abundance":5,"wisdom":2}
         },
         "enemy": {
-          "food": 17,
+          "food": 18,
           "wood": 0,
           "stone": 6,
           "faith": 69,

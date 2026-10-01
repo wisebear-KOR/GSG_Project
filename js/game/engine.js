@@ -83,7 +83,7 @@ export function createState(config = DEFAULT_CONFIG) {
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
     priest: 'loyal', names: {}, lessons: [], petition: null, prophecy: null,
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
-    judgement: 'classic', crusadeEnd: null, wrath: 0, streak: null, vowNext: null, reacted: null, doomUsed: false, miracleUses: {}, lawGuard: 0, rally: false, ruleset: RULESET,
+    judgement: 'classic', crusadeEnd: null, prayedAt: 0, wrath: 0, streak: null, vowNext: null, reacted: null, doomUsed: false, miracleUses: {}, lawGuard: 0, rally: false, ruleset: RULESET,
     edictOn: !tutorial && (cfg.unlock ?? (cfg.veteran ? MODULES : 0)) >= 1, destiny: null, destinyOffer: null, holyId: null,
     commandments: [], saints: [], deeds: {}, fallen: [], silentRun: 0, legends: {},
     miraDone: false, miraQuote: null, pendingDilemma: null,
@@ -275,7 +275,7 @@ export function preachBonus(state, side) {
   const base = (s.doctrine.peace >= 2 ? 1 : 0) + (s.doctrine.peace >= 4 ? 1 : 0)
     + (state.commandments?.includes('noSword') ? 1 : 0)
     + (state.config.blessing === 'preacher' && !state.stats.converted ? 1 : 0);
-  return Math.min(2, base) + (state.roundMods.tongues ?? 0);
+  return Math.min(2, base) + (state.roundMods.tongues ?? 0) + (state.event?.id === 'calm' ? 1 : 0);
 }
 
 // 선교·공격의 보너스와 승률 (확인 화면 표시용 — resolveAction과 같은 계산)
@@ -347,8 +347,8 @@ export function gatherAmount(state, side, tile) {
   const terr = yieldOf(tile);
   let n = terr.amount;
   if (terr.gather === 'food') {
-    if (state.event?.id === 'drought' && !state.rainActive) n -= 1;
-    if (state.event?.id === 'harvest' && tile.terrain === 'plain') n += 1;
+    if (state.event?.id === 'drought' && !state.rainActive) n -= 2;
+    if (state.event?.id === 'harvest' && (tile.terrain === 'plain' || tile.terrain === 'river')) n += 2;
     if (state.sides[side].doctrine.abundance >= 2) n += 1;
   }
   return Math.max(0, n);
@@ -1200,7 +1200,7 @@ export function hydrateState(obj) {
   for (const sd of Object.values(state.sides)) { sd.cathedral ??= 0; sd.edict ??= 0; }
   // 규칙 16 전의 저장: 대성당이 세 단계였다 — 한 단계라도 올렸으면 지은 것으로, 다음 장이 원정
   if ((state.ruleset ?? 0) < 16 && state.sides.player.cathedral > 0) { state.sides.player.cathedral = 1; state.crusadeEnd ??= state.round + 1; }
-  state.crusadeEnd ??= null;
+  state.crusadeEnd ??= null; state.prayedAt ??= 0;
   // 규칙 10 전의 저장: 석판이 12칸이었다 — 새 한계에 닿아 곧바로 지지 않게 한 칸 아래로
   if ((state.ruleset ?? 0) < 10) for (const sd of Object.values(state.sides)) sd.edict = Math.min(sd.edict, edictMax(state) - 1);
   state.ruleset = RULESET;
@@ -1223,6 +1223,7 @@ function resolveAction(state, a) {
       return logEvent(state, side, t('log.gather', { who: side, place, res: RESOURCE_NAME[a.gather], n }), null, { tile: tl.id, kind: 'gain', gain: { [a.gather]: n } });
     }
     case 'pray': {
+      if (side === 'player') state.prayedAt = state.round;
       const n = prayValue(state, side);
       s.faith += n;
       return logEvent(state, side, t('log.pray', { who: side, n }), null, { tile: tl.id, kind: 'gain', gain: { faith: n } });
@@ -1348,7 +1349,7 @@ function upkeep(state) {
       }
     }
     s.faith += faithIncome(state, side);
-    if (state.event?.id === 'plague' && s.pop > 1 && !(side === 'player' && state.roundMods.ark)) { s.pop -= 1; logEvent(state, side, t('log.plague', { who: side }), null, { kind: 'loss' }); }
+    if (state.event?.id === 'plague' && s.pop > 1 && !(side === 'player' && (state.roundMods.ark || state.prayedAt === state.round))) { s.pop -= 1; logEvent(state, side, t('log.plague', { who: side }), null, { kind: 'loss' }); }
   }
   // 믿음의 표식은 두 장 동안 이어지지 않으면 하나 사라진다
   for (const t of state.tiles) {

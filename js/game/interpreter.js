@@ -442,7 +442,7 @@ export function interpretWithTablet(state, revelation) {
           if (alt) holder.a = alt;
         }
         if (!free(a)) continue;
-        picks.push({ a, ci, pos, kind: rule.kind, alts: matches, aimed: place.anchors.size > 0, nth: implicit ? took : 0 }); took += 1;
+        picks.push({ a, ci, pos, kind: rule.kind, alts: matches, aimed: place.anchors.size > 0, nth: implicit ? took : 0, cnt: implicit ? 0 : many }); took += 1;
       }
       // 칸이 모두 찼으면 먼저 온 일을 다른 칸으로 옮길 수 있는지 본다 ("성벽을 쌓고 기도하라" → 성벽은 마을에)
       for (const a of took ? [] : matches) {
@@ -471,6 +471,15 @@ export function interpretWithTablet(state, revelation) {
   }
   // 행동 수를 넘으면 먼저 말한 일부터 남기고, 빠진 일은 까닭과 함께 알린다
   const byTurn = picks.filter((p) => !forbidden.some((f) => f.key === p.a.key)).map((p, i) => ({ ...p, i })).sort((x, y) => (x.nth ?? 0) - (y.nth ?? 0) || x.ci - y.ci || x.pos - y.pos || x.i - y.i);
+  const kindKey = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);
+  const allow = {}; for (const p of byTurn) { const k = kindKey(p.a); allow[k] = Math.max(allow[k] ?? 2, p.cnt ?? 0); }
+  const seen = {};
+  for (let i = 0; i < byTurn.length; i++) {
+    const k = kindKey(byTurn[i].a);
+    if (k === 'pray') continue;
+    seen[k] = (seen[k] ?? 0) + 1;
+    if (seen[k] > allow[k]) { if (byTurn[i].kind) heard.push(`${byTurn[i].kind}:two`); byTurn.splice(i, 1); i -= 1; }
+  }
   for (const p of byTurn.slice(limit)) if (p.kind) heard.push(`${p.kind}:limit`);
   const keep = new Set(byTurn.slice(0, limit).map((p) => p.a.key));
   orders.push(...picks.map((p) => p.a).filter((a) => keep.has(a.key)));

@@ -3,7 +3,7 @@
     "source": "js/game/data.js",
     "generator": "tools/export-data.mjs",
     "lang": "ko",
-    "ruleset": 17,
+    "ruleset": 18,
     "conventions": [
       "A function value is written as an object whose only key is \"$fn\" (its JS source text). Port the logic by hand; see docs/spec/03-data.md.",
       "A RegExp value is written as an object with keys \"$re\" (source) and \"flags\"."
@@ -637,26 +637,26 @@
     {
       "id": "calm",
       "name": "평온한 계절",
-      "text": "평온한 계절이 이어진다.",
-      "rule": "특별한 효과 없음"
+      "text": "평온한 계절 — 율법파의 마음도 누그러졌다.",
+      "rule": "이번 장 우리 선교 +1"
     },
     {
       "id": "drought",
       "name": "가뭄",
       "text": "가뭄이 들어 곡식이 말라 가고 있다.",
-      "rule": "평원·강 식량 채집 -1"
+      "rule": "평원·강 식량 채집 -2"
     },
     {
       "id": "harvest",
       "name": "풍년",
       "text": "풍년의 기운이 들판에 가득하다.",
-      "rule": "평원 식량 채집 +1"
+      "rule": "평원·강 식량 채집 +2"
     },
     {
       "id": "plague",
       "name": "역병",
       "text": "역병이 돌아 양쪽 부족 모두 병자가 생겼다.",
-      "rule": "장이 끝날 때 양쪽 인구 -1"
+      "rule": "장이 끝날 때 양쪽 인구 -1 (이번 장 기도했으면 우리는 무사하다)"
     },
     {
       "id": "threat",
@@ -1248,7 +1248,7 @@
     "graceDoctrineBelow": 3,
     "maxNames": 3
   },
-  "RULESET": 17,
+  "RULESET": 18,
   "SACRED_WORDS": [
     {
       "word": "무지개",

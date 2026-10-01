@@ -298,14 +298,14 @@
         {"side":"enemy","text":"율법파는 산(B1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"B1"}},
         {
           "side": "enemy",
-          "text": "율법파가 율법파 마을(A2)에서 식량을 3 얻었다.",
-          "fx": {"kind":"gain","tile":"A2","gain":{"food":3}},
+          "text": "율법파가 율법파 마을(A2)에서 식량을 4 얻었다.",
+          "fx": {"kind":"gain","tile":"A2","gain":{"food":4}},
           "act": "gather:A2:food"
         },
         {
           "side": "enemy",
-          "text": "율법파가 평원(B2)에서 식량을 3 얻었다.",
-          "fx": {"kind":"gain","tile":"B2","gain":{"food":3}},
+          "text": "율법파가 평원(B2)에서 식량을 4 얻었다.",
+          "fx": {"kind":"gain","tile":"B2","gain":{"food":4}},
           "act": "gather:B2:food"
         },
         {"side":"player","text":"신도들이 우리 마을(A1)을 세웠다.","fx":{"kind":"build","tile":"A1"},"act":"build:A1:village"},
@@ -336,7 +336,7 @@
           "doctrine": {"peace":0,"war":0,"abundance":2,"wisdom":1}
         },
         "enemy": {
-          "food": 8,
+          "food": 10,
           "wood": 5,
           "stone": 0,
           "faith": 12,
@@ -423,7 +423,7 @@
         {
           "side": "player",
           "text": "신도들의 설교가 통했다! 율법파 마을(A2)에서 1명이 개종했다. 믿음의 표식 1/2.",
-          "dice": {"attacker":6,"attackerBonus":0,"defender":5,"defenderBonus":0,"win":true},
+          "dice": {"attacker":6,"attackerBonus":1,"defender":5,"defenderBonus":0,"win":true},
           "fx": {"kind":"preach","tile":"A2"},
           "act": "preach:A2:"
         },
@@ -447,7 +447,7 @@
           "doctrine": {"peace":1,"war":0,"abundance":2,"wisdom":1}
         },
         "enemy": {
-          "food": 6,
+          "food": 8,
           "wood": 5,
           "stone": 0,
           "faith": 16,
@@ -543,7 +543,7 @@
           "doctrine": {"peace":1,"war":0,"abundance":3,"wisdom":1}
         },
         "enemy": {
-          "food": 4,
+          "food": 6,
           "wood": 3,
           "stone": 0,
           "faith": 19,
