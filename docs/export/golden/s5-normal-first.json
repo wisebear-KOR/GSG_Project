@@ -589,26 +589,25 @@
       "cost": 1,
       "tone": "command",
       "tablet": {
-        "orders": ["gather:B1:food","gather:D2:food","gather:C1:wood","gather:D1:wood"],
+        "orders": ["gather:B1:food","gather:E1:food","gather:C1:wood","gather:D1:wood"],
         "forbidden": [],
         "doctrine": "abundance",
-        "interpretation": "석판이 이르되, 평원(B1)에서 곡식을 거둔다, 그리고 평원(D2)에서 곡식을 거둔다, 그리고 우리 마을(C1)에서 나무를 벤다, 그리고 숲(D1)에서 나무를 벤다!"
+        "interpretation": "석판이 이르되, 평원(B1)에서 곡식을 거둔다, 그리고 평원(E1)에서 곡식을 거둔다, 그리고 우리 마을(C1)에서 나무를 벤다, 그리고 숲(D1)에서 나무를 벤다!"
       },
-      "accepted": ["gather:B1:food","gather:D2:food","gather:C1:wood","gather:D1:wood"],
+      "accepted": ["gather:B1:food","gather:E1:food","gather:C1:wood","gather:D1:wood"],
       "rejected": [],
       "petitionAnswered": false,
       "auto": [],
       "enemyPlan": ["gather:A1:food","build:A4:temple","build:D2:village"],
-      "plan": ["gather:B1:food","gather:D2:food","gather:C1:wood","gather:D1:wood"],
-      "ordered": ["gather:B1:food","gather:D2:food","gather:C1:wood","gather:D1:wood"],
+      "plan": ["gather:B1:food","gather:E1:food","gather:C1:wood","gather:D1:wood"],
+      "ordered": ["gather:B1:food","gather:E1:food","gather:C1:wood","gather:D1:wood"],
       "log": [
         {"side":"god","text":"“들판의 곡식을 거두고, 숲의 나무를 베어라”","ui":true},
         {
           "side": "priest",
-          "text": "석판이 이르되, 평원(B1)에서 곡식을 거둔다, 그리고 평원(D2)에서 곡식을 거둔다, 그리고 우리 마을(C1)에서 나무를 벤다, 그리고 숲(D1)에서 나무를 벤다!",
+          "text": "석판이 이르되, 평원(B1)에서 곡식을 거둔다, 그리고 평원(E1)에서 곡식을 거둔다, 그리고 우리 마을(C1)에서 나무를 벤다, 그리고 숲(D1)에서 나무를 벤다!",
           "ui": true
         },
-        {"side":"player","text":"신도들은 평원(D2)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"D2"}},
         {
           "side": "enemy",
           "text": "율법파가 오아시스(A1)에서 식량을 3 얻었다.",
@@ -620,6 +619,12 @@
           "text": "신도들이 평원(B1)에서 식량을 4 얻었다.",
           "fx": {"kind":"gain","tile":"B1","gain":{"food":4}},
           "act": "gather:B1:food"
+        },
+        {
+          "side": "player",
+          "text": "신도들이 평원(E1)에서 식량을 4 얻었다.",
+          "fx": {"kind":"gain","tile":"E1","gain":{"food":4}},
+          "act": "gather:E1:food"
         },
         {
           "side": "player",
@@ -640,7 +645,7 @@
       ],
       "digest": {
         "player": {
-          "food": 9,
+          "food": 13,
           "wood": 8,
           "stone": 8,
           "faith": 14,
@@ -735,7 +740,7 @@
       ],
       "digest": {
         "player": {
-          "food": 6,
+          "food": 10,
           "wood": 8,
           "stone": 6,
           "faith": 16,
@@ -797,19 +802,13 @@
       "accepted": ["attack:D1:","attack:D2:"],
       "rejected": [],
       "petitionAnswered": true,
-      "auto": ["build:E2:wall","gather:B1:food"],
+      "auto": ["build:E2:wall"],
       "enemyPlan": ["preach:C1:","preach:E2:","pray:A4:","gather:B5:wood","gather:A1:food"],
-      "plan": ["attack:D1:","attack:D2:","build:E2:wall","gather:B1:food"],
+      "plan": ["attack:D1:","attack:D2:","build:E2:wall"],
       "ordered": ["attack:D1:","attack:D2:"],
       "log": [
         {"side":"god","text":"“율법파의 마을을 쳐라”","ui":true},
         {"side":"priest","text":"곳간이 노래하노니, 율법파 마을(D1)을 공격한다, 그리고 율법파 마을(D2)을 공격한다!","ui":true},
-        {
-          "side": "player",
-          "text": "신도들이 평원(B1)에서 식량을 4 얻었다.",
-          "fx": {"kind":"gain","tile":"B1","gain":{"food":4}},
-          "act": "gather:B1:food"
-        },
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(B5)에서 목재를 2 얻었다.",

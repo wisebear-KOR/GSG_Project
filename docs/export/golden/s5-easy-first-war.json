@@ -857,21 +857,21 @@
       "cost": 1,
       "tone": "command",
       "tablet": {
-        "orders": ["build:B1:wall","build:A1:village"],
+        "orders": ["build:E2:wall","build:A1:village"],
         "forbidden": [],
         "doctrine": "war",
-        "interpretation": "석판이 이르되, 우리 마을(B1)에 성벽을 쌓는다, 그리고 강(A1)에 마을을 세운다!"
+        "interpretation": "석판이 이르되, 우리 수도(E2)에 성벽을 쌓는다, 그리고 강(A1)에 마을을 세운다!"
       },
-      "accepted": ["build:B1:wall","build:A1:village"],
+      "accepted": ["build:E2:wall","build:A1:village"],
       "rejected": [],
       "petitionAnswered": false,
-      "auto": ["build:E2:wall","gather:A2:food"],
+      "auto": ["build:B1:wall","gather:A2:food"],
       "enemyPlan": ["attack:B1:","gather:A5:wood"],
-      "plan": ["build:B1:wall","build:A1:village","build:E2:wall","gather:A2:food"],
-      "ordered": ["build:B1:wall","build:A1:village"],
+      "plan": ["build:E2:wall","build:A1:village","build:B1:wall","gather:A2:food"],
+      "ordered": ["build:E2:wall","build:A1:village"],
       "log": [
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
-        {"side":"priest","text":"석판이 이르되, 우리 마을(B1)에 성벽을 쌓는다, 그리고 강(A1)에 마을을 세운다!","ui":true},
+        {"side":"priest","text":"석판이 이르되, 우리 수도(E2)에 성벽을 쌓는다, 그리고 강(A1)에 마을을 세운다!","ui":true},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(A5)에서 목재를 2 얻었다.",
@@ -884,9 +884,9 @@
           "fx": {"kind":"gain","tile":"A2","gain":{"food":1}},
           "act": "gather:A2:food"
         },
-        {"side":"player","text":"신도들이 우리 마을(B1)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"B1"},"act":"build:B1:wall"},
-        {"side":"player","text":"신도들이 우리 마을(A1)을 세웠다.","fx":{"kind":"build","tile":"A1"},"act":"build:A1:village"},
         {"side":"player","text":"신도들이 우리 수도(E2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"E2"},"act":"build:E2:wall"},
+        {"side":"player","text":"신도들이 우리 마을(A1)을 세웠다.","fx":{"kind":"build","tile":"A1"},"act":"build:A1:village"},
+        {"side":"player","text":"신도들이 우리 마을(B1)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"B1"},"act":"build:B1:wall"},
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 마을(B1)을 넘지 못하고 물러났다 (율법파 식량 -1).",

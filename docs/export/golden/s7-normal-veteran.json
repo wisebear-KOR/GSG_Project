@@ -700,7 +700,7 @@
       "reacted": "vow",
       "petition": {"from":"양치기 아벨","need":null},
       "revelation": "언덕에 올라 나를 찬양하라",
-      "cost": 2,
+      "cost": 1,
       "tone": "command",
       "tablet": {"orders":["pray:G2:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판이 이르되, 신전에서 기도한다!"},
       "accepted": ["pray:G2:"],
@@ -749,7 +749,6 @@
           "fx": {"kind":"treasure","tile":"G5","gain":{"faith":3}}
         },
         {"side":"player","text":"신의 분노가 차오른다 (2/3) — 기적이 2만큼 싸진다.","fx":{"kind":"wrath","tile":"G2"}},
-        {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"설교자 아모스: “'언덕'… 그 말을 돌판에 새길 수 있겠느냐?”","ui":true}
       ],
       "digest": {
@@ -757,7 +756,7 @@
           "food": 2,
           "wood": 4,
           "stone": 9,
-          "faith": 23,
+          "faith": 24,
           "pop": 3,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -766,7 +765,7 @@
           "villages": 1,
           "score": 16,
           "faithless": 0,
-          "doctrine": {"peace":1,"war":0,"abundance":0,"wisdom":1}
+          "doctrine": {"peace":1,"war":0,"abundance":0,"wisdom":2}
         },
         "enemy": {
           "food": 2,
@@ -831,7 +830,6 @@
       "plan": ["gather:F1:food","gather:F2:food","gather:D1:wood"],
       "ordered": ["gather:F1:food","gather:F2:food","gather:D1:wood"],
       "log": [
-        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"G2"}},
         {"side":"god","text":"“들판의 곡식을 거두고, 숲의 나무를 베어라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 평원(F1)에서 곡식을 거둔다, 그리고 평원(F2)에서 곡식을 거둔다, 그리고 숲(D1)에서 나무를 벤다!","ui":true},
         {
@@ -886,7 +884,6 @@
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"player","text":"신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다 (판에 한 번).","fx":{"kind":"wrath","tile":"G2"}},
         {"side":"player","text":"은총 — 과부 나오미의 청원에 응답했다. 신앙 +1.","fx":{"kind":"grace","tile":"G2","gain":{"faith":1}}},
-        {"side":"player","text":"지혜의 서약이 흔들린다 (지혜 -1).","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"설교자 아모스: “'들판'… 그 말을 돌판에 새길 수 있겠느냐?”","ui":true}
       ],
       "digest": {
@@ -894,7 +891,7 @@
           "food": 4,
           "wood": 6,
           "stone": 9,
-          "faith": 25,
+          "faith": 26,
           "pop": 4,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -903,7 +900,7 @@
           "villages": 1,
           "score": 18,
           "faithless": 0,
-          "doctrine": {"peace":1,"war":0,"abundance":1,"wisdom":0}
+          "doctrine": {"peace":1,"war":0,"abundance":1,"wisdom":2}
         },
         "enemy": {
           "food": 8,
@@ -996,7 +993,7 @@
           "food": 4,
           "wood": 4,
           "stone": 9,
-          "faith": 26,
+          "faith": 27,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1005,7 +1002,7 @@
           "villages": 2,
           "score": 22,
           "faithless": 0,
-          "doctrine": {"peace":1,"war":0,"abundance":2,"wisdom":0}
+          "doctrine": {"peace":1,"war":0,"abundance":2,"wisdom":2}
         },
         "enemy": {
           "food": 7,
@@ -1130,8 +1127,8 @@
         },
         {
           "side": "player",
-          "text": "신도들이 기도해 신앙을 2 얻었다.",
-          "fx": {"kind":"gain","tile":"G2","gain":{"faith":2}},
+          "text": "신도들이 기도해 신앙을 3 얻었다.",
+          "fx": {"kind":"gain","tile":"G2","gain":{"faith":3}},
           "act": "pray:G2:"
         },
         {
@@ -1157,7 +1154,7 @@
           "food": 5,
           "wood": 4,
           "stone": 9,
-          "faith": 30,
+          "faith": 32,
           "pop": 6,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1166,7 +1163,7 @@
           "villages": 2,
           "score": 24,
           "faithless": 0,
-          "doctrine": {"peace":2,"war":0,"abundance":2,"wisdom":0}
+          "doctrine": {"peace":2,"war":0,"abundance":2,"wisdom":2}
         },
         "enemy": {
           "food": 16,
@@ -1261,8 +1258,8 @@
         {"side":"enemy","text":"율법파가 율법파 마을(E4)을 세웠다.","fx":{"kind":"build","tile":"E4"},"act":"build:E4:village"},
         {
           "side": "player",
-          "text": "신도들이 기도해 신앙을 2 얻었다.",
-          "fx": {"kind":"gain","tile":"G2","gain":{"faith":2}},
+          "text": "신도들이 기도해 신앙을 3 얻었다.",
+          "fx": {"kind":"gain","tile":"G2","gain":{"faith":3}},
           "act": "pray:G2:"
         },
         {
@@ -1303,7 +1300,7 @@
           "food": 4,
           "wood": 6,
           "stone": 11,
-          "faith": 34,
+          "faith": 37,
           "pop": 6,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1312,7 +1309,7 @@
           "villages": 2,
           "score": 24,
           "faithless": 0,
-          "doctrine": {"peace":2,"war":0,"abundance":2,"wisdom":0}
+          "doctrine": {"peace":2,"war":0,"abundance":2,"wisdom":2}
         },
         "enemy": {
           "food": 15,
@@ -1456,7 +1453,7 @@
           "food": 9,
           "wood": 4,
           "stone": 9,
-          "faith": 36,
+          "faith": 39,
           "pop": 5,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1465,7 +1462,7 @@
           "villages": 1,
           "score": 22,
           "faithless": 0,
-          "doctrine": {"peace":2,"war":0,"abundance":2,"wisdom":1}
+          "doctrine": {"peace":2,"war":0,"abundance":2,"wisdom":3}
         },
         "enemy": {
           "food": 21,
@@ -1543,7 +1540,7 @@
         "orders": ["gather:G3:stone","gather:G4:stone"],
         "forbidden": [],
         "doctrine": "abundance",
-        "interpretation": "석판이 이르되, 산(G3)에서 돌을 캔다, 그리고 산(G4)에서 돌을 캔다!"
+        "interpretation": "수수께끼로 이르노니, 산(G3)에서 돌을 캔다, 그리고 산(G4)에서 돌을 캔다!"
       },
       "accepted": ["gather:G3:stone","gather:G4:stone"],
       "rejected": [],
@@ -1554,7 +1551,7 @@
       "ordered": ["gather:G3:stone","gather:G4:stone"],
       "log": [
         {"side":"god","text":"“산에서 돌을 캐어 오라”","ui":true},
-        {"side":"priest","text":"석판이 이르되, 산(G3)에서 돌을 캔다, 그리고 산(G4)에서 돌을 캔다!","ui":true},
+        {"side":"priest","text":"수수께끼로 이르노니, 산(G3)에서 돌을 캔다, 그리고 산(G4)에서 돌을 캔다!","ui":true},
         {"side":"enemy","text":"율법파는 산(G3)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"G3"}},
         {
           "side": "player",
@@ -1604,7 +1601,7 @@
           "food": 7,
           "wood": 4,
           "stone": 13,
-          "faith": 38,
+          "faith": 41,
           "pop": 4,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1613,7 +1610,7 @@
           "villages": 0,
           "score": 18,
           "faithless": 0,
-          "doctrine": {"peace":2,"war":0,"abundance":3,"wisdom":0}
+          "doctrine": {"peace":2,"war":0,"abundance":3,"wisdom":2}
         },
         "enemy": {
           "food": 25,
@@ -1744,7 +1741,7 @@
           "food": 3,
           "wood": 2,
           "stone": 11,
-          "faith": 41,
+          "faith": 44,
           "pop": 4,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1753,7 +1750,7 @@
           "villages": 1,
           "score": 21,
           "faithless": 0,
-          "doctrine": {"peace":2,"war":1,"abundance":3,"wisdom":0}
+          "doctrine": {"peace":2,"war":1,"abundance":3,"wisdom":2}
         },
         "enemy": {
           "food": 26,
@@ -1876,8 +1873,8 @@
         {"side":"enemy","text":"율법파가 율법파 마을(E3)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"E3"},"act":"build:E3:wall"},
         {
           "side": "player",
-          "text": "신도들이 기도해 신앙을 2 얻었다.",
-          "fx": {"kind":"gain","tile":"G2","gain":{"faith":2}},
+          "text": "신도들이 기도해 신앙을 3 얻었다.",
+          "fx": {"kind":"gain","tile":"G2","gain":{"faith":3}},
           "act": "pray:G2:"
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
@@ -1894,7 +1891,7 @@
           "food": 8,
           "wood": 2,
           "stone": 11,
-          "faith": 45,
+          "faith": 49,
           "pop": 5,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1903,7 +1900,7 @@
           "villages": 1,
           "score": 28,
           "faithless": 0,
-          "doctrine": {"peace":2,"war":1,"abundance":3,"wisdom":1}
+          "doctrine": {"peace":2,"war":1,"abundance":3,"wisdom":3}
         },
         "enemy": {
           "food": 28,

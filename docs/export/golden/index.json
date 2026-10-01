@@ -1,15 +1,15 @@
 {
   "generator": "tools/golden.mjs",
-  "ruleset": 14,
+  "ruleset": 15,
   "lang": "ko",
   "games": [
     {
       "file": "tutorial-3x3.json",
       "config": {"mode":"tutorial","size":5,"difficulty":"normal","seed":2026},
       "rounds": 5,
-      "winner": "enemy",
+      "winner": "player",
       "winKind": "tutorial",
-      "score": {"player":17,"enemy":24}
+      "score": {"player":24,"enemy":22}
     },
     {
       "file": "s4-easy-first.json",
@@ -17,7 +17,7 @@
       "rounds": 8,
       "winner": "enemy",
       "winKind": "score",
-      "score": {"player":15,"enemy":23}
+      "score": {"player":17,"enemy":23}
     },
     {
       "file": "s5-normal-first.json",
@@ -73,7 +73,7 @@
       "rounds": 8,
       "winner": "player",
       "winKind": "score",
-      "score": {"player":23,"enemy":13}
+      "score": {"player":24,"enemy":15}
     },
     {
       "file": "s5-easy-first-war.json",

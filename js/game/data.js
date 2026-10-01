@@ -21,7 +21,7 @@ export const COST = {
   temple: (level) => ({ stone: level * 2, wood: level + 1 }),
   cathedral: { stone: 11, wood: 11, faith: 13 },
 };
-// 대성당은 세 단계로 올린다 (합계는 한 번에 짓던 비용과 같다)
+// 대성당은 세 단계로 올린다 (단계마다 돌 3·나무 3·신앙 3 — 큰 판은 판 크기 표의 배율)
 export const CATHEDRAL = [
   { name: t('data.cathedral.0.name'), cost: { stone: 3, wood: 3, faith: 3 } },
   { name: t('data.cathedral.1.name'), cost: { stone: 3, wood: 3, faith: 3 } },
@@ -242,7 +242,7 @@ export const BLESSINGS = {
 export const AWE_TITLES = t('data.aweTitles');
 
 // 규칙 판: 규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)
-export const RULESET = 14;
+export const RULESET = 15;
 
 // 시련: 고정된 맵과 한 가지 비틀린 규칙. 별 셋 (승리 / 10점 차 / 20점 차 또는 일찍 끝냄)
 export const TRIALS = {

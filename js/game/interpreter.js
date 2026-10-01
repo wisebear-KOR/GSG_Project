@@ -183,13 +183,14 @@ const STOP_AND = kw('kw.stopAnd', 'g');
 const ENOUGH_AND = kw('kw.enoughAnd', 'g');
 const NOT_BUT = kw('kw.notBut', 'g');
 const INSTEAD = kw('kw.instead', 'g');
+const RATHER = kw('kw.rather', 'g');
 const IS_ID = kw('kw.place.idOnly');
 const NOT_BUT_PLACE = kw('kw.notButPlace');
 const FEAR = kw('kw.fear');
 const toNeg = (m, verb) => (FEAR.test(verb) ? `${verb} ` : t('kw.dontAndNeg', { verb }));
 // 앞의 것을 금지 절로 떼어 낸다: "숲을 베지 말고 돌을 캐라" → "숲을 베지 마라, 돌을 캐라", "공격 말고 선교",
 // "나무는 그만 베고 돌을 캐라", "기도는 됐고 일이나 해". "두려워하지 말고 쳐라"는 금지가 아니다 → "두려워하 쳐라"
-const splitDont = (text) => text.replace(DONT_AND, toNeg).replace(STOP_AND, toNeg).replace(ENOUGH_AND, toNeg).replace(NOT_BUT, (m, a, b) => (NOT_BUT_PLACE.test(a ?? b) ? ' ' : IS_ID.test(a ?? b) ? m : toNeg(m, a ?? b))).replace(INSTEAD, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a))).replace(NOUN_AND, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a)));
+const splitDont = (text) => text.replace(RATHER, ' ').replace(DONT_AND, toNeg).replace(STOP_AND, toNeg).replace(ENOUGH_AND, toNeg).replace(NOT_BUT, (m, a, b) => (NOT_BUT_PLACE.test(a ?? b) ? ' ' : IS_ID.test(a ?? b) ? m : toNeg(m, a ?? b))).replace(INSTEAD, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a))).replace(NOUN_AND, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a)));
 // 같은 채집이면 더 많이 나오는 칸부터, 무엇을 거둘지 말하지 않았으면 가장 모자란 자원부터
 const WEAKEST = kw('kw.place.weakest');
 function rankMatches(state, rule, matches, clause = '') {
@@ -350,8 +351,16 @@ function cannotWhy(state, kind) {
 }
 const baseKind = (a) => (a.type === 'gather' ? 'gather' : a.type === 'build' ? (a.build === 'cathedral' ? 'temple' : a.build) : a.type);
 
+// 이번 장 율법파가 먼저 차지하는 칸 (선공이 율법파이고 드러난, 칸을 차지하는 뜻) — 짚지 않은 일은 그 칸을 피한다
+function lostTiles(state) {
+  if (state.first !== 'enemy') return new Set();
+  const inside = (x) => x.type === 'pray' || (x.type === 'build' && x.build !== 'village');
+  return new Set(enemyIntent(state).filter((x) => x.shown && !inside(x)).map((x) => x.tile));
+}
+const lastLost = (lost, place, matches) => (lost.size ? [...matches.filter((a) => !lost.has(a.tile) || place.anchors.has(a.tile)), ...matches.filter((a) => lost.has(a.tile) && !place.anchors.has(a.tile))] : matches);
 export function interpretWithTablet(state, revelation) {
   const legal = legalActions(state, 'player');
+  const lost = lostTiles(state);
   const limit = actionLimit(state, 'player');
   const orders = [];
   const forbidden = [];
@@ -395,7 +404,7 @@ export function interpretWithTablet(state, revelation) {
       banned.push('attack', 'preach');
     }
     if (negative && !hits.length && place.anchors.size) { forbidden.push(...legal.filter((a) => place.anchors.has(a.tile) && (a.type === 'attack' || a.type === 'preach'))); continue; }
-    const found = hits.map((h) => ({ ...h, matches: byPlace(state, place, rankMatches(state, h.rule, legal.filter((a) => h.rule.match(a, state.tileAt[a.tile])), clause)) }));
+    const found = hits.map((h) => ({ ...h, matches: lastLost(lost, place, byPlace(state, place, rankMatches(state, h.rule, legal.filter((a) => h.rule.match(a, state.tileAt[a.tile])), clause))) }));
     // 무엇을 거둘지 말했으면 "거두라" 같은 두루뭉술한 채집은 쓰지 않는다
     const gathered = found.some((h) => !h.rule.fallback && !h.rule.lastResort && h.matches.some((a) => a.type === 'gather'));
     const plain = found.some((h) => !h.rule.lastResort);
@@ -411,7 +420,7 @@ export function interpretWithTablet(state, revelation) {
       if (rule.doctrine) doctrine ??= rule.claim && matches[0].type === 'attack' ? 'war' : rule.doctrine;
       let took = 0;
       const free = (b) => !picks.some((o) => o.a.tile === b.tile || o.a.key === b.key);
-      const cap = implicit && BUILDS.includes(rule.kind) ? 1 : many;
+      const cap = implicit && BUILDS.includes(rule.kind) ? Math.max(1, Math.min(3, place.exact.size)) : many;
       for (const a of matches) {
         if (took >= cap) break;
         // 한 절에서 두 규칙이 같은 것을 거두면 그 절의 손 수까지만 ("강에서 먹을 것을 구하라" — 강 규칙과 먹을 것 규칙)

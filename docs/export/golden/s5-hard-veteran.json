@@ -1223,7 +1223,7 @@
       "reacted": "wisdom",
       "petition": {"from":"방직공 레아","need":{"type":"build","build":"wall"}},
       "revelation": "높은 신전을 쌓아 나를 섬겨라",
-      "cost": 2,
+      "cost": 1,
       "tone": "command",
       "tablet": {"orders":["pray:E2:"],"forbidden":[],"doctrine":"wisdom","interpretation":"석판이 이르되, 신전에서 기도한다!"},
       "accepted": ["pray:E2:"],
@@ -1293,7 +1293,6 @@
           "text": "말하는 샘 — 샘물이 속삭이며 길을 알려 준다. 목재 +2, 돌 +1.",
           "fx": {"kind":"treasure","tile":"A1","gain":{"wood":2,"stone":1}}
         },
-        {"side":"player","text":"같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.","fx":{"kind":"doctrine"}},
         {"side":"leader","text":"설교자 아모스: “'신전'… 그 말을 돌판에 새길 수 있겠느냐?”","ui":true}
       ],
       "digest": {
@@ -1301,7 +1300,7 @@
           "food": 6,
           "wood": 4,
           "stone": 4,
-          "faith": 27,
+          "faith": 28,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1310,7 +1309,7 @@
           "villages": 1,
           "score": 22,
           "faithless": 0,
-          "doctrine": {"peace":1,"war":2,"abundance":2,"wisdom":1}
+          "doctrine": {"peace":1,"war":2,"abundance":2,"wisdom":2}
         },
         "enemy": {
           "food": 12,
@@ -1388,7 +1387,6 @@
       "plan": ["explore:C4:","explore:D4:","pray:E2:","gather:C1:food"],
       "ordered": ["explore:C4:","explore:D4:"],
       "log": [
-        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"E2"}},
         {"side":"god","text":"“안개 너머를 탐험하라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 안개 지대(C4) 속을 탐험한다, 그리고 안개 지대(D4) 속을 탐험한다!","ui":true},
         {"side":"enemy","text":"율법파는 우리 마을(C1)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"C1"}},
@@ -1403,8 +1401,8 @@
         {"side":"enemy","text":"율법파는 자원이 모자라 숲(B2)에 짓지 못했다.","fx":{"kind":"fail","tile":"B2"},"act":"build:B2:village"},
         {
           "side": "player",
-          "text": "신도들이 기도해 신앙을 2 얻었다.",
-          "fx": {"kind":"gain","tile":"E2","gain":{"faith":2}},
+          "text": "신도들이 기도해 신앙을 3 얻었다.",
+          "fx": {"kind":"gain","tile":"E2","gain":{"faith":3}},
           "act": "pray:E2:"
         },
         {
@@ -1436,7 +1434,7 @@
           "food": 5,
           "wood": 6,
           "stone": 5,
-          "faith": 30,
+          "faith": 32,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1445,7 +1443,7 @@
           "villages": 1,
           "score": 22,
           "faithless": 0,
-          "doctrine": {"peace":1,"war":2,"abundance":2,"wisdom":2}
+          "doctrine": {"peace":1,"war":2,"abundance":2,"wisdom":3}
         },
         "enemy": {
           "food": 10,

@@ -207,7 +207,7 @@ export const ultRound = (state) => sizeRules(state).at.ult;
 export const draftRound = (state) => sizeRules(state).at.draft;
 export const wrathRound = (state) => (state.config?.trial === 'last' ? 1 : sizeRules(state).at.wrath);
 export const hasUlt = (state, side, key) => side === 'player' && state.sides[side].doctrine[key] >= DOCTRINE_MAX && state.round >= ultRound(state);
-// 대성당 단계마다 필요한 마을: 1·2·3, 큰 판은 판이 넓은 만큼 더 (6×6 +1, 7×7 +2)
+// 대성당 단계마다 필요한 마을: 하나, 큰 판은 판이 넓은 만큼 더 (6×6 +1, 7×7 +2)
 // 판 크기 표 (튜토리얼·시련의 작은 판은 5×5 값을 따른다)
 export const sizeRules = (state) => MAP_SIZES[state.rows] ?? MAP_SIZES[5];
 // 대성당 단계마다 우리 마을이 있어야 한다: 5×5는 하나 (큰 판은 판 크기 표만큼 더)
@@ -765,8 +765,9 @@ const plainWords = (x) => String(x ?? '').replace(/[\s\p{P}]/gu, '');
 let planSigFn = null;
 export const setPlanSig = (f) => { planSigFn = f; };
 const planSig = (state, text) => (planSigFn ? planSigFn(state, text) : '');
+const economyOnly = (sig) => !!sig && sig.split('|').every((k) => k.startsWith('gather:') || k === 'pray');
 export const isEcho = (state, text, sig = planSig(state, text)) => {
-  if (state.tutorial || !text || plainWords(text) === '') return false;
+  if (state.tutorial || !text || plainWords(text) === '' || economyOnly(sig)) return false;
   const last = state.revelations?.at(-1);
   // 두 장 전의 일과 같아도 되풀이다 (두 계시를 번갈아 쓰는 것도 되풀이)
   return plainWords(text) === plainWords(last?.text) || (!!sig && (sig === last?.sig || sig === state.revelations?.at(-2)?.sig));
@@ -947,13 +948,14 @@ export function resolveRound(state, playerPlan, enemyPlan) {
 
 // 율법파가 우리를 읽는다: 그 장 계시가 되풀이였거나(지난 두 계시와 같은 일들) 같은 교리를 세 장 이어 말했으면
 // 다음 장 우리 선교·공격에 방어 +1, 읽힘이 이어지면 +2. 말을 바꾸면(침묵 포함) 풀린다
+const READ_DOCTRINES = ['war', 'peace'];
 function readUs(state, round) {
   const r = state.revelations;
   const last = r.at(-1);
   if (!last || last.round !== round) return false;
   if (last.echo) return true;
   const r3 = r.slice(-3);
-  return r3.length === 3 && !!r3[0].doctrine && r3.every((x) => x.doctrine === r3[0].doctrine) && r3[0].round === round - 2;
+  return r3.length === 3 && READ_DOCTRINES.includes(r3[0].doctrine) && r3.every((x) => x.doctrine === r3[0].doctrine) && r3[0].round === round - 2;
 }
 // 이번 장 계시를 받은 뒤라면: 다음 장에 율법파가 대비할 만큼 (봇이 미리 본다 — 확인 화면은 wouldRead와 지금의 lawGuard로 같은 값을 낸다)
 // 이번 계시를 내리면 율법파가 읽는가 (확인 화면이 미리 알린다): 되풀이이거나, 지난 두 장을 이어서 같은 교리로 말했고 이번도 그 교리
@@ -961,7 +963,7 @@ export function wouldRead(state, text, doctrine) {
   if (state.tutorial || !text) return false;
   if (isEcho(state, text)) return true;
   const r = state.revelations; const a = r.at(-1); const b = r.at(-2);
-  return !!doctrine && a?.doctrine === doctrine && b?.doctrine === doctrine && a.round === state.round - 1 && b.round === state.round - 2;
+  return READ_DOCTRINES.includes(doctrine) && a?.doctrine === doctrine && b?.doctrine === doctrine && a.round === state.round - 1 && b.round === state.round - 2;
 }
 export const braceAhead = (state) => (state.tutorial || !readUs(state, state.round) ? 0 : Math.min(2, (state.lawGuard ?? 0) + 1));
 function braceLaw(state) {

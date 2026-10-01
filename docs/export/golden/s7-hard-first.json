@@ -529,7 +529,6 @@
       "plan": ["build:E1:wall","build:D1:village","build:G2:wall","gather:G3:food"],
       "ordered": ["build:E1:wall","build:D1:village"],
       "log": [
-        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"G2"}},
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
         {"side":"priest","text":"곳간이 노래하노니, 우리 마을(E1)에 성벽을 쌓는다, 그리고 산(D1)에 마을을 세운다!","ui":true},
         {
