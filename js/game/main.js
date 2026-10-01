@@ -2092,7 +2092,10 @@ function renderAltar() {
     const opp = result.doctrine && unlocked(state, 4) ? OPPOSED[result.doctrine] : null;
     if (opp && state.sides.player.doctrine[opp] > [6, 4, 2, 0].find((f) => state.sides.player.doctrine[opp] >= f)) tags.push(`<span class="wtag tone-curse">${DOCTRINE[opp].name} -1</span>`);
     // 율법파가 이 말씀을 읽을지 미리 알린다 (되풀이이거나 같은 교리 세 장째)
-    if (wouldRead(state, text, result.doctrine)) tags.push(`<span class="wtag warn">${isEcho(state, text) ? t('ui.tag.readEcho') : t('ui.tag.streak', { name: DOCTRINE[result.doctrine].name })}</span>`);
+    if (wouldRead(state, text, result.doctrine)) {
+      const n = Math.min(2, (state.lawGuard ?? 0) + 1);
+      tags.push(`<span class="wtag warn">${isEcho(state, text) ? t('ui.tag.readEcho', { n }) : t('ui.tag.streak', { name: DOCTRINE[result.doctrine].name, n })}</span>`);
+    }
     const carve = pending.command ? `<label class="seal-prophecy carve"><input type="checkbox" class="carve-box" ${pending.carve ? 'checked' : ''}>
       ${t('ui.carve', { name: esc(COMMANDMENTS[pending.command].name), text: esc(COMMANDMENTS[pending.command].text) })}</label>` : '';
     const seal = pending.prophecy ? `<label class="seal-prophecy"><input type="checkbox" class="prophecy-box" ${pending.seal ? 'checked' : ''}>

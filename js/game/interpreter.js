@@ -289,7 +289,7 @@ function placeOf(state, clause) {
   for (const id of avoid) anchors.delete(id);
   // "적 수도에서 가장 먼 곳": 짚은 곳은 가까이 갈 곳이 아니라 멀어질 기준이다
   const farthest = PLACE.farthest.test(clause) ? (anchors.size ? [...anchors].map((id) => state.tileAt[id]) : home ? [home] : null) : null;
-  if (farthest) { anchors.clear(); named.length = 0; }
+  if (farthest) { anchors.clear(); named.length = 0; exact.clear(); aimBonus.clear(); }
   return { anchors, exact, avoid, named, terrains, near, text, dir, home, aimBonus, farthest, closest: PLACE.closest.test(clause) };
 }
 // 방향과 얼마나 곧게 놓였는가 (0~1): 육각 칸의 화면 좌표로 본 방향과 그 방향의 코사인

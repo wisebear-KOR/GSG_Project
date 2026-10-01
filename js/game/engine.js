@@ -954,7 +954,7 @@ function readUs(state, round) {
   const r3 = r.slice(-3);
   return r3.length === 3 && !!r3[0].doctrine && r3.every((x) => x.doctrine === r3[0].doctrine) && r3[0].round === round - 2;
 }
-// 이번 장 계시를 받은 뒤라면: 다음 장에 율법파가 대비할 만큼 (확인 화면·봇이 미리 본다)
+// 이번 장 계시를 받은 뒤라면: 다음 장에 율법파가 대비할 만큼 (봇이 미리 본다 — 확인 화면은 wouldRead와 지금의 lawGuard로 같은 값을 낸다)
 // 이번 계시를 내리면 율법파가 읽는가 (확인 화면이 미리 알린다): 되풀이이거나, 지난 두 장을 이어서 같은 교리로 말했고 이번도 그 교리
 export function wouldRead(state, text, doctrine) {
   if (state.tutorial || !text) return false;
