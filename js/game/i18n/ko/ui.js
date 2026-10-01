@@ -511,6 +511,8 @@ export default {
   'ui.thinking.sub': '말씀의 뜻을 헤아리는 중',
   'ui.src.silence': '침묵',
   'ui.chip.auto': '알아서',
+  'ui.chip.rest': (v) => `${v.n}명이 쉰다`,
+  'ui.chip.restTip': '시킨 일이 없어 쉬는 신도 — 계시에 절을 이어 쓰면 그만큼 일한다',
   'ui.chip.toggleTip': '눌러서 빼기/되살리기',
   'ui.chip.miracle': '기적 · 신앙 {n}',
   'ui.chip.restoreTip': '눌러서 되살리기',

@@ -171,7 +171,7 @@ const TABLET_RULES = [
   { kind: 'temple', re: kw('kw.tablet.temple'), except: kw('kw.tablet.templeExcept'), match: (a) => a.build === 'temple' || a.build === 'cathedral', doctrine: 'wisdom' },
   { kind: 'pray', re: kw('kw.tablet.pray'), except: kw('kw.tablet.prayExcept'), match: (a) => a.type === 'pray', doctrine: 'wisdom' },
   { kind: 'explore', re: kw('kw.tablet.explore'), except: kw('kw.tablet.exploreExcept'), match: (a) => a.type === 'explore', doctrine: 'wisdom' },
-  { kind: 'village', claim: true, re: kw('kw.tablet.claim'), match: (a) => a.build === 'village' || a.type === 'attack', doctrine: 'abundance' },
+  { kind: 'village', claim: true, re: kw('kw.tablet.claim'), match: (a) => a.build === 'village' || a.type === 'attack' || a.type === 'gather', doctrine: 'abundance' },
   { kind: 'gather', re: kw('kw.tablet.gatherAny'), except: kw('kw.tablet.gatherAnyExcept'), match: (a) => a.type === 'gather', doctrine: 'abundance', fallback: true },
 ];
 const MANY = kw('kw.many');
@@ -196,10 +196,11 @@ const toNeg = (m, verb) => (FEAR.test(verb) ? `${verb} ` : t('kw.dontAndNeg', { 
 const splitDont = (text) => text.replace(ONLY_THIS, (m, a) => `${a} `).replace(ASIDE, ' ').replace(RATHER, ' ').replace(PLENTY_AND, toNeg).replace(DONT_AND, toNeg).replace(STOP_AND, toNeg).replace(ENOUGH_AND, toNeg).replace(NOT_BUT, (m, a, b) => (NOT_BUT_PLACE.test(a ?? b) ? ' ' : IS_ID.test(a ?? b) ? m : toNeg(m, a ?? b))).replace(INSTEAD, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a))).replace(NOUN_AND, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a)));
 // 같은 채집이면 더 많이 나오는 칸부터, 무엇을 거둘지 말하지 않았으면 가장 모자란 자원부터
 const WEAKEST = kw('kw.place.weakest');
+const UNWALLED = kw('kw.place.unwalled');
 function rankMatches(state, rule, matches, clause = '') {
   if (!matches.length) return matches;
   // 차지: 같은 자리면 마을을 먼저 (빈 땅을 먼저 차지해 막는다), 율법파 땅이면 공격
-  if (rule.claim) return matches.map((a, i) => ({ a, i })).sort((x, y) => (x.a.type === 'attack') - (y.a.type === 'attack') || x.i - y.i).map((x) => x.a);
+  if (rule.claim) { const rank = (a) => (a.type === 'build' ? 0 : a.type === 'gather' ? 1 : 2); return matches.map((a, i) => ({ a, i })).sort((x, y) => rank(x.a) - rank(y.a) || x.i - y.i).map((x) => x.a); }
   // 선교·공격: 어디를 칠지 말하지 않으면 우리 땅에서 가장 가까운 곳. "약한 마을을", "성벽 없는 곳을"이라 하면 이길 확률이 높은 곳 (확인 칩에 보이는 확률)
   // — 보드를 읽고 짚어 말하는 것이 실력이 되게
   if ((matches[0].type === 'attack' || matches[0].type === 'preach') && !WEAKEST.test(clause)) {
@@ -210,6 +211,7 @@ function rankMatches(state, rule, matches, clause = '') {
   }
   if (matches[0].type === 'attack' || matches[0].type === 'preach') {
     const walls = new Set(enemyIntent(state).filter((x) => x.shown && x.build === 'wall').map((x) => x.tile));
+    if (UNWALLED.test(clause)) { const open = matches.filter((a) => !state.tileAt[a.tile].wall && !walls.has(a.tile)); if (open.length) matches = open; }
     return matches.map((a, i) => ({ a, i, p: actionOdds(state, a, { wallAhead: walls.has(a.tile) }) ?? 0 })).sort((x, y) => y.p - x.p || x.i - y.i).map((x) => x.a);
   }
   if (matches[0].type !== 'gather') return matches;
@@ -282,7 +284,8 @@ function placeOf(state, clause) {
   // "율법파 마을을 쳐라"는 율법파 마을, "그 마을에 성벽을"은 우리 마을 (새로 세우라는 말이면 가리키지 않는다)
   const foeVillage = PLACE.foeVillage.test(clause);
   const generic = new Set();
-  if (PLACE.village.test(clause) && (!PLACE.capital.test(clause) || foeVillage)) {
+  // "율법파가 마을을 세우려는 곳": 그 '마을'은 율법파가 세울 마을이다 (율법파 마을을 가리키지 않는다)
+  if (PLACE.village.test(clause) && (!PLACE.capital.test(clause) || foeVillage) && !(PLACE.aim.test(clause) && PLACE.aimBuild.test(clause))) {
     const side = foeVillage || PLACE.foe.test(clause) || PLACE.claim.test(clause) || HOSTILE.some((re) => re.test(clause)) ? 'enemy' : 'player';
     if (side === 'enemy' || !VILLAGE_WORD.test(clause) || VILLAGE_EXCEPT.test(clause)) {
       for (const x of state.tiles) if (x.owner === side && x.building === 'village') { anchors.add(x.id); generic.add(x.id); }
@@ -414,14 +417,15 @@ export function interpretWithTablet(state, revelation) {
       banned.push('attack', 'preach');
     }
     if (negative && !hits.length && place.anchors.size) { forbidden.push(...legal.filter((a) => place.anchors.has(a.tile) && (a.type === 'attack' || a.type === 'preach'))); continue; }
-    const found = hits.map((h) => ({ ...h, matches: lastLost(lost, place, byPlace(state, place, rankMatches(state, h.rule, legal.filter((a) => h.rule.match(a, state.tileAt[a.tile])), clause))) }));
+    const onTerrain = (rule, ms) => { if (!place.terrains.size || negative || place.near || !['attack', 'preach', 'gather'].includes(rule.kind)) return ms; const on = ms.filter((a) => place.terrains.has(state.tileAt[a.tile].terrain)); return on.length ? on : ms; };
+    const found = hits.map((h) => ({ ...h, matches: onTerrain(h.rule, lastLost(lost, place, byPlace(state, place, rankMatches(state, h.rule, legal.filter((a) => h.rule.match(a, state.tileAt[a.tile])), clause)))) }));
     // 무엇을 거둘지 말했으면 "거두라" 같은 두루뭉술한 채집은 쓰지 않는다
     const gathered = found.some((h) => !h.rule.fallback && !h.rule.lastResort && h.matches.some((a) => a.type === 'gather'));
     const plain = found.some((h) => !h.rule.lastResort);
     for (const { rule, matches, pos } of found) {
       if ((rule.fallback && gathered) || (rule.lastResort && plain)) continue;
       if (negative) {
-        const scoped = place.terrains.size || place.anchors.size ? matches.filter((a) => place.terrains.has(state.tileAt[a.tile].terrain) || place.anchors.has(a.tile)) : matches;
+        const scoped = rule.fallback ? matches.filter((a) => a.gather === 'food') : place.terrains.size || place.anchors.size ? matches.filter((a) => place.terrains.has(state.tileAt[a.tile].terrain) || place.anchors.has(a.tile)) : matches;
         forbidden.push(...(scoped.length || place.anchors.size ? scoped : matches)); if (rule.kind && (scoped.length || !place.anchors.size)) banned.push(rule.kind); continue;
       }
       // 알아들었으나 지금 할 수 없는 말 (닿는 율법파가 없다 등) — "흐릿하다"와 구별해 알려 준다
@@ -442,7 +446,7 @@ export function interpretWithTablet(state, revelation) {
           if (alt) holder.a = alt;
         }
         if (!free(a)) continue;
-        picks.push({ a, ci, pos, kind: rule.kind, alts: matches, aimed: place.anchors.size > 0, nth: implicit ? took : 0, cnt: implicit ? 0 : many }); took += 1;
+        picks.push({ a, ci, pos, kind: rule.kind, alts: matches, aimed: place.anchors.size > 0, nth: implicit ? took : 0, cnt: Math.max(implicit ? 0 : many, Math.min(3, place.exact.size)) }); took += 1;
       }
       // 칸이 모두 찼으면 먼저 온 일을 다른 칸으로 옮길 수 있는지 본다 ("성벽을 쌓고 기도하라" → 성벽은 마을에)
       for (const a of took ? [] : matches) {
@@ -485,7 +489,7 @@ export function interpretWithTablet(state, revelation) {
   orders.push(...picks.map((p) => p.a).filter((a) => keep.has(a.key)));
   const kept = orders;
   const done = new Set(kept.map(baseKind));
-  const unheard = [...new Set(heard)].filter((k) => k.startsWith('far:') || !done.has(k.split(':')[0]));
+  const unheard = [...new Set(heard)].filter((k) => k.startsWith('far:') || k.endsWith(':two') || !done.has(k.split(':')[0]));
   const verbs = kept.map((a) => a.text.replace(/ \(.*\)$/, ''));
   return {
     interpretation: kept.length

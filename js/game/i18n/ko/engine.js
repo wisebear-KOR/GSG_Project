@@ -42,6 +42,7 @@ export default {
   'eng.act.explore': '{place} 속을 탐험한다 (무엇이 있을지 모름)',
 
   // ---------- 명령 검증: 거부 사유 ----------
+  'eng.reject.many': '같은 일은 계시 하나에 셋까지',
   'eng.reject.forbidden': '계시가 금지',
   'eng.reject.cost': '자원 부족',
   'eng.reject.clashPref': '같은 장소 (교리에 맞는 행동 우선)',

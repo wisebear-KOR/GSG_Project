@@ -2073,6 +2073,7 @@ function renderAltar() {
       ...(pending.miracle ? [`<span class="order miracle${pending.dropped.has(pending.miracle.key) ? ' dropped' : ''}" data-key="${pending.miracle.key}" title="${t('ui.chip.toggleTip')}">${svgUse(MIRACLE_ART[pending.miracle.id], 'mi', '0 0 48 48')}<span class="t">${esc(MIRACLES.find((m) => m.id === pending.miracle.id).name)}${pending.miracle.target ? ` → ${esc(tileName(state, state.tileAt[pending.miracle.target]))}` : ''}</span><span class="why">${t('ui.chip.miracle', { n: pending.miracle.cost })}</span></span>`] : []),
       ...[...pending.dropped].map((k) => result.orders.find((a) => a.key === k)).filter(Boolean).map((a) => `<span class="order dropped" data-key="${esc(a.key)}" title="${t('ui.chip.restoreTip')}">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why">${t('ui.chip.dropped')}</span></span>`),
       ...rejected.map((r) => `<span class="order bad"><span class="t">${short(r.action)}</span><span class="why">${esc(r.reason)}</span></span>`),
+      ...(() => { const idle = actionLimit(state, 'player') - accepted.length - auto.length; return idle > 0 && source !== 'silence' ? [`<span class="order rest" title="${t('ui.chip.restTip')}">${meepleSvg('player')}<span class="t">${t('ui.chip.rest', { n: idle })}</span></span>`] : []; })(),
       ...result.forbidden.map((a) => `<span class="order forbid">⊘ <span class="t">${short(a)}</span><span class="why" style="background:rgba(40,20,10,.12)">${['attack', 'preach'].includes(a.type) ? t('ui.chip.vow') : t('ui.chip.forbidden')}</span></span>`),
     ].join('');
     const legal = legalActions(state, 'player');
@@ -2094,7 +2095,7 @@ function renderAltar() {
     // 율법파가 이 말씀을 읽을지 미리 알린다 (되풀이이거나 같은 교리 세 장째)
     if (wouldRead(state, text, result.doctrine)) {
       const n = Math.min(2, (state.lawGuard ?? 0) + 1);
-      tags.push(`<span class="wtag warn">${isEcho(state, text) ? t('ui.tag.readEcho', { n }) : t('ui.tag.streak', { name: DOCTRINE[result.doctrine].name, n })}</span>`);
+      tags.push(`<span class="wtag warn">${isEcho(state, text) ? t('ui.tag.readEcho', { n }) : t('ui.tag.streak', { n })}</span>`);
     }
     const carve = pending.command ? `<label class="seal-prophecy carve"><input type="checkbox" class="carve-box" ${pending.carve ? 'checked' : ''}>
       ${t('ui.carve', { name: esc(COMMANDMENTS[pending.command].name), text: esc(COMMANDMENTS[pending.command].text) })}</label>` : '';
@@ -2301,7 +2302,9 @@ function suggestions() {
   out.push(byNeed.village, byNeed.explore, t('ui.suggest.preach'));
   return [...new Set(out.filter(Boolean))]
     .filter((s) => !state.bannedWords.some((w) => s.includes(w)) && interpretWithTablet(state, s).orders.length)
-    .slice(0, 2);
+    .slice(0, 2)
+    // 두 말을 이은 한 줄도 보인다 — 계시 한 줄에 여러 일을 시킬 수 있다
+    .flatMap((s, i, all) => (i === 1 ? [s, `${all[0]}, ${s}`] : [s]));
 }
 function showSuggest() {
   const row = $('suggestRow');

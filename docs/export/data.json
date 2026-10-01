@@ -3,7 +3,7 @@
     "source": "js/game/data.js",
     "generator": "tools/export-data.mjs",
     "lang": "ko",
-    "ruleset": 18,
+    "ruleset": 19,
     "conventions": [
       "A function value is written as an object whose only key is \"$fn\" (its JS source text). Port the logic by hand; see docs/spec/03-data.md.",
       "A RegExp value is written as an object with keys \"$re\" (source) and \"flags\"."
@@ -644,7 +644,7 @@
       "id": "drought",
       "name": "가뭄",
       "text": "가뭄이 들어 곡식이 말라 가고 있다.",
-      "rule": "평원·강 식량 채집 -2"
+      "rule": "식량 채집 -2"
     },
     {
       "id": "harvest",
@@ -1248,7 +1248,7 @@
     "graceDoctrineBelow": 3,
     "maxNames": 3
   },
-  "RULESET": 18,
+  "RULESET": 19,
   "SACRED_WORDS": [
     {
       "word": "무지개",

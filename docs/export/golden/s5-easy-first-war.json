@@ -1382,7 +1382,6 @@
           "act": "attack:D1:"
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
-        {"side":"enemy","text":"율법파가 굶주려 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"leader","text":"설교자 아모스: “'성벽'을 외치는 신이라니, 신도들이 두려워하겠구나.”","ui":true}
       ],
       "digest": {

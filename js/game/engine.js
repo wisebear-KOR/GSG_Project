@@ -431,6 +431,7 @@ export function validateOrders(state, side, chosen, forbidden = [], doctrine = n
   const costOf = (a) => (a.type !== 'build' ? null : buildCost(state, side, a.build));
   for (const a of chosen) {
     if (forbidden.includes(a.key)) { rejected.push({ action: a, reason: t('eng.reject.forbidden') }); continue; }
+    if (side === 'player' && accepted.filter((b) => b.type === a.type && b.build === a.build && b.gather === a.gather).length >= 3) { rejected.push({ action: a, reason: t('eng.reject.many') }); continue; }
     const cost = costOf(a);
     if (cost && !canPay(budget, cost)) { rejected.push({ action: a, reason: t('eng.reject.cost') }); continue; }
     const clash = accepted.findIndex((x) => x.tile === a.tile);
@@ -482,12 +483,14 @@ export function autoFill(state, side, accepted, forbidden = [], doctrine = null)
     // 성벽은 받아들인 건설을 치르고 남은 돌로 따진다
     const left = { ...s };
     for (const a of accepted) if (a.type === 'build') pay(left, buildCost(state, side, a.build));
-    const kinds = [...new Set([...temper.first, ...DOCTRINE_LABOR[doctrine]])];
+    const kinds = [...new Set([...(['war', 'peace'].includes(doctrine) || !temper.first.some((k) => ['attack', 'preach'].includes(k)) ? temper.first : []), ...DOCTRINE_LABOR[doctrine]])];
     const walls = new Set(enemyIntent(state).filter((x) => x.shown && x.build === 'wall').map((x) => x.tile));
     for (let n = 0; n < temper.hands && accepted.length + leading.length < limit; n++) {
       const legal = legalActions(state, side).filter((a) => !forbidden.includes(a.key) && !used.has(a.tile));
       for (const kind of kinds) {
+        const same = (a) => [...accepted, ...leading].filter((b) => b.type === a.type && b.build === a.build && b.gather === a.gather).length;
         const cand = legal.filter((a) => (kind === 'wall' ? a.build === 'wall' && canPay(left, buildCost(state, side, 'wall')) : a.type === kind && a.type !== 'build'))
+          .filter((a) => same(a) < 2)
           .filter((a) => !['preach', 'attack'].includes(a.type) || actionOdds(state, a, { wallAhead: walls.has(a.tile) }) >= temper.odds);
         if (!cand.length) continue;
         const pick = cand[0];
@@ -526,6 +529,9 @@ export function autoFill(state, side, accepted, forbidden = [], doctrine = null)
   if (accepted.length + filled.length < limit && pray && !used.has(pray.tile)) filled.push({ ...pray, auto: true });
   return filled;
 }
+
+// 같은 마을에서 선교로 이만큼 이기면 (두 장 넘게 끊기면 표식이 하나씩 지워진다) 마을이 넘어온다
+const FLIP_MARKS = 3;
 
 // ---------- 율법파 (오토마) ----------
 function pickForRule(state, rule, pool) {
@@ -571,7 +577,7 @@ export function planEnemy(state) {
     if (!pick && (rule.type === 'attack' || rule.type === 'preach') && !state.tutorial) pick = pickForRule(state, { type: 'build', build: 'village' }, pool.filter((a) => !used.has(a.tile)));
     if (pick) { used.add(pick.tile); plan.push(pick); if (rule.crusade) crusading += 1; }
   }
-  plan.push(...autoFill(state, side, plan));
+  plan.push(...autoFill(state, side, plan.filter((a) => !a.crusade)));
   return plan;
 }
 
@@ -1267,12 +1273,13 @@ function resolveAction(state, a) {
       const win = ra + bonus > rd + defBonus;
       const dice = { attacker: ra, attackerBonus: bonus, defender: rd, defenderBonus: defBonus, win };
       if (win) {
-        f.pop -= 1; s.pop += 1;
+        // 데려온 신도는 우리 땅에 살 곳이 있어야 온다 — 인구가 가득 찼으면 상대 신도가 흩어지기만 한다
+        f.pop -= 1; if (s.pop < popCap(state, side)) s.pop += 1;
         // 마을에 믿음의 표식이 두 번 쌓이면 그 마을이 넘어온다 (수도는 제외, 성벽은 남는다)
         if (side === 'player') { state.stats.converted += 1; deed(state, a.key, 'preach'); }
         if (tl.building === 'village') {
           tl.faithMarks = tl.faithMarks?.side === side ? { side, n: tl.faithMarks.n + 1, round: state.round } : { side, n: 1, round: state.round };
-          if (tl.faithMarks.n >= 2) {
+          if (tl.faithMarks.n >= FLIP_MARKS) {
             tl.owner = side; tl.faithMarks = null;
             if (side === 'player') state.stats.turned = (state.stats.turned ?? 0) + 1;
             if (side === 'player') tl.revealed = true;

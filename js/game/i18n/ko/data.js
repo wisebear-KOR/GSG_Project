@@ -90,7 +90,7 @@ export default {
   'data.event.calm.rule': '이번 장 우리 선교 +1',
   'data.event.drought.name': '가뭄',
   'data.event.drought.text': '가뭄이 들어 곡식이 말라 가고 있다.',
-  'data.event.drought.rule': '평원·강 식량 채집 -2',
+  'data.event.drought.rule': '식량 채집 -2',
   'data.event.harvest.name': '풍년',
   'data.event.harvest.text': '풍년의 기운이 들판에 가득하다.',
   'data.event.harvest.rule': '평원·강 식량 채집 +2',

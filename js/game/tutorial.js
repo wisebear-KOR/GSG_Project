@@ -49,6 +49,7 @@ const SCRIPT = [
     { text: t('tut.end5.1') },
     { text: t('tut.end5.3') },
     { text: t('tut.end5.4') },
+    { text: t('tut.end5.5') },
     { text: t('tut.end5.2') },
   ] },
 ];

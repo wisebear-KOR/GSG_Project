@@ -610,10 +610,10 @@
       "accepted": ["explore:D2:","explore:C1:"],
       "rejected": [],
       "petitionAnswered": false,
-      "auto": ["explore:C2:"],
+      "auto": ["pray:G2:"],
       "enemyPlan": ["build:C4:village","build:D4:village","pray:A6:","build:B3:village"],
       "dilemma": {"pick":"expel","byText":false,"paid":"expel"},
-      "plan": ["explore:D2:","explore:C1:","explore:C2:"],
+      "plan": ["explore:D2:","explore:C1:","pray:G2:"],
       "ordered": ["explore:D2:","explore:C1:"],
       "log": [
         {"side":"god","text":"“안개 너머를 탐험하라”","ui":true},
@@ -632,6 +632,12 @@
           "act": "build:B3:village"
         },
         {
+          "side": "player",
+          "text": "신도들이 기도해 신앙을 2 얻었다.",
+          "fx": {"kind":"gain","tile":"G2","gain":{"faith":2}},
+          "act": "pray:G2:"
+        },
+        {
           "side": "enemy",
           "text": "율법파가 기도해 신앙을 2 얻었다.",
           "fx": {"kind":"gain","tile":"A6","gain":{"faith":2}},
@@ -644,7 +650,6 @@
           "fx": {"kind":"treasure","tile":"C1","gain":{"faith":2}},
           "act": "explore:C1:"
         },
-        {"side":"player","text":"숲(C2)을 탐험했다. 안개가 걷혔다.","fx":{"kind":"explore","tile":"C2"},"act":"explore:C2:"},
         {"side":"player","text":"율법 심문관 — 쫓아낸다. 신앙 +1, 다음 장 율법파가 칼을 든다.","fx":{"kind":"dilemma","tile":"G2"}},
         {"side":"player","text":"신의 분노가 차오른다 (1/3) — 기적이 1만큼 싸진다.","fx":{"kind":"wrath","tile":"G2"}},
         {"side":"player","text":"풍요의 서약이 흔들린다 (풍요 -1).","fx":{"kind":"doctrine"}},
@@ -655,7 +660,7 @@
           "food": 3,
           "wood": 4,
           "stone": 4,
-          "faith": 16,
+          "faith": 18,
           "pop": 3,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -682,7 +687,7 @@
         "owners": {"A6":"enemy","B4":"enemy","C4":"enemy","E1":"player","G2":"player"},
         "buildings": {"A6":"capital","B4":"village","C4":"village","E1":"village","G2":"capital"},
         "walls": ["A6","B4"],
-        "revealed": "0000000110000011100001110000111000011100001111000",
+        "revealed": "0000000100000011100001110000111000011100001111000",
         "holyOwner": null,
         "wrath": 1,
         "streak": null,
@@ -691,7 +696,7 @@
         "destiny": {"id":"fortress","done":false},
         "vowNext": "attack",
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
-        "rng": {"deck":-106831468,"dice":-1263663633},
+        "rng": {"deck":-106831468,"dice":1199737850},
         "winner": null,
         "winKind": null
       }
@@ -750,12 +755,7 @@
           "act": "pray:G2:"
         },
         {"side":"player","text":"안개 지대(E4)를 탐험했다. 안개가 걷혔다.","fx":{"kind":"explore","tile":"E4"},"act":"explore:E4:"},
-        {
-          "side": "player",
-          "text": "숲(F4)을 탐험해 돌을 2 찾았다.",
-          "fx": {"kind":"treasure","tile":"F4","gain":{"stone":2}},
-          "act": "explore:F4:"
-        },
+        {"side":"player","text":"숲(F4)을 탐험했다. 안개가 걷혔다.","fx":{"kind":"explore","tile":"F4"},"act":"explore:F4:"},
         {"side":"player","text":"순례자 — 맞아들인다. 신앙 +2, 식량 -1.","fx":{"kind":"dilemma","tile":"G2"}},
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {
@@ -770,8 +770,8 @@
         "player": {
           "food": 2,
           "wood": 4,
-          "stone": 9,
-          "faith": 21,
+          "stone": 7,
+          "faith": 23,
           "pop": 3,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -798,7 +798,7 @@
         "owners": {"A6":"enemy","B4":"enemy","C4":"enemy","E1":"player","G2":"player"},
         "buildings": {"A6":"capital","B4":"village","C4":"village","E1":"village","G2":"capital"},
         "walls": ["A6","B4"],
-        "revealed": "0000000110000011100001111000111110011111001111100",
+        "revealed": "0000000100000011100001111000111110011111001111100",
         "holyOwner": null,
         "wrath": 2,
         "streak": null,
@@ -806,7 +806,7 @@
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
-        "rng": {"deck":-106831468,"dice":-63933490},
+        "rng": {"deck":-106831468,"dice":567902180},
         "winner": null,
         "winKind": null
       }
@@ -896,8 +896,8 @@
         "player": {
           "food": 4,
           "wood": 6,
-          "stone": 9,
-          "faith": 23,
+          "stone": 7,
+          "faith": 25,
           "pop": 4,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -924,7 +924,7 @@
         "owners": {"A6":"enemy","B4":"enemy","C4":"enemy","E1":"player","G2":"player"},
         "buildings": {"A6":"capital","B4":"village","C4":"village","E1":"village","G2":"capital"},
         "walls": ["A6","B4"],
-        "revealed": "0000000110000011100001111000111110011111001111100",
+        "revealed": "0000000100000011100001111000111110011111001111100",
         "holyOwner": null,
         "wrath": 3,
         "streak": null,
@@ -932,7 +932,7 @@
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":1},
-        "rng": {"deck":-106831468,"dice":-63933490},
+        "rng": {"deck":-106831468,"dice":567902180},
         "winner": null,
         "winKind": null
       }
@@ -990,8 +990,8 @@
         "player": {
           "food": 4,
           "wood": 4,
-          "stone": 9,
-          "faith": 24,
+          "stone": 7,
+          "faith": 26,
           "pop": 5,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1040,7 +1040,7 @@
           "G2": "capital"
         },
         "walls": ["A6","B4"],
-        "revealed": "0000000110000011100001111000111110011111001111100",
+        "revealed": "0000000100000011100001111000111110011111001111100",
         "holyOwner": "enemy",
         "wrath": 3,
         "streak": null,
@@ -1048,7 +1048,7 @@
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":1},
-        "rng": {"deck":-106831468,"dice":-63933490},
+        "rng": {"deck":-106831468,"dice":567902180},
         "winner": null,
         "winKind": null
       }
@@ -1136,8 +1136,8 @@
         "player": {
           "food": 11,
           "wood": 4,
-          "stone": 9,
-          "faith": 26,
+          "stone": 7,
+          "faith": 28,
           "pop": 6,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1186,7 +1186,7 @@
           "G2": "capital"
         },
         "walls": ["A6","B4"],
-        "revealed": "0000000110000011100001111000111110011111001111100",
+        "revealed": "0000000100000011100001111000111110011111001111100",
         "holyOwner": "enemy",
         "wrath": 3,
         "streak": null,
@@ -1194,7 +1194,7 @@
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":1},
-        "rng": {"deck":-106831468,"dice":-63933490},
+        "rng": {"deck":-106831468,"dice":567902180},
         "winner": null,
         "winKind": null
       }
@@ -1264,8 +1264,8 @@
         "player": {
           "food": 4,
           "wood": 6,
-          "stone": 11,
-          "faith": 31,
+          "stone": 9,
+          "faith": 33,
           "pop": 7,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -1318,7 +1318,7 @@
           "G2": "capital"
         },
         "walls": ["A6","B4"],
-        "revealed": "0000000110000011100001111000111110011111001111100",
+        "revealed": "0000000100000011100001111000111110011111001111100",
         "holyOwner": "enemy",
         "wrath": 3,
         "streak": {"doctrine":"peace","n":1},
@@ -1326,7 +1326,7 @@
         "commandments": ["sabbath"],
         "destiny": {"id":"fortress","done":false},
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":1},
-        "rng": {"deck":-106831468,"dice":-63933490},
+        "rng": {"deck":-106831468,"dice":567902180},
         "winner": null,
         "winKind": null
       }
@@ -1346,9 +1346,9 @@
       "accepted": ["build:G2:temple"],
       "rejected": [],
       "petitionAnswered": false,
-      "auto": ["gather:E2:food","gather:F1:food"],
+      "auto": ["explore:B2:","gather:E2:food","gather:F1:food"],
       "enemyPlan": ["pray:A6:","gather:B3:wood","gather:A4:stone","gather:A2:food","gather:B4:wood","gather:A5:stone"],
-      "plan": ["build:G2:temple","gather:E2:food","gather:F1:food"],
+      "plan": ["build:G2:temple","explore:B2:","gather:E2:food","gather:F1:food"],
       "ordered": ["build:G2:temple"],
       "log": [
         {"side":"god","text":"“높은 신전을 쌓아 나를 섬겨라”","ui":true},
@@ -1402,8 +1402,19 @@
           "fx": {"kind":"gain","tile":"A6","gain":{"faith":2}},
           "act": "pray:A6:"
         },
+        {
+          "side": "player",
+          "text": "안개 지대(B2)를 탐험해 돌을 2 찾았다.",
+          "fx": {"kind":"treasure","tile":"B2","gain":{"stone":2}},
+          "act": "explore:B2:"
+        },
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"enemy","text":"율법 석판 +1 — 율법파가 성지에서 율법을 외웠다 (6/10).","fx":{"kind":"edict","tile":"A6","up":true}},
+        {
+          "side": "player",
+          "text": "잊힌 제단 — 이름 모를 신의 제단이 이끼에 덮여 있다. 신앙 +3.",
+          "fx": {"kind":"treasure","tile":"A2","gain":{"faith":3}}
+        },
         {"side":"leader","text":"설교자 아모스: “'신전'… 그 말을 돌판에 새길 수 있겠느냐?”","ui":true}
       ],
       "digest": {
@@ -1411,7 +1422,7 @@
           "food": 8,
           "wood": 4,
           "stone": 9,
-          "faith": 34,
+          "faith": 39,
           "pop": 7,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1464,7 +1475,7 @@
           "G2": "capital"
         },
         "walls": ["A6","B4"],
-        "revealed": "0000000110000011100001111000111110011111001111100",
+        "revealed": "0110000111000011100001111000111110011111001111100",
         "holyOwner": "enemy",
         "wrath": 3,
         "streak": null,
@@ -1523,13 +1534,13 @@
         },
         {
           "side": "enemy",
-          "text": "율법파가 안개 지대(A2)에서 식량을 0 얻었다.",
+          "text": "율법파가 평원(A2)에서 식량을 0 얻었다.",
           "fx": {"kind":"gain","tile":"A2","gain":{"food":0}},
           "act": "gather:A2:food"
         },
         {
           "side": "enemy",
-          "text": "율법파가 안개 지대(B3)에서 목재를 2 얻었다.",
+          "text": "율법파가 율법파 마을(B3)에서 목재를 2 얻었다.",
           "fx": {"kind":"gain","tile":"B3","gain":{"wood":2}},
           "act": "gather:B3:wood"
         },
@@ -1563,7 +1574,7 @@
           "food": 7,
           "wood": 4,
           "stone": 13,
-          "faith": 37,
+          "faith": 42,
           "pop": 7,
           "templeLevel": 2,
           "capitalHp": 2,
@@ -1618,7 +1629,7 @@
           "G2": "capital"
         },
         "walls": ["A6","B4"],
-        "revealed": "0000000110000011100001111000111110011111001111100",
+        "revealed": "0110000111000011100001111000111110011111001111100",
         "holyOwner": "enemy",
         "wrath": 3,
         "streak": null,
@@ -1647,9 +1658,9 @@
       "accepted": ["build:D1:wall"],
       "rejected": [],
       "petitionAnswered": true,
-      "auto": ["build:E1:wall","build:G2:wall","gather:E2:food"],
+      "auto": ["build:E1:wall","gather:E2:food"],
       "enemyPlan": ["build:F2:wall","attack:G2:","gather:A4:stone","pray:A6:","build:E3:wall","gather:A5:stone"],
-      "plan": ["build:D1:wall","build:E1:wall","build:G2:wall","gather:E2:food"],
+      "plan": ["build:D1:wall","build:E1:wall","gather:E2:food"],
       "ordered": ["build:D1:wall"],
       "log": [
         {"side":"god","text":"“성벽을 쌓아 우리 땅을 지켜라”","ui":true},
@@ -1674,7 +1685,6 @@
         },
         {"side":"player","text":"신도들이 우리 마을(D1)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"D1"},"act":"build:D1:wall"},
         {"side":"player","text":"신도들이 우리 마을(E1)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"E1"},"act":"build:E1:wall"},
-        {"side":"player","text":"신도들이 우리 수도(G2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"G2"},"act":"build:G2:wall"},
         {"side":"enemy","text":"율법파가 율법파 마을(F2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"F2"},"act":"build:F2:wall"},
         {"side":"enemy","text":"율법파가 율법파 마을(E3)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"E3"},"act":"build:E3:wall"},
         {
@@ -1687,7 +1697,7 @@
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 수도(G2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":5,"attackerBonus":0,"defender":5,"defenderBonus":3,"win":false},
+          "dice": {"attacker":5,"attackerBonus":0,"defender":5,"defenderBonus":1,"win":false},
           "fx": {"kind":"attack","tile":"G2"},
           "act": "attack:G2:"
         },
@@ -1703,15 +1713,15 @@
         "player": {
           "food": 8,
           "wood": 4,
-          "stone": 7,
-          "faith": 41,
+          "stone": 9,
+          "faith": 46,
           "pop": 6,
           "templeLevel": 2,
           "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 2,
-          "score": 29,
+          "score": 28,
           "faithless": 0,
           "doctrine": {"peace":2,"war":1,"abundance":3,"wisdom":2}
         },
@@ -1758,8 +1768,8 @@
           "F2": "village",
           "G2": "capital"
         },
-        "walls": ["A6","B4","D1","E1","E3","F2","G2"],
-        "revealed": "0000000110000011100001111000111110011111001111100",
+        "walls": ["A6","B4","D1","E1","E3","F2"],
+        "revealed": "0110000111000011100001111000111110011111001111100",
         "holyOwner": "enemy",
         "wrath": 3,
         "streak": {"doctrine":"war","n":1},
@@ -1803,7 +1813,7 @@
         },
         {
           "side": "enemy",
-          "text": "율법파가 안개 지대(B3)에서 목재를 2 얻었다.",
+          "text": "율법파가 율법파 마을(B3)에서 목재를 2 얻었다.",
           "fx": {"kind":"gain","tile":"B3","gain":{"wood":2}},
           "act": "gather:B3:wood"
         },
@@ -1824,7 +1834,7 @@
         {
           "side": "enemy",
           "text": "율법파 원정대가 우리 수도(G2)를 넘지 못하고 물러났다 (율법파 식량 -1).",
-          "dice": {"attacker":3,"attackerBonus":0,"defender":4,"defenderBonus":3,"win":false},
+          "dice": {"attacker":3,"attackerBonus":0,"defender":4,"defenderBonus":1,"win":false},
           "fx": {"kind":"attack","tile":"G2"},
           "act": "attack:G2:"
         },
@@ -1842,15 +1852,15 @@
         "player": {
           "food": 4,
           "wood": 4,
-          "stone": 7,
-          "faith": 47,
+          "stone": 9,
+          "faith": 52,
           "pop": 7,
           "templeLevel": 2,
           "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 2,
-          "score": 36,
+          "score": 35,
           "faithless": 0,
           "doctrine": {"peace":2,"war":1,"abundance":3,"wisdom":3}
         },
@@ -1897,8 +1907,8 @@
           "F2": "village",
           "G2": "capital"
         },
-        "walls": ["A6","B4","D1","D3","E1","E3","E4","F2","G2"],
-        "revealed": "0000000110000011100001111000111110011111001111100",
+        "walls": ["A6","B4","D1","D3","E1","E3","E4","F2"],
+        "revealed": "0110000111000011100001111000111110011111001111100",
         "holyOwner": "enemy",
         "wrath": 3,
         "streak": {"doctrine":"war","n":1},
@@ -1917,15 +1927,15 @@
     "rounds": 14,
     "winner": "enemy",
     "winKind": "score",
-    "winReason": "14장 종료 — 승점 36 : 60",
-    "score": {"player":36,"enemy":60},
+    "winReason": "14장 종료 — 승점 35 : 60",
+    "score": {"player":35,"enemy":60},
     "breakdown": {
       "player": [
         {"key":"pop","n":7,"w":2},
         {"key":"village","n":2,"w":2},
         {"key":"temple","n":2,"w":2},
         {"key":"hp","n":2,"w":3},
-        {"key":"wall","n":3,"w":1},
+        {"key":"wall","n":2,"w":1},
         {"key":"destiny","n":1,"w":5}
       ],
       "enemy": [
@@ -1950,8 +1960,8 @@
       {"round":10,"ps":26,"es":48},
       {"round":11,"ps":28,"es":50},
       {"round":12,"ps":28,"es":54},
-      {"round":13,"ps":29,"es":56},
-      {"round":14,"ps":36,"es":60}
+      {"round":13,"ps":28,"es":56},
+      {"round":14,"ps":35,"es":60}
     ],
     "revelations": [
       {"round":1,"doctrine":null},
