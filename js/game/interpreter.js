@@ -196,6 +196,7 @@ const toNeg = (m, verb) => (FEAR.test(verb) ? `${verb} ` : t('kw.dontAndNeg', { 
 const splitDont = (text) => text.replace(ONLY_THIS, (m, a) => `${a} `).replace(ASIDE, ' ').replace(RATHER, ' ').replace(PLENTY_AND, toNeg).replace(DONT_AND, toNeg).replace(STOP_AND, toNeg).replace(ENOUGH_AND, toNeg).replace(NOT_BUT, (m, a, b) => (NOT_BUT_PLACE.test(a ?? b) ? ' ' : IS_ID.test(a ?? b) ? m : toNeg(m, a ?? b))).replace(INSTEAD, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a))).replace(NOUN_AND, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a)));
 // 같은 채집이면 더 많이 나오는 칸부터, 무엇을 거둘지 말하지 않았으면 가장 모자란 자원부터
 const WEAKEST = kw('kw.place.weakest');
+const FOEWARD = kw('kw.place.foeward');
 const UNWALLED = kw('kw.place.unwalled');
 function rankMatches(state, rule, matches, clause = '') {
   if (!matches.length) return matches;
@@ -280,7 +281,8 @@ function placeOf(state, clause) {
   // 방향: 우리 수도에서 그쪽에 있는 칸 ("동쪽 안개를 걷어라")
   const dm = clause.match(PLACE.dir);
   const home = capitalOf(state, 'player');
-  const dir = dm && home ? t('kw.place.dir')[dm[1]] : null;
+  const fw = !dm && home && FOEWARD.test(clause) ? capitalOf(state, 'enemy') : null;
+  const dir = dm && home ? t('kw.place.dir')[dm[1]] : fw ? [Math.sign(fw.r - home.r), Math.sign(fw.c - home.c)] : null;
   // "율법파 마을을 쳐라"는 율법파 마을, "그 마을에 성벽을"은 우리 마을 (새로 세우라는 말이면 가리키지 않는다)
   const foeVillage = PLACE.foeVillage.test(clause);
   const generic = new Set();

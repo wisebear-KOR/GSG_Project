@@ -238,7 +238,7 @@ export const BLESSINGS = {
 export const AWE_TITLES = t('data.aweTitles');
 
 // 규칙 판: 규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)
-export const RULESET = 19;
+export const RULESET = 20;
 
 // 시련: 고정된 맵과 한 가지 비틀린 규칙. 별 셋 (승리 / 10점 차 / 20점 차 또는 일찍 끝냄)
 export const TRIALS = {

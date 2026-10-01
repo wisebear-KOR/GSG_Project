@@ -1,6 +1,6 @@
 {
   "generator": "tools/golden.mjs",
-  "ruleset": 19,
+  "ruleset": 20,
   "lang": "ko",
   "games": [
     {
@@ -86,10 +86,10 @@
     {
       "file": "s4-hard-veteran-asc4.json",
       "config": {"mode":"standard","size":4,"difficulty":"hard","seed":4404,"veteran":true,"ascension":4,"blessing":"mason"},
-      "rounds": 6,
+      "rounds": 8,
       "winner": "enemy",
       "winKind": "capital",
-      "score": {"player":8,"enemy":25}
+      "score": {"player":6,"enemy":27}
     }
   ]
 }

@@ -129,8 +129,8 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
     else if (state.legends?.[t.id] && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name legend' }, state.legends[t.id].name));
     else if (t.feature && !hidden && !t.building) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name feat' }, t.feature === 'oasis' ? tr('shell.feature.oasis') : tr('shell.feature.quarry')));
     if (t.faithMarks && !hidden) {
-      // 믿음의 표식: 테두리의 절반(1/2)만큼 상대 색으로 물든다
-      g.append(el('polygon', { points: hexPoints(c, R - 5), class: `faith-mark fm-${t.faithMarks.side}`, pathLength: 12, 'stroke-dasharray': `${6 * t.faithMarks.n} 12` }));
+      // 믿음의 표식: 표식 하나마다 테두리의 1/3만큼 상대 색으로 물든다 (셋이면 넘어간다)
+      g.append(el('polygon', { points: hexPoints(c, R - 5), class: `faith-mark fm-${t.faithMarks.side}`, pathLength: 12, 'stroke-dasharray': `${4 * t.faithMarks.n} 12` }));
     }
     const intent = intents.find((i) => i.tile === t.id);
     if (intent) {

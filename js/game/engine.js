@@ -390,7 +390,7 @@ export function legalActions(state, side) {
     const cmd = side === 'player' ? state.commandments ?? [] : [];
     if (!t.owner && !t.building && canPay(s, COST.village) && !cmd.includes('noExpand')) add({ type: 'build', build: 'village', tile: t.id });
     if (t.owner === foe) {
-      add({ type: 'preach', tile: t.id });
+      if (state.sides[foe].pop >= 2) add({ type: 'preach', tile: t.id });
       if (!cmd.includes('noSword') && !(side === 'player' && state.config.trial === 'earth')) add({ type: 'attack', tile: t.id });
     }
   }
@@ -531,7 +531,7 @@ export function autoFill(state, side, accepted, forbidden = [], doctrine = null)
 }
 
 // 같은 마을에서 선교로 이만큼 이기면 (두 장 넘게 끊기면 표식이 하나씩 지워진다) 마을이 넘어온다
-const FLIP_MARKS = 3;
+export const FLIP_MARKS = 3;
 
 // ---------- 율법파 (오토마) ----------
 function pickForRule(state, rule, pool) {
@@ -955,7 +955,7 @@ export function resolveRound(state, playerPlan, enemyPlan) {
 // (공격·선교를 시켰거나 전쟁·평화를 말한 계시 — 번갈아도, 다른 일과 섞어도) 다음 장 우리 선교·공격에 방어 +1, 읽힘이 이어지면 +2.
 // 칼도 말씀도 들지 않는 장이 끼면(침묵 포함) 풀린다
 const READ_DOCTRINES = ['war', 'peace'];
-const swordOrWord = (x) => !!x && (READ_DOCTRINES.includes(x.doctrine) || /(^|\|)(attack|preach)(\||$)/.test(x.sig ?? ''));
+const swordOrWord = (x) => !!x && (x.doctrine === 'war' || /(^|\|)(attack|preach)(\||$)/.test(x.sig ?? ''));
 function readUs(state, round) {
   const r = state.revelations;
   const last = r.at(-1);
@@ -1265,7 +1265,8 @@ function resolveAction(state, a) {
       return logEvent(state, side, t('log.explore', { place }), null, { tile: tl.id, kind: 'explore' });
     }
     case 'preach': {
-      if (tl.owner !== foe || f.pop <= 0) return logEvent(state, side, t('log.preachNone', { place }), null, { tile: tl.id, kind: 'fail' });
+      // 마지막 한 명은 설득되지 않는다 — 선교만으로 상대 부족을 비워 수도를 흔들지 못하게
+      if (tl.owner !== foe || f.pop <= 1) return logEvent(state, side, t('log.preachNone', { place }), null, { tile: tl.id, kind: 'fail' });
       // 수도·성벽 안이면 설득하기 어렵다 (+1씩)
       const bonus = preachBonus(state, side);
       const defBonus = (tl.building === 'capital' ? 1 : 0) + (tl.wall ? 1 : 0) + lawGuardOf(state, side);
@@ -1274,9 +1275,10 @@ function resolveAction(state, a) {
       const dice = { attacker: ra, attackerBonus: bonus, defender: rd, defenderBonus: defBonus, win };
       if (win) {
         // 데려온 신도는 우리 땅에 살 곳이 있어야 온다 — 인구가 가득 찼으면 상대 신도가 흩어지기만 한다
-        f.pop -= 1; if (s.pop < popCap(state, side)) s.pop += 1;
-        // 마을에 믿음의 표식이 두 번 쌓이면 그 마을이 넘어온다 (수도는 제외, 성벽은 남는다)
-        if (side === 'player') { state.stats.converted += 1; deed(state, a.key, 'preach'); }
+        const joined = s.pop < popCap(state, side);
+        f.pop -= 1; if (joined) s.pop += 1;
+        // 마을에 믿음의 표식이 세 번(FLIP_MARKS) 쌓이면 그 마을이 넘어온다 (수도는 제외, 성벽은 남는다)
+        if (side === 'player') { if (joined) state.stats.converted += 1; deed(state, a.key, 'preach'); }
         if (tl.building === 'village') {
           tl.faithMarks = tl.faithMarks?.side === side ? { side, n: tl.faithMarks.n + 1, round: state.round } : { side, n: 1, round: state.round };
           if (tl.faithMarks.n >= FLIP_MARKS) {
@@ -1285,9 +1287,9 @@ function resolveAction(state, a) {
             if (side === 'player') tl.revealed = true;
             return logEvent(state, side, t('log.preachTurn', { who: side, place }), dice, { tile: tl.id, kind: 'preach', convert: true });
           }
-          return logEvent(state, side, t('log.preachMark', { who: side, place }), dice, { tile: tl.id, kind: 'preach' });
+          return logEvent(state, side, t('log.preachMark', { who: side, place, n: tl.faithMarks.n, of: FLIP_MARKS, joined }), dice, { tile: tl.id, kind: 'preach' });
         }
-        return logEvent(state, side, t('log.preach', { who: side, place }), dice, { tile: tl.id, kind: 'preach' });
+        return logEvent(state, side, t('log.preach', { who: side, place, joined }), dice, { tile: tl.id, kind: 'preach' });
       }
       return logEvent(state, side, t('log.preachFail', { who: side, place }), dice, { tile: tl.id, kind: 'preach' });
     }

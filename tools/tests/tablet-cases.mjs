@@ -1341,6 +1341,18 @@ const CASES = [
   ['율법파가 노리는 곳을 쳐라', [], ['build:wall']],
   ['우리 마을 옆에 마을을 하나 더 세우라', ['build:village'], []],
   ['율법파가 마을을 세우려는 곳을 먼저 차지하라', [], ['attack']],
+  // 15차 평가자 문장 (칼의 말이 다른 낱말 속에 숨지 않게)
+  ['광장에서 외쳐라', [], ['attack']],
+  ['내 이름으로 저들을 깨우치라', ['preach'], ['attack']],
+  ['무너진 성벽을 고쳐라', [], ['attack']],
+  ['말씀이 있으라', ['preach'], []],
+  ['너무 좁다', ['build:village'], []],
+  ['village 하나 더 지어', ['build:village'], []],
+  ['적들이 노리는 곳에 마을을 세워라', ['build:village'], []],
+  ['정탐꾼을 보내라', ['explore'], []],
+  ['평화의 사절을 보내라', ['preach'], ['attack']],
+  ['빛의 말씀을 들고 저들에게 가라', ['preach'], ['explore']],
+  ['우리 신전 앞에 성벽을 쌓아라', [], ['preach']],
 ];
 
 const kindOf = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);

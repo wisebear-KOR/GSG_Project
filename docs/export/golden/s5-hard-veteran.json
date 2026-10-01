@@ -556,7 +556,7 @@
         "revealed": "0000010000111001110011110",
         "holyOwner": "enemy",
         "wrath": 1,
-        "streak": {"doctrine":"peace","n":1},
+        "streak": null,
         "silentRun": 0,
         "commandments": ["noFamine"],
         "destiny": {"id":"fortress","done":false},
@@ -677,7 +677,7 @@
         "revealed": "0000010000111001110011110",
         "holyOwner": "enemy",
         "wrath": 2,
-        "streak": {"doctrine":"war","n":2},
+        "streak": {"doctrine":"war","n":1},
         "silentRun": 0,
         "commandments": ["noFamine"],
         "destiny": {"id":"fortress","done":false},
@@ -805,7 +805,7 @@
         "revealed": "0000010000111001110011110",
         "holyOwner": "enemy",
         "wrath": 3,
-        "streak": {"doctrine":"war","n":3},
+        "streak": {"doctrine":"war","n":2},
         "silentRun": 0,
         "commandments": ["noFamine"],
         "destiny": {"id":"fortress","done":false},
@@ -843,7 +843,6 @@
       "plan": ["gather:C1:food","gather:D3:food"],
       "ordered": ["gather:C1:food","gather:D3:food"],
       "log": [
-        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +1.","fx":{"kind":"guard","tile":"E2"}},
         {"side":"god","text":"“단비를 내려 들판을 적셔라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 우리 마을(C1)에서 곡식을 거둔다, 그리고 평원(D3)에서 곡식을 거둔다!","ui":true},
         {"side":"player","text":"🌧️ 단비가 내렸다. 식량 +3.","fx":{"kind":"rain","gain":{"food":3}}},
@@ -1008,7 +1007,7 @@
         },
         {
           "side": "player",
-          "text": "신도들의 설교가 통했다! 율법파 마을(D1)에서 1명이 개종했다. 믿음의 표식 1/2.",
+          "text": "신도들의 설교가 통했다! 율법파 마을(D1)에서 1명이 개종했다. 믿음의 표식 1/3.",
           "dice": {"attacker":6,"attackerBonus":0,"defender":1,"defenderBonus":0,"win":true},
           "fx": {"kind":"preach","tile":"D1"},
           "act": "preach:D1:"
@@ -1415,7 +1414,7 @@
         {"side":"player","text":"숲(D4)을 탐험했다. 안개가 걷혔다.","fx":{"kind":"explore","tile":"D4"},"act":"explore:D4:"},
         {
           "side": "enemy",
-          "text": "율법파의 설교가 통했다! 우리 마을(C1)에서 1명이 개종했다. 믿음의 표식 1/2.",
+          "text": "율법파의 설교가 통했다! 우리 마을(C1)에서 1명이 개종했다. 믿음의 표식 1/3.",
           "dice": {"attacker":6,"attackerBonus":0,"defender":4,"defenderBonus":1,"win":true},
           "fx": {"kind":"preach","tile":"C1"},
           "act": "preach:C1:"

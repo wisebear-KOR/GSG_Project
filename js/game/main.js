@@ -1,7 +1,7 @@
 // 게임 진행과 화면: 사건 → 계시 → 해석 확인 → 동시 공개·해결(한 단계씩 연출) → 다음 장
 import {
   createState, startRound, legalActions, validateOrders, autoFill, planEnemy, resolveRound,
-  recordRevelation, castMiracle, actionLimit, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
+  recordRevelation, castMiracle, actionLimit, FLIP_MARKS, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
   faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent,
   grantGrace, petitionAnswered, nameTile, sealProphecy, takeMiracle, resolveSite,
   scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
@@ -82,9 +82,9 @@ let pendingLesson = null;   // 이번 장 대사제가 새로 배운 말버릇 (
 function loadSetup() {
   try {
     const s = JSON.parse(localStorage.getItem('gsg.setup') ?? 'null');
-    if (s && MAP_SIZES[s.size] && DIFFICULTY[s.difficulty] && s.seed > 0) return { ...DEFAULT_CONFIG, ...s, mode: 'standard' };
+    if (s && MAP_SIZES[s.size] && DIFFICULTY[s.difficulty] && s.seed > 0) return { ...DEFAULT_CONFIG, ...s, mode: 'standard', ...(s.firstEasy && meta.getHistory().length ? { difficulty: DEFAULT_CONFIG.difficulty, firstEasy: false } : {}) };
   } catch { /* 저장된 설정이 없거나 깨졌다 */ }
-  return { ...DEFAULT_CONFIG, difficulty: meta.getHistory().length ? DEFAULT_CONFIG.difficulty : 'easy', seed: randomSeed() };
+  return { ...DEFAULT_CONFIG, difficulty: meta.getHistory().length ? DEFAULT_CONFIG.difficulty : 'easy', firstEasy: !meta.getHistory().length, seed: randomSeed() };
 }
 function saveSetup() { try { localStorage.setItem('gsg.setup', JSON.stringify(setup)); } catch { /* 무시 */ } }
 function randomSeed() { return 1 + Math.floor(Math.random() * 999998); }
@@ -173,7 +173,7 @@ const DIFF_HINT = {
 function bindSetup() {
   for (const [id, key, cast] of [['optSize', 'size', Number], ['optDiff', 'difficulty', String]]) {
     $(id).querySelectorAll('button').forEach((b) => {
-      b.onclick = () => { setup[key] = cast(b.dataset.v); saveSetup(); sfx.click(); renderSetup(); };
+      b.onclick = () => { setup[key] = cast(b.dataset.v); if (key === 'difficulty') setup.firstEasy = false; saveSetup(); sfx.click(); renderSetup(); };
     });
   }
   $('optSeed').onchange = () => {
@@ -420,7 +420,7 @@ function tileTipHTML(cur, tile) {
   const gather = tile.building === 'capital' ? '' : y.gather ? t('ui.tip.gather', { feature: tile.feature ? FEATURES[tile.feature].name : null, res: RESOURCE_NAME[y.gather], n: y.amount }) : t('ui.tip.barren');
   const legend = cur.legends?.[tile.id] ? t('ui.tip.legend', { name: cur.legends[tile.id].name, quote: cur.legends[tile.id].quote, round: cur.legends[tile.id].round }) : '';
   const holy = tile.id === state.holyId ? t('ui.tip.holy', { edict: state.edictOn }) : '';
-  const marks = tile.faithMarks ? t('ui.tip.marks', { n: tile.faithMarks.n, side: tile.faithMarks.side }) : '';
+  const marks = tile.faithMarks ? t('ui.tip.marks', { n: tile.faithMarks.n, of: FLIP_MARKS, side: tile.faithMarks.side }) : '';
   const intent = ['speak', 'thinking', 'confirm'].includes(phase) ? enemyIntent(state).find((a) => a.shown && a.tile === tile.id) : null;
   const threat = intent ? t('ui.tip.threat', { what: enemyLabel(intent, 'what'), first: state.first }) : '';
   const cath = tile.building === 'capital' && tile.owner === 'player' && cur.sides.player.cathedral ? t('ui.tip.cathedral') : '';
@@ -593,7 +593,7 @@ function derivePending() {
   const { accepted, rejected } = validateOrders(state, 'player', orders, forbiddenKeys, result.doctrine);
   pending.accepted = accepted;
   pending.rejected = rejected;
-  pending.auto = autoFill(state, 'player', accepted, [...forbiddenKeys, ...pending.dropped], result.doctrine);
+  pending.auto = autoFill(state, 'player', accepted, [...forbiddenKeys, ...pending.dropped], pending.noHeed ? null : result.doctrine);
   pending.links = text ? linkWords(state, text, accepted) : {};
   pending.answered = text ? petitionAnswered(state, text, accepted) : false;
   pending.dilemma = text ? dilemmaByText(state, text) : null;
@@ -1169,7 +1169,7 @@ function showRules() {
       t('ui.rules.faith3'),
     ])}
     ${sec(t('ui.rules.doctrine'), [t('ui.rules.doctrine1'), t('ui.rules.doctrine2')])}
-    ${sec(t('ui.rules.words'), [t('ui.rules.words1'), t('ui.rules.words2'), t('ui.rules.words3'), t('ui.rules.words4'), t('ui.rules.words5'), t('ui.rules.words6'), t('ui.rules.words7')])}
+    ${sec(t('ui.rules.words'), [t('ui.rules.words1'), t('ui.rules.words2'), t('ui.rules.words4'), t('ui.rules.words5'), t('ui.rules.words6'), t('ui.rules.words7')])}
     ${sec(t('ui.rules.enemy'), [t('ui.rules.enemy1'), t('ui.rules.enemy2'), t('ui.rules.enemy3'), t('ui.rules.enemy4')])}
     ${sec(t('ui.rules.miracle'), [t('ui.rules.miracle1'), t('ui.rules.miracle2')])}
     ${sec(t('ui.rules.keys'), [t('ui.rules.keys1')])}
@@ -2069,8 +2069,9 @@ function renderAltar() {
     }
     const chips = [
       ...accepted.map((a, i) => `<span class="order" data-key="${esc(a.key)}" title="${esc(a.text)}">${meepleSvg('player')}<span class="num">${i + 1}</span><span class="t">${short(a)}</span>${links[a.key] ? `<span class="word">← '${esc(links[a.key])}'</span>` : ''}${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}${oddsTag(a)}${firstNote(a)}${moveChoices(a.key).length ? `<button class="chip-move${targeting?.move === a.key ? ' on' : ''}" type="button" data-move="${esc(a.key)}" title="${t('ui.move.tip')}" aria-label="${t('ui.move.tip')}">⇄</button>` : ''}</span>`),
-      ...auto.map((a) => `<span class="order auto${a.heeded ? ' heeded' : ''}" title="${esc(a.heeded ? t('ui.chip.heededTip', { text: a.text }) : a.text)}">${meepleSvg('player')}<span class="t">${short(a)}</span>${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}<span class="why" style="background:rgba(124,89,27,.12)">${a.heeded ? t('ui.chip.heeded') : t('ui.chip.auto')}</span></span>`),
+      ...auto.map((a) => `<span class="order auto${a.heeded ? ' heeded' : ''}"${a.heeded ? ' data-heed="1"' : ''} title="${esc(a.heeded ? t('ui.chip.heededTip', { text: a.text }) : a.text)}">${meepleSvg('player')}<span class="t">${short(a)}</span>${prev.per[a.key] ? `<span class="why gain">${prev.per[a.key]}</span>` : ''}<span class="why" style="background:rgba(124,89,27,.12)">${a.heeded ? t('ui.chip.heeded') : t('ui.chip.auto')}</span></span>`),
       ...(pending.miracle ? [`<span class="order miracle${pending.dropped.has(pending.miracle.key) ? ' dropped' : ''}" data-key="${pending.miracle.key}" title="${t('ui.chip.toggleTip')}">${svgUse(MIRACLE_ART[pending.miracle.id], 'mi', '0 0 48 48')}<span class="t">${esc(MIRACLES.find((m) => m.id === pending.miracle.id).name)}${pending.miracle.target ? ` → ${esc(tileName(state, state.tileAt[pending.miracle.target]))}` : ''}</span><span class="why">${t('ui.chip.miracle', { n: pending.miracle.cost })}</span></span>`] : []),
+      ...(pending.noHeed ? [`<span class="order dropped" data-heed="1" title="${t('ui.chip.restoreTip')}">${meepleSvg('player')}<span class="t">${t('ui.chip.heedOff')}</span></span>`] : []),
       ...[...pending.dropped].map((k) => result.orders.find((a) => a.key === k)).filter(Boolean).map((a) => `<span class="order dropped" data-key="${esc(a.key)}" title="${t('ui.chip.restoreTip')}">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why">${t('ui.chip.dropped')}</span></span>`),
       ...rejected.map((r) => `<span class="order bad"><span class="t">${short(r.action)}</span><span class="why">${esc(r.reason)}</span></span>`),
       ...(() => { const idle = actionLimit(state, 'player') - accepted.length - auto.length; return idle > 0 && source !== 'silence' ? [`<span class="order rest" title="${t('ui.chip.restTip')}">${meepleSvg('player')}<span class="t">${t('ui.chip.rest', { n: idle })}</span></span>`] : []; })(),
@@ -2240,6 +2241,15 @@ function bindAltar() {
         sfx.click();
         renderBoardView();
         renderAltar();
+      };
+    });
+    a.querySelectorAll('.order[data-heed]').forEach((c) => {
+      c.setAttribute('role', 'button'); c.tabIndex = 0;
+      c.onkeydown = (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target === c) { e.preventDefault(); e.stopPropagation(); c.click(); } };
+      c.onclick = () => {
+        if (pending.incoming || a.querySelector('.accept')?.disabled) return;
+        pending.noHeed = !pending.noHeed; notice = ''; sfx.lift();
+        derivePending(); renderBoardView(); renderAltar();
       };
     });
     a.querySelectorAll('.order[data-key]').forEach((c) => {
