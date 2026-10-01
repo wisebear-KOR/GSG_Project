@@ -731,7 +731,7 @@ async function accept() {
     const banned = { noSword: 'attack', noExpand: 'village' }[pending.command];
     const kept = accepted.filter((a) => !banned || (a.type !== banned && a.build !== banned));
     const fk = [...result.forbidden.map((a) => a.key), ...pending.dropped];
-    plan = [...kept, ...autoFill(state, 'player', kept, fk, result.doctrine)];
+    plan = [...kept, ...autoFill(state, 'player', kept, fk, pending.noHeed ? null : result.doctrine)];
   }
   const ordered = plan.filter((a) => !a.auto);
   if (text) findSacred(state, text);
@@ -845,7 +845,7 @@ function showEnd(summary, fresh, had) {
     buttons: [
       { label: t('ui.end.psalm'), title: t('ui.end.psalmTip'), cls: 'btn-ghost psalm', keep: true, onClick: () => copyPsalm(summary) },
       { label: t('ui.end.again'), title: t('ui.end.againTip'), cls: 'btn-primary', onClick: restart },
-      { label: t('ui.end.newMap'), title: t('ui.end.newMapTip'), onClick: () => { setup.seed = randomSeed(); saveSetup(); const asc = setup.difficulty === 'hard' ? Math.min(setup.ascension ?? 0, meta.ascensionOpen()) : 0; beginGame({ ...setup, ascension: asc, mode: 'standard', veteran: true, unlock: Math.min(MODULES, meta.getHistory().length), canon: meta.getCanon()[0] ?? null, god: godConfig(), legacy: legacyFor(setup.seed), blessing: asc >= 5 ? null : blessingPick() }); } },
+      { label: t('ui.end.newMap'), title: t('ui.end.newMapTip'), onClick: () => { setup.seed = randomSeed(); if (setup.firstEasy) { setup.difficulty = DEFAULT_CONFIG.difficulty; setup.firstEasy = false; } saveSetup(); const asc = setup.difficulty === 'hard' ? Math.min(setup.ascension ?? 0, meta.ascensionOpen()) : 0; beginGame({ ...setup, ascension: asc, mode: 'standard', veteran: true, unlock: Math.min(MODULES, meta.getHistory().length), canon: meta.getCanon()[0] ?? null, god: godConfig(), legacy: legacyFor(setup.seed), blessing: asc >= 5 ? null : blessingPick() }); } },
       { label: t('ui.end.main'), onClick: () => showMain() },
       { label: t('ui.viewBoard'), title: t('ui.end.viewBoardTip') },
     ],
@@ -1169,8 +1169,8 @@ function showRules() {
       t('ui.rules.faith3'),
     ])}
     ${sec(t('ui.rules.doctrine'), [t('ui.rules.doctrine1'), t('ui.rules.doctrine2')])}
-    ${sec(t('ui.rules.words'), [t('ui.rules.words1'), t('ui.rules.words2'), t('ui.rules.words4'), t('ui.rules.words5'), t('ui.rules.words6'), t('ui.rules.words7')])}
-    ${sec(t('ui.rules.enemy'), [t('ui.rules.enemy1'), t('ui.rules.enemy2'), t('ui.rules.enemy3'), t('ui.rules.enemy4')])}
+    ${sec(t('ui.rules.words'), [t('ui.rules.words1'), t('ui.rules.words2'), t('ui.rules.words4'), t('ui.rules.words6'), t('ui.rules.words7')])}
+    ${sec(t('ui.rules.enemy'), [t('ui.rules.enemy1'), t('ui.rules.enemy2'), t('ui.rules.enemy4')])}
     ${sec(t('ui.rules.miracle'), [t('ui.rules.miracle1'), t('ui.rules.miracle2')])}
     ${sec(t('ui.rules.keys'), [t('ui.rules.keys1')])}
   </div>`;
@@ -2030,7 +2030,7 @@ function renderAltar() {
     const dilemma = ev.choice ? `<div class="dilemma"><span class="dl-head">${t('ui.dilemma.head', { name: esc(ev.name) })}</span>${ev.choice.map((o) => `<button type="button" class="dl-opt${(state.dilemmaPick ?? ev.choice[0].id) === o.id ? ' on' : ''}" data-opt="${o.id}" title="${esc(o.text)}"><b>${esc(o.label)}</b><small>${esc(o.text)}</small></button>`).join('')}<span class="dl-note">${t('ui.dilemma.note')}</span></div>` : '';
     scroll = `<div class="scroll">
       ${petition}${prophecyNote}${sacredNote}${dilemma}<div class="suggest-row" id="suggestRow"></div>${noticeHTML}
-      <div class="compose"><div class="scroll-head"><h3>${t('ui.compose.title')}</h3>${ban}<small>${t('ui.compose.sub', { n: state.round, acts: actionLimit(state, 'player') })}</small></div>
+      <div class="compose"><div class="scroll-head"><h3>${t('ui.compose.title')}</h3>${ban}<small>${t('ui.compose.sub', { n: state.round, acts: actionLimit(state, 'player'), scale: state.trailing === 'player' })}</small></div>
       <textarea maxlength="${revMax()}" rows="2" placeholder="${t('ui.compose.placeholder')}" aria-label="${t('ui.seal.label')}">${esc(draft)}</textarea>
       <div class="heard-line" id="heardLine" aria-live="polite">${heardHTML(draft)}</div>
       <div class="ink-meta"><span class="count">${draft.length} / ${revMax()}</span>

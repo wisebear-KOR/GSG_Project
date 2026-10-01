@@ -3,7 +3,7 @@
     "source": "js/game/data.js",
     "generator": "tools/export-data.mjs",
     "lang": "ko",
-    "ruleset": 20,
+    "ruleset": 21,
     "conventions": [
       "A function value is written as an object whose only key is \"$fn\" (its JS source text). Port the logic by hand; see docs/spec/03-data.md.",
       "A RegExp value is written as an object with keys \"$re\" (source) and \"flags\"."
@@ -33,7 +33,7 @@
   "ASCENSION": [
     "율법파 시작 신도 +1, 식량 +4",
     "율법 석판 한계 -2",
-    "신의 분노가 차는 격차 6 → 8",
+    "우리 쪽 저울(행동 +1)이 기우는 격차 6 → 8",
     "3막에 율법파 공격·선교 주사위 +1",
     "은사 없이 시작"
   ],
@@ -77,9 +77,9 @@
   "CAPITAL_HP": 2,
   "CATHEDRAL": {
     "cost": {
-      "stone": 6,
-      "wood": 6,
-      "faith": 6
+      "stone": 4,
+      "wood": 4,
+      "faith": 4
     },
     "crusade": {
       "attacks": 3,
@@ -1248,7 +1248,7 @@
     "graceDoctrineBelow": 3,
     "maxNames": 3
   },
-  "RULESET": 20,
+  "RULESET": 21,
   "SACRED_WORDS": [
     {
       "word": "무지개",
@@ -1419,7 +1419,7 @@
     },
     "last": {
       "name": "마지막 예언자",
-      "desc": "여덟 장, 어려운 율법파가 둘 더 많은 채로 시작하고 분노가 첫 장부터 찬다.",
+      "desc": "여덟 장, 어려운 율법파가 둘 더 많은 채로 시작한다.",
       "size": 5,
       "difficulty": "hard",
       "seed": 55505,

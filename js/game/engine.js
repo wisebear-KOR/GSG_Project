@@ -83,7 +83,7 @@ export function createState(config = DEFAULT_CONFIG) {
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
     priest: 'loyal', names: {}, lessons: [], petition: null, prophecy: null,
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
-    judgement: 'classic', crusadeEnd: null, prayedAt: 0, wrath: 0, streak: null, vowNext: null, reacted: null, doomUsed: false, miracleUses: {}, lawGuard: 0, rally: false, ruleset: RULESET,
+    judgement: 'classic', crusadeEnd: null, prayedAt: 0, trailing: null, wrath: 0, streak: null, vowNext: null, reacted: null, doomUsed: false, miracleUses: {}, lawGuard: 0, rally: false, ruleset: RULESET,
     edictOn: !tutorial && (cfg.unlock ?? (cfg.veteran ? MODULES : 0)) >= 1, destiny: null, destinyOffer: null, holyId: null,
     commandments: [], saints: [], deeds: {}, fallen: [], silentRun: 0, legends: {},
     miraDone: false, miraQuote: null, pendingDilemma: null,
@@ -228,11 +228,14 @@ export function reach(state, side) {
 export function actionLimit(state, side) {
   const s = state.sides[side];
   // 율법파는 판이 넓을수록 손이 많다 (7×7 +1): 넓은 판에서 거리만으로 안전해지지 않게
-  const bonus = side === 'enemy' ? state.enemyBonus + (state.rally ? 1 : 0) + (state.tutorial ? 0 : sizeRules(state).enemyActions) : (s.doctrine.wisdom >= 4 ? 1 : 0);
+  // 저울: 6점 이상 뒤진 쪽은 행동 +1
+  const scale = !state.tutorial && state.trailing === side ? 1 : 0;
+  const bonus = scale + (side === 'enemy' ? state.enemyBonus + (state.tutorial ? 0 : sizeRules(state).enemyActions) : (s.doctrine.wisdom >= 4 ? 1 : 0));
   let limit = Math.min(MAX_ACTIONS, 2 + s.templeLevel + Math.floor(s.pop / RULES.followersPerAction) + bonus);
   if (side === 'player' && isSabbath(state)) limit = Math.max(1, limit - 2);
-  // 결집한 율법파는 신도가 줄어도 손이 줄지 않는다 (앞선 쪽이 굴러가 버리지 않게)
-  if (side === 'enemy' && state.rally && s.pop > 0) return Math.max(0, limit);
+  // 저울이 기운 쪽은 신도 수를 넘어 하나 더 (율법파는 신도가 줄어도 손이 줄지 않는다 — 앞선 쪽이 굴러가 버리지 않게)
+  if (scale && side === 'enemy' && s.pop > 0) return Math.max(0, limit);
+  if (scale && s.pop > 0) return Math.max(0, Math.min(limit, s.pop + 1));
   return Math.max(0, Math.min(limit, s.pop));
 }
 
@@ -567,7 +570,7 @@ export function planEnemy(state) {
   // 막이 갈수록 율법은 칼을 든다: 율법 카드 첫 줄 다음에 공격 한 번 (보통은 3막부터, 어려움은 2막부터)
   const act = state.tutorial ? 1 : actOf(state);
   const tail = act >= (ZEAL_ACT[state.config.difficulty] ?? 9) ? [card.rules[0], { type: 'attack' }, ...card.rules.slice(1)] : card.rules;
-  const rules = [...rush, ...(state.rally ? [{ type: 'attack' }] : []), ...tail, ...card.rules];
+  const rules = [...rush, ...tail, ...card.rules];
   let crusading = 0;
   for (const rule of rules) {
     if (!rule.crusade && plan.length - crusading >= limit) break;
@@ -982,7 +985,7 @@ function braceLaw(state) {
 }
 
 // 장마다 두 진영의 승점과 살림을 남긴다 (결산·그래프·회고용)
-const RALLY_LEAD = 8;
+const SCALE_GAP = 6;
 function recordHistory(state) {
   const p = state.sides.player;
   const ps = score(state, 'player');
@@ -992,19 +995,16 @@ function recordHistory(state) {
     res: { food: p.food, wood: p.wood, stone: p.stone, faith: p.faith, pop: p.pop }, text: null,
   });
   checkDestiny(state);
-  // 신의 분노: 4장부터 6점 이상 뒤지면 차오르고, 3점 이내로 좁히면 가라앉는다
+  // 저울: 승점이 6점 이상 뒤진 쪽은 다음 장 행동 +1 (신도 수를 넘어도). 우리 쪽 격차는 승천 3부터 8점
   if (state.tutorial || state.winner) return;
-  const before = state.wrath;
-  if (state.round >= wrathRound(state) && es - ps >= ((state.config.ascension ?? 0) >= 3 ? 8 : 6)) state.wrath = Math.min(3, state.wrath + 1);
-  else if (es - ps <= 3) state.wrath = Math.max(0, state.wrath - 1);
-  if (state.wrath > before) {
-    logEvent(state, 'player', state.wrath >= 3 ? t('log.wrathFull', { doom: !state.doomUsed }) : t('log.wrath', { n: state.wrath }), null, { kind: 'wrath', tile: capitalOf(state, 'player')?.id });
+  const was = state.trailing;
+  const gapUs = SCALE_GAP + ((state.config.ascension ?? 0) >= 3 ? 2 : 0);
+  state.trailing = es - ps >= gapUs ? 'player' : ps - es >= SCALE_GAP ? 'enemy' : null;
+  state.rally = state.trailing === 'enemy';
+  if (state.trailing && state.trailing !== was) {
+    const tile = capitalOf(state, state.trailing)?.id;
+    logEvent(state, state.trailing, t(state.trailing === 'enemy' ? 'log.rally' : 'log.scaleUs'), null, { kind: state.trailing === 'enemy' ? 'rally' : 'wrath', tile });
   }
-  // 율법파의 결집: 우리가 8점 이상 앞서면 율법파는 행동 +1(신도 수에 묶이지 않는다), 공격을 먼저 한다 (4점 이내로 좁혀지면 풀린다)
-  const wasRally = state.rally;
-  if (state.round >= wrathRound(state) && ps - es >= RALLY_LEAD) state.rally = true;
-  else if (ps - es <= RALLY_LEAD / 2) state.rally = false;
-  if (state.rally && !wasRally) logEvent(state, 'enemy', t('log.rally'), null, { kind: 'rally', tile: capitalOf(state, 'enemy')?.id });
 }
 
 // ---------- 율법 석판과 성지 ----------
@@ -1206,7 +1206,9 @@ export function hydrateState(obj) {
   for (const sd of Object.values(state.sides)) { sd.cathedral ??= 0; sd.edict ??= 0; }
   // 규칙 16 전의 저장: 대성당이 세 단계였다 — 한 단계라도 올렸으면 지은 것으로, 다음 장이 원정
   if ((state.ruleset ?? 0) < 16 && state.sides.player.cathedral > 0) { state.sides.player.cathedral = 1; state.crusadeEnd ??= state.round + 1; }
-  state.crusadeEnd ??= null; state.prayedAt ??= 0;
+  state.crusadeEnd ??= null; state.prayedAt ??= 0; state.trailing ??= null;
+  // 규칙 21 전의 저장: 신의 분노·결집이 저울 하나로 바뀌었다
+  if ((state.ruleset ?? 0) < 21) { state.wrath = 0; state.rally = false; }
   // 규칙 10 전의 저장: 석판이 12칸이었다 — 새 한계에 닿아 곧바로 지지 않게 한 칸 아래로
   if ((state.ruleset ?? 0) < 10) for (const sd of Object.values(state.sides)) sd.edict = Math.min(sd.edict, edictMax(state) - 1);
   state.ruleset = RULESET;
@@ -1369,7 +1371,7 @@ function upkeep(state) {
   }
   // 평화 궁극: 우리 땅에 닿은 율법파 마을 하나에 말씀이 스며든다 (표식은 남기지 않는다)
   const pp = state.sides.player;
-  if (hasUlt(state, 'player', 'peace') && state.sides.enemy.pop > 0 && pp.pop > 0) {
+  if (hasUlt(state, 'player', 'peace') && state.sides.enemy.pop > 1 && pp.pop > 0) {
     const mine = ownedTiles(state, 'player');
     const target = state.tiles.find((t) => t.owner === 'enemy' && t.building === 'village' && mine.some((m) => distance(m, t) === 1));
     if (target) {

@@ -6,7 +6,7 @@ const CANNOT_KIND = { preach: '선교', attack: '공격', wall: '성벽', villag
 const CANNOT_WHY = {
   preach: '닿는 율법파 땅이 없다', attack: '닿는 율법파 땅이 없다', wall: '자원이 모자라거나 둘러쌀 곳이 없다', village: '자원이나 빈 땅이 없다',
   temple: '자원이 모자라다', explore: '닿는 안개가 없다', gather: '닿는 곳에 그 자원이 없다', pray: '수도가 없다',
-  'attack:law': '계명이 칼을 금한다', 'attack:earth': '이 시련에서는 칼을 들 수 없다', 'village:law': '계명이 넓히기를 금한다',
+  'preach:last': '율법파에 마지막 한 명만 남았다 — 그는 설득되지 않는다', 'attack:law': '계명이 칼을 금한다', 'attack:earth': '이 시련에서는 칼을 들 수 없다', 'village:law': '계명이 넓히기를 금한다',
   tile: '그 칸에는 이미 다른 일이 있다 — 한 칸에 한 가지', limit: '행동 수가 모자라다', two: '같은 일은 계시 하나에 둘까지 — 셋이면 "세 곳"이라 말하라',
 };
 const FORBID_KIND = { 'gather:wood': '나무 베기', 'gather:stone': '돌 캐기', 'gather:food': '먹을 것 거두기', 'gather:faith': '묵상' };

@@ -357,6 +357,7 @@ function byPlace(state, place, matches) {
 // 알아들었으나 할 수 없는 까닭: 계명·시련이 막았으면 그것을, 아니면 종류만 (언어팩이 문장으로 바꾼다)
 function cannotWhy(state, kind) {
   const cmd = state.commandments ?? [];
+  if (kind === 'preach' && state.sides.enemy.pop <= 1 && state.tiles.some((x) => x.owner === 'enemy')) return 'preach:last';
   if (kind === 'attack' && cmd.includes('noSword')) return 'attack:law';
   if (kind === 'attack' && state.config.trial === 'earth') return 'attack:earth';
   if (kind === 'village' && cmd.includes('noExpand')) return 'village:law';
