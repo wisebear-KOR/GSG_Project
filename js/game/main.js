@@ -3,7 +3,7 @@ import {
   createState, startRound, legalActions, validateOrders, autoFill, planEnemy, resolveRound,
   recordRevelation, castMiracle, actionLimit, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
   faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent,
-  grantGrace, petitionAnswered, nameTile, applyTone, sealProphecy, takeMiracle, resolveSite,
+  grantGrace, petitionAnswered, nameTile, sealProphecy, takeMiracle, resolveSite,
   scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
   canCarve, carveCommandment, findSacred, distance, previewGains, ultRound, draftRound,
@@ -721,7 +721,6 @@ async function accept() {
     const r = castMiracle(state, pending.miracle.id, pending.miracle.target);
     if (!r.ok) state.log.push({ round: state.round, side: 'player', text: t('ui.log.miracleFailed', { why: r.text }) });
   }
-  applyTone(state, text ? pending.tone : null);
   if (!text) state.streak = null;
   // 갈림길: 비용은 먼저 치르고 결과는 유지 단계 전에 (엔진)
   const pick = state.event.choice ? pending.dilemma ?? state.dilemmaPick ?? state.event.choice[0].id : null;
@@ -743,8 +742,7 @@ async function accept() {
   if (!state.winner && text) keepVows(state, result.forbidden, plan);
   if (!state.winner) wordsAfter(pending);
   // 교리는 해결이 끝난 뒤에 오른다: 확인 화면에 보인 수치 그대로 해결되도록
-  if (text) recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0, speakSnap?.spoken ?? spokenOf(state, text));
-  if (pending.naming?.first && state.sides.player.doctrine.wisdom < RULES.graceDoctrineBelow) state.sides.player.doctrine.wisdom += 1;
+  if (text) recordRevelation(state, text, result.doctrine, speakSnap?.spoken ?? spokenOf(state, text));
   // 신학 노트: LLM이 석판 규칙에 없는 말버릇을 행동으로 읽었으면 배운다
   const lesson = text && result.source === 'llm' ? extractLesson(state, text, accepted) : null;
   if (lesson) { state.lessons.push(lesson); if (state.lessons.length > 3) state.lessons.shift(); pendingLesson = lesson; }
@@ -1892,7 +1890,7 @@ function omenReel() {
 function oddsTag(a) {
   // 율법파가 이번 장에 그 칸에 성벽을 두른다고 예고했으면 그 성벽까지 셈한다 (건설이 공격보다 먼저 풀린다)
   const wallAhead = enemyIntent(state).some((x) => x.shown && x.build === 'wall' && x.tile === a.tile);
-  const p = actionOdds(state, a, { curse: pending?.tone === 'curse', wallAhead });
+  const p = actionOdds(state, a, { wallAhead });
   return p == null ? '' : `<span class="why odds ${p >= 0.5 ? 'good' : 'low'}" title="${t('ui.odds.tip')}">${Math.round(p * 100)}%</span>`;
 }
 
@@ -2059,8 +2057,6 @@ function renderAltar() {
     const prev = previewGains(state, [...accepted, ...auto]);
     {
       const extra = { food: 0, wood: 0, stone: 0, faith: 0 };
-      if (text && pending.tone === 'blessing' && [...accepted, ...auto].some((a) => a.type === 'gather')) extra[[...accepted, ...auto].find((a) => a.type === 'gather').gather] += 1;
-      if (text && pending.tone === 'curse') extra.faith -= 1;
       const mi = pending.miracle && !pending.dropped.has(pending.miracle.key) ? pending.miracle : null;
       if (mi) {
         extra.faith -= mi.cost;
@@ -2100,7 +2096,7 @@ function renderAltar() {
     const carve = pending.command ? `<label class="seal-prophecy carve"><input type="checkbox" class="carve-box" ${pending.carve ? 'checked' : ''}>
       ${t('ui.carve', { name: esc(COMMANDMENTS[pending.command].name), text: esc(COMMANDMENTS[pending.command].text) })}</label>` : '';
     const seal = pending.prophecy ? `<label class="seal-prophecy"><input type="checkbox" class="prophecy-box" ${pending.seal ? 'checked' : ''}>
-      ${t('ui.sealProphecy', { name: esc(PROPHECY.kinds[pending.prophecy.kind].name), n: pending.prophecy.rounds, reward: PROPHECY.reward[pending.prophecy.rounds], penalty: PROPHECY.penalty })}</label>` : '';
+      ${t('ui.sealProphecy', { name: esc(PROPHECY.kinds[pending.prophecy.kind].name), n: pending.prophecy.rounds, })}</label>` : '';
     const priest = source === 'silence' ? '' : `${esc(PRIESTS[state.priest]?.name ?? t('ui.priest'))}`;
     scroll = `<div class="scroll">
       <div class="scroll-head"><h3>${t('ui.confirm.title')}</h3><small>${priest ? `${priest} · ` : ''}${src}${result.ms ? ` · ${t('ui.secs', { s: (result.ms / 1000).toFixed(1) })}` : ''}${doc}</small></div>

@@ -95,6 +95,7 @@ export default {
 
   // ---------- 은총의 까닭 (log.grace의 {why}) ----------
   // types: 금한 행동 종류 ['attack' | 'preach', ...]
+  'eng.why.prophecy': (v) => `예언 “${v.name}”이 이루어졌다`,
   'eng.why.vow': (v) => `${josa(v.types.map((x) => (x === 'attack' ? '칼' : '설교')).join('과 '), '을', '를')} 거두는 서원을 지켰다`,
 
   // ---------- 승패 사유 ----------
@@ -140,8 +141,8 @@ export default {
 
   // 은총·예언
   'log.grace': '은총 — {why}. 신앙 +{n}.',
-  'log.prophecyDone': '예언이 이루어졌다 — “{name}”. 신앙 +{n}.',
-  'log.prophecyFailed': '예언이 빗나갔다 — “{name}”. 신도들이 수군거린다. 신앙 -{n}.',
+  'log.prophecyDone': '예언이 이루어졌다 — “{name}”.',
+  'log.prophecyFailed': '예언이 빗나갔다 — “{name}”. 신도들이 수군거린다.',
 
   // 기적
   'log.lightningWall': '⚡ 번개가 {place}의 성벽을 무너뜨렸다.',

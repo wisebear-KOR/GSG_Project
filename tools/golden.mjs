@@ -206,7 +206,6 @@ function accept(state, pending, rec) {
     rec.miracle = { id: pending.miracle.id, target: pending.miracle.target, cost: pending.miracle.cost, ok: r.ok };
     if (!r.ok) uiLog(state, { round: state.round, side: 'player', text: t('ui.log.miracleFailed', { why: r.text }) });
   }
-  E.applyTone(state, text ? pending.tone : null);
   if (!text) state.streak = null;
   const pick = state.event.choice ? pending.dilemma ?? state.dilemmaPick ?? state.event.choice[0].id : null;
   if (pick) rec.dilemma = { pick, byText: !!pending.dilemma, paid: E.payDilemma(state, pick) };
@@ -229,8 +228,7 @@ function accept(state, pending, rec) {
   if (!state.winner && text) E.keepVows(state, result.forbidden, plan);
   if (!state.winner) wordsAfter(state, pending);
   // 교리는 해결이 끝난 뒤에 오른다
-  if (text) { E.recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0, pending.spoken); }
-  if (pending.naming?.first && state.sides.player.doctrine.wisdom < D.RULES.graceDoctrineBelow) state.sides.player.doctrine.wisdom += 1;
+  if (text) { E.recordRevelation(state, text, result.doctrine, pending.spoken); }
   const last = state.history.at(-1);
   if (last) last.text = text;
   // 지도자의 반박은 연대기에만 남는다

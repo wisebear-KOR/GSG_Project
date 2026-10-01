@@ -86,12 +86,10 @@ export function doAccept(state, pending) {
     state.log.push({ round: state.round, side: 'priest', text: result.interpretation });
   }
   const enemyPlan = E.planEnemy(state);
-  if (text) E.applyTone(state, pending.tone); else E.applyTone(state, null);
   if (pending.seal && pending.prophecy) E.sealProphecy(state, pending.prophecy);
   E.resolveRound(state, [...accepted, ...auto], enemyPlan);
   if (!state.winner) wordsAfter(state, pending);
-  if (text) E.recordRevelation(state, text, result.doctrine, pending.tone === 'metaphor' ? 1 : 0, pending.spoken);
-  if (pending.naming?.first && state.sides.player.doctrine.wisdom < D.RULES.graceDoctrineBelow) state.sides.player.doctrine.wisdom += 1;
+  if (text) E.recordRevelation(state, text, result.doctrine, pending.spoken);
   const last = state.history.at(-1);
   if (last) last.text = text;
   if (text && state.leader) {

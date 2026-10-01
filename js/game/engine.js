@@ -280,13 +280,13 @@ export function preachBonus(state, side) {
 }
 
 // 선교·공격의 보너스와 승률 (확인 화면 표시용 — resolveAction과 같은 계산)
-export function actionOdds(state, a, { curse = false, wallAhead = false } = {}) {
+export function actionOdds(state, a, { wallAhead = false } = {}) {
   const side = a.side ?? 'player';
   const s = state.sides[side]; const f = state.sides[other(side)];
   const t = state.tileAt[a.tile];
   let atk = 0; let def = 0;
   if (a.type === 'attack') {
-    atk = (s.doctrine.war >= 2 ? 1 : 0) + enemyZeal(state, side) + (side === 'player' ? (state.roundMods.attackBonus ?? (curse ? 1 : 0)) + (state.roundMods.pillar ?? 0) : 0);
+    atk = (s.doctrine.war >= 2 ? 1 : 0) + enemyZeal(state, side) + (side === 'player' ? (state.roundMods.pillar ?? 0) : 0);
     def = (t.wall || wallAhead ? 2 : 0) + (t.building === 'capital' ? 1 : 0) + lawGuardOf(state, side);
   } else if (a.type === 'preach') {
     atk = preachBonus(state, side);
@@ -352,7 +352,6 @@ export function gatherAmount(state, side, tile) {
     if (state.event?.id === 'harvest' && tile.terrain === 'plain') n += 1;
     if (state.sides[side].doctrine.abundance >= 2) n += 1;
   }
-  if (side === 'player' && state.roundMods?.gatherBonus) n += 1;
   return Math.max(0, n);
 }
 
@@ -500,6 +499,18 @@ export function autoFill(state, side, accepted, forbidden = [], doctrine = null)
     }
   }
   const filled = [...leading];
+  // 우리 신도의 남는 손은 모자란 것만 채운다 — 다음 장 먹을 식량, 바닥난 신앙(기도), 바닥난 나무·돌. 나머지는 쉰다 (일은 계시가 정한다)
+  if (side === 'player') {
+    const pool = legalActions(state, side).filter((a) => !forbidden.includes(a.key) && !used.has(a.tile));
+    const room = () => accepted.length + filled.length < limit;
+    const take = (a) => { if (!a || !room()) return false; used.add(a.tile); filled.push({ ...a, auto: true }); return true; };
+    const planned = (res) => [...accepted, ...filled].filter((a) => a.gather === res).length;
+    const best = (res) => pool.filter((a) => a.gather === res && !used.has(a.tile)).sort((x, y) => gatherAmount(state, side, state.tileAt[y.tile]) - gatherAmount(state, side, state.tileAt[x.tile]))[0];
+    if (s.faith <= RULES.lowFaith) take(pool.find((a) => a.type === 'pray' && !used.has(a.tile)));
+    for (let k = 0; k < 2 && s.food + 2 * planned('food') < s.pop + 2; k++) if (!take(best('food'))) break;
+    for (const res of ['wood', 'stone']) if (s[res] < 2 && !planned(res)) take(best(res));
+    return filled;
+  }
   const order = ['food', 'wood', 'stone'].sort((x, y) => s[x] - s[y]);
   const pool = legalActions(state, side).filter((a) => a.type === 'gather' && !forbidden.includes(a.key));
   const prayFirst = legalActions(state, side).find((a) => a.type === 'pray' && !forbidden.includes(a.key));
@@ -695,11 +706,6 @@ export function nameTile(state, naming) {
 }
 
 // 해결 전: 말투 효과 (축복 = 첫 채집 +1, 저주 = 공격 +1과 신앙 -1)
-export function applyTone(state, tone) {
-  delete state.roundMods.gatherBonus; delete state.roundMods.attackBonus;
-  if (tone === 'blessing') state.roundMods.gatherBonus = 1;
-  if (tone === 'curse') { state.roundMods.attackBonus = 1; state.sides.player.faith = Math.max(0, state.sides.player.faith - 1); }
-}
 
 // 예언 봉인
 export function sealProphecy(state, p) {
@@ -720,15 +726,14 @@ function checkProphecy(state) {
     pop: state.sides.player.pop >= b.pop + 2, convert: state.stats.converted > b.converted }[pr.kind];
   const home = capitalOf(state, 'player')?.id;
   if (done) {
-    const r = PROPHECY.reward[pr.rounds];
-    state.sides.player.faith += r;
+    // 이루어진 예언은 은총이다 (장당 한 번의 은총을 다른 은총과 나눠 쓴다)
     state.stats.prophecies += 1;
     state.prophecy = null;
-    logEvent(state, 'player', t('log.prophecyDone', { name: PROPHECY.kinds[pr.kind].name, n: r }), null, { kind: 'prophecy', gain: { faith: r }, tile: home });
+    logEvent(state, 'player', t('log.prophecyDone', { name: PROPHECY.kinds[pr.kind].name }), null, { kind: 'prophecy', tile: home });
+    grantGrace(state, 1, t('eng.why.prophecy', { name: PROPHECY.kinds[pr.kind].name }));
   } else if (state.round >= pr.due) {
-    state.sides.player.faith = Math.max(0, state.sides.player.faith - PROPHECY.penalty);
     state.prophecy = null;
-    logEvent(state, 'player', t('log.prophecyFailed', { name: PROPHECY.kinds[pr.kind].name, n: PROPHECY.penalty }), null, { kind: 'warn', tile: home });
+    logEvent(state, 'player', t('log.prophecyFailed', { name: PROPHECY.kinds[pr.kind].name }), null, { kind: 'warn', tile: home });
   }
 }
 
@@ -1206,7 +1211,6 @@ function resolveAction(state, a) {
     case 'gather': {
       if (tl.owner === foe) return logEvent(state, side, t('log.gatherFoe', { who: side, place }), null, { tile: tl.id, kind: 'fail' });
       const n = gatherAmount(state, side, tl);
-      if (side === 'player' && state.roundMods.gatherBonus) state.roundMods.gatherBonus = 0; // 축복은 첫 채집 한 번
       s[a.gather] += n;
       return logEvent(state, side, t('log.gather', { who: side, place, res: RESOURCE_NAME[a.gather], n }), null, { tile: tl.id, kind: 'gain', gain: { [a.gather]: n } });
     }
@@ -1278,7 +1282,7 @@ function resolveAction(state, a) {
     case 'attack': {
       if (tl.owner !== foe) return logEvent(state, side, t('log.attackNotFoe', { place }), null, { tile: tl.id, kind: 'fail' });
       const bonus = (s.doctrine.war >= 2 ? 1 : 0)
-        + (side === 'enemy' && state.event?.id === 'threat' ? 1 : 0) + enemyZeal(state, side) + (side === 'player' ? (state.roundMods.attackBonus ?? 0) + (state.roundMods.pillar ?? 0) : 0);
+        + (side === 'enemy' && state.event?.id === 'threat' ? 1 : 0) + enemyZeal(state, side) + (side === 'player' ? (state.roundMods.pillar ?? 0) : 0);
       const defBonus = (tl.wall ? 2 : 0) + (tl.building === 'capital' ? 1 : 0) + lawGuardOf(state, side);
       const ra = d6(state); const rd = d6(state);
       const win = ra + bonus > rd + defBonus;
@@ -1450,7 +1454,7 @@ export function checkVictory(state, final = true) {
 }
 
 // 계시를 내리면 교리 트랙이 오른다
-export function recordRevelation(state, text, doctrine, extra = 0, spoken = spokenOf(state, text)) {
+export function recordRevelation(state, text, doctrine, spoken = spokenOf(state, text)) {
   const d = state.sides.player.doctrine;
   const sig = spoken.sig || undefined;
   if (spoken.echo) {
@@ -1460,8 +1464,6 @@ export function recordRevelation(state, text, doctrine, extra = 0, spoken = spok
     return;
   }
   if (doctrine && d[doctrine] < DOCTRINE_MAX) d[doctrine] += 1;
-  // 비유·첫 이름 같은 가속은 그 교리가 낮을 때만 (궁극에 너무 빨리 닿지 않게)
-  if (doctrine && extra && d[doctrine] < RULES.graceDoctrineBelow) d[doctrine] = Math.min(DOCTRINE_MAX, d[doctrine] + extra);
   state.revelations.push({ round: state.round, text, doctrine, sig });
   if (state.winner) return; // 판이 끝난 뒤에는 교리 대립이 점수를 바꾸지 않는다
   if (!doctrine) { state.streak = null; return; }

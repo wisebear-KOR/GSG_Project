@@ -79,7 +79,6 @@ export const TONES = {
 
 // 예언: 확인 화면에서 봉인하면 기한 안에 이루어졌는지 본다. 짧을수록 보상이 크다
 export const PROPHECY = {
-  reward: { 1: 4, 2: 3, 3: 2 }, penalty: 2,
   kinds: {
     fall:    { name: t('data.prophecy.fall.name'), short: t('data.prophecy.fall.short') },
     capital: { name: t('data.prophecy.capital.name'), short: t('data.prophecy.capital.short') },
@@ -243,7 +242,7 @@ export const BLESSINGS = {
 export const AWE_TITLES = t('data.aweTitles');
 
 // 규칙 판: 규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)
-export const RULESET = 12;
+export const RULESET = 13;
 
 // 시련: 고정된 맵과 한 가지 비틀린 규칙. 별 셋 (승리 / 10점 차 / 20점 차 또는 일찍 끝냄)
 export const TRIALS = {

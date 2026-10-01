@@ -176,7 +176,7 @@ const TABLET_RULES = [
 ];
 const MANY = kw('kw.many');
 // 수의 말: "마을 두 개" → 규칙 하나가 명령을 둘까지, "세 곳" → 셋까지
-const COUNT = [[kw('kw.count3'), 3], [kw('kw.count2'), 2]];
+const COUNT = [[kw('kw.count3'), 3], [kw('kw.count2'), 2], [kw('kw.count1'), 1]];
 const DONT_AND = kw('kw.dontAnd', 'g');
 const NOUN_AND = kw('kw.nounAnd', 'g');
 const STOP_AND = kw('kw.stopAnd', 'g');
@@ -362,7 +362,11 @@ export function interpretWithTablet(state, revelation) {
     const negative = negs[ci];
     const place = placeOf(state, clause);
     // "E1과 E2에"처럼 칸을 여럿 짚으면 그만큼
-    const many = Math.max(COUNT.find(([re]) => re.test(clause))?.[1] ?? (MANY.test(clause) ? 2 : 1), Math.min(3, place.exact.size));
+    // 절 하나는 손 둘까지 움직인다 ("곡식을 거두라" → 두 곳). 짚은 칸·이름 붙은 곳이면 그곳만, "한 곳"이면 하나
+    const dflt = place.exact.size || place.named.length ? 1 : 2;
+    // 수를 말하지 않아 둘이 된 손의 둘째는 덤이다: 행동 수가 모자라면 다른 절의 첫 손이 먼저
+    const implicit = !COUNT.some(([re]) => re.test(clause)) && !MANY.test(clause);
+    const many = Math.max(COUNT.find(([re]) => re.test(clause))?.[1] ?? (MANY.test(clause) ? 2 : dflt), Math.min(3, place.exact.size));
     let hits = hitsOf(place.text);
     if (!hits.length && place.text !== clause) hits = hitsOf(clause);
     // 할 일 말 없는 금지가 곳을 가리키면 그곳에서 하는 일을 금한다 ("수도는 건드리지 마라")
@@ -398,7 +402,7 @@ export function interpretWithTablet(state, revelation) {
           if (alt) holder.a = alt;
         }
         if (!free(a)) continue;
-        picks.push({ a, ci, pos, kind: rule.kind, alts: matches, aimed: place.anchors.size > 0 }); took += 1;
+        picks.push({ a, ci, pos, kind: rule.kind, alts: matches, aimed: place.anchors.size > 0, nth: implicit ? took : 0 }); took += 1;
       }
       // 칸이 모두 찼으면 먼저 온 일을 다른 칸으로 옮길 수 있는지 본다 ("성벽을 쌓고 기도하라" → 성벽은 마을에)
       for (const a of took ? [] : matches) {
@@ -426,7 +430,7 @@ export function interpretWithTablet(state, revelation) {
     if (alt) p.a = alt;
   }
   // 행동 수를 넘으면 먼저 말한 일부터 남기고, 빠진 일은 까닭과 함께 알린다
-  const byTurn = picks.filter((p) => !forbidden.some((f) => f.key === p.a.key)).map((p, i) => ({ ...p, i })).sort((x, y) => x.ci - y.ci || x.pos - y.pos || x.i - y.i);
+  const byTurn = picks.filter((p) => !forbidden.some((f) => f.key === p.a.key)).map((p, i) => ({ ...p, i })).sort((x, y) => (x.nth ?? 0) - (y.nth ?? 0) || x.ci - y.ci || x.pos - y.pos || x.i - y.i);
   for (const p of byTurn.slice(limit)) if (p.kind) heard.push(`${p.kind}:limit`);
   const keep = new Set(byTurn.slice(0, limit).map((p) => p.a.key));
   orders.push(...picks.map((p) => p.a).filter((a) => keep.has(a.key)));

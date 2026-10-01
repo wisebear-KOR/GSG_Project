@@ -3,7 +3,7 @@
     "source": "js/game/data.js",
     "generator": "tools/export-data.mjs",
     "lang": "ko",
-    "ruleset": 12,
+    "ruleset": 13,
     "conventions": [
       "A function value is written as an object whose only key is \"$fn\" (its JS source text). Port the logic by hand; see docs/spec/03-data.md.",
       "A RegExp value is written as an object with keys \"$re\" (source) and \"flags\"."
@@ -1197,12 +1197,6 @@
     }
   },
   "PROPHECY": {
-    "reward": {
-      "1": 4,
-      "2": 3,
-      "3": 2
-    },
-    "penalty": 2,
     "kinds": {
       "fall": {
         "name": "율법파의 마을이 무너지리라",
@@ -1273,7 +1267,7 @@
     "graceDoctrineBelow": 3,
     "maxNames": 3
   },
-  "RULESET": 12,
+  "RULESET": 13,
   "SACRED_WORDS": [
     {
       "word": "무지개",
@@ -1398,15 +1392,15 @@
     },
     "blessing": {
       "name": "축복",
-      "text": "첫 채집 +1"
+      "text": "대사제의 말씨가 달라진다 (수치는 그대로)"
     },
     "curse": {
       "name": "저주",
-      "text": "이번 장 공격 +1, 신앙 -1"
+      "text": "대사제의 말씨가 달라진다 (수치는 그대로)"
     },
     "metaphor": {
       "name": "비유",
-      "text": "교리가 한 칸 더 오른다 (3칸 미만일 때)"
+      "text": "대사제의 말씨가 달라진다 (수치는 그대로)"
     }
   },
   "TRIALS": {
