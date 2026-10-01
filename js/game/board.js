@@ -124,7 +124,7 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
     g.append(el('text', { x: c.x, y: c.y + R * 0.74, class: 'coord' }, t.id));
     if (t.id === state.holyId && !hidden) g.append(el('polygon', { points: hexPoints(c, R - 7), class: 'holy-ring' }));
     const cath = t.building === 'capital' && t.owner === 'player' ? state.sides?.player?.cathedral ?? 0 : 0;
-    if (cath) for (let i = 0; i < 3; i++) g.append(el('circle', { cx: c.x - 12 + i * 12, cy: c.y + R * 0.5, r: 4, class: `cath-pip${i < cath ? ' on' : ''}` }));
+    if (cath) g.append(el('circle', { cx: c.x, cy: c.y + R * 0.5, r: 5, class: 'cath-pip on' }));
     if (state.names?.[t.id] && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name' }, state.names[t.id]));
     else if (state.legends?.[t.id] && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name legend' }, state.legends[t.id].name));
     else if (t.feature && !hidden && !t.building) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name feat' }, t.feature === 'oasis' ? tr('shell.feature.oasis') : tr('shell.feature.quarry')));

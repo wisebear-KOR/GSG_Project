@@ -634,7 +634,11 @@
           "act": "attack:C3:"
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
-        {"side":"enemy","text":"율법파가 결집한다 — 우리가 크게 앞서자 율법파의 행동이 하나 늘고 칼을 먼저 든다.","fx":{"kind":"rally","tile":"A3"}},
+        {
+          "side": "enemy",
+          "text": "율법파가 결집한다 — 우리가 크게 앞서자 율법파의 행동이 하나 늘고(신도가 줄어도 손이 줄지 않는다) 칼을 먼저 든다.",
+          "fx": {"kind":"rally","tile":"A3"}
+        },
         {"side":"player","text":"이 땅은 이제 「분노의 마을」이라 불린다 — “율법파의 마을을 쳐라”.","fx":{"kind":"legend","tile":"C3"}},
         {"side":"leader","text":"장로 하르쿤: “'율법파'라니. 칼을 부르는 신은 칼로 망한다.”","ui":true}
       ],
@@ -697,23 +701,30 @@
       "rejected": [],
       "petitionAnswered": true,
       "auto": ["attack:C2:","gather:D1:food","gather:B3:food"],
-      "enemyPlan": ["attack:C3:","pray:A3:"],
+      "enemyPlan": ["attack:C3:","pray:A3:","gather:A4:food","gather:B3:food"],
       "plan": ["attack:A3:","attack:C2:","gather:D1:food","gather:B3:food"],
       "ordered": ["attack:A3:"],
       "log": [
         {"side":"god","text":"“율법파에게 재앙을! 그들의 수도를 쳐라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 율법파 수도(A3)를 공격한다!","ui":true},
+        {"side":"player","text":"신도들은 강(B3)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"B3"}},
+        {
+          "side": "enemy",
+          "text": "율법파가 안개 지대(A4)에서 식량을 2 얻었다.",
+          "fx": {"kind":"gain","tile":"A4","gain":{"food":2}},
+          "act": "gather:A4:food"
+        },
+        {
+          "side": "enemy",
+          "text": "율법파가 강(B3)에서 식량을 1 얻었다.",
+          "fx": {"kind":"gain","tile":"B3","gain":{"food":1}},
+          "act": "gather:B3:food"
+        },
         {
           "side": "player",
           "text": "신도들이 평원(D1)에서 식량을 3 얻었다.",
           "fx": {"kind":"gain","tile":"D1","gain":{"food":3}},
           "act": "gather:D1:food"
-        },
-        {
-          "side": "player",
-          "text": "신도들이 강(B3)에서 식량을 2 얻었다.",
-          "fx": {"kind":"gain","tile":"B3","gain":{"food":2}},
-          "act": "gather:B3:food"
         },
         {
           "side": "enemy",
@@ -750,7 +761,7 @@
       ],
       "digest": {
         "player": {
-          "food": 9,
+          "food": 7,
           "wood": 0,
           "stone": 0,
           "faith": 12,
@@ -765,7 +776,7 @@
           "doctrine": {"peace":0,"war":2,"abundance":2,"wisdom":0}
         },
         "enemy": {
-          "food": 2,
+          "food": 5,
           "wood": 3,
           "stone": 2,
           "faith": 18,
@@ -812,7 +823,7 @@
       "rejected": [],
       "petitionAnswered": true,
       "auto": ["gather:A1:wood","gather:B2:stone"],
-      "enemyPlan": ["attack:C2:","gather:A4:food"],
+      "enemyPlan": ["attack:C2:","gather:A4:food","gather:B3:food","pray:A3:"],
       "plan": ["gather:A1:wood","gather:B2:stone"],
       "ordered": [],
       "log": [
@@ -826,6 +837,12 @@
           "act": "gather:A4:food"
         },
         {
+          "side": "enemy",
+          "text": "율법파가 강(B3)에서 식량을 1 얻었다.",
+          "fx": {"kind":"gain","tile":"B3","gain":{"food":1}},
+          "act": "gather:B3:food"
+        },
+        {
           "side": "player",
           "text": "신도들이 숲(A1)에서 목재를 2 얻었다.",
           "fx": {"kind":"gain","tile":"A1","gain":{"wood":2}},
@@ -836,6 +853,12 @@
           "text": "신도들이 산(B2)에서 돌을 2 얻었다.",
           "fx": {"kind":"gain","tile":"B2","gain":{"stone":2}},
           "act": "gather:B2:stone"
+        },
+        {
+          "side": "enemy",
+          "text": "율법파가 기도해 신앙을 2 얻었다.",
+          "fx": {"kind":"gain","tile":"A3","gain":{"faith":2}},
+          "act": "pray:A3:"
         },
         {
           "side": "enemy",
@@ -852,7 +875,7 @@
       ],
       "digest": {
         "player": {
-          "food": 8,
+          "food": 6,
           "wood": 2,
           "stone": 2,
           "faith": 13,
@@ -867,10 +890,10 @@
           "doctrine": {"peace":0,"war":2,"abundance":2,"wisdom":0}
         },
         "enemy": {
-          "food": 2,
+          "food": 6,
           "wood": 3,
           "stone": 2,
-          "faith": 20,
+          "faith": 22,
           "pop": 2,
           "templeLevel": 1,
           "capitalHp": 2,

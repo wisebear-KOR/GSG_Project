@@ -12,7 +12,7 @@ const N_SMART = mode === 'full' ? 60 : 24;
 const sizes = mode === 'full' ? [4, 5, 6, 7] : [5, 7];
 const diffs = ['normal', 'hard'];
 const vets = [false, true];
-const fixed = ['fix:temple', 'fix:expand', 'fix:combo', 'fix:warcombo', 'fix:preach', 'fix:war', 'rotm:war3', 'rotm:war3b', 'rotm:mix4', 'rotm:preachwar', 'cathbot'];
+const fixed = ['fix:temple', 'fix:expand', 'fix:combo', 'fix:warcombo', 'fix:preach', 'fix:war', 'rotm:war3', 'rotm:war3b', 'rotm:mix4', 'rotm:preachwar', 'rotm:cmix', 'rotm:search', 'cathbot'];
 
 const jobs = [];
 let seed = 1;

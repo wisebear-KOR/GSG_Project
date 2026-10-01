@@ -185,6 +185,7 @@ const NOT_BUT = kw('kw.notBut', 'g');
 const INSTEAD = kw('kw.instead', 'g');
 const RATHER = kw('kw.rather', 'g');
 const ASIDE = kw('kw.aside', 'g');
+const ONLY_THIS = kw('kw.onlyThis', 'g');
 const PLENTY_AND = kw('kw.plentyAnd', 'g');
 const IS_ID = kw('kw.place.idOnly');
 const NOT_BUT_PLACE = kw('kw.notButPlace');
@@ -192,7 +193,7 @@ const FEAR = kw('kw.fear');
 const toNeg = (m, verb) => (FEAR.test(verb) ? `${verb} ` : t('kw.dontAndNeg', { verb }));
 // 앞의 것을 금지 절로 떼어 낸다: "숲을 베지 말고 돌을 캐라" → "숲을 베지 마라, 돌을 캐라", "공격 말고 선교",
 // "나무는 그만 베고 돌을 캐라", "기도는 됐고 일이나 해". "두려워하지 말고 쳐라"는 금지가 아니다 → "두려워하 쳐라"
-const splitDont = (text) => text.replace(ASIDE, ' ').replace(RATHER, ' ').replace(PLENTY_AND, toNeg).replace(DONT_AND, toNeg).replace(STOP_AND, toNeg).replace(ENOUGH_AND, toNeg).replace(NOT_BUT, (m, a, b) => (NOT_BUT_PLACE.test(a ?? b) ? ' ' : IS_ID.test(a ?? b) ? m : toNeg(m, a ?? b))).replace(INSTEAD, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a))).replace(NOUN_AND, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a)));
+const splitDont = (text) => text.replace(ONLY_THIS, (m, a) => `${a} `).replace(ASIDE, ' ').replace(RATHER, ' ').replace(PLENTY_AND, toNeg).replace(DONT_AND, toNeg).replace(STOP_AND, toNeg).replace(ENOUGH_AND, toNeg).replace(NOT_BUT, (m, a, b) => (NOT_BUT_PLACE.test(a ?? b) ? ' ' : IS_ID.test(a ?? b) ? m : toNeg(m, a ?? b))).replace(INSTEAD, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a))).replace(NOUN_AND, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a)));
 // 같은 채집이면 더 많이 나오는 칸부터, 무엇을 거둘지 말하지 않았으면 가장 모자란 자원부터
 const WEAKEST = kw('kw.place.weakest');
 function rankMatches(state, rule, matches, clause = '') {
@@ -204,7 +205,8 @@ function rankMatches(state, rule, matches, clause = '') {
   if ((matches[0].type === 'attack' || matches[0].type === 'preach') && !WEAKEST.test(clause)) {
     const mine = state.tiles.filter((x) => x.owner === 'player');
     const dist = (a) => Math.min(...mine.map((m) => distance(m, state.tileAt[a.tile])));
-    return matches.map((a, i) => ({ a, i, d: dist(a) })).sort((x, y) => x.d - y.d || x.i - y.i).map((x) => x.a);
+    const cap = (a) => (state.tileAt[a.tile].building === 'capital' ? 1 : 0);
+    return matches.map((a, i) => ({ a, i, d: dist(a) })).sort((x, y) => cap(x.a) - cap(y.a) || x.d - y.d || x.i - y.i).map((x) => x.a);
   }
   if (matches[0].type === 'attack' || matches[0].type === 'preach') {
     const walls = new Set(enemyIntent(state).filter((x) => x.shown && x.build === 'wall').map((x) => x.tile));
@@ -281,7 +283,7 @@ function placeOf(state, clause) {
   const foeVillage = PLACE.foeVillage.test(clause);
   const generic = new Set();
   if (PLACE.village.test(clause) && (!PLACE.capital.test(clause) || foeVillage)) {
-    const side = foeVillage || PLACE.foe.test(clause) || PLACE.claim.test(clause) ? 'enemy' : 'player';
+    const side = foeVillage || PLACE.foe.test(clause) || PLACE.claim.test(clause) || HOSTILE.some((re) => re.test(clause)) ? 'enemy' : 'player';
     if (side === 'enemy' || !VILLAGE_WORD.test(clause) || VILLAGE_EXCEPT.test(clause)) {
       for (const x of state.tiles) if (x.owner === side && x.building === 'village') { anchors.add(x.id); generic.add(x.id); }
     }

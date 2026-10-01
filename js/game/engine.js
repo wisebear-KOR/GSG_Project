@@ -204,10 +204,9 @@ export const ultRound = (state) => sizeRules(state).at.ult;
 export const draftRound = (state) => sizeRules(state).at.draft;
 export const wrathRound = (state) => (state.config?.trial === 'last' ? 1 : sizeRules(state).at.wrath);
 export const hasUlt = (state, side, key) => side === 'player' && state.sides[side].doctrine[key] >= DOCTRINE_MAX && state.round >= ultRound(state);
-// 대성당 단계마다 필요한 마을: 하나, 큰 판은 판이 넓은 만큼 더 (6×6 +1, 7×7 +2)
 // 판 크기 표 (튜토리얼·시련의 작은 판은 5×5 값을 따른다)
 export const sizeRules = (state) => MAP_SIZES[state.rows] ?? MAP_SIZES[5];
-// 대성당 단계마다 우리 마을이 있어야 한다: 5×5는 하나 (큰 판은 판 크기 표만큼 더)
+// 대성당에 필요한 우리 마을: 둘, 큰 판은 판 크기 표만큼 더 (6×6 셋, 7×7 다섯)
 export const cathedralVillages = (state) => CATHEDRAL.villages + (state.tutorial ? 0 : sizeRules(state).cathedralVillages);
 // 신앙 승리에 필요한 개종 (선교로 데려온 율법파 신도)
 export const faithConverts = (state) => sizeRules(state).faith.converts;
@@ -232,6 +231,8 @@ export function actionLimit(state, side) {
   const bonus = side === 'enemy' ? state.enemyBonus + (state.rally ? 1 : 0) + (state.tutorial ? 0 : sizeRules(state).enemyActions) : (s.doctrine.wisdom >= 4 ? 1 : 0);
   let limit = Math.min(MAX_ACTIONS, 2 + s.templeLevel + Math.floor(s.pop / RULES.followersPerAction) + bonus);
   if (side === 'player' && isSabbath(state)) limit = Math.max(1, limit - 2);
+  // 결집한 율법파는 신도가 줄어도 손이 줄지 않는다 (앞선 쪽이 굴러가 버리지 않게)
+  if (side === 'enemy' && state.rally && s.pop > 0) return Math.max(0, limit);
   return Math.max(0, Math.min(limit, s.pop));
 }
 
@@ -561,13 +562,14 @@ export function planEnemy(state) {
   const act = state.tutorial ? 1 : actOf(state);
   const tail = act >= (ZEAL_ACT[state.config.difficulty] ?? 9) ? [card.rules[0], { type: 'attack' }, ...card.rules.slice(1)] : card.rules;
   const rules = [...rush, ...(state.rally ? [{ type: 'attack' }] : []), ...tail, ...card.rules];
+  let crusading = 0;
   for (const rule of rules) {
-    if (plan.length >= limit) break;
-    // 공격·선교는 신도가 둘 이상일 때만 (수도를 비우지 않는다)
-    if ((rule.type === 'attack' || rule.type === 'preach') && state.sides.enemy.pop < 2) continue;
+    if (!rule.crusade && plan.length - crusading >= limit) break;
+    // 공격·선교는 신도가 둘 이상일 때만 (수도를 비우지 않는다). 원정의 세 번은 신도 수·손 수와 상관없다
+    if (!rule.crusade && (rule.type === 'attack' || rule.type === 'preach') && state.sides.enemy.pop < 2) continue;
     let pick = rule.crusade ? pool.find((a) => a.type === 'attack' && state.tileAt[a.tile].building === 'capital') ?? null : pickForRule(state, rule, pool.filter((a) => !used.has(a.tile)));
     if (!pick && (rule.type === 'attack' || rule.type === 'preach') && !state.tutorial) pick = pickForRule(state, { type: 'build', build: 'village' }, pool.filter((a) => !used.has(a.tile)));
-    if (pick) { used.add(pick.tile); plan.push(pick); }
+    if (pick) { used.add(pick.tile); plan.push(pick); if (rule.crusade) crusading += 1; }
   }
   plan.push(...autoFill(state, side, plan));
   return plan;
@@ -943,24 +945,26 @@ export function resolveRound(state, playerPlan, enemyPlan) {
   recordHistory(state);
 }
 
-// 율법파가 우리를 읽는다: 그 장 계시가 되풀이였거나(지난 두 계시와 같은 일들) 같은 교리를 세 장 이어 말했으면
-// 다음 장 우리 선교·공격에 방어 +1, 읽힘이 이어지면 +2. 말을 바꾸면(침묵 포함) 풀린다
+// 율법파가 우리를 읽는다: 그 장 계시가 되풀이였거나(지난 두 계시와 같은 일들) 칼이나 말씀을 세 장 이어 들었으면
+// (공격·선교를 시켰거나 전쟁·평화를 말한 계시 — 번갈아도, 다른 일과 섞어도) 다음 장 우리 선교·공격에 방어 +1, 읽힘이 이어지면 +2.
+// 칼도 말씀도 들지 않는 장이 끼면(침묵 포함) 풀린다
 const READ_DOCTRINES = ['war', 'peace'];
+const swordOrWord = (x) => !!x && (READ_DOCTRINES.includes(x.doctrine) || /(^|\|)(attack|preach)(\||$)/.test(x.sig ?? ''));
 function readUs(state, round) {
   const r = state.revelations;
   const last = r.at(-1);
   if (!last || last.round !== round) return false;
   if (last.echo) return true;
   const r3 = r.slice(-3);
-  return r3.length === 3 && r3.every((x) => READ_DOCTRINES.includes(x.doctrine)) && r3[0].round === round - 2;
+  return r3.length === 3 && r3.every(swordOrWord) && r3[0].round === round - 2;
 }
 // 이번 장 계시를 받은 뒤라면: 다음 장에 율법파가 대비할 만큼 (봇이 미리 본다 — 확인 화면은 wouldRead와 지금의 lawGuard로 같은 값을 낸다)
-// 이번 계시를 내리면 율법파가 읽는가 (확인 화면이 미리 알린다): 되풀이이거나, 지난 두 장을 이어서 같은 교리로 말했고 이번도 그 교리
+// 이번 계시를 내리면 율법파가 읽는가 (확인 화면이 미리 알린다): 되풀이이거나, 지난 두 장과 이번이 모두 칼이나 말씀을 들었으면
 export function wouldRead(state, text, doctrine) {
   if (state.tutorial || !text) return false;
   if (isEcho(state, text)) return true;
   const r = state.revelations; const a = r.at(-1); const b = r.at(-2);
-  return [doctrine, a?.doctrine, b?.doctrine].every((d) => READ_DOCTRINES.includes(d)) && a.round === state.round - 1 && b.round === state.round - 2;
+  return [{ doctrine, sig: planSig(state, text) }, a, b].every(swordOrWord) && a.round === state.round - 1 && b.round === state.round - 2;
 }
 export const braceAhead = (state) => (state.tutorial || !readUs(state, state.round) ? 0 : Math.min(2, (state.lawGuard ?? 0) + 1));
 function braceLaw(state) {
@@ -972,6 +976,7 @@ function braceLaw(state) {
 }
 
 // 장마다 두 진영의 승점과 살림을 남긴다 (결산·그래프·회고용)
+const RALLY_LEAD = 8;
 function recordHistory(state) {
   const p = state.sides.player;
   const ps = score(state, 'player');
@@ -989,10 +994,10 @@ function recordHistory(state) {
   if (state.wrath > before) {
     logEvent(state, 'player', state.wrath >= 3 ? t('log.wrathFull', { doom: !state.doomUsed }) : t('log.wrath', { n: state.wrath }), null, { kind: 'wrath', tile: capitalOf(state, 'player')?.id });
   }
-  // 율법파의 결집: 우리가 12점 이상 앞서면 율법파는 행동 +1, 공격을 먼저 한다 (6점 이내로 좁혀지면 풀린다)
+  // 율법파의 결집: 우리가 8점 이상 앞서면 율법파는 행동 +1(신도 수에 묶이지 않는다), 공격을 먼저 한다 (4점 이내로 좁혀지면 풀린다)
   const wasRally = state.rally;
-  if (state.round >= wrathRound(state) && ps - es >= 12) state.rally = true;
-  else if (ps - es <= 6) state.rally = false;
+  if (state.round >= wrathRound(state) && ps - es >= RALLY_LEAD) state.rally = true;
+  else if (ps - es <= RALLY_LEAD / 2) state.rally = false;
   if (state.rally && !wasRally) logEvent(state, 'enemy', t('log.rally'), null, { kind: 'rally', tile: capitalOf(state, 'enemy')?.id });
 }
 
@@ -1455,22 +1460,22 @@ export function checkVictory(state, final = true) {
   return state.winner;
 }
 
-// 전쟁·평화를 이어 말한 장 수 (번갈아도 센다 — 교리 칸의 점, 셋이면 율법파가 읽는다)
-const streakAfter = (state, doctrine) => (READ_DOCTRINES.includes(doctrine) ? { doctrine, n: READ_DOCTRINES.includes(state.streak?.doctrine) ? Math.min(3, state.streak.n + 1) : 1 } : null);
+// 칼이나 말씀을 이어 든 장 수 (교리 칸의 점, 셋이면 율법파가 읽는다)
+const streakAfter = (state, doctrine, sig) => (swordOrWord({ doctrine, sig }) ? { doctrine, n: state.streak ? Math.min(3, state.streak.n + 1) : 1 } : null);
 // 계시를 내리면 교리 트랙이 오른다
 export function recordRevelation(state, text, doctrine, spoken = spokenOf(state, text)) {
   const d = state.sides.player.doctrine;
   const sig = spoken.sig || undefined;
   if (spoken.echo) {
     state.revelations.push({ round: state.round, text, doctrine, echo: true, sig });
-    state.streak = streakAfter(state, doctrine);
+    state.streak = streakAfter(state, doctrine, sig);
     logEvent(state, 'player', t('log.echo'), null, { kind: 'doctrine' });
     return;
   }
   if (doctrine && d[doctrine] < DOCTRINE_MAX) d[doctrine] += 1;
   state.revelations.push({ round: state.round, text, doctrine, sig });
   if (state.winner) return; // 판이 끝난 뒤에는 교리 대립이 점수를 바꾸지 않는다
-  state.streak = streakAfter(state, doctrine);
+  state.streak = streakAfter(state, doctrine, sig);
   if (!doctrine) return;
   // 교리 대립 (두 번째 판부터): 반대 교리가 흔들린다. 이미 얻은 특전 칸 아래로는 내려가지 않는다
   const opp = OPPOSED[doctrine];

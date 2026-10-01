@@ -84,7 +84,7 @@ function loadSetup() {
     const s = JSON.parse(localStorage.getItem('gsg.setup') ?? 'null');
     if (s && MAP_SIZES[s.size] && DIFFICULTY[s.difficulty] && s.seed > 0) return { ...DEFAULT_CONFIG, ...s, mode: 'standard' };
   } catch { /* 저장된 설정이 없거나 깨졌다 */ }
-  return { ...DEFAULT_CONFIG, seed: randomSeed() };
+  return { ...DEFAULT_CONFIG, difficulty: meta.getHistory().length ? DEFAULT_CONFIG.difficulty : 'easy', seed: randomSeed() };
 }
 function saveSetup() { try { localStorage.setItem('gsg.setup', JSON.stringify(setup)); } catch { /* 무시 */ } }
 function randomSeed() { return 1 + Math.floor(Math.random() * 999998); }
@@ -423,7 +423,7 @@ function tileTipHTML(cur, tile) {
   const marks = tile.faithMarks ? t('ui.tip.marks', { n: tile.faithMarks.n, side: tile.faithMarks.side }) : '';
   const intent = ['speak', 'thinking', 'confirm'].includes(phase) ? enemyIntent(state).find((a) => a.shown && a.tile === tile.id) : null;
   const threat = intent ? t('ui.tip.threat', { what: enemyLabel(intent, 'what'), first: state.first }) : '';
-  const cath = tile.building === 'capital' && tile.owner === 'player' && cur.sides.player.cathedral ? t('ui.tip.cathedral', { n: cur.sides.player.cathedral }) : '';
+  const cath = tile.building === 'capital' && tile.owner === 'player' && cur.sides.player.cathedral ? t('ui.tip.cathedral') : '';
   return `<b>${esc(tileName(cur, tile, 'player'))}</b><span>${[legend, owner, bld, gather, tile.wall ? t('ui.tip.wall') : '', holy, cath, marks, threat].filter(Boolean).map(esc).join('<br>')}</span>`;
 }
 

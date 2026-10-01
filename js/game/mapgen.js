@@ -85,6 +85,7 @@ export function generateMap({ rows, cols, seed }) {
   // 3) 가운데 근처의 성지
   const mid = holyFor(rows, cols, seed);
   set(mid.r, mid.c, 'hill');
+  const isHoly = (p) => [mid, mirror(mid.r, mid.c)].some((q) => q.r === p.r && q.c === p.c);
 
   // 4) 사막 정리: 수도 1칸 안 금지, 세 칸 이상 뭉침 금지, 전체 10% 이하
   // 홀수 행 밀림 때문에 점대칭이 육각 거리를 정확히 보존하지 않으므로, 칸과 그 대칭 칸을 모두 검사한다
@@ -105,7 +106,7 @@ export function generateMap({ rows, cols, seed }) {
   for (let pass = 0; pass < 4; pass++) {
     let changed = false;
     for (const cap of [caps.player, caps.enemy]) {
-      const near = cells.filter((p) => dist(p, cap) <= 2 && !(p.r === cap.r && p.c === cap.c) && !(p.r === mid.r && p.c === mid.c));
+      const near = cells.filter((p) => dist(p, cap) <= 2 && !(p.r === cap.r && p.c === cap.c) && !isHoly(p));
       for (const kinds of need) {
         if (near.some((p) => kinds.includes(grid[p.r][p.c]))) continue;
         // 사막 → 흔한 지형(같은 종류가 2칸 이상 있는 것) 순으로 바꿀 칸을 고른다
@@ -126,7 +127,7 @@ export function generateMap({ rows, cols, seed }) {
   }
 
   // 수도 주변을 건드리지 않고 한 번 더 상한을 맞춘다
-  capTerrain((p) => !nearCap(p, 2) && !(p.r === mid.r && p.c === mid.c) && grid[p.r][p.c] !== 'desert');
+  capTerrain((p) => !nearCap(p, 2) && !isHoly(p) && grid[p.r][p.c] !== 'desert');
 
   // 6) 수도 표시
   const out = grid.map((row) => [...row]);
@@ -159,6 +160,7 @@ export function placeSites({ rows, cols, seed, map }) {
 export function placeFeatures({ rows, cols, seed, map, taken = [] }) {
   const rnd = mulberry32(seed ^ 0x51a7c0de);
   const caps = capitalsFor(rows, cols);
+  const holy = holyFor(rows, cols, seed);
   const mirror = (p) => ({ r: rows - 1 - p.r, c: cols - 1 - p.c });
   const busy = (p) => taken.some((q) => q.r === p.r && q.c === p.c);
   const out = [];
@@ -167,7 +169,7 @@ export function placeFeatures({ rows, cols, seed, map, taken = [] }) {
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
       const p = { r, c }; const m = mirror(p);
       if ((r < m.r || (r === m.r && c < m.c)) && map[r][c] === terr && map[m.r][m.c] === terr && !busy(p) && !busy(m)
-        && [p, m].every((q) => dist(q, caps.player) > 1 && dist(q, caps.enemy) > 1)) cands.push(p);
+        && [p, m].every((q) => dist(q, caps.player) > 1 && dist(q, caps.enemy) > 1 && !(q.r === holy.r && q.c === holy.c))) cands.push(p);
     }
     if (!cands.length) continue;
     const p = cands[Math.floor(rnd() * cands.length)];

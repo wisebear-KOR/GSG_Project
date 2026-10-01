@@ -1313,6 +1313,24 @@ const CASES = [
   ['율법파가 안개 속에 숨어 있다, 성벽을 쌓아라', [], ['explore']],
   ['숲을 지나 안개 너머로 가라', ['explore'], ['gather:wood']],
   ['젖과 꿀이 흐르는 땅에 거하라', ['build:village'], ['gather:food']],
+  // 13차 평가자 문장
+  ['공격은 절대 하지 말 것', ['forbid:attack'], ['attack']],
+  ['전쟁하지 말 것, 곡식을 거둘 것', ['gather:food', 'forbid:attack'], ['attack']],
+  ['율법파가 우리 마을을 노린다', [], ['build:village', 'attack']],
+  ['적의 칼이 우리를 노린다', [], ['attack']],
+  ['하나님의 진노를 내리라', ['attack'], []],
+  ['집 하나 더 짓자', ['build:village'], []],
+  ['우리 땅이 너무 작아', ['build:village'], []],
+  ['돌이 하나도 없네', ['gather:stone'], []],
+  ['율법파 숲 마을을 불태워라', ['attack'], ['gather:wood']],
+  ['적과 화해하라', ['preach'], ['attack']],
+  ['기도와 탐험 말고는 아무것도 하지 마라', ['pray'], []],
+  ['굶주림을 몰아내라', ['gather:food'], ['attack']],
+  ['마을은 치지 마라', ['forbid:attack'], ['attack', 'build:village']],
+  ['회유하라', ['preach'], []],
+  ['말로 이겨라', ['preach'], ['attack']],
+  ['율법파가 우리 마을에 성벽을 두르기 전에 돌을 캐라', ['gather:stone'], ['build:village', 'build:wall']],
+  ['율법파를 해치워라', ['attack'], []],
 ];
 
 const kindOf = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);
