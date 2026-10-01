@@ -18,9 +18,9 @@
   "initialMap": {
     "grid": [
       ["desert","river","mountain","E","plain"],
-      ["plain","plain","river","plain","forest"],
-      ["forest","mountain","hill","mountain","forest"],
-      ["forest","plain","river","plain","plain"],
+      ["plain","hill","river","plain","forest"],
+      ["forest","mountain","forest","mountain","forest"],
+      ["forest","plain","river","hill","plain"],
       ["plain","P","mountain","river","desert"]
     ],
     "tiles": [
@@ -29,21 +29,21 @@
       {"id":"A3","r":0,"c":2,"terrain":"mountain","feature":null,"site":null,"owner":null,"building":null},
       {"id":"A4","r":0,"c":3,"terrain":"plain","feature":null,"site":null,"owner":"enemy","building":"capital"},
       {"id":"A5","r":0,"c":4,"terrain":"plain","feature":null,"site":null,"owner":null,"building":null},
-      {"id":"B1","r":1,"c":0,"terrain":"plain","feature":null,"site":null,"owner":null,"building":null},
-      {"id":"B2","r":1,"c":1,"terrain":"plain","feature":null,"site":"nomads","owner":null,"building":null},
+      {"id":"B1","r":1,"c":0,"terrain":"plain","feature":null,"site":"nomads","owner":null,"building":null},
+      {"id":"B2","r":1,"c":1,"terrain":"hill","feature":null,"site":null,"owner":null,"building":null},
       {"id":"B3","r":1,"c":2,"terrain":"river","feature":null,"site":null,"owner":null,"building":null},
       {"id":"B4","r":1,"c":3,"terrain":"plain","feature":null,"site":null,"owner":null,"building":null},
       {"id":"B5","r":1,"c":4,"terrain":"forest","feature":null,"site":null,"owner":null,"building":null},
       {"id":"C1","r":2,"c":0,"terrain":"forest","feature":null,"site":null,"owner":null,"building":null},
       {"id":"C2","r":2,"c":1,"terrain":"mountain","feature":"quarry","site":null,"owner":null,"building":null},
-      {"id":"C3","r":2,"c":2,"terrain":"hill","feature":null,"site":null,"owner":null,"building":null},
+      {"id":"C3","r":2,"c":2,"terrain":"forest","feature":null,"site":null,"owner":null,"building":null},
       {"id":"C4","r":2,"c":3,"terrain":"mountain","feature":"quarry","site":null,"owner":null,"building":null},
       {"id":"C5","r":2,"c":4,"terrain":"forest","feature":null,"site":null,"owner":null,"building":null},
       {"id":"D1","r":3,"c":0,"terrain":"forest","feature":null,"site":null,"owner":null,"building":null},
       {"id":"D2","r":3,"c":1,"terrain":"plain","feature":null,"site":null,"owner":null,"building":null},
       {"id":"D3","r":3,"c":2,"terrain":"river","feature":null,"site":null,"owner":null,"building":null},
-      {"id":"D4","r":3,"c":3,"terrain":"plain","feature":null,"site":"nomads","owner":null,"building":null},
-      {"id":"D5","r":3,"c":4,"terrain":"plain","feature":null,"site":null,"owner":null,"building":null},
+      {"id":"D4","r":3,"c":3,"terrain":"hill","feature":null,"site":null,"owner":null,"building":null},
+      {"id":"D5","r":3,"c":4,"terrain":"plain","feature":null,"site":"nomads","owner":null,"building":null},
       {"id":"E1","r":4,"c":0,"terrain":"plain","feature":null,"site":null,"owner":null,"building":null},
       {"id":"E2","r":4,"c":1,"terrain":"plain","feature":null,"site":null,"owner":"player","building":"capital"},
       {"id":"E3","r":4,"c":2,"terrain":"mountain","feature":null,"site":null,"owner":null,"building":null},
@@ -61,7 +61,7 @@
     "priest": "loyal",
     "judgement": "classic",
     "edictOn": false,
-    "holyId": "C3",
+    "holyId": "D4",
     "miracleHand": ["lightning","rain","bounty"],
     "destinyOffer": null,
     "destiny": null,
@@ -168,6 +168,7 @@
       "enemyPlan": ["gather:A3:stone","pray:A4:","gather:C4:stone","gather:B5:wood"],
       "plan": ["build:C1:village","gather:D2:food","gather:C2:stone"],
       "ordered": ["build:C1:village"],
+      "site": {"tile":"B1","choice":"take"},
       "log": [
         {"side":"god","text":"“땅을 넓혀 새 마을을 세워라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 숲(C1)에 마을을 세운다!","ui":true},
@@ -211,7 +212,9 @@
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"player","text":"역병으로 우리 부족 1명을 잃었다.","fx":{"kind":"loss"}},
         {"side":"enemy","text":"역병으로 율법파 1명을 잃었다.","fx":{"kind":"loss"}},
-        {"side":"leader","text":"철의 대제사장 바락: “'넓혀'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
+        {"side":"player","text":"평원(B1)에서 떠도는 유목민을 만났다.","fx":{"kind":"site","tile":"B1"}},
+        {"side":"leader","text":"철의 대제사장 바락: “'넓혀'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true},
+        {"side":"player","text":"유목민이 신도가 되었다. 신도 +1.","ui":true}
       ],
       "digest": {
         "player": {
@@ -219,13 +222,13 @@
           "wood": 0,
           "stone": 3,
           "faith": 5,
-          "pop": 3,
+          "pop": 4,
           "templeLevel": 1,
           "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 13,
+          "score": 15,
           "faithless": 0,
           "doctrine": {"peace":0,"war":0,"abundance":1,"wisdom":0}
         },
@@ -248,7 +251,7 @@
         "revealed": "0000010000111001110011110",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"abundance","n":1},
+        "streak": null,
         "silentRun": 0,
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
         "rng": {"deck":1156837553,"dice":2026},
@@ -276,9 +279,9 @@
       "accepted": ["gather:C2:stone","gather:E3:stone"],
       "rejected": [],
       "petitionAnswered": false,
-      "auto": ["gather:B1:food"],
+      "auto": ["gather:B1:food","gather:D2:food"],
       "enemyPlan": ["gather:A2:food","gather:A5:food","pray:A4:"],
-      "plan": ["gather:C2:stone","gather:E3:stone","gather:B1:food"],
+      "plan": ["gather:C2:stone","gather:E3:stone","gather:B1:food","gather:D2:food"],
       "ordered": ["gather:C2:stone","gather:E3:stone"],
       "log": [
         {"side":"god","text":"“산에서 돌을 캐어 오라”","ui":true},
@@ -314,6 +317,12 @@
           "act": "gather:B1:food"
         },
         {
+          "side": "player",
+          "text": "신도들이 평원(D2)에서 식량을 1 얻었다.",
+          "fx": {"kind":"gain","tile":"D2","gain":{"food":1}},
+          "act": "gather:D2:food"
+        },
+        {
           "side": "enemy",
           "text": "율법파가 기도해 신앙을 2 얻었다.",
           "fx": {"kind":"gain","tile":"A4","gain":{"faith":2}},
@@ -328,13 +337,13 @@
           "wood": 0,
           "stone": 8,
           "faith": 6,
-          "pop": 4,
+          "pop": 5,
           "templeLevel": 1,
           "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 1,
-          "score": 15,
+          "score": 17,
           "faithless": 0,
           "doctrine": {"peace":0,"war":0,"abundance":2,"wisdom":0}
         },
@@ -357,7 +366,7 @@
         "revealed": "0000010000111001110011110",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"abundance","n":2},
+        "streak": null,
         "silentRun": 0,
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
         "rng": {"deck":1156837553,"dice":2026},
@@ -383,7 +392,6 @@
       "enemyPlan": ["pray:A4:","gather:A2:food","gather:A5:food"],
       "plan": ["pray:E2:","explore:B2:","gather:B1:food","gather:D2:food"],
       "ordered": ["pray:E2:"],
-      "site": {"tile":"B2","choice":"take"},
       "log": [
         {"side":"god","text":"“신전에서 기도하라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 신전에서 기도한다!","ui":true},
@@ -429,14 +437,11 @@
           "fx": {"kind":"treasure","tile":"B2","gain":{"faith":3}},
           "act": "explore:B2:"
         },
-        {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
-        {"side":"player","text":"평원(B2)에서 떠도는 유목민을 만났다.","fx":{"kind":"site","tile":"B2"}},
-        {"side":"leader","text":"철의 대제사장 바락: “'그 말'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true},
-        {"side":"player","text":"자리가 없어 유목민은 양식을 두고 떠났다. 식량 +2.","ui":true}
+        {"side":"leader","text":"철의 대제사장 바락: “'그 말'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
       ],
       "digest": {
         "player": {
-          "food": 7,
+          "food": 6,
           "wood": 0,
           "stone": 8,
           "faith": 12,
@@ -469,7 +474,7 @@
         "revealed": "0110011100111001110011110",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"wisdom","n":1},
+        "streak": null,
         "silentRun": 0,
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
         "rng": {"deck":1156837553,"dice":2026},
@@ -496,11 +501,11 @@
       "accepted": ["explore:A1:","explore:C4:"],
       "rejected": [],
       "petitionAnswered": false,
-      "auto": ["explore:D4:","gather:C1:wood"],
+      "auto": ["explore:D4:","gather:B1:food"],
       "enemyPlan": ["gather:A3:stone","build:A4:wall","gather:B5:wood"],
-      "plan": ["explore:A1:","explore:C4:","explore:D4:","gather:C1:wood"],
+      "plan": ["explore:A1:","explore:C4:","explore:D4:","gather:B1:food"],
       "ordered": ["explore:A1:","explore:C4:"],
-      "site": {"tile":"D4","choice":"take"},
+      "site": {"tile":"D5","choice":"take"},
       "log": [
         {"side":"god","text":"“안개 너머를 탐험하라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 안개 지대(A1) 속을 탐험한다, 그리고 안개 지대(C4) 속을 탐험한다!","ui":true},
@@ -518,9 +523,9 @@
         },
         {
           "side": "player",
-          "text": "신도들이 우리 마을(C1)에서 목재를 2 얻었다.",
-          "fx": {"kind":"gain","tile":"C1","gain":{"wood":2}},
-          "act": "gather:C1:wood"
+          "text": "신도들이 평원(B1)에서 식량을 3 얻었다.",
+          "fx": {"kind":"gain","tile":"B1","gain":{"food":3}},
+          "act": "gather:B1:food"
         },
         {"side":"enemy","text":"율법파가 안개 지대(A4)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"A4"},"act":"build:A4:wall"},
         {
@@ -530,15 +535,15 @@
           "act": "explore:A1:"
         },
         {"side":"player","text":"안개 지대(C4)를 탐험했다. 안개가 걷혔다.","fx":{"kind":"explore","tile":"C4"},"act":"explore:C4:"},
-        {"side":"player","text":"평원(D4)을 탐험했다. 안개가 걷혔다.","fx":{"kind":"explore","tile":"D4"},"act":"explore:D4:"},
-        {"side":"player","text":"평원(D4)에서 떠도는 유목민을 만났다.","fx":{"kind":"site","tile":"D4"}},
+        {"side":"player","text":"성스러운 언덕(D4)을 탐험했다. 안개가 걷혔다.","fx":{"kind":"explore","tile":"D4"},"act":"explore:D4:"},
+        {"side":"player","text":"평원(D5)에서 떠도는 유목민을 만났다.","fx":{"kind":"site","tile":"D5"}},
         {"side":"leader","text":"철의 대제사장 바락: “'안개'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true},
         {"side":"player","text":"자리가 없어 유목민은 양식을 두고 떠났다. 식량 +2.","ui":true}
       ],
       "digest": {
         "player": {
-          "food": 7,
-          "wood": 4,
+          "food": 9,
+          "wood": 2,
           "stone": 8,
           "faith": 13,
           "pop": 5,
@@ -570,7 +575,7 @@
         "revealed": "1110011110111111111111111",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"wisdom","n":2},
+        "streak": null,
         "silentRun": 0,
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
         "rng": {"deck":1156837553,"dice":-1263669314},
@@ -645,8 +650,8 @@
       ],
       "digest": {
         "player": {
-          "food": 13,
-          "wood": 8,
+          "food": 15,
+          "wood": 6,
           "stone": 8,
           "faith": 14,
           "pop": 5,
@@ -678,7 +683,7 @@
         "revealed": "1110011110111111111111111",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"abundance","n":1},
+        "streak": null,
         "silentRun": 0,
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
         "rng": {"deck":1156837553,"dice":-1263669314},
@@ -740,8 +745,8 @@
       ],
       "digest": {
         "player": {
-          "food": 10,
-          "wood": 8,
+          "food": 12,
+          "wood": 6,
           "stone": 6,
           "faith": 16,
           "pop": 5,
@@ -870,8 +875,8 @@
       ],
       "digest": {
         "player": {
-          "food": 8,
-          "wood": 8,
+          "food": 10,
+          "wood": 6,
           "stone": 4,
           "faith": 17,
           "pop": 5,
@@ -986,8 +991,8 @@
       ],
       "digest": {
         "player": {
-          "food": 5,
-          "wood": 8,
+          "food": 7,
+          "wood": 6,
           "stone": 4,
           "faith": 22,
           "pop": 5,
@@ -1019,7 +1024,7 @@
         "revealed": "1110011110111111111111111",
         "holyOwner": null,
         "wrath": 0,
-        "streak": {"doctrine":"peace","n":1},
+        "streak": {"doctrine":"peace","n":3},
         "silentRun": 0,
         "legends": {"D1":"분노의 마을"},
         "saints": [{"name":"방직공 레아","kind":"guardian"}],
@@ -1055,6 +1060,7 @@
       "plan": ["gather:B1:food","gather:E1:food","gather:D3:food","gather:C1:wood"],
       "ordered": ["gather:B1:food","gather:E1:food","gather:D3:food","gather:C1:wood"],
       "log": [
+        {"side":"enemy","text":"율법파가 우리의 말씀을 읽고 대비한다 — 이번 장 우리의 선교·공격에 방어 +2.","fx":{"kind":"guard","tile":"E2"}},
         {"side":"god","text":"“너희는 들판에서 곡식을 거두고 숲에서 나무를 베어 겨울을 준비하라”","ui":true},
         {
           "side": "priest",
@@ -1108,8 +1114,8 @@
       ],
       "digest": {
         "player": {
-          "food": 11,
-          "wood": 10,
+          "food": 13,
+          "wood": 8,
           "stone": 4,
           "faith": 23,
           "pop": 4,
@@ -1141,7 +1147,7 @@
         "revealed": "1110011110111111111111111",
         "holyOwner": null,
         "wrath": 1,
-        "streak": {"doctrine":"abundance","n":1},
+        "streak": null,
         "silentRun": 0,
         "legends": {"D1":"분노의 마을"},
         "saints": [{"name":"방직공 레아","kind":"guardian"}],
@@ -1195,8 +1201,8 @@
       ],
       "digest": {
         "player": {
-          "food": 9,
-          "wood": 8,
+          "food": 11,
+          "wood": 6,
           "stone": 2,
           "faith": 25,
           "pop": 5,
@@ -1237,7 +1243,7 @@
         "revealed": "1110011110111111111111111",
         "holyOwner": null,
         "wrath": 2,
-        "streak": {"doctrine":"wisdom","n":1},
+        "streak": null,
         "silentRun": 0,
         "legends": {"D1":"분노의 마을"},
         "saints": [{"name":"방직공 레아","kind":"guardian"}],
@@ -1321,8 +1327,8 @@
       ],
       "digest": {
         "player": {
-          "food": 8,
-          "wood": 8,
+          "food": 10,
+          "wood": 6,
           "stone": 2,
           "faith": 28,
           "pop": 5,
@@ -1450,8 +1456,8 @@
       ],
       "digest": {
         "player": {
-          "food": 8,
-          "wood": 8,
+          "food": 10,
+          "wood": 6,
           "stone": 0,
           "faith": 27,
           "pop": 4,
@@ -1515,7 +1521,7 @@
     },
     "history": [
       {"round":1,"ps":13,"es":10},
-      {"round":2,"ps":15,"es":10},
+      {"round":2,"ps":17,"es":10},
       {"round":3,"ps":17,"es":10},
       {"round":4,"ps":17,"es":10},
       {"round":5,"ps":17,"es":17},

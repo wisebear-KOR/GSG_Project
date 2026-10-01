@@ -46,7 +46,7 @@ export default {
   'story.ach.conquest.name': '무너진 탑',
   'story.ach.conquest.desc': '율법파의 수도를 점령해 이긴다',
   'story.ach.cathedral.name': '종이 울리다',
-  'story.ach.cathedral.desc': '대성당을 완공한다',
+  'story.ach.cathedral.desc': '대성당을 세우고 원정을 버틴다',
   'story.ach.pacifist.name': '피 없는 승리',
   'story.ach.pacifist.desc': '전쟁 교리 0으로 이긴다',
   'story.ach.no_miracle.name': '말씀만으로',

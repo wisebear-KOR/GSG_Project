@@ -3,7 +3,7 @@
 // - 두 수도는 가운데 쪽으로 한 칸 들여 놓아 중반에 반드시 만나게 한다
 // - 사막: 전체의 10% 이하, 수도 옆에는 없고, 두 칸 넘게 뭉치지 않는다
 // - 각 수도 2칸 안에는 평원(또는 강), 숲, 산이 적어도 하나씩 있다
-// - 가운데에는 서로 탐내는 성스러운 언덕
+// - 가운데 근처, 두 수도에서 같은 거리에 서로 탐내는 성스러운 언덕 (자리는 시드마다)
 
 const WEIGHTS = [['plain', 30], ['forest', 24], ['mountain', 16], ['river', 13], ['desert', 10], ['hill', 4]];
 const ROWS = 'ABCDEFGHI';
@@ -25,6 +25,18 @@ const dist = (a, b) => { const [ax, ay, az] = cube(a.r, a.c); const [bx, by, bz]
 
 export function capitalsFor(rows, cols) {
   return { player: { r: rows - 1, c: 1 }, enemy: { r: 0, c: cols - 2 } };
+}
+// 성지: 두 수도에서 같은 거리이고 가운데에서 두 칸 안인 칸 가운데 하나, 시드마다 (없으면 가운데).
+// 수도 자리는 그대로 둔다 — 육각 칸의 홀짝 밀림 때문에 두 수도 사이 거리가 같아도 자리마다 승률이 크게 달랐다
+export function holyFor(rows, cols, seed) {
+  const caps = capitalsFor(rows, cols);
+  const mid = { r: Math.floor(rows / 2), c: Math.floor(cols / 2) };
+  const cands = [];
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const p = { r, c };
+    if (dist(p, caps.player) === dist(p, caps.enemy) && dist(p, mid) <= 2 && dist(p, caps.player) > 1) cands.push(p);
+  }
+  return cands.length ? cands[Math.floor(mulberry32((seed ?? 0) ^ 0x6c0a5e11)() * cands.length)] : mid;
 }
 
 export function generateMap({ rows, cols, seed }) {
@@ -70,8 +82,8 @@ export function generateMap({ rows, cols, seed }) {
   const caps = capitalsFor(rows, cols);
   set(caps.player.r, caps.player.c, 'plain');
 
-  // 3) 가운데 성지
-  const mid = { r: Math.floor(rows / 2), c: Math.floor(cols / 2) };
+  // 3) 가운데 근처의 성지
+  const mid = holyFor(rows, cols, seed);
   set(mid.r, mid.c, 'hill');
 
   // 4) 사막 정리: 수도 1칸 안 금지, 세 칸 이상 뭉침 금지, 전체 10% 이하
@@ -127,7 +139,7 @@ export function generateMap({ rows, cols, seed }) {
 export function placeSites({ rows, cols, seed, map }) {
   const rnd = mulberry32(seed ^ 0x2f6b1a3d);
   const caps = capitalsFor(rows, cols);
-  const mid = { r: Math.floor(rows / 2), c: Math.floor(cols / 2) };
+  const mid = holyFor(rows, cols, seed);
   const mirror = (p) => ({ r: rows - 1 - p.r, c: cols - 1 - p.c });
   const ok = (p) => [p, mirror(p)].every((q) => dist(q, caps.player) > 2 && dist(q, caps.enemy) > 1 && !(q.r === mid.r && q.c === mid.c) && !['P', 'E'].includes(map[q.r][q.c]));
   const cands = [];
@@ -168,11 +180,12 @@ export function placeFeatures({ rows, cols, seed, map, taken = [] }) {
 export function placeLegacy({ rows, cols, seed, map, taken = [] }) {
   const rnd = mulberry32(seed ^ 0x1e6ac7);
   const caps = capitalsFor(rows, cols);
+  const holy = holyFor(rows, cols, seed);
   const cands = [];
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
     const p = { r, c };
     if (!['P', 'E'].includes(map[r][c]) && !taken.some((q) => q.r === r && q.c === c) && dist(p, caps.player) >= 2 && dist(p, caps.enemy) >= 2
-      && !(r === Math.floor(rows / 2) && c === Math.floor(cols / 2))) cands.push(p);
+      && !(r === holy.r && c === holy.c)) cands.push(p);
   }
   return cands.length ? cands[Math.floor(rnd() * cands.length)] : null;
 }

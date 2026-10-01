@@ -19,14 +19,10 @@ export const COST = {
   village: { wood: 2, food: 1 },
   wall: { stone: 2 },
   temple: (level) => ({ stone: level * 2, wood: level + 1 }),
-  cathedral: { stone: 11, wood: 11, faith: 13 },
 };
-// 대성당은 세 단계로 올린다 (단계마다 돌 3·나무 3·신앙 3 — 큰 판은 판 크기 표의 배율)
-export const CATHEDRAL = [
-  { name: t('data.cathedral.0.name'), cost: { stone: 3, wood: 3, faith: 3 } },
-  { name: t('data.cathedral.1.name'), cost: { stone: 3, wood: 3, faith: 3 } },
-  { name: t('data.cathedral.2.name'), cost: { stone: 3, wood: 3, faith: 3 } },
-];
+// 대성당: 신전 3단계에서 한 번에 짓는다 (돌 6·나무 6·신앙 6 — 큰 판은 판 크기 표의 배율, 우리 마을 둘 + 판 크기 표).
+// 지으면 율법파가 원정한다: 다음 장 율법파는 선공을 쥐고 우리 수도를 세 번 친다(거리 상관없이, 공격 +1). 그 장이 끝날 때 수도가 서 있으면 이긴다
+export const CATHEDRAL = { cost: { stone: 6, wood: 6, faith: 6 }, crusade: { attacks: 3, bonus: 1 }, villages: 2 };
 export const EDICT_MAX = 10;         // 율법 석판이 이만큼 차면 율법파가 이긴다 (오름: 율법파가 성지를 쥠·신전을 높임 / 내림: 우리가 성지를 쥠·번개·심판의 날)
 
 // 소명: 두 번째 판부터 판 시작에 셋 중 하나를 고른다. 이루면 승점 +5
@@ -242,7 +238,7 @@ export const BLESSINGS = {
 export const AWE_TITLES = t('data.aweTitles');
 
 // 규칙 판: 규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)
-export const RULESET = 15;
+export const RULESET = 16;
 
 // 시련: 고정된 맵과 한 가지 비틀린 규칙. 별 셋 (승리 / 10점 차 / 20점 차 또는 일찍 끝냄)
 export const TRIALS = {
@@ -363,13 +359,13 @@ export const DIFFICULTY = {
 };
 
 // 판 크기 표: 판마다 다른 수는 모두 여기 한곳에 둔다 (규칙서의 표와 같다)
-//   cathedralCost: 대성당 비용 배율 · cathedralVillages: 단계마다 더 필요한 마을 · enemyActions: 율법파 행동 +
+//   cathedralCost: 대성당 비용 배율 · cathedralVillages: 대성당에 더 필요한 마을 (기본 둘) · enemyActions: 율법파 행동 +
 //   faith: 신앙 승리의 인구 합·장·개종 문턱 · rounds.ult/draft/wrath: 궁극이 깨어나는 장·기적 드래프트 장·신의 분노가 차기 시작하는 장
 export const MAP_SIZES = {
   4: { name: t('data.mapSize.4.name'), rounds: 8, cathedralCost: 0.7, cathedralVillages: 0, enemyActions: 0, faith: { pop: 6, round: 4, converts: 1 }, at: { ult: 6, draft: 3, wrath: 3 } },
   5: { name: t('data.mapSize.5.name'), rounds: 12, cathedralCost: 1, cathedralVillages: 0, enemyActions: 0, faith: { pop: 8, round: 6, converts: 2 }, at: { ult: 8, draft: 5, wrath: 4 } },
-  6: { name: t('data.mapSize.6.name'), rounds: 12, cathedralCost: 1, cathedralVillages: 1, enemyActions: 0, faith: { pop: 8, round: 6, converts: 2 }, at: { ult: 8, draft: 5, wrath: 4 } },
-  7: { name: t('data.mapSize.7.name'), rounds: 14, cathedralCost: 1.5, cathedralVillages: 2, enemyActions: 1, faith: { pop: 8, round: 6, converts: 2 }, at: { ult: 8, draft: 5, wrath: 4 } },
+  6: { name: t('data.mapSize.6.name'), rounds: 12, cathedralCost: 1.5, cathedralVillages: 1, enemyActions: 0, faith: { pop: 8, round: 6, converts: 2 }, at: { ult: 8, draft: 5, wrath: 4 } },
+  7: { name: t('data.mapSize.7.name'), rounds: 14, cathedralCost: 2, cathedralVillages: 3, enemyActions: 1, faith: { pop: 8, round: 6, converts: 2 }, at: { ult: 8, draft: 5, wrath: 4 } },
 };
 
 export const PLAYER_START = { food: 4, wood: 2, stone: 0, faith: 4, pop: 3 };

@@ -173,13 +173,34 @@ export function makePolicy(name) {
       return { text: plannerText(s, rng), seal: true };
     }, site: () => 'take',
   };
-  if (name === 'smartcath') return { // smart + one human rule: always push the cathedral/temple when affordable
+  if (name === 'smartcath') return { // smart + one human rule: push the temple; once the cathedral is possible, wall the capital, build it, hold
     miracle: (s) => (s.round < s.maxRounds ? smartMiracle(s) : null),
     offer: (s) => s.miracleOffer.find((x) => ['manna', 'ark', 'revive'].includes(x)) ?? s.miracleOffer[0],
     speak: (s, rng) => {
-      const L = E.legalActions(s, 'player');
-      if (L.some((a) => a.build === 'cathedral' || a.build === 'temple')) return { text: '신전을 높이 세우라', seal: true };
+      const p = s.sides.player; const L = E.legalActions(s, 'player');
+      const cap = s.tiles.find((t) => t.building === 'capital' && t.owner === 'player');
+      if (p.cathedral) return { text: '우리 수도에 성벽을 쌓아라, 기도하라, 곡식을 거두라', seal: true };
+      if (L.some((a) => a.build === 'cathedral')) return { text: cap.wall || p.stone < 2 + E.buildCost(s, 'player', 'cathedral').stone ? '대성당을 지어라, 곡식을 거두라' : '우리 수도에 성벽을 쌓아라, 곡식을 거두라', seal: true };
+      if (L.some((a) => a.build === 'temple')) return { text: '신전을 높이 세우라', seal: true };
       return { text: smartChooseText(s, rng), seal: true };
+    }, site: () => 'take',
+  };
+  if (name === 'cathbot') return { // 대성당만 노리는 대본: 신전 → 마을 → 돌·나무 → 수도 성벽 → 대성당 → 버티기
+    miracle: (s) => (s.round < s.maxRounds ? smartMiracle(s) : null),
+    offer: (s) => s.miracleOffer.find((x) => ['manna', 'ark', 'revive'].includes(x)) ?? s.miracleOffer[0],
+    speak: (s) => {
+      const p = s.sides.player; const L = E.legalActions(s, 'player');
+      const cap = s.tiles.find((t) => t.building === 'capital' && t.owner === 'player');
+      if (p.cathedral) return { text: '우리 수도에 성벽을 쌓아라, 기도하라, 곡식을 거두라', seal: true };
+      if (L.some((a) => a.build === 'cathedral')) return { text: cap.wall || p.stone < 2 + E.buildCost(s, 'player', 'cathedral').stone ? '대성당을 지어라, 곡식을 거두라' : '우리 수도에 성벽을 쌓아라, 곡식을 거두라', seal: true };
+      if (p.templeLevel < 3) return { text: L.some((a) => a.build === 'temple') ? '신전을 높이 세우라, 돌을 캐라, 곡식을 거두라' : '산에서 돌을 캐라, 숲의 나무를 베어라', seal: true };
+      const c = E.buildCost(s, 'player', 'cathedral'); const parts = [];
+      if (E.villageCount(s, 'player') < E.cathedralVillages(s)) parts.push('마을을 넓혀라');
+      if (p.stone < (c.stone ?? 0) + 2) parts.push('산에서 돌을 캐라');
+      if (p.wood < (c.wood ?? 0) + 2) parts.push('숲의 나무를 베어라');
+      if (p.faith < (c.faith ?? 0) + 2) parts.push('기도하라');
+      if (p.food < p.pop + 1) parts.push('곡식을 거두라');
+      return { text: (parts.length ? parts : ['곡식을 거두라', '기도하라']).slice(0, 3).join(', '), seal: true };
     }, site: () => 'take',
   };
   if (name === 'smart4') return { // same as smart but 4 dice samples

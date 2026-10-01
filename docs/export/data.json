@@ -3,7 +3,7 @@
     "source": "js/game/data.js",
     "generator": "tools/export-data.mjs",
     "lang": "ko",
-    "ruleset": 15,
+    "ruleset": 16,
     "conventions": [
       "A function value is written as an object whose only key is \"$fn\" (its JS source text). Port the logic by hand; see docs/spec/03-data.md.",
       "A RegExp value is written as an object with keys \"$re\" (source) and \"flags\"."
@@ -75,32 +75,18 @@
     }
   },
   "CAPITAL_HP": 2,
-  "CATHEDRAL": [
-    {
-      "name": "기초",
-      "cost": {
-        "stone": 3,
-        "wood": 3,
-        "faith": 3
-      }
+  "CATHEDRAL": {
+    "cost": {
+      "stone": 6,
+      "wood": 6,
+      "faith": 6
     },
-    {
-      "name": "벽",
-      "cost": {
-        "stone": 3,
-        "wood": 3,
-        "faith": 3
-      }
+    "crusade": {
+      "attacks": 3,
+      "bonus": 1
     },
-    {
-      "name": "첨탑",
-      "cost": {
-        "stone": 3,
-        "wood": 3,
-        "faith": 3
-      }
-    }
-  ],
+    "villages": 2
+  },
   "COMMANDMENTS": {
     "noSword": {
       "name": "칼을 들지 말라",
@@ -133,11 +119,6 @@
     },
     "temple": {
       "$fn": "(level) => ({ stone: level * 2, wood: level + 1 })"
-    },
-    "cathedral": {
-      "stone": 11,
-      "wood": 11,
-      "faith": 13
     }
   },
   "DESTINIES": {
@@ -996,7 +977,7 @@
     "6": {
       "name": "보통",
       "rounds": 12,
-      "cathedralCost": 1,
+      "cathedralCost": 1.5,
       "cathedralVillages": 1,
       "enemyActions": 0,
       "faith": {
@@ -1013,8 +994,8 @@
     "7": {
       "name": "크게",
       "rounds": 14,
-      "cathedralCost": 1.5,
-      "cathedralVillages": 2,
+      "cathedralCost": 2,
+      "cathedralVillages": 3,
       "enemyActions": 1,
       "faith": {
         "pop": 8,
@@ -1267,7 +1248,7 @@
     "graceDoctrineBelow": 3,
     "maxNames": 3
   },
-  "RULESET": 15,
+  "RULESET": 16,
   "SACRED_WORDS": [
     {
       "word": "무지개",
