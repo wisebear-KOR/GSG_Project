@@ -8,7 +8,7 @@
 - **글 칸**(`name`, `text`, `rule`, `desc`, `label`, `trait`, `prompt`, `intro`, `lines` …)은 언어팩 키를 `t()`로 풀어 넣은 한국어다. 원래 키는 `data.js` 소스에 그대로 보인다. 모양은 거의 `data.<표>.<id>.<칸>` — 예: `TERRAIN.plain.name` ← `data.terrain.plain.name`, `EVENTS[drought].rule` ← `data.event.drought.rule`, `ENEMY_LEADERS.iron.lines.card.L5` ← `data.leader.iron.line.card.L5`. 다국어 Godot판은 키를 들고 있다가 그릴 때 번역하는 편이 낫다.
 - **`kw.*` 칸**은 번역이 아니라 **정규식 원본**(또는 낱말)이다: 갈림길 `tags`, 계명 `re`, 숨은 말 `word`. 언어마다 그 언어의 어휘로 새로 쓴다 ([`docs/i18n.md`](../i18n.md)).
 - **함수 칸**은 `data.json`에서 `{"$fn": "<소스>"}`로 나온다 ([아래](#함수-칸-fn)).
-- **숫자 키**(`MAP_SIZES`, `PROPHECY.reward`, `DOCTRINE.*.perks`, `FESTIVALS`)는 JSON에서 문자열 키다.
+- **숫자 키**(`MAP_SIZES`, `DOCTRINE.*.perks`, `FESTIVALS`)는 JSON에서 문자열 키다(`PROPHECY.reward`는 `8250dd7`에서 없어졌다).
 - 자원 이름은 늘 `food`·`wood`·`stone`·`faith`, 인구는 `pop`. 비용·이득 객체(`{wood: 2, food: 1}`)는 이 키의 부분집합이고 값은 정수(이득은 음수일 수 있다).
 - 교리 id는 `peace`·`war`·`abundance`·`wisdom` (`DOCTRINES` 순서), 진영은 `player`·`enemy`.
 - **쓰는 곳** 약어: `engine`(engine.js), `main`(main.js — 화면 컨트롤러), `interp`(interpreter.js), `lore`(lore.js), `chron`(chronicle.js), `meta`(meta.js).
@@ -43,8 +43,8 @@
 | [`MIRACLES`](#miracles--first_hand--doom) | 배열 | 8 | engine, main | 기적 카드 |
 | [`FIRST_HAND`](#miracles--first_hand--doom) | 배열 | 3 | engine | 해금 3 전(첫 판~세 번째 판) 손패 |
 | [`DOOM`](#miracles--first_hand--doom) | 객체 | 1 | engine, main | 숨은 기적 「심판의 날」 |
-| [`TONES`](#tones) | 객체 | 4 | main | 말투 이름·효과 글 |
-| [`PROPHECY`](#prophecy) | 객체 | — | engine, main | 예언 보상·벌·종류 |
+| [`TONES`](#tones) | 객체 | 4 | main | 말투 이름·툴팁 글 (`8250dd7`부터 수치 없음) |
+| [`PROPHECY`](#prophecy) | 객체 | — | engine, main | 예언 종류 (`8250dd7` 전에는 보상·벌도) |
 | [`COMMANDMENTS`](#commandments) | 객체 | 4 | engine, main | 영원한 계명 |
 | [`SACRED_WORDS`](#sacred_words) | 배열 | 7 | engine | 오늘의 계시의 숨은 말 |
 | [`PETITIONERS`](#petitioners) | 배열 | 12 | engine | 이름 있는 신도(청원자) |
@@ -60,7 +60,7 @@
 | [`BLESSINGS`](#awe_levels--awe_titles--blessings) | 객체 | 4 | main (+engine이 `config.blessing`으로) | 은사 |
 | [`SIGILS`](#sigils) | 객체 | 6 | main | 신의 인장 → SVG 심볼 |
 | [`RULES`](#rules) | 객체 | 8 | engine, main | 규칙 수치 모음 (`superiority`는 `435c3cc`에서 지웠다) |
-| [상수](#상수) | 수 | — | — | `CAPITAL_HP` 2, `MAX_TEMPLE` 3, `MAX_ACTIONS` 6, `DOCTRINE_MAX` 6, `EDICT_MAX` 10, `DESTINY_POINTS` 5, `MAX_COMMANDMENTS` 2, `REVELATION_MAX` 100, `MAX_ROUNDS` 12, `RULESET` 12 (engine의 `MODULES` 4는 `data.js` 밖) |
+| [상수](#상수) | 수 | — | — | `CAPITAL_HP` 2, `MAX_TEMPLE` 3, `MAX_ACTIONS` 6, `DOCTRINE_MAX` 6, `EDICT_MAX` 10, `DESTINY_POINTS` 5, `MAX_COMMANDMENTS` 2, `REVELATION_MAX` 100, `MAX_ROUNDS` 12, `RULESET` 13 (engine의 `MODULES` 4는 `data.js` 밖) |
 | ~~[`revelationCost`](#함수-칸-fn)~~ | — | — | — | **없어짐** `0c95856` — 쓰이지 않던 길이 비용 함수. 계시 비용은 engine `revelationCostFor` ([02 §14.1](02-rules.md#141-계시-비용과-길이)) |
 
 ---
@@ -345,17 +345,17 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 
 ### TONES
 
-말투 → `{name, text}` (`command`·`blessing`·`curse`·`metaphor`, `command.text`는 빈 문자열). **표시용**이다 (main 확인 화면의 꼬리표). 판정은 `lore.detectTone`(정규식 `kw.tone.*`, 저주 > 축복 > 비유 > 명령), 효과는 `engine.applyTone`(축복: 첫 채집 +1, 저주: 공격 +1·신앙 −1)과 main(비유: 교리 +1 가속).
+말투 → `{name, text}` (`command`·`blessing`·`curse`·`metaphor`, `command.text`는 빈 문자열). **표시용**이다 (main 확인 화면의 꼬리표 `{이름}의 말투`와 그 툴팁). 판정은 `lore.detectTone`(정규식 `kw.tone.*`, 저주 > 축복 > 비유 > 명령). `8250dd7`부터 말투는 **효과가 없다** — `text`는 셋 다 `대사제의 말씨가 달라진다 (수치는 그대로)`. 그 전에는 `text`가 효과 글이었고 효과는 `engine.applyTone`(축복: 첫 채집 +1, 저주: 공격 +1·신앙 −1)과 main(비유: 교리 +1 가속)이 걸었다. `data.js`의 주석("계시의 문체가 효과가 된다")은 옛 뜻 그대로다.
 
 ### PROPHECY
 
 | 칸 | 형 | 뜻 |
 |---|---|---|
-| `reward` | `{"1": 4, "2": 3, "3": 2}` | 기한(장 수) → 이루면 받는 신앙 (짧을수록 크다) |
-| `penalty` | 정수 (2) | 빗나가면 잃는 신앙 |
 | `kinds` | `{fall｜capital｜pop｜convert: {name, short}}` | 예언 종류의 이름 |
 
-종류 판정은 `lore.parseProphecy`(`kw.prophecy.*`), 봉인은 `sealProphecy`(기한 `due = round + rounds − 1`, 기준값 저장), 판정은 장 끝 `checkProphecy`: `fall` 우리가 마을을 빼앗음, `capital` 율법파 수도 내구도가 줄었음, `pop` 우리 인구 +2 이상, `convert` 개종 성공.
+`8250dd7`에서 `reward`(`{"1": 4, "2": 3, "3": 2}` — 기한별 이루면 받는 신앙)와 `penalty`(2 — 빗나가면 잃는 신앙)를 지웠다. 이룬 예언은 이제 **은총**(신앙 +1, 장당 한 번의 몫 — `grantGrace`)이고 빗나가도 벌이 없다. 주석 "짧을수록 보상이 크다"는 남았다.
+
+종류 판정은 `lore.parseProphecy`(`kw.prophecy.*`), 봉인은 `sealProphecy`(기한 `due = round + rounds − 1`, 기준값 저장), 판정은 장 끝 `checkProphecy`(이루면 은총, 기한이 지나면 기록만): `fall` 우리가 마을을 빼앗음, `capital` 율법파 수도 내구도가 줄었음, `pop` 우리 인구 +2 이상, `convert` 개종 성공.
 
 ### COMMANDMENTS
 
@@ -466,9 +466,9 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `followersPerFaith` | 3 | 신도 3명마다 신앙 수입 +1 (`faithIncome`) |
 | `baseFaithIncome` | 1 | 매 장 기본 신앙 수입 |
 | `heresyGrace` | 1 | 신앙 0으로 버틸 수 있는 장 수, 그다음 장부터 신도가 율법파로 떠난다 (`upkeep`) |
-| `lowFaith` | 2 | 이 이하이면 자동 노동이 기도를 먼저 하고 신앙 청원이 나온다 (`autoFill`, `makePetition`) |
-| `gracePerRound` | 1 | 청원·이름·서원으로 받는 은총 신앙의 장당 한도 (`grantGrace`) |
-| `graceDoctrineBelow` | 3 | 비유·첫 이름·전생의 유적의 교리 가속은 그 교리가 이 값보다 낮을 때만 (`recordRevelation`, main, `discoverSites`) |
+| `lowFaith` | 2 | 이 이하이면 자동 노동이 기도를 먼저 하고(`8250dd7`부터 플레이어 쪽은 "모자란 것" 셋 가운데 첫째) 신앙 청원이 나온다 (`autoFill`, `makePetition`) |
+| `gracePerRound` | 1 | 청원·서원·이름·이룬 예언(`8250dd7`)으로 받는 은총 신앙의 장당 한도 (`grantGrace`) |
+| `graceDoctrineBelow` | 3 | 전생의 유적의 교리 가속은 그 교리가 이 값보다 낮을 때만 (`discoverSites`). `8250dd7` 전에는 비유(`recordRevelation`)·첫 이름(main)의 가속도 이 값을 봤다 — `data.js`의 주석은 아직 그 둘을 말한다 |
 | `maxNames` | 3 | 판당 이름 수 (`nameTile`) |
 
 칸 8개. `superiority`(3 — 신도가 이만큼 많으면 공격·방어 주사위 +1)는 `435c3cc`에서 규칙과 함께 지웠다([02 §1.7](02-rules.md#17-파생-수치)). `data.json`의 `RULES`에도 없다.
@@ -486,7 +486,7 @@ engine은 `events`·`lawCards`를 **뒤집어** 덱에 넣는다 (덱은 끝에�
 | `MAX_COMMANDMENTS` | 2 | 판당 계명 수 |
 | `REVELATION_MAX` | 100 | 계시 글자 수 상한 (main `revMax`; 시련 `cloister`는 20) |
 | `MAX_ROUNDS` | 12 | **쓰이지 않는다** (`createState`는 `MAP_SIZES`가 없을 때 숫자 12를 직접 쓴다) |
-| `RULESET` | 12 | 규칙 판 번호 (`data.js:246`). 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). `55d33dd`부터 새 상태에 `state.ruleset`으로도 적혀, 불러올 때 10 미만(없으면 0)이면 석판을 새 한계 아래로 자른다(engine `hydrateState`). `e68a240`에서 4 → 5로 올렸다 — `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)·`e68a240`(막기 대칭·헤아린 성벽 예산)의 규칙 변경이 한 번에 반영된다. 그 사이(`afab303`~`e68a240` 직전)에 둔 판은 재조정 전의 판과 같은 `-r4` 키로 남아 있다. `9b43bbf`(심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정)는 올리지 않아 `-r5`에 그 전후 판이 섞인다. `87a0fce`에서 5 → 6(승점으로 정하는 선공, 결집 12·6점과 신도 +1, 같은 기적 재사용 +1, 두 장 전 메아리). `7a28084`의 7×7 대성당 ×1.5는 올리지 않고 `-r6` 안에서 바뀌었다. `435c3cc`에서 6 → 7(신도 수 우위 삭제, 수도 내구도 2). `8ba0ef8`의 해금 단계는 올리지 않았다. `0c95856`에서 7 → 8(대성당 공사 중 율법파 선공, 30자 가산·인용 할인 삭제 — 같은 커밋부터 최고 기록 키에 해금 단계 `-u{n}`도 붙는다, [07 §13](07-progression.md#13-시드별-최고-기록-metajs105-115)). `0a0a974`(대사제 성향 노동, 어려움의 건설 공개)는 올리지 않았다. `df1cb16`에서 8 → 9(되풀이 규칙을 하나로 — 되풀이면 율법파가 선교·공격에 대비, 결집의 신도 +1 삭제). `16492f4`(보통의 율법파 뜻 공개, 예고된 성벽을 세는 승률, 석판 해석기)는 올리지 않았다. `c12a1e9`에서 9 → 10(석판의 신앙 전환·피의 율법 삭제, `EDICT_MAX` 12 → 10). `55d33dd`(대성당 원정 +1 삭제, 율법파의 대비를 메아리 판정으로)는 올리지 않아 `-r10`에 그 전후 판이 섞인다. `846fd60`에서 10 → 11(포위·성인 보정·청원 외면 벌 삭제), `88878b6`에서 11 → 12(연속 기적 대신 율법파가 읽음, 전쟁 4칸은 성벽 돌 1) |
+| `RULESET` | 13 | 규칙 판 번호 (`data.js:245`). 기록·최고 기록 키에 붙어 규칙이 바뀐 판끼리 비교하지 않게 한다 (main, chron, meta `bestKey`). `55d33dd`부터 새 상태에 `state.ruleset`으로도 적혀, 불러올 때 10 미만(없으면 0)이면 석판을 새 한계 아래로 자른다(engine `hydrateState`). `e68a240`에서 4 → 5로 올렸다 — `afab303`(원정·결집·대성당 조건 등)·`448f553`(남은 자)·`e68a240`(막기 대칭·헤아린 성벽 예산)의 규칙 변경이 한 번에 반영된다. 그 사이(`afab303`~`e68a240` 직전)에 둔 판은 재조정 전의 판과 같은 `-r4` 키로 남아 있다. `9b43bbf`(심판의 날 한 번·신앙 승리 개종 조건·큰 판 보정)는 올리지 않아 `-r5`에 그 전후 판이 섞인다. `87a0fce`에서 5 → 6(승점으로 정하는 선공, 결집 12·6점과 신도 +1, 같은 기적 재사용 +1, 두 장 전 메아리). `7a28084`의 7×7 대성당 ×1.5는 올리지 않고 `-r6` 안에서 바뀌었다. `435c3cc`에서 6 → 7(신도 수 우위 삭제, 수도 내구도 2). `8ba0ef8`의 해금 단계는 올리지 않았다. `0c95856`에서 7 → 8(대성당 공사 중 율법파 선공, 30자 가산·인용 할인 삭제 — 같은 커밋부터 최고 기록 키에 해금 단계 `-u{n}`도 붙는다, [07 §13](07-progression.md#13-시드별-최고-기록-metajs105-115)). `0a0a974`(대사제 성향 노동, 어려움의 건설 공개)는 올리지 않았다. `df1cb16`에서 8 → 9(되풀이 규칙을 하나로 — 되풀이면 율법파가 선교·공격에 대비, 결집의 신도 +1 삭제). `16492f4`(보통의 율법파 뜻 공개, 예고된 성벽을 세는 승률, 석판 해석기)는 올리지 않았다. `c12a1e9`에서 9 → 10(석판의 신앙 전환·피의 율법 삭제, `EDICT_MAX` 12 → 10). `55d33dd`(대성당 원정 +1 삭제, 율법파의 대비를 메아리 판정으로)는 올리지 않아 `-r10`에 그 전후 판이 섞인다. `846fd60`에서 10 → 11(포위·성인 보정·청원 외면 벌 삭제), `88878b6`에서 11 → 12(연속 기적 대신 율법파가 읽음, 전쟁 4칸은 성벽 돌 1), `8250dd7`에서 12 → 13(은총 하나 — 말투 수치 삭제·예언 은총, 절 하나에 손 둘, 남는 손은 모자란 것만) |
 
 `data.js` 밖의 상수 하나: engine의 **`MODULES` = 4**(`engine.js:68`, `8ba0ef8`) — 모듈 해금 단계의 최대(끝낸 판 수를 이 값에서 자른다). main이 import해 `unlock: min(MODULES, 서고 길이)`로 넘기고 해금 안내의 끝을 정한다. `data.json`에는 없다.
 
