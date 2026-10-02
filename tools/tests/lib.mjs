@@ -88,6 +88,7 @@ export function doAccept(state, pending) {
   const enemyPlan = E.planEnemy(state);
   if (pending.seal && pending.prophecy) E.sealProphecy(state, pending.prophecy);
   E.resolveRound(state, [...accepted, ...auto], enemyPlan);
+  if (!state.winner && text) E.keepVows(state, result.forbidden, [...accepted, ...auto]);
   if (!state.winner) wordsAfter(state, pending);
   if (text) E.recordRevelation(state, text, result.doctrine, pending.spoken);
   const last = state.history.at(-1);

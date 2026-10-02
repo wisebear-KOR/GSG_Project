@@ -275,6 +275,13 @@ svg.ico { width: 1.25em; height: 1.25em; vertical-align: -0.25em; }
 .order .num { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: var(--player); color: #fff; font: 700 11px var(--font-ui); }
 .order.auto { opacity: .62; border-style: dashed; }
 .order.rest { opacity: .5; border-style: dotted; }
+.next-season { flex-wrap: wrap; }
+.next-season > span:first-child { display: inline-flex; align-items: center; gap: 6px; }
+.next-law { flex-basis: 100%; font-size: 12px; color: var(--on-table-dim); }
+.next-law:empty { display: none; }
+.next-law-react { font-weight: 700; color: #e08a7a; }
+.next-law.flip { animation: nextLawFlip .45s ease; }
+@keyframes nextLawFlip { from { opacity: .2; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
 .order.bad { background: rgba(192, 57, 43, .08); border-color: rgba(192, 57, 43, .4); color: #7a2a20; }
 .order.bad .t { text-decoration: line-through; }
 .order .why { font: 600 11px var(--font-ui); padding: 1px 6px; border-radius: 6px; background: rgba(192, 57, 43, .15); }
@@ -415,7 +422,7 @@ svg.ico { width: 1.25em; height: 1.25em; vertical-align: -0.25em; }
 body.reduce-motion .vignette, body.reduce-motion .tile-river .waves path, body.reduce-motion .fog-glyph, body.reduce-motion .holy-spark,
 body.reduce-motion .hl-ring, body.reduce-motion .sel-ring, body.reduce-motion .meeple.drop, body.reduce-motion .card.flip,
 body.reduce-motion .card.deal, body.reduce-motion .track .node.now::after, body.reduce-motion .endscreen .rays,
-body.reduce-motion .flame-svg .fl, body.reduce-motion .thinking .tiles { animation: none !important; }
+body.reduce-motion .flame-svg .fl, body.reduce-motion .thinking .tiles, body.reduce-motion .next-law.flip { animation: none !important; }
 
 /* ---------- 반응형 ---------- */
 .app { overflow-x: clip; }

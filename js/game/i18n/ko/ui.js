@@ -27,6 +27,11 @@ export default {
   'ui.heard.also': (v) => `못 함: ${v.kinds.map(cannotLabel).join(', ')}`,
   'ui.heard.forbid': (v) => `금함: ${v.kinds.join(', ')}`,
   'ui.heard.kindWord': (v) => ({ preach: '선교', attack: '공격', wall: '성벽', village: '마을', temple: '신전', explore: '탐험', pray: '기도', gather: '채집' })[v.k] ?? v.k,
+  'ui.heard.next': (v) => {
+    const mark = (r) => (r ? ' <b class="next-law-react">맞섬</b>' : '');
+    return v.alt ? `율법파 「${v.name}」${mark(v.reacted)} 또는 「${v.alt.name}」${mark(v.alt.reacted)}` : `율법파 「${v.name}」${mark(v.reacted)}`;
+  },
+  'ui.heard.nextTip': '율법파는 우리 말씀의 성격에 맞서는 카드(맞섬)를 덱 위에서 골라 다음 장에 쓴다. 적는 동안 바뀐다 — 무엇을 말하느냐가 다음 장 율법파를 정한다. 어려움은 두 장 가운데 그때 더 위협적인 쪽',
   'ui.heard.none': '아직 알아들은 말이 없다 — 곡식·나무·돌·마을·성벽·기도·안개·이웃·쳐라 같은 말을 넣어 보라',
   // ---------- 문서 ----------
   'ui.doc.title': '말씀이 있으라 — Let There Be',
@@ -296,7 +301,7 @@ export default {
   'ui.rules.words7': '<b>말한 기적</b>: 계시에 "번개", "단비" 같은 말이 있으면 손에 든 기적이 내린다.',
   'ui.rules.enemy': '율법파',
   'ui.rules.enemy1': '판마다 지도자가 다르고, 율법 카드 순서대로 움직인다. 이번 장의 뜻은 보드의 붉은 표식으로 미리 보인다(난이도만큼).',
-  'ui.rules.enemy2': '율법파는 지난 장의 말씀을 듣고 맞서는 카드를 고른다.',
+  'ui.rules.enemy2': '율법파는 지난 장의 말씀을 듣고 맞서는 카드를 고른다 — 적는 동안 오른쪽 <b>다음 장</b> 칸에 그 카드가 미리 보인다.',
   'ui.rules.enemy4': '<b>원정</b>: 막이 갈수록 율법파 수도의 손이 멀리 닿고, 보통은 3막·어려움은 2막부터 칼을 든다. 7×7 판에서는 율법파의 손이 하나 더 많다. 원정대는 지면 물러난다(식량 −1).',
   'ui.rules.miracle': '기적',
   'ui.rules.miracle1': '기적은 장당 하나. 같은 기적을 다시 쓸 때마다 신앙이 1 더 든다. 5장에 새 기적을 고른다 <em>네 번째 판부터</em>.',

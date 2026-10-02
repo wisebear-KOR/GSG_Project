@@ -63,7 +63,7 @@ export function smartChooseText(state, rng, { cands = SMART_REVS, samples = 2, r
 }
 const CLAUSES = ['강에서 물고기를 잡아라', '들판에서 곡식을 거두라', '숲의 나무를 베어라', '산에서 돌을 캐라', '마을을 넓혀라', '이웃에게 사랑을 전하라',
   '쳐라', '성벽을 쌓아 지켜라', '신전을 높이 세우라', '대성당을 지어라', '기도하라', '안개 너머를 탐험하라', '가장 약한 율법파 마을을 쳐라', '약한 율법파 마을에 사랑을 전하라'];
-function valueOf(state, text, rng, samples = 2) {
+function valueOf(state, text, rng, samples = 2, foresight = 0) {
   let v = 0;
   for (let k = 0; k < samples; k++) {
     const s = cloneLite(state);
@@ -71,18 +71,20 @@ function valueOf(state, text, rng, samples = 2) {
     const pd = doSpeak(s, text, { seal: true });
     doAccept(s, pd);
     v += evalState(s);
+    // 앞을 보는 숙련: 이 말씀이 부를 다음 장 율법 카드의 위협을 뺀다
+    if (foresight && !s.winner) { const nx = E.nextLawCard(s, s.revelations.at(-1)?.doctrine, false); if (nx) v -= foresight * E.lawThreat(s, nx.card); }
   }
   return v / samples;
 }
-export function plannerText(state, rng) {
-  let best = null; let bestV = valueOf(state, null, rng);
+export function plannerText(state, rng, foresight = 0) {
+  let best = null; let bestV = valueOf(state, null, rng, 2, foresight);
   let cur = [];
   for (let depth = 0; depth < 3; depth++) {
     let stepBest = null; let stepV = -Infinity;
     for (const c of CLAUSES) {
       if (cur.includes(c)) continue;
       const text = [...cur, c].join(', ');
-      const v = valueOf(state, text, rng);
+      const v = valueOf(state, text, rng, 2, foresight);
       if (v > stepV) { stepV = v; stepBest = c; }
     }
     if (stepBest == null || stepV <= bestV) break;
@@ -168,6 +170,11 @@ export function makePolicy(name) {
     miracle: (s) => (s.round < s.maxRounds ? smartMiracle(s) : null),
     offer: (s) => s.miracleOffer.find((x) => ['manna', 'ark', 'revive'].includes(x)) ?? s.miracleOffer[0],
     speak: (s, rng) => ({ text: plannerText(s, rng), seal: true }), site: () => 'take',
+  };
+  if (name === 'foresight') return { // planner + 다음 장 율법 카드를 내다본다
+    miracle: (s) => (s.round < s.maxRounds ? smartMiracle(s) : null),
+    offer: (s) => s.miracleOffer.find((x) => ['manna', 'ark', 'revive'].includes(x)) ?? s.miracleOffer[0],
+    speak: (s, rng) => ({ text: plannerText(s, rng, +(globalThis.process?.env?.FORESIGHT ?? 1)), seal: true }), site: () => 'take',
   };
   if (name === 'warplan') return { // 정복 지향: 율법파 수도를 둘러싸고 칠 수 있으면 친다, 아니면 planner
     miracle: (s) => (s.round < s.maxRounds ? smartMiracle(s) : null),

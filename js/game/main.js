@@ -4,7 +4,7 @@ import {
   recordRevelation, castMiracle, actionLimit, FLIP_MARKS, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
   faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent,
   grantGrace, petitionAnswered, nameTile, sealProphecy, takeMiracle, resolveSite,
-  scoreBreakdown, miracleCost, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
+  scoreBreakdown, miracleCost, nextEvent, nextLawCard, keepVows, hasUlt, ULT_ROUND, actionOdds,
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
   canCarve, carveCommandment, findSacred, distance, previewGains, ultRound, draftRound,
   applySilence, markLegends, serializeState, hydrateState, monthOf, payDilemma, carvable,
@@ -1776,7 +1776,7 @@ function renderSeason() {
         <div class="rule">${esc(ev.rule)}</div>
         ${state.eventChoice && phase === 'speak' ? seasonChoiceHTML() : ''}
       </div>
-    </div>${nextEvent(state) && state.round < state.maxRounds ? `<div class="next-season" title="${esc(nextEvent(state).rule)}">${t('ui.season.next')}${svgUse(nextEvent(state).choice ? 'e-prophet' : `e-${nextEvent(state).id}`)}${esc(nextEvent(state).name)}</div>` : ''}${destinyHTML()}`;
+    </div>${nextEvent(state) && state.round < state.maxRounds ? `<div class="next-season"><span title="${esc(nextEvent(state).rule)}">${t('ui.season.next')}${svgUse(nextEvent(state).choice ? 'e-prophet' : `e-${nextEvent(state).id}`)}${esc(nextEvent(state).name)}</span><span class="next-law" id="nextLaw">${nextLawHTML(phase === 'speak' ? draft : null)}</span></div>` : ''}${destinyHTML()}`;
   if (dealSeason) setTimeout(() => sfx.deal(), 250);
   dealSeason = false;
   $('season').querySelectorAll('.card').forEach((c) => fx.attachTilt(c, 8));
@@ -2345,6 +2345,20 @@ async function typeInto(text) {
 }
 
 // 알아들은 말: 계시를 쓰는 동안 석판이 알아들은 낱말과 그 일을 보여 준다 (LLM 모드에서는 '예감')
+// 다음 장 율법 카드: 지금 적는 말씀(적지 않았으면 이번 장에 내린 말씀)을 들은 율법파가 다음 장에 쓸 카드
+// — 무엇을 말하느냐가 다음 장 율법파를 정한다. 침묵이면 덱 맨 위 카드
+function nextLawHTML(text) {
+  let doctrine = null; let vow = false;
+  if (text?.trim()) {
+    const r = interpretWithTablet(state, text.trim());
+    doctrine = r.doctrine; vow = r.forbidden.some((a) => a.type === 'attack');
+  } else if (text === null) doctrine = state.revelations.find((r) => r.round === state.round)?.doctrine ?? null;
+  const nx = state.round < state.maxRounds ? nextLawCard(state, doctrine, vow) : null;
+  if (!nx) return '';
+  const alt = nx.alt && { name: nx.alt.card.name, reacted: nx.alt.reacted };
+  return `<span data-k="${nx.card.id}${nx.alt ? `/${nx.alt.card.id}` : ''}" title="${esc(`${nx.card.name}: ${nx.card.text}${nx.alt ? ` / ${nx.alt.card.name}: ${nx.alt.card.text}` : ''}`)} — ${t('ui.heard.nextTip')}">${t('ui.heard.next', { name: nx.card.name, reacted: nx.reacted, alt })}</span>`;
+}
+
 function heardHTML(text) {
   if (!text?.trim()) return '';
   const r = interpretWithTablet(state, text.trim());
@@ -2371,6 +2385,15 @@ function scheduleHints() {
     const text = draft.trim();
     const line = $('heardLine');
     if (line) line.innerHTML = heardHTML(text);
+    const law = $('nextLaw');
+    if (law) {
+      const h = nextLawHTML(text);
+      const k = (s) => /data-k="([^"]*)"/.exec(s)?.[1] ?? '';
+      if (k(h) !== k(law.innerHTML) || h.includes('next-law-react') !== law.innerHTML.includes('next-law-react')) {
+        law.innerHTML = h;
+        law.classList.remove('flip'); void law.offsetWidth; law.classList.add('flip');
+      }
+    }
     const next = text ? [...new Set(interpretWithTablet(state, text).orders.map((a) => a.tile))].slice(0, 6) : [];
     if (next.join() === hintTiles.join()) return;
     if (next.some((t) => !hintTiles.includes(t))) sfx.hover();

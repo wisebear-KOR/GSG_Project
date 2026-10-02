@@ -745,8 +745,32 @@ function checkProphecy(state) {
   }
 }
 
+// 다음 장 율법 카드: 이번 계시의 교리(서원이면 'vow')를 들은 율법파가 다음 장에 쓸 카드 — 적는 동안 보인다.
+// 어려움은 위 두 장 가운데 그때 더 위협적인 쪽을 쓰므로 두 장을 함께 알린다 (alt)
+export function nextLawCard(state, doctrine, vow = false) {
+  if (state.tutorial || (state.lawDeck?.length ?? 0) < 2) return null;
+  let deck = state.lawDeck;
+  // 2막이 열리는 장에는 성전 카드가 덱 위 셋째 자리에 들어간다 (startRound와 같은 순서)
+  const next = { ...state, round: state.round + 1 };
+  if (unlocked(state, 3) && actStart(next) && actOf(next) === 2 && lawPool(state).some((c) => c.id === 'L5')) {
+    deck = [...deck];
+    deck.splice(Math.max(0, deck.length - 3), 0, LAW_CARDS.find((c) => c.id === 'L5'));
+  }
+  const heard = vow || state.vowNext ? 'vow' : doctrine;
+  const react = heard && state.config.difficulty !== 'easy' ? REACT[heard] : null;
+  const pref = (c) => (react?.cards.includes(c.id) ? 2 : 0);
+  const top = deck.at(-1);
+  if (state.config.difficulty === 'hard') {
+    const alt = deck.at(-2);
+    const [a, b] = pref(alt) > pref(top) ? [alt, top] : [top, alt];
+    return { card: a, reacted: !!pref(a), alt: { card: b, reacted: !!pref(b) } };
+  }
+  if (!react || pref(top)) return { card: top, reacted: !!pref(top) };
+  const c = [2, 3, 4].map((k) => deck.at(-k)).find((x) => x && pref(x));
+  return c ? { card: c, reacted: true } : { card: top, reacted: false };
+}
 // 율법 카드가 지금 얼마나 위협적인가: 실제로 할 수 있는 공격·선교·건설에 가중치
-function lawThreat(state, card) {
+export function lawThreat(state, card) {
   const pool = legalActions(state, 'enemy');
   const weight = { attack: 3, preach: 2, build: 2, pray: 1, gather: 1 };
   return card.rules.reduce((sum, r) => sum + (pool.some((a) => a.type === r.type && (!r.build || a.build === r.build) && (!r.gather || a.gather === r.gather)) ? weight[r.type] : 0), 0);
