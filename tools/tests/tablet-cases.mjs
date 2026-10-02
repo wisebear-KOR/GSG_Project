@@ -1410,6 +1410,10 @@ const CASES = [
   ['숲 속에 마을을 지어라', ['build:village'], ['gather:wood']],
   ['물꼬기를 잡아라', ['heard:gather'], []], // 튜토리얼 판엔 강이 없다 — 알아듣고 못 한다고 알린다
   ['부족을 늘려라', ['build:village'], []],
+  ['율법파를 쳐서 그들을 구원하라', ['preach', 'heard:attack:tile'], []], // 튜토리얼 판엔 닿는 율법파 칸이 하나 — 칼은 알아듣고 칸이 겹친다고 알린다
+  ['침략해 온 율법파를 쳐부수어라', ['attack'], []],
+  ['쳐들어온 적을 몰아내라', ['attack'], []],
+  ['공격해 오는 적을 무찔러라', ['attack'], []],
 ];
 
 const kindOf = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);

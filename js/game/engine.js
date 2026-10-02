@@ -141,7 +141,6 @@ export function createState(config = DEFAULT_CONFIG) {
     const leaders = Object.entries(ENEMY_LEADERS).filter(([, l]) => !l.notOn?.includes(cfg.difficulty)).map(([id]) => id);
     state.leader = cfg.trial === 'sword' ? 'iron' : hashPick(leaders, 'leader', cfg.seed, cfg.difficulty);
     // 첫 판은 충직한 사제. 그 뒤로는 판마다 다른 성향
-    if (unlockedCfg(cfg, 3)) state.priest = hashPick(Object.keys(PRIESTS).filter((k) => k !== 'loyal'), 'priest', cfg.seed);
     // 두 번째 판부터 심판의 기준이 판마다 바뀐다
     if (unlockedCfg(cfg, 2)) state.judgement = hashPick(Object.keys(JUDGEMENTS), 'judgement', cfg.seed);
     // 두 번째 판부터 기적은 판마다 셋을 받는다 (번개·단비 중 하나는 꼭 든다)
@@ -1230,7 +1229,7 @@ export function hydrateState(obj) {
   if ([state.event, state.lawCard, ...state.eventDeck, ...state.lawDeck].some((c) => c === undefined)) throw new Error(t('eng.unknownCard'));
   state.tileAt = Object.fromEntries(state.tiles.map((t) => [t.id, t]));
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
-  state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.prophecy ??= null;
+  state.priest = 'loyal'; // 대사제 성향은 걷어냈다 — 옛 저장의 성향도 충직으로 state.names ??= {}; state.lessons ??= []; state.prophecy ??= null;
   if (typeof state.lawGuard !== 'number') state.lawGuard = Math.max(state.lawGuard?.attack ?? 0, state.lawGuard?.preach ?? 0);
   state.rally ??= false; state.miracleUses ??= {};
   for (const sd of Object.values(state.sides)) sd.capitalHp = Math.min(sd.capitalHp, CAPITAL_HP);
@@ -1517,17 +1516,10 @@ export function recordRevelation(state, text, doctrine, spoken = spokenOf(state,
   }
   if (doctrine && d[doctrine] < DOCTRINE_MAX) d[doctrine] += 1;
   state.revelations.push({ round: state.round, text, doctrine, sig });
-  if (state.winner) return; // 판이 끝난 뒤에는 교리 대립이 점수를 바꾸지 않는다
+  if (state.winner) return;
   state.streak = streakAfter(state, doctrine, sig);
   if (!doctrine) return;
-  // 교리 대립 (두 번째 판부터): 반대 교리가 흔들린다. 이미 얻은 특전 칸 아래로는 내려가지 않는다
-  const opp = OPPOSED[doctrine];
-  if (unlocked(state, 4) && d[opp] > perkFloor(d[opp])) {
-    d[opp] -= 1;
-    logEvent(state, 'player', t('log.doctrineShaken', { doc: t(`eng.doctrine.${opp}`) }), null, { kind: 'doctrine' });
-  }
 }
-const perkFloor = (v) => (v >= 6 ? 6 : v >= 4 ? 4 : v >= 2 ? 2 : 0);
 
 
 // 금욕 서원: 할 수 있었던 공격·선교를 금했고 끝까지 하지 않았으면 은총. 공격을 금하면 율법파가 그 틈을 노린다

@@ -2098,8 +2098,6 @@ function renderAltar() {
     if (far.length) tags.push(`<span class="wtag warn">${t('ui.heard.also', { kinds: far })}</span>`);
     if (pending.dilemma) tags.push(`<span class="wtag ok">${t('ui.tag.dilemma', { label: esc(state.event.choice.find((o) => o.id === pending.dilemma).label) })}</span>`);
 
-    const opp = result.doctrine && unlocked(state, 4) ? OPPOSED[result.doctrine] : null;
-    if (opp && state.sides.player.doctrine[opp] > [6, 4, 2, 0].find((f) => state.sides.player.doctrine[opp] >= f)) tags.push(`<span class="wtag tone-curse">${DOCTRINE[opp].name} -1</span>`);
     // 율법파가 이 말씀을 읽을지 미리 알린다 (되풀이이거나 같은 교리 세 장째)
     if (wouldRead(state, text, result.doctrine)) {
       const n = Math.min(2, (state.lawGuard ?? 0) + 1);

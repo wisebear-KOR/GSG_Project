@@ -70,7 +70,7 @@
     "maxRounds": 12,
     "enemyBonus": 1,
     "leader": "builder",
-    "priest": "dreamer",
+    "priest": "loyal",
     "judgement": "pious",
     "edictOn": true,
     "holyId": "D4",
