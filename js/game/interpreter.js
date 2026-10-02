@@ -491,6 +491,7 @@ export function interpretWithTablet(state, revelation) {
     // (그 일 자체를 할 수 없으면 — 닿는 율법파 땅이 없다 등 — 그 까닭만 알린다)
     const able = found.some((h) => h.matches.length);
     for (const id of place.exact) if (!negative && able && !picks.some((p) => distance(state.tileAt[p.a.tile], state.tileAt[id]) <= (place.near ? 1 : 0))) heard.push(`far:${id}`);
+    if (!negative && able && place.terrains.size && !place.near && !place.exact.size && !place.named.length && picks.some((p) => p.ci === ci) && !picks.some((p) => p.ci === ci && place.terrains.has(state.tileAt[p.a.tile].terrain))) heard.push(`far:terrain.${[...place.terrains][0]}`);
     if (!negative && able && place.named.length && !place.exact.size && !picks.some((p) => p.ci === ci && [...place.anchors, ...(place.aimPool ?? [])].some((id) => distance(state.tileAt[p.a.tile], state.tileAt[id]) <= (place.near ? 1 : 0)))) heard.push(`far:${place.named[0]}`);
   }
   // 뒤 절이 금한 칸을 앞 절이 골랐으면 금하지 않은 다른 칸으로 옮긴다 ("공격은 하되 수도는 건드리지 마라")

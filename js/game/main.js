@@ -2088,6 +2088,8 @@ function renderAltar() {
     if (text && pending.tone !== 'command') tags.push(`<span class="wtag tone-${pending.tone}" title="${esc(TONES[pending.tone].text)}">${t('ui.tag.tone', { name: TONES[pending.tone].name, text: esc(TONES[pending.tone].text) })}</span>`);
     if (pending.answered) tags.push(`<span class="wtag ok">${t('ui.tag.answered', { from: esc(state.petition.from), grace: grace() })}</span>`);
     if (pending.naming) tags.push(`<span class="wtag name">${t('ui.tag.naming', { name: esc(pending.naming.name) })}</span>`);
+    const far = (result.heard ?? []).filter((k) => k.startsWith('far:'));
+    if (far.length) tags.push(`<span class="wtag warn">${t('ui.heard.also', { kinds: far })}</span>`);
     if (pending.dilemma) tags.push(`<span class="wtag ok">${t('ui.tag.dilemma', { label: esc(state.event.choice.find((o) => o.id === pending.dilemma).label) })}</span>`);
 
     const opp = result.doctrine && unlocked(state, 4) ? OPPOSED[result.doctrine] : null;

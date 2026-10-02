@@ -1328,7 +1328,7 @@ function resolveAction(state, a) {
           return logEvent(state, side, t('log.attackWarSave', { who: side, place }), dice, { tile: tl.id, kind: 'attack' });
         }
         if (side === 'player' && state.roundMods.ark) return logEvent(state, side, t('log.attackArk', { who: side, place }), dice, { tile: tl.id, kind: 'attack' });
-        if (side === 'player') fallen(state, a.key);
+        if (side === 'player') { fallen(state, a.key); if (tl.wall) fallen(state, `${a.key}:2`); }
         // 율법파 원정대는 지면 물러난다 (신도 대신 식량 1)
         if (side === 'enemy' && !state.tutorial) {
           s.food = Math.max(0, s.food - 1);
