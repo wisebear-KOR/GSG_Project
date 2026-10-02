@@ -1,6 +1,6 @@
 {
   "generator": "tools/golden.mjs",
-  "ruleset": 23,
+  "ruleset": 24,
   "lang": "ko",
   "games": [
     {

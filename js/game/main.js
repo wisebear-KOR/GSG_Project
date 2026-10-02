@@ -4,7 +4,7 @@ import {
   recordRevelation, castMiracle, actionLimit, FLIP_MARKS, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
   faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent,
   grantGrace, petitionAnswered, nameTile, sealProphecy, takeMiracle, resolveSite,
-  scoreBreakdown, miracleCost, nextEvent, nextLawCard, dilemmaChoice, keepVows, hasUlt, ULT_ROUND, actionOdds,
+  scoreBreakdown, miracleCost, nextEvent, nextLawCard, dilemmaChoice, graceOn, keepVows, hasUlt, ULT_ROUND, actionOdds,
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
   canCarve, carveCommandment, findSacred, distance, previewGains, ultRound, draftRound,
   applySilence, markLegends, serializeState, hydrateState, monthOf, payDilemma, carvable,
@@ -579,7 +579,7 @@ async function interpret(text, job = runInterpretation(text), naming = pending?.
   pending = {
     text, result, fresh: true, naming, dropped: new Set(),
     tone: detectTone(text),
-    prophecy: state.prophecy ? null : parseProphecy(text), seal: false,
+    prophecy: state.prophecy || !graceOn(state) ? null : parseProphecy(text), seal: false,
   };
   derivePending();
   await enterConfirm();
@@ -1184,7 +1184,7 @@ function showUnlockNote() {
   const seen = Number(meta.get('gsg.unlockNote', 0)) || 0;
   if (seen >= level) return;
   meta.set('gsg.unlockNote', level);
-  const now = [t(`ui.unlock.${level}`), ...(level === 1 ? [t('ui.unlock.5')] : [])];
+  const now = [t(`ui.unlock.${level}`), ...(level === 1 ? [t('ui.unlock.6'), t('ui.unlock.5')] : [])];
   const next = level < MODULES ? `<p class="set-note">${t('ui.unlock.next', { what: t(`ui.unlock.${level + 1}`) })}</p>` : '';
   listModal(t('ui.unlock.title'), `<ul class="unlock-list">${now.map((x) => `<li>${x}</li>`).join('')}</ul>${next}<p class="set-note">${t('ui.unlock.note')}</p>`);
 }

@@ -336,6 +336,8 @@ function placeOf(state, clause) {
   if (closeRef && spec.size) named.length = 0; // 기준으로 짚은 곳은 닿지 않아도 알리지 않는다
   return { anchors, exact, avoid, named, terrains, near, text, dir, home, aimBonus, aimPool, farthest, closeRef, closest: PLACE.closest.test(clause) };
 }
+// 땅에 나가는 일 (수도·건물 안의 일 — 기도·신전·대성당·성벽 — 이 아닌 것)
+const field = (a) => !(a.type === 'pray' || (a.type === 'build' && a.build !== 'village'));
 // "노리는 곳": 율법파가 드러낸 뜻 가운데 이 일을 할 수 있는 칸 n곳을 짚는다 (없으면 처음 짚은 곳 그대로)
 function aimFor(place, ms, n) {
   if (!place.aimPool) return place;
@@ -491,7 +493,7 @@ export function interpretWithTablet(state, revelation) {
     // (그 일 자체를 할 수 없으면 — 닿는 율법파 땅이 없다 등 — 그 까닭만 알린다)
     const able = found.some((h) => h.matches.length);
     for (const id of place.exact) if (!negative && able && !picks.some((p) => distance(state.tileAt[p.a.tile], state.tileAt[id]) <= (place.near ? 1 : 0))) heard.push(`far:${id}`);
-    if (!negative && able && place.terrains.size && !place.near && !place.exact.size && !place.named.length && picks.some((p) => p.ci === ci) && !picks.some((p) => p.ci === ci && place.terrains.has(state.tileAt[p.a.tile].terrain))) heard.push(`far:terrain.${[...place.terrains][0]}`);
+    if (!negative && able && place.terrains.size && !place.near && !place.exact.size && !place.named.length && picks.some((p) => p.ci === ci && field(p.a)) && !picks.some((p) => p.ci === ci && field(p.a) && place.terrains.has(state.tileAt[p.a.tile].terrain))) heard.push(`far:terrain.${[...place.terrains][0]}`);
     if (!negative && able && place.named.length && !place.exact.size && !picks.some((p) => p.ci === ci && [...place.anchors, ...(place.aimPool ?? [])].some((id) => distance(state.tileAt[p.a.tile], state.tileAt[id]) <= (place.near ? 1 : 0)))) heard.push(`far:${place.named[0]}`);
   }
   // 뒤 절이 금한 칸을 앞 절이 골랐으면 금하지 않은 다른 칸으로 옮긴다 ("공격은 하되 수도는 건드리지 마라")

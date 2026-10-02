@@ -157,7 +157,7 @@ export function playGame(cfg, botSeed, { policy = 'random', hydrate = true, chec
         const p = state.sides.player;
         if (p.pop > E.popCap(state, 'player')) stat.pOverCap += 1;
         for (const t of state.tiles) {
-          if (t.faithMarks && !(t.faithMarks.n >= 1 && t.faithMarks.n <= 2 && Number.isInteger(t.faithMarks.n))) flag('faithMarks', `${t.id} n=${t.faithMarks.n}`, R);
+          if (t.faithMarks && !(t.faithMarks.n >= 1 && t.faithMarks.n <= E.FLIP_MARKS - 1 && Number.isInteger(t.faithMarks.n))) flag('faithMarks', `${t.id} n=${t.faithMarks.n}`, R);
           if (t.faithMarks && t.building !== 'village') flag('faithMarks-nonvillage', t.id, R);
           if (t.faithMarks && t.faithMarks.side === t.owner) flag('faithMarks-own', `${t.id} marks by owner ${t.owner}`, R);
           if (t.building && !t.owner) flag('ownerless-building', `${t.id} ${t.building}`, R);

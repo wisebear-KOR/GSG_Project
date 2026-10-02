@@ -68,6 +68,8 @@ export const DEFAULT_CONFIG = { mode: 'standard', size: 5, difficulty: 'normal',
 export const MODULES = 4;
 const unlockedCfg = (cfg, level) => (cfg.unlock ?? (cfg.veteran ? MODULES : 0)) >= level;
 export const unlocked = (state, level) => !state.tutorial && unlockedCfg(state.config, level);
+// 은총(청원·이름 붙이기·예언·서원의 은총)은 두 번째 판부터 — 첫 판은 기본 규칙만
+export const graceOn = (state) => unlocked(state, 1);
 
 export function createState(config = DEFAULT_CONFIG) {
   const cfg = { ...DEFAULT_CONFIG, ...config };
@@ -533,7 +535,7 @@ export function autoFill(state, side, accepted, forbidden = [], doctrine = null)
 }
 
 // 같은 마을에서 선교로 이만큼 이기면 (두 장 넘게 끊기면 표식이 하나씩 지워진다) 마을이 넘어온다
-export const FLIP_MARKS = 3;
+export const FLIP_MARKS = 4;
 
 // ---------- 율법파 (오토마) ----------
 function pickForRule(state, rule, pool) {
@@ -671,6 +673,7 @@ export function grantGrace(state, n, why) {
 
 // 신도들의 청원: 지금 부족에게 가장 급한 것을 한 사람이 묻는다
 function makePetition(state) {
+  if (!graceOn(state)) return null;
   const p = state.sides.player;
   const who = hashPick(PETITIONERS, state.config.seed, state.round, 'petitioner');
   const threat = enemyIntent(state).find((a) => a.shown && a.type === 'attack');
@@ -700,6 +703,7 @@ export function petitionAnswered(state, text, orders) {
 
 // 이름 붙이기: 가장 가까운 그 지형(또는 우리 마을·신전)에 이름을 새긴다
 export function nameTile(state, naming) {
+  if (!graceOn(state)) return null;
   if (!naming || Object.keys(state.names).length >= RULES.maxNames) return null;
   const home = capitalOf(state, 'player');
   const fits = (t) => (naming.kind === 'village' ? t.building === 'village' && t.owner === 'player'
@@ -717,7 +721,7 @@ export function nameTile(state, naming) {
 
 // 예언 봉인
 export function sealProphecy(state, p) {
-  if (state.prophecy || !p) return false;
+  if (state.prophecy || !p || !graceOn(state)) return false;
   const e = state.sides.enemy;
   state.prophecy = {
     ...p, sealed: state.round, due: state.round + p.rounds - 1,
@@ -1381,13 +1385,6 @@ function upkeep(state) {
     s.faith += faithIncome(state, side);
     if (state.event?.id === 'plague' && s.pop > 1 && !(side === 'player' && (state.roundMods.ark || state.prayedAt === state.round))) { s.pop -= 1; logEvent(state, side, t('log.plague', { who: side }), null, { kind: 'loss' }); }
   }
-  // 믿음의 표식은 두 장 동안 이어지지 않으면 하나 사라진다
-  for (const t of state.tiles) {
-    if (t.faithMarks && state.round - t.faithMarks.round >= 2) {
-      t.faithMarks.n -= 1; t.faithMarks.round = state.round;
-      if (t.faithMarks.n <= 0) t.faithMarks = null;
-    }
-  }
   // 평화 궁극: 우리 땅에 닿은 율법파 마을 하나에 말씀이 스며든다 (표식은 남기지 않는다)
   const pp = state.sides.player;
   if (hasUlt(state, 'player', 'peace') && state.sides.enemy.pop > 1 && pp.pop > 0) {
@@ -1524,6 +1521,6 @@ export function keepVows(state, forbidden, plan) {
   if (!types.length) return false;
   if (types.includes('attack')) state.vowNext = 'attack';
   if (plan.some((a) => types.includes(a.type))) return false;
-  if (grantGrace(state, 1, t('eng.why.vow', { types }))) state.stats.vows = (state.stats.vows ?? 0) + 1;
+  if (graceOn(state) && grantGrace(state, 1, t('eng.why.vow', { types }))) state.stats.vows = (state.stats.vows ?? 0) + 1;
   return true;
 }

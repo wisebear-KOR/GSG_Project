@@ -71,7 +71,7 @@
       "lawCard": "L2",
       "first": "player",
       "act": 1,
-      "petition": {"from":"소년 사무","need":{"type":"build","build":"village"}},
+      "petition": null,
       "revelation": "들판이 너희를 먹이리라",
       "cost": 1,
       "tone": "command",
@@ -172,7 +172,7 @@
       "lawCard": "L1",
       "first": "player",
       "act": 2,
-      "petition": {"from":"목수 하닌","need":{"type":"build","build":"village"}},
+      "petition": null,
       "revelation": "신전에서 기도하라",
       "cost": 1,
       "tone": "command",
@@ -273,7 +273,7 @@
       "lawCard": "L6",
       "first": "player",
       "act": 2,
-      "petition": {"from":"파수꾼 요압","need":{"type":"build","build":"village"}},
+      "petition": null,
       "revelation": "땅을 넓혀 마을 두 곳을 세워라",
       "cost": 1,
       "tone": "command",
@@ -285,7 +285,7 @@
       },
       "accepted": ["build:A1:village","build:B1:village"],
       "rejected": [],
-      "petitionAnswered": true,
+      "petitionAnswered": false,
       "auto": [],
       "enemyPlan": ["pray:A3:","gather:A2:food","gather:B2:food","gather:B1:stone"],
       "plan": ["build:A1:village","build:B1:village"],
@@ -314,15 +314,14 @@
           "fx": {"kind":"gain","tile":"A3","gain":{"faith":2}},
           "act": "pray:A3:"
         },
-        {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
-        {"side":"player","text":"은총 — 파수꾼 요압의 청원에 응답했다. 신앙 +1.","fx":{"kind":"grace","tile":"C1","gain":{"faith":1}}}
+        {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}}
       ],
       "digest": {
         "player": {
           "food": 4,
           "wood": 1,
           "stone": 3,
-          "faith": 12,
+          "faith": 11,
           "pop": 4,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -353,7 +352,7 @@
         "holyOwner": null,
         "streak": null,
         "silentRun": 0,
-        "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":1},
+        "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
         "rng": {"deck":1540483474,"dice":-631835663},
         "winner": null,
         "winKind": null
@@ -365,7 +364,7 @@
       "lawCard": "L2",
       "first": "player",
       "act": 3,
-      "petition": {"from":"늙은 사관 갈렙","need":{"type":"gather","gather":"wood"}},
+      "petition": null,
       "revelation": "이웃에게 나의 말씀을 전하라",
       "cost": 1,
       "tone": "command",
@@ -419,7 +418,7 @@
         },
         {
           "side": "player",
-          "text": "신도들의 설교가 통했다! 율법파 마을(A2)에서 1명이 개종했다. 믿음의 표식 1/3.",
+          "text": "신도들의 설교가 통했다! 율법파 마을(A2)에서 1명이 개종했다. 믿음의 표식 1/4.",
           "dice": {"attacker":6,"attackerBonus":1,"defender":5,"defenderBonus":0,"win":true},
           "fx": {"kind":"preach","tile":"A2"},
           "act": "preach:A2:"
@@ -432,7 +431,7 @@
           "food": 4,
           "wood": 3,
           "stone": 3,
-          "faith": 16,
+          "faith": 15,
           "pop": 6,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -464,7 +463,7 @@
         "holyOwner": null,
         "streak": {"doctrine":"peace","n":1},
         "silentRun": 0,
-        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":1},
+        "stats": {"converted":1,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
         "rng": {"deck":1540483474,"dice":-1263671333},
         "winner": null,
         "winKind": null
@@ -476,7 +475,7 @@
       "lawCard": "L8",
       "first": "player",
       "act": 3,
-      "petition": {"from":"양치기 아벨","need":{"type":"gather","gather":"food"}},
+      "petition": null,
       "revelation": "단비를 내려 들판을 적셔라",
       "cost": 1,
       "tone": "command",
@@ -488,7 +487,7 @@
       },
       "accepted": ["gather:B2:food","gather:C2:food"],
       "rejected": [],
-      "petitionAnswered": true,
+      "petitionAnswered": false,
       "auto": [],
       "enemyPlan": ["gather:A2:food","build:C2:village","gather:B2:food","build:C3:village"],
       "miracle": {"id":"rain","target":null,"cost":3,"ok":true},
@@ -527,7 +526,7 @@
           "food": 9,
           "wood": 3,
           "stone": 3,
-          "faith": 15,
+          "faith": 14,
           "pop": 7,
           "templeLevel": 1,
           "capitalHp": 2,
@@ -559,7 +558,7 @@
         "holyOwner": null,
         "streak": {"doctrine":"peace","n":1},
         "silentRun": 0,
-        "stats": {"converted":1,"captured":0,"miracles":1,"prophecies":0,"petitions":1},
+        "stats": {"converted":1,"captured":0,"miracles":1,"prophecies":0,"petitions":0},
         "rng": {"deck":2044436750,"dice":-1263671333},
         "winner": "player",
         "winKind": "tutorial"
@@ -590,6 +589,6 @@
       {"round":4,"doctrine":"peace"},
       {"round":5,"doctrine":"abundance"}
     ],
-    "stats": {"converted":1,"captured":0,"miracles":1,"prophecies":0,"petitions":1}
+    "stats": {"converted":1,"captured":0,"miracles":1,"prophecies":0,"petitions":0}
   }
 }

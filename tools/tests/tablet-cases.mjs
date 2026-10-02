@@ -1395,6 +1395,10 @@ const CASES = [
   ['강가의 적 마을을 설득하라', ['preach'], ['gather:food']],
   ['사막에 우물을 파라', [], ['gather:stone']],
   ['성을 함락하라', ['attack'], ['build:wall']],
+  ['굳게 서서 기도하라', ['pray'], ['build:wall']],
+  ['말씀 위에 굳게 서서 기도하라', ['pray'], ['build:wall']],
+  ['믿음 위에 굳건히 서라', [], ['build:wall']],
+  ['산에 올라 기도하라', ['pray'], []],
 ];
 
 const kindOf = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);

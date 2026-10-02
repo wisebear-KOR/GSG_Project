@@ -343,7 +343,7 @@ function playGame(spec) {
     if (state.reacted) rec.reacted = state.reacted;
     if (state.eventChoice) rec.eventChoice = [...state.eventChoice]; // 지혜 궁극: 구동기는 고르지 않는다 (첫 장 그대로)
     if (state.bannedWords.length) rec.bannedWords = [...state.bannedWords];
-    rec.petition = { from: state.petition.from, need: state.petition.need };
+    rec.petition = state.petition ? { from: state.petition.from, need: state.petition.need } : null; // 첫 판(은총이 잠긴 판)엔 청원이 없다
     // 선택 창 (화면은 닫을 수 없는 모달이다): 구동기는 늘 첫 선택지를 고른다
     if (state.round === 1 && state.destinyOffer) { const pick = state.destinyOffer[0]; E.chooseDestiny(state, pick); rec.destinyPick = pick; }
     if (state.miracleOffer) { const offer = [...state.miracleOffer]; E.takeMiracle(state, offer[0]); rec.miracleDraft = { offer, pick: offer[0] }; }
