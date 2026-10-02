@@ -1380,6 +1380,9 @@ const CASES = [
   ['율법파의 계획을 막아라', [], ['build:wall']],
   ['세 명은 곡식을 거두고 한 명은 기도하라', ['gather:food', 'pray'], []],
   ['거룩한 언덕을 되찾아라', [], ['gather:stone', 'gather:food']],
+  ['가난한 자들의 마을을 세워라', ['build:village'], []],
+  ['믿는 자들의 땅에 마을을 세워라', ['build:village'], []],
+  ['떠도는 자들의 집을 지어 주어라', ['build:village'], []],
 ];
 
 const kindOf = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);

@@ -625,14 +625,14 @@
         },
         {
           "side": "player",
-          "text": "신도들의 공격이 율법파 마을(C2)에서 막혔다. 공격자 1명이 쓰러졌다.",
+          "text": "신도들의 공격이 율법파 마을(C2)에서 막혔다. 공격자 2명이 쓰러졌다 (성벽).",
           "dice": {"attacker":1,"attackerBonus":0,"defender":1,"defenderBonus":2,"win":false},
           "fx": {"kind":"attack","tile":"C2"},
           "act": "attack:C2:"
         },
         {
           "side": "player",
-          "text": "신도들의 공격이 율법파 마을(C3)에서 막혔다. 공격자 1명이 쓰러졌다.",
+          "text": "신도들의 공격이 율법파 마을(C3)에서 막혔다. 공격자 2명이 쓰러졌다 (성벽).",
           "dice": {"attacker":3,"attackerBonus":0,"defender":6,"defenderBonus":2,"win":false},
           "fx": {"kind":"attack","tile":"C3"},
           "act": "attack:C3:"

@@ -1440,14 +1440,14 @@
         {"side":"enemy","text":"율법파의 신전이 2단계로 높아졌다.","fx":{"kind":"build","tile":"A5"},"act":"build:A5:temple"},
         {
           "side": "player",
-          "text": "신도들의 공격이 율법파 마을(C3)에서 막혔다. 공격자 1명이 쓰러졌다.",
+          "text": "신도들의 공격이 율법파 마을(C3)에서 막혔다. 공격자 2명이 쓰러졌다 (성벽).",
           "dice": {"attacker":1,"attackerBonus":0,"defender":3,"defenderBonus":2,"win":false},
           "fx": {"kind":"attack","tile":"C3"},
           "act": "attack:C3:"
         },
         {
           "side": "player",
-          "text": "신도들의 공격이 율법파 마을(D3)에서 막혔다. 공격자 1명이 쓰러졌다.",
+          "text": "신도들의 공격이 율법파 마을(D3)에서 막혔다. 공격자 2명이 쓰러졌다 (성벽).",
           "dice": {"attacker":1,"attackerBonus":0,"defender":4,"defenderBonus":2,"win":false},
           "fx": {"kind":"attack","tile":"D3"},
           "act": "attack:D3:"
@@ -1466,17 +1466,17 @@
       ],
       "digest": {
         "player": {
-          "food": 12,
+          "food": 14,
           "wood": 2,
           "stone": 3,
-          "faith": 48,
-          "pop": 5,
+          "faith": 47,
+          "pop": 3,
           "templeLevel": 1,
           "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 4,
-          "score": 44,
+          "score": 39,
           "faithless": 0,
           "doctrine": {"peace":0,"war":1,"abundance":4,"wisdom":2}
         },
@@ -1526,25 +1526,25 @@
         "destiny": {"id":"fortress","done":true},
         "stats": {"converted":0,"captured":2,"miracles":0,"prophecies":1,"petitions":3},
         "rng": {"deck":-106833314,"dice":-127875789},
-        "winner": "player",
+        "winner": "enemy",
         "winKind": "score"
       }
     }
   ],
   "result": {
     "rounds": 12,
-    "winner": "player",
+    "winner": "enemy",
     "winKind": "score",
-    "winReason": "12장 종료 — 승점 44 : 43",
-    "score": {"player":44,"enemy":43},
+    "winReason": "12장 종료 — 승점 39 : 43",
+    "score": {"player":39,"enemy":43},
     "breakdown": {
       "player": [
-        {"key":"pop","n":5,"w":2},
+        {"key":"pop","n":3,"w":2},
         {"key":"village","n":4,"w":2},
         {"key":"temple","n":1,"w":3},
         {"key":"hp","n":2,"w":1},
         {"key":"destiny","n":1,"w":5},
-        {"key":"faith","n":16,"w":1}
+        {"key":"faith","n":15,"w":1}
       ],
       "enemy": [
         {"key":"pop","n":6,"w":2},
@@ -1566,7 +1566,7 @@
       {"round":9,"ps":36,"es":38},
       {"round":10,"ps":36,"es":45},
       {"round":11,"ps":42,"es":39},
-      {"round":12,"ps":44,"es":43}
+      {"round":12,"ps":39,"es":43}
     ],
     "revelations": [
       {"round":1,"doctrine":"abundance"},

@@ -1334,8 +1334,10 @@ function resolveAction(state, a) {
           s.food = Math.max(0, s.food - 1);
           return logEvent(state, side, t('log.attackRetreat', { place }), dice, { tile: tl.id, kind: 'attack' });
         }
-        s.pop = Math.max(0, s.pop - 1);
-        return logEvent(state, side, t('log.attackFail', { who: side, place }), dice, { tile: tl.id, kind: 'attack' });
+        // 성벽을 친 공격이 지면 둘이 쓰러진다
+        const lost = tl.wall ? 2 : 1;
+        s.pop = Math.max(0, s.pop - lost);
+        return logEvent(state, side, t('log.attackFail', { who: side, place, lost }), dice, { tile: tl.id, kind: 'attack' });
       }
       if (!(foe === 'player' && state.roundMods.ark)) f.pop = Math.max(0, f.pop - 1);
       if (tl.building === 'capital') {

@@ -39,7 +39,7 @@ export default {
   'eng.act.temple': '신전을 높인다 ({cost}, 행동 수 +1)',
   'eng.act.cathedral': (v) => `대성당을 짓는다 (${v.cost}) — 다음 장 율법파의 원정을 버티면 승리`,
   'eng.act.preach': '{place}의 율법파에게 신의 뜻을 전한다 (개종 판정)',
-  'eng.act.attack': (v) => `${josa(v.place, '을', '를')} 공격한다 (전투 판정${v.wall ? ', 성벽 있음' : ''})`,
+  'eng.act.attack': (v) => `${josa(v.place, '을', '를')} 공격한다 (전투 판정${v.wall ? ', 성벽 있음 — 지면 2명이 쓰러진다' : ''})`,
   'eng.act.explore': '{place} 속을 탐험한다 (무엇이 있을지 모름)',
 
   // ---------- 명령 검증: 거부 사유 ----------
@@ -214,7 +214,7 @@ export default {
   'log.attackNotFoe': (v) => `${josa(v.place, '은', '는')} 이미 적의 땅이 아니었다.`,
   'log.attackWarSave': (v) => `${poss(v.who)} 공격이 ${v.place}에서 막혔다. 전쟁의 가호가 신앙 2를 태워 쓰러질 자를 살렸다.`,
   'log.attackArk': (v) => `${poss(v.who)} 공격이 ${v.place}에서 막혔다. 방주의 가호로 아무도 쓰러지지 않았다.`,
-  'log.attackFail': (v) => `${poss(v.who)} 공격이 ${v.place}에서 막혔다. 공격자 1명이 쓰러졌다.`,
+  'log.attackFail': (v) => `${poss(v.who)} 공격이 ${v.place}에서 막혔다. 공격자 ${v.lost ?? 1}명이 쓰러졌다${(v.lost ?? 1) > 1 ? ' (성벽)' : ''}.`,
   'log.attackCapital': (v) => `${subj(v.who)} ${josa(v.place, '을', '를')} 쳤다! 수도 내구도 ${v.hp}.`,
   'log.capture': (v) => `${subj(v.who)} ${josa(v.place, '을', '를')} 빼앗았다!`,
 

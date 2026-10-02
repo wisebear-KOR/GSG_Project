@@ -1414,7 +1414,7 @@
         {"side":"enemy","text":"율법파가 율법파 마을(D2)에 성벽을 쌓았다.","fx":{"kind":"build","tile":"D2"},"act":"build:D2:wall"},
         {
           "side": "player",
-          "text": "신도들의 공격이 율법파 마을(D2)에서 막혔다. 공격자 1명이 쓰러졌다.",
+          "text": "신도들의 공격이 율법파 마을(D2)에서 막혔다. 공격자 2명이 쓰러졌다 (성벽).",
           "dice": {"attacker":2,"attackerBonus":1,"defender":3,"defenderBonus":2,"win":false},
           "fx": {"kind":"attack","tile":"D2"},
           "act": "attack:D2:"

@@ -68,3 +68,11 @@ for (const t of ['축복하되 저들을 멸하라', '복을 받으라', '들을
   for (const t of ['숲을 베지 마라', '싸우지 마라, 평화를 지켜라', '두려워하지 말고 쳐라', '강에서 물고기를 잡아라'])
     { const r = I.interpretWithTablet(s, t); out(`9 tablet "${t}"`, `orders=${r.orders.map((a) => a.key)} forb=${r.forbidden.map((a) => a.key)} doc=${r.doctrine}`); }
 }
+// 10. 판의 끝 갈래: 수도를 무너뜨린 승리는 정복, 대성당은 대성당 (주석이 return을 삼키지 않게)
+{
+  const { outcomeKind } = await import('../../js/game/chronicle.js');
+  const k = (winner, winKind) => outcomeKind({ winner, winKind });
+  const ok = k('player', 'capital') === 'conquest' && k('enemy', 'capital') === 'conquered' && k('player', 'cathedral') === 'cathedral' && k('player', 'doom') === 'conquest';
+  out('10 outcomeKind', ok ? 'ok' : `WRONG ${k('player', 'capital')} ${k('enemy', 'capital')}`);
+  if (!ok) process.exitCode = 1;
+}
