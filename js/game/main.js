@@ -1891,7 +1891,7 @@ function oddsTag(a) {
   const wallAhead = enemyIntent(state).some((x) => x.shown && x.build === 'wall' && x.tile === a.tile);
   // 대성당: 다음 장 원정(수도를 세 번 친다)을 버틸 확률 — 이번 장에 우리 수도에 성벽을 두르면 그 성벽까지
   if (a.build === 'cathedral') {
-    const walling = (pending?.accepted ?? []).some((x) => x.build === 'wall' && x.tile === a.tile);
+    const walling = [...(pending?.accepted ?? []), ...(pending?.auto ?? [])].some((x) => x.build === 'wall' && x.tile === a.tile);
     const s = crusadeSurvival(state, { wallAhead: walling });
     return `<span class="why odds ${s >= 0.75 ? 'good' : 'low'}" title="${t('ui.odds.crusadeTip')}">${t('ui.odds.crusade', { p: Math.round(s * 100) })}</span>`;
   }
@@ -2080,7 +2080,7 @@ function renderAltar() {
       ...[...pending.dropped].map((k) => result.orders.find((a) => a.key === k)).filter(Boolean).map((a) => `<span class="order dropped" data-key="${esc(a.key)}" title="${t('ui.chip.restoreTip')}">${meepleSvg('player')}<span class="t">${short(a)}</span><span class="why">${t('ui.chip.dropped')}</span></span>`),
       ...rejected.map((r) => `<span class="order bad"><span class="t">${short(r.action)}</span><span class="why">${esc(r.reason)}</span></span>`),
       ...(() => { const idle = actionLimit(state, 'player') - accepted.length - auto.length; return idle > 0 && source !== 'silence' ? [`<span class="order rest" title="${t('ui.chip.restTip')}">${meepleSvg('player')}<span class="t">${t('ui.chip.rest', { n: idle })}</span></span>`] : []; })(),
-      ...result.forbidden.map((a) => `<span class="order forbid">⊘ <span class="t">${short(a)}</span><span class="why" style="background:rgba(40,20,10,.12)">${['attack', 'preach'].includes(a.type) ? t('ui.chip.vow') : t('ui.chip.forbidden')}</span></span>`),
+      ...result.forbidden.map((a) => `<span class="order forbid">⊘ <span class="t">${short(a)}</span><span class="why" style="background:rgba(40,20,10,.12)">${['attack', 'preach'].includes(a.type) && graceOn(state) ? t('ui.chip.vow') : t('ui.chip.forbidden')}</span></span>`),
     ].join('');
     const legal = legalActions(state, 'player');
     const hint = result.doctrine === 'war' && !legal.some((a) => a.type === 'attack')

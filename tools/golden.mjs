@@ -160,7 +160,7 @@ function speak(state, entry, rec) {
   const result = interpretWithTablet(state, text);
   const pending = {
     text, result, naming, dropped: new Set(),
-    tone: L.detectTone(text), prophecy: state.prophecy ? null : L.parseProphecy(text),
+    tone: L.detectTone(text), prophecy: state.prophecy || !E.graceOn(state) ? null : L.parseProphecy(text),
     seal: !!entry.seal, carve: !!entry.carve, spoken,
   };
   const forbiddenKeys = result.forbidden.map((a) => a.key);

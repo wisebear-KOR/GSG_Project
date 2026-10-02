@@ -3,7 +3,7 @@
     "source": "js/game/data.js",
     "generator": "tools/export-data.mjs",
     "lang": "ko",
-    "ruleset": 25,
+    "ruleset": 26,
     "conventions": [
       "A function value is written as an object whose only key is \"$fn\" (its JS source text). Port the logic by hand; see docs/spec/03-data.md.",
       "A RegExp value is written as an object with keys \"$re\" (source) and \"flags\"."
@@ -83,7 +83,7 @@
     },
     "crusade": {
       "attacks": 3,
-      "bonus": 1
+      "bonus": 2
     },
     "villages": 2
   },
@@ -1237,7 +1237,7 @@
     "graceDoctrineBelow": 3,
     "maxNames": 3
   },
-  "RULESET": 25,
+  "RULESET": 26,
   "SACRED_WORDS": [
     {
       "word": "무지개",

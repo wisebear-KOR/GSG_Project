@@ -71,7 +71,7 @@ function interpret(state, text, naming) {
   return {
     text, result, accepted, rejected, auto, naming, forbiddenKeys,
     tone: L.detectTone(text), links: I.linkWords(state, text, accepted), answered: E.petitionAnswered(state, text, accepted),
-    prophecy: state.prophecy ? null : L.parseProphecy(text), seal: false,
+    prophecy: state.prophecy || !E.graceOn(state) ? null : L.parseProphecy(text), seal: false,
   };
 }
 function silence(state) {

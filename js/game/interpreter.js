@@ -324,6 +324,8 @@ function placeOf(state, clause) {
   const avoid = new Set();
   for (const m2 of clause.matchAll(PLACE.avoidId)) { const id = m2[1].toUpperCase() + m2[2]; avoid.add(id); exact.delete(id); }
   for (const id of exact) { anchors.add(id); spec.add(id); }
+  // 칸 이름을 짚었으면 "노리는 곳"은 그 칸을 꾸미는 말이다 (짚은 칸이 앞선다)
+  if (exact.size && aimPool) { for (const id of aimPool) if (!exact.has(id)) anchors.delete(id); aimPool = null; const ai = named.indexOf('aim'); if (ai >= 0) named.splice(ai, 1); }
   for (const id of avoid) anchors.delete(id);
   // "성지의 마을에": 짚은 곳이 있으면 '마을' 같은 넓은 가리킴은 그 곁의 것만 남긴다
   if (spec.size && !PLACE.farthest.test(clause) && !PLACE.closest.test(clause)) for (const id of generic) if (![...spec].some((sp) => distance(state.tileAt[id], state.tileAt[sp]) <= 1)) anchors.delete(id);

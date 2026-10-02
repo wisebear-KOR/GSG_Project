@@ -1399,6 +1399,17 @@ const CASES = [
   ['말씀 위에 굳게 서서 기도하라', ['pray'], ['build:wall']],
   ['믿음 위에 굳건히 서라', [], ['build:wall']],
   ['산에 올라 기도하라', ['pray'], []],
+  // 20차 평가자 문장
+  ['이교도를 설득하라', ['preach'], ['attack']],
+  ['그들의 성문을 두드려라', ['attack'], []],
+  ['강가와 평원에 마을을 세워라', ['build:village'], ['gather:food']],
+  ['율법파가 공격해 온다, 막아라', ['build:wall'], ['attack']],
+  ['적이 우리를 공격하지 못하게 성벽을 쌓아라', ['build:wall'], ['attack']],
+  ['율법파가 쳐들어온다, 성벽을 쌓아라', ['build:wall'], ['attack']],
+  ['노리는 마을 세 곳 모두에 성벽을 쌓아라', ['build:wall'], ['build:village']],
+  ['숲 속에 마을을 지어라', ['build:village'], ['gather:wood']],
+  ['물꼬기를 잡아라', ['heard:gather'], []], // 튜토리얼 판엔 강이 없다 — 알아듣고 못 한다고 알린다
+  ['부족을 늘려라', ['build:village'], []],
 ];
 
 const kindOf = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);

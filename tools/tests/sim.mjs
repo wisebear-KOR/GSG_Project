@@ -176,6 +176,30 @@ export function makePolicy(name) {
     offer: (s) => s.miracleOffer.find((x) => ['manna', 'ark', 'revive'].includes(x)) ?? s.miracleOffer[0],
     speak: (s, rng) => ({ text: plannerText(s, rng, +(globalThis.process?.env?.FORESIGHT ?? 1)), seal: true }), site: () => 'take',
   };
+  // 20차 평가자 C의 대성당 대본: 수도에 성벽을 두른 뒤 짓는다 (cathbot보다 이 길을 제대로 잰다)
+  if (name === 'cathrush') return {
+    miracle: (s) => {
+      const p = s.sides.player;
+      if (s.miracleHand.includes('bounty') && !s.miracleUsed && p.faith >= E.miracleCost(s, D.MIRACLES.find((x) => x.id === 'bounty')) + 5 && !p.cathedral) return ['bounty'];
+      return s.round < s.maxRounds ? smartMiracle(s) : null;
+    },
+    offer: (s) => s.miracleOffer.find((x) => ['manna', 'revive', 'pillar'].includes(x)) ?? s.miracleOffer[0],
+    speak: (s) => {
+      const p = s.sides.player; const L = E.legalActions(s, 'player'); const cap = E.capitalOf(s, 'player');
+      if (p.cathedral) return { text: '우리 수도에 성벽을 쌓아라, 기도하라, 곡식을 거두라', seal: true };
+      if (L.some((a) => a.build === 'cathedral')) return { text: cap.wall || p.stone < 2 + E.buildCost(s, 'player', 'cathedral').stone ? '대성당을 지어라, 곡식을 거두라' : '우리 수도에 성벽을 쌓아라, 돌을 캐라', seal: true };
+      const parts = [];
+      if (p.templeLevel < 3 && L.some((a) => a.build === 'temple')) parts.push('신전을 높이 세우라');
+      if (E.villageCount(s, 'player') < E.cathedralVillages(s)) parts.push('마을을 세워라');
+      const c = p.templeLevel < 3 ? E.buildCost(s, 'player', 'temple') : E.buildCost(s, 'player', 'cathedral');
+      if (p.stone < (c.stone ?? 0) + 2) parts.push('돌을 캐라');
+      if (p.wood < (c.wood ?? 0) + 2) parts.push('나무를 베어라');
+      if (p.templeLevel >= 3 && p.faith < (c.faith ?? 0) + 2) parts.push('기도하라');
+      if (p.food < p.pop + 1) parts.push('곡식을 거두라');
+      return { text: (parts.length ? parts : ['곡식을 거두라', '기도하라']).slice(0, 3).join(', '), seal: true };
+    },
+    site: () => 'take',
+  };
   if (name === 'warplan') return { // 정복 지향: 율법파 수도를 둘러싸고 칠 수 있으면 친다, 아니면 planner
     miracle: (s) => (s.round < s.maxRounds ? smartMiracle(s) : null),
     offer: (s) => s.miracleOffer.find((x) => ['pillar', 'lightning'].includes(x)) ?? s.miracleOffer[0],
