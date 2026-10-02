@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>결정형 모델 실험</title>
+<style>
+  :root { --bg: #faf8f4; --fg: #222; --muted: #777; --line: #ddd; --hit: #2e7d32; --miss: #c62828; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #1b1a18; --fg: #e8e4dc; --muted: #9a958c; --line: #3a3833; --hit: #81c784; --miss: #ef9a9a; } }
+  body { background: var(--bg); color: var(--fg); font: 14px/1.5 system-ui, sans-serif; margin: 0 auto; max-width: 1100px; padding: 16px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p.muted, .muted { color: var(--muted); }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+  button, select { font: inherit; padding: 4px 10px; }
+  pre#log { background: rgba(127,127,127,.08); border: 1px solid var(--line); padding: 8px; max-height: 180px; overflow: auto; white-space: pre-wrap; font-size: 12px; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 20px; font-size: 13px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: top; }
+  td.hit { color: var(--hit); } td.miss { color: var(--miss); }
+  .wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+<h1>결정형 모델 실험</h1>
+<p class="muted">lab/scenario.js의 기본 10 + 심화 14 계시를 "질문 + 선택지"로 바꿔 판정 모델에 묻는다. 고르는 법과 채점은 <code>lab/decide/core.js</code>.
+  모델은 브라우저(WebGPU)에서 돈다. 처음 한 번 내려받은 뒤에는 브라우저 캐시에서 읽는다.</p>
+
+<div class="bar">
+  <select id="model">
+    <option value="systemone">system-one-qwen3.5-4b-scorer (q4f16, 약 2.4 GB)</option>
+  </select>
+  <button id="load">모델 불러오기</button>
+  <button id="run" disabled>전체 실행 (ko, en)</button>
+  <span id="gpu" class="muted"></span>
+</div>
+<pre id="log"></pre>
+
+<h2>요약</h2>
+<div class="wrap"><table id="summary"></table></div>
+<h2>사례별</h2>
+<div class="bar">
+  <select id="lang"><option>ko</option><option>en</option></select>
+  <select id="strategy"><option>choice</option><option>noul</option><option>contrast</option><option>orderOnly</option></select>
+</div>
+<div class="wrap"><table id="details"></table></div>
+
+<script type="module">
+import { AutoTokenizer, PreTrainedModel, Tensor } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0';
+import { CASES, buildState, buildQuestions, summarize, details } from './decide/core.js';
+
+const $ = (id) => document.getElementById(id);
+const log = (s) => { $('log').textContent += `${s}\n`; $('log').scrollTop = 1e9; };
+$('gpu').textContent = 'gpu' in navigator ? 'WebGPU 있음' : 'WebGPU 없음';
+
+// 모델마다: 불러오기, (state, questions) → Kev 모양의 answers
+const MODELS = {
+  // https://huggingface.co/onnx-community/system-one-qwen3.5-4b-scorer-ONNX 카드의 사용법 그대로
+  systemone: {
+    name: 'SystemOne-4B (WebGPU)',
+    async load(progress) {
+      const repo = 'onnx-community/system-one-qwen3.5-4b-scorer-ONNX';
+      const tokenizer = await AutoTokenizer.from_pretrained(repo);
+      const model = await PreTrainedModel.from_pretrained(repo, { dtype: 'q4f16', device: 'webgpu', progress_callback: progress });
+      const MAX = 384; const PAD = 248044n; const T = 1.75; const BATCH = 32;
+      const enc = (text) => Array.from(tokenizer(text, { add_special_tokens: false }).input_ids.data, Number);
+      // Kev의 option_text와 같은 꼴: "이름: 설명", 예/아니오는 no/yes
+      const optionsOf = (q) => (q.type === 'noul' ? [['false', 'no'], ['true', 'yes']] : Object.entries(q.criteria).map(([k, v]) => [k, v ? `${k}: ${v}` : k]));
+      async function logitsOf(seqs) {
+        const len = Math.max(...seqs.map((s) => s.length));
+        const ids = BigInt64Array.from(seqs.flatMap((s) => [...s.map(BigInt), ...Array(len - s.length).fill(PAD)]));
+        const mask = BigInt64Array.from(seqs.flatMap((s) => [...Array(s.length).fill(1n), ...Array(len - s.length).fill(0n)]));
+        const { logits } = await model({ input_ids: new Tensor('int64', ids, [seqs.length, len]), attention_mask: new Tensor('int64', mask, [seqs.length, len]) });
+        return Array.from(logits.to('float32').data);
+      }
+      return async (state, questions) => {
+        const head = enc(`State:\n${state}`);
+        const jobs = [];
+        for (const [qid, q] of Object.entries(questions)) {
+          for (const [key, text] of optionsOf(q)) {
+            const tail = enc(`\n\nQuestion:\n${q.instructions}\n\nOption:\n${text}`);
+            if (head.length + tail.length > MAX) log(`잘림: ${qid}/${key} (${head.length}+${tail.length})`);
+            jobs.push({ qid, key, seq: tail.length >= MAX ? tail.slice(-MAX) : head.slice(0, MAX - tail.length).concat(tail) });
+          }
+        }
+        const out = [];
+        for (let i = 0; i < jobs.length; i += BATCH) out.push(...await logitsOf(jobs.slice(i, i + BATCH).map((j) => j.seq)));
+        const answers = {};
+        for (const [qid, q] of Object.entries(questions)) {
+          const mine = jobs.map((j, i) => ({ ...j, l: out[i] / T })).filter((j) => j.qid === qid);
+          const m = Math.max(...mine.map((j) => j.l));
+          const e = mine.map((j) => Math.exp(j.l - m)); const z = e.reduce((a, b) => a + b, 0);
+          const probs = Object.fromEntries(mine.map((j, i) => [j.key, e[i] / z]));
+          answers[qid] = q.type === 'noul' ? { type: 'noul', noul: probs.true } : { type: 'choice', probabilities: probs };
+        }
+        return answers;
+      };
+    },
+  },
+};
+
+window.results = {};
+let ask = null; let current = null;
+
+$('load').onclick = async () => {
+  current = MODELS[$('model').value];
+  $('load').disabled = true;
+  const seen = {};
+  const t0 = performance.now();
+  try {
+    ask = await current.load((p) => {
+      if (p.status === 'progress' && p.file && (!seen[p.file] || p.progress - seen[p.file] >= 10)) { seen[p.file] = p.progress; log(`${p.file} ${Math.round(p.progress)}%`); }
+    });
+    log(`불러옴: ${current.name} (${Math.round((performance.now() - t0) / 1000)}초)`);
+    $('run').disabled = false;
+  } catch (e) { log(`실패: ${e.message}`); $('load').disabled = false; }
+};
+
+$('run').onclick = async () => {
+  $('run').disabled = true;
+  for (const lang of ['ko', 'en']) {
+    const questions = buildQuestions(lang);
+    for (const c of CASES) {
+      const t0 = performance.now();
+      const answers = await ask(buildState(c, lang), questions);
+      const ms = Math.round(performance.now() - t0);
+      (window.results[`${c.key}.${lang}`] ??= {})[current.name] = { answers, latencyMs: ms };
+      log(`${c.key}.${lang} ${ms}ms ${c.text}`);
+    }
+    render();
+  }
+  window.done = true;
+  $('run').disabled = false;
+};
+
+function table(el, rows) {
+  if (!rows.length) { el.innerHTML = ''; return; }
+  const cols = Object.keys(rows[0]);
+  el.innerHTML = `<tr>${cols.map((c) => `<th>${c}</th>`).join('')}</tr>${rows.map((r) => `<tr>${cols.map((c) => `<td class="${r[c] === true ? 'hit' : r[c] === false ? 'miss' : ''}">${r[c] ?? ''}</td>`).join('')}</tr>`).join('')}`;
+}
+function render() {
+  table($('summary'), summarize(window.results));
+  if (current) table($('details'), details(window.results, current.name, $('lang').value, $('strategy').value));
+}
+$('lang').onchange = render; $('strategy').onchange = render;
+</script>
+</body>
+</html>

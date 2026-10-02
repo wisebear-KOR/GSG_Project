@@ -1,0 +1,8018 @@
+{
+ "basic-0.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0265,
+      "G2": 0.0413,
+      "G3": 0.0256,
+      "G4": 0.0107,
+      "P1": 0.0471,
+      "B1": 0.0443,
+      "B2": 0.0564,
+      "B3": 0.0699,
+      "R1": 0.0156,
+      "M1": 0.2382,
+      "M2": 0.3713,
+      "W1": 0.0219,
+      "W2": 0.0174,
+      "E1": 0.0139
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0282,
+      "G2": 0.0432,
+      "G3": 0.0225,
+      "G4": 0.0222,
+      "P1": 0.0273,
+      "B1": 0.0474,
+      "B2": 0.0674,
+      "B3": 0.0565,
+      "R1": 0.0208,
+      "M1": 0.0772,
+      "M2": 0.1842,
+      "W1": 0.0175,
+      "W2": 0.0085,
+      "E1": 0.0372,
+      "none": 0.3398
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.8797,
+      "war": 0.0357,
+      "abundance": 0.0507,
+      "wisdom": 0.0339
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.4501
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4791
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.4497
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.2621
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4639
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.5433
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2947
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4946
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.5277
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.3987
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.5809
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.1663
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.2526
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.2792
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2043
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.2207
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2233
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.211
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.2874
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2184
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1841
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1876
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.3464
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3189
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2223
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1346
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1191
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1628
+    }
+   },
+   "latencyMs": 5765
+  }
+ },
+ "basic-1.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0262,
+      "G2": 0.2187,
+      "G3": 0.1599,
+      "G4": 0.0093,
+      "P1": 0.0467,
+      "B1": 0.2579,
+      "B2": 0.0342,
+      "B3": 0.0764,
+      "R1": 0.0304,
+      "M1": 0.0239,
+      "M2": 0.064,
+      "W1": 0.0165,
+      "W2": 0.0131,
+      "E1": 0.0227
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0385,
+      "G2": 0.2007,
+      "G3": 0.0951,
+      "G4": 0.0158,
+      "P1": 0.0266,
+      "B1": 0.1242,
+      "B2": 0.0769,
+      "B3": 0.0675,
+      "R1": 0.0389,
+      "M1": 0.02,
+      "M2": 0.0787,
+      "W1": 0.0128,
+      "W2": 0.0059,
+      "E1": 0.0212,
+      "none": 0.1773
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.2392,
+      "war": 0.1429,
+      "abundance": 0.3797,
+      "wisdom": 0.2382
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.4939
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.7055
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.7533
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.2745
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4895
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.6829
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2407
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.5954
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.516
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.387
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.5498
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.2536
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.302
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3997
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3081
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.4403
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.4291
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.328
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.4081
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.3259
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1939
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.3526
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.4723
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3631
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2957
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2211
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2311
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.2606
+    }
+   },
+   "latencyMs": 4931
+  }
+ },
+ "basic-2.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0467,
+      "G2": 0.0442,
+      "G3": 0.0258,
+      "G4": 0.0634,
+      "P1": 0.0876,
+      "B1": 0.0583,
+      "B2": 0.1794,
+      "B3": 0.2166,
+      "R1": 0.0345,
+      "M1": 0.032,
+      "M2": 0.1056,
+      "W1": 0.0445,
+      "W2": 0.0252,
+      "E1": 0.0362
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.036,
+      "G2": 0.0472,
+      "G3": 0.0149,
+      "G4": 0.1888,
+      "P1": 0.0329,
+      "B1": 0.0721,
+      "B2": 0.1308,
+      "B3": 0.0883,
+      "R1": 0.0365,
+      "M1": 0.0259,
+      "M2": 0.1029,
+      "W1": 0.0293,
+      "W2": 0.0135,
+      "E1": 0.0603,
+      "none": 0.1205
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1017,
+      "war": 0.3243,
+      "abundance": 0.2629,
+      "wisdom": 0.3111
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3288
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.3247
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.2361
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3573
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4515
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.3216
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.4867
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4549
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.5033
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.2957
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3239
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.2472
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.2455
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.2179
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3392
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.3451
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2739
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.6638
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.4571
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.3207
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.3429
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.3175
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.5963
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.333
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2543
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1911
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.3171
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.4005
+    }
+   },
+   "latencyMs": 4745
+  }
+ },
+ "basic-3.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0179,
+      "G2": 0.0232,
+      "G3": 0.0158,
+      "G4": 0.0058,
+      "P1": 0.03,
+      "B1": 0.0219,
+      "B2": 0.0501,
+      "B3": 0.0522,
+      "R1": 0.0123,
+      "M1": 0.0887,
+      "M2": 0.1231,
+      "W1": 0.3103,
+      "W2": 0.2363,
+      "E1": 0.0122
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0225,
+      "G2": 0.0386,
+      "G3": 0.0179,
+      "G4": 0.0199,
+      "P1": 0.0204,
+      "B1": 0.0342,
+      "B2": 0.0901,
+      "B3": 0.0432,
+      "R1": 0.0244,
+      "M1": 0.0521,
+      "M2": 0.19,
+      "W1": 0.1205,
+      "W2": 0.0355,
+      "E1": 0.0249,
+      "none": 0.2658
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0368,
+      "war": 0.8436,
+      "abundance": 0.0708,
+      "wisdom": 0.0488
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3264
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.3597
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3128
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.2531
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3021
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.357
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.3427
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4698
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.3901
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4369
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4523
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.6936
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.6531
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3385
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2586
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.2826
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2676
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.282
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3029
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2861
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2787
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2869
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.3741
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.335
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2204
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.6431
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2899
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.2573
+    }
+   },
+   "latencyMs": 4981
+  }
+ },
+ "basic-4.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0302,
+      "G2": 0.0242,
+      "G3": 0.0135,
+      "G4": 0.0137,
+      "P1": 0.0282,
+      "B1": 0.0414,
+      "B2": 0.0864,
+      "B3": 0.6003,
+      "R1": 0.0114,
+      "M1": 0.0144,
+      "M2": 0.0403,
+      "W1": 0.0188,
+      "W2": 0.0165,
+      "E1": 0.0609
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0247,
+      "G2": 0.0312,
+      "G3": 0.014,
+      "G4": 0.0166,
+      "P1": 0.0213,
+      "B1": 0.0368,
+      "B2": 0.1129,
+      "B3": 0.2313,
+      "R1": 0.0177,
+      "M1": 0.0193,
+      "M2": 0.0916,
+      "W1": 0.0135,
+      "W2": 0.0058,
+      "E1": 0.0312,
+      "none": 0.3321
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0609,
+      "war": 0.299,
+      "abundance": 0.4794,
+      "wisdom": 0.1608
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.5114
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4756
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3376
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.4791
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3771
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.5419
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.6064
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.7528
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4997
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.3567
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3966
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.3605
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3825
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.5775
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2404
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.264
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2509
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3189
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.2789
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2512
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.4061
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2957
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.3582
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3186
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.241
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.299
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2419
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.2631
+    }
+   },
+   "latencyMs": 4829
+  }
+ },
+ "basic-5.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0268,
+      "G2": 0.046,
+      "G3": 0.0229,
+      "G4": 0.0149,
+      "P1": 0.1556,
+      "B1": 0.0434,
+      "B2": 0.0518,
+      "B3": 0.1082,
+      "R1": 0.4049,
+      "M1": 0.0228,
+      "M2": 0.0591,
+      "W1": 0.0168,
+      "W2": 0.0127,
+      "E1": 0.0141
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0254,
+      "G2": 0.0416,
+      "G3": 0.0143,
+      "G4": 0.0298,
+      "P1": 0.0342,
+      "B1": 0.0481,
+      "B2": 0.0629,
+      "B3": 0.0505,
+      "R1": 0.2978,
+      "M1": 0.023,
+      "M2": 0.0553,
+      "W1": 0.013,
+      "W2": 0.0083,
+      "E1": 0.0231,
+      "none": 0.2725
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.7444,
+      "war": 0.0521,
+      "abundance": 0.134,
+      "wisdom": 0.0695
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.2014
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.3428
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3367
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.1012
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4673
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.2161
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.1624
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3762
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.7669
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.2328
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.277
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.0599
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.1178
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.1365
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2412
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.274
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2491
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.4005
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.4202
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2101
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1664
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2576
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.7034
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.2809
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2129
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.0856
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1984
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.2572
+    }
+   },
+   "latencyMs": 4765
+  }
+ },
+ "basic-6.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0293,
+      "G2": 0.1379,
+      "G3": 0.3467,
+      "G4": 0.0086,
+      "P1": 0.0434,
+      "B1": 0.1605,
+      "B2": 0.035,
+      "B3": 0.0572,
+      "R1": 0.0269,
+      "M1": 0.0255,
+      "M2": 0.0613,
+      "W1": 0.0208,
+      "W2": 0.0145,
+      "E1": 0.0326
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0267,
+      "G2": 0.0694,
+      "G3": 0.0788,
+      "G4": 0.0194,
+      "P1": 0.026,
+      "B1": 0.0755,
+      "B2": 0.0545,
+      "B3": 0.0504,
+      "R1": 0.0348,
+      "M1": 0.0372,
+      "M2": 0.0813,
+      "W1": 0.0132,
+      "W2": 0.0067,
+      "E1": 0.0271,
+      "none": 0.399
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1101,
+      "war": 0.1021,
+      "abundance": 0.5171,
+      "wisdom": 0.2707
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3668
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.5513
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.7771
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.1872
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3901
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.5515
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.1901
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4288
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4414
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.3588
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4295
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.1859
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.2632
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3564
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.214
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.2583
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.3772
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.2581
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3043
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2486
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.182
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2272
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.385
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3441
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2167
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1722
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1815
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.2006
+    }
+   },
+   "latencyMs": 4840
+  }
+ },
+ "basic-7.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0288,
+      "G2": 0.0429,
+      "G3": 0.0264,
+      "G4": 0.0154,
+      "P1": 0.0476,
+      "B1": 0.0474,
+      "B2": 0.0473,
+      "B3": 0.118,
+      "R1": 0.0173,
+      "M1": 0.0247,
+      "M2": 0.0797,
+      "W1": 0.0256,
+      "W2": 0.0267,
+      "E1": 0.4522
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0268,
+      "G2": 0.0395,
+      "G3": 0.0165,
+      "G4": 0.0437,
+      "P1": 0.0237,
+      "B1": 0.0406,
+      "B2": 0.0706,
+      "B3": 0.0382,
+      "R1": 0.0256,
+      "M1": 0.0116,
+      "M2": 0.1391,
+      "W1": 0.0231,
+      "W2": 0.0127,
+      "E1": 0.2278,
+      "none": 0.2603
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0009,
+      "war": 0.0013,
+      "abundance": 0.002,
+      "wisdom": 0.9958
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.4327
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4965
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.4771
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3585
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4957
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4415
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.3429
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4928
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4418
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.3906
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4546
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.3214
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.403
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.7518
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2934
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.3628
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.3255
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.4862
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.4266
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.292
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2514
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2929
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.5437
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3023
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2925
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2398
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2797
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.5714
+    }
+   },
+   "latencyMs": 4828
+  }
+ },
+ "basic-8.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0484,
+      "G2": 0.0418,
+      "G3": 0.0253,
+      "G4": 0.0216,
+      "P1": 0.0572,
+      "B1": 0.0441,
+      "B2": 0.4001,
+      "B3": 0.0906,
+      "R1": 0.0167,
+      "M1": 0.044,
+      "M2": 0.0899,
+      "W1": 0.0519,
+      "W2": 0.0426,
+      "E1": 0.0258
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0356,
+      "G2": 0.0464,
+      "G3": 0.0214,
+      "G4": 0.0234,
+      "P1": 0.0306,
+      "B1": 0.0488,
+      "B2": 0.2622,
+      "B3": 0.0584,
+      "R1": 0.0241,
+      "M1": 0.0339,
+      "M2": 0.0757,
+      "W1": 0.0188,
+      "W2": 0.0095,
+      "E1": 0.0256,
+      "none": 0.2857
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0167,
+      "war": 0.9328,
+      "abundance": 0.0355,
+      "wisdom": 0.015
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.5376
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.424
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.4092
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3987
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4476
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4149
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.6883
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4569
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4587
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4377
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.5084
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.5093
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.4358
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3155
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2613
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.2926
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2669
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.2801
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3494
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2754
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.463
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2475
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.3943
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3542
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2285
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.3837
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1958
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.2096
+    }
+   },
+   "latencyMs": 4759
+  }
+ },
+ "basic-9.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.039,
+      "G2": 0.0556,
+      "G3": 0.0216,
+      "G4": 0.0178,
+      "P1": 0.0852,
+      "B1": 0.0607,
+      "B2": 0.0649,
+      "B3": 0.3135,
+      "R1": 0.0229,
+      "M1": 0.055,
+      "M2": 0.1097,
+      "W1": 0.0466,
+      "W2": 0.0649,
+      "E1": 0.0427
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0309,
+      "G2": 0.0558,
+      "G3": 0.0193,
+      "G4": 0.019,
+      "P1": 0.024,
+      "B1": 0.0558,
+      "B2": 0.065,
+      "B3": 0.0933,
+      "R1": 0.0243,
+      "M1": 0.0359,
+      "M2": 0.0811,
+      "W1": 0.0151,
+      "W2": 0.009,
+      "E1": 0.029,
+      "none": 0.4427
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0428,
+      "war": 0.0831,
+      "abundance": 0.1286,
+      "wisdom": 0.7455
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3829
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4442
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3219
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3136
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4322
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4118
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2785
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.6352
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.404
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4369
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.5201
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.3884
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.4135
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3452
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2622
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.2757
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2627
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.2972
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.2975
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2734
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2806
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2732
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.3627
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3608
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2825
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.3396
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2409
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.243
+    }
+   },
+   "latencyMs": 4949
+  }
+ },
+ "hard-0.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0414,
+      "G2": 0.0739,
+      "G3": 0.0534,
+      "G4": 0.012,
+      "P1": 0.0707,
+      "B1": 0.0688,
+      "B2": 0.137,
+      "B3": 0.1024,
+      "R1": 0.0373,
+      "M1": 0.0815,
+      "M2": 0.1403,
+      "W1": 0.0998,
+      "W2": 0.0488,
+      "E1": 0.0328
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0411,
+      "G2": 0.0645,
+      "G3": 0.0239,
+      "G4": 0.0269,
+      "P1": 0.0258,
+      "B1": 0.0444,
+      "B2": 0.1297,
+      "B3": 0.0455,
+      "R1": 0.041,
+      "M1": 0.0317,
+      "M2": 0.1842,
+      "W1": 0.0938,
+      "W2": 0.021,
+      "E1": 0.0401,
+      "none": 0.1866
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.3749,
+      "war": 0.4827,
+      "abundance": 0.0884,
+      "wisdom": 0.0541
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.4678
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.5352
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.5003
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.2415
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4121
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4826
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.4893
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4614
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.5091
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4265
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4776
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.468
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3688
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3105
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3022
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.3931
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.3467
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3596
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.4304
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.3148
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2783
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2802
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.6029
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3659
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2706
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2655
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1892
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.2789
+    }
+   },
+   "latencyMs": 4921
+  }
+ },
+ "hard-1.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0886,
+      "G2": 0.0632,
+      "G3": 0.0537,
+      "G4": 0.0219,
+      "P1": 0.0952,
+      "B1": 0.1483,
+      "B2": 0.1072,
+      "B3": 0.1822,
+      "R1": 0.0344,
+      "M1": 0.0365,
+      "M2": 0.0967,
+      "W1": 0.0298,
+      "W2": 0.0183,
+      "E1": 0.0239
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.363,
+      "G2": 0.0415,
+      "G3": 0.0111,
+      "G4": 0.0121,
+      "P1": 0.0314,
+      "B1": 0.1168,
+      "B2": 0.0739,
+      "B3": 0.0486,
+      "R1": 0.0286,
+      "M1": 0.0265,
+      "M2": 0.0567,
+      "W1": 0.0164,
+      "W2": 0.0083,
+      "E1": 0.0189,
+      "none": 0.1463
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.227,
+      "war": 0.1159,
+      "abundance": 0.3351,
+      "wisdom": 0.3219
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.1566
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.2725
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.2776
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.1824
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3773
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.311
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.167
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.2639
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.3542
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.2597
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.2836
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.1187
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.1621
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.1884
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2199
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.344
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.3866
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3931
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.4957
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.335
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.187
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2845
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.5136
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3057
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.3199
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1304
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2926
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3745
+    }
+   },
+   "latencyMs": 4801
+  }
+ },
+ "hard-2.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0526,
+      "G2": 0.0661,
+      "G3": 0.0584,
+      "G4": 0.0119,
+      "P1": 0.0949,
+      "B1": 0.1108,
+      "B2": 0.1097,
+      "B3": 0.1346,
+      "R1": 0.0632,
+      "M1": 0.1008,
+      "M2": 0.1167,
+      "W1": 0.0441,
+      "W2": 0.0179,
+      "E1": 0.0183
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.04,
+      "G2": 0.0623,
+      "G3": 0.0246,
+      "G4": 0.0099,
+      "P1": 0.0328,
+      "B1": 0.0823,
+      "B2": 0.0879,
+      "B3": 0.0662,
+      "R1": 0.0675,
+      "M1": 0.0244,
+      "M2": 0.1386,
+      "W1": 0.1015,
+      "W2": 0.0361,
+      "E1": 0.026,
+      "none": 0.1997
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.7197,
+      "war": 0.1738,
+      "abundance": 0.0589,
+      "wisdom": 0.0476
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.2905
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.343
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3333
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.1754
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4129
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.419
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.1492
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3363
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.6053
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.2474
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.1341
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.0491
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.0674
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.2043
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3889
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.4083
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.4495
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.4336
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.5199
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.4607
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.169
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.338
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.7103
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.2411
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.1734
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.0602
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1086
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3993
+    }
+   },
+   "latencyMs": 4964
+  }
+ },
+ "hard-3.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0373,
+      "G2": 0.118,
+      "G3": 0.1579,
+      "G4": 0.0099,
+      "P1": 0.0446,
+      "B1": 0.2011,
+      "B2": 0.075,
+      "B3": 0.0885,
+      "R1": 0.053,
+      "M1": 0.0482,
+      "M2": 0.0933,
+      "W1": 0.0334,
+      "W2": 0.0184,
+      "E1": 0.0214
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0438,
+      "G2": 0.0925,
+      "G3": 0.0364,
+      "G4": 0.0353,
+      "P1": 0.0219,
+      "B1": 0.0779,
+      "B2": 0.1178,
+      "B3": 0.0377,
+      "R1": 0.0776,
+      "M1": 0.0283,
+      "M2": 0.149,
+      "W1": 0.0469,
+      "W2": 0.0114,
+      "E1": 0.0256,
+      "none": 0.1979
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.5438,
+      "war": 0.1277,
+      "abundance": 0.2709,
+      "wisdom": 0.0576
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.4129
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.5449
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.5367
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.1698
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4269
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4723
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2943
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3746
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.5432
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.376
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4468
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.1864
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.2734
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.2448
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3585
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.4587
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.4512
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.4429
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.5007
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.4016
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2066
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2774
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.6713
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3178
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.3155
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1206
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2507
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3707
+    }
+   },
+   "latencyMs": 5002
+  }
+ },
+ "hard-4.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0537,
+      "G2": 0.0614,
+      "G3": 0.0394,
+      "G4": 0.0769,
+      "P1": 0.0734,
+      "B1": 0.0789,
+      "B2": 0.1053,
+      "B3": 0.1901,
+      "R1": 0.0318,
+      "M1": 0.0351,
+      "M2": 0.1237,
+      "W1": 0.0499,
+      "W2": 0.0349,
+      "E1": 0.0456
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0369,
+      "G2": 0.0407,
+      "G3": 0.0178,
+      "G4": 0.0417,
+      "P1": 0.0321,
+      "B1": 0.0539,
+      "B2": 0.0939,
+      "B3": 0.0791,
+      "R1": 0.0276,
+      "M1": 0.0331,
+      "M2": 0.0873,
+      "W1": 0.017,
+      "W2": 0.0096,
+      "E1": 0.0344,
+      "none": 0.3949
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0896,
+      "war": 0.1611,
+      "abundance": 0.3578,
+      "wisdom": 0.3916
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.2338
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.2671
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.2366
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.5492
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.2803
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.3368
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.3472
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.5055
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.3601
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.3604
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3869
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.2506
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3401
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3388
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2154
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.2465
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2126
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.2618
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.2333
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2539
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2668
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2429
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.3007
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.316
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.222
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.23
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2083
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.2093
+    }
+   },
+   "latencyMs": 4841
+  }
+ },
+ "hard-5.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.03,
+      "G2": 0.0459,
+      "G3": 0.0191,
+      "G4": 0.0117,
+      "P1": 0.0505,
+      "B1": 0.0466,
+      "B2": 0.0862,
+      "B3": 0.1,
+      "R1": 0.0132,
+      "M1": 0.3109,
+      "M2": 0.1582,
+      "W1": 0.0522,
+      "W2": 0.0495,
+      "E1": 0.0261
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0253,
+      "G2": 0.0416,
+      "G3": 0.0135,
+      "G4": 0.0135,
+      "P1": 0.0271,
+      "B1": 0.0453,
+      "B2": 0.1276,
+      "B3": 0.0637,
+      "R1": 0.0247,
+      "M1": 0.0699,
+      "M2": 0.1477,
+      "W1": 0.0314,
+      "W2": 0.0196,
+      "E1": 0.0276,
+      "none": 0.3215
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.2434,
+      "war": 0.2635,
+      "abundance": 0.374,
+      "wisdom": 0.1191
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.4642
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.6278
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.5217
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.4344
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.431
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.5525
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.4799
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.6061
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4962
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.6025
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.5799
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.5406
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.5255
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.4767
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3163
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.3603
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.3241
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3869
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.404
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.3339
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.4193
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.3361
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.4712
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.4291
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.3124
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.3855
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.3074
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3555
+    }
+   },
+   "latencyMs": 5171
+  }
+ },
+ "hard-6.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.045,
+      "G2": 0.1172,
+      "G3": 0.0417,
+      "G4": 0.0147,
+      "P1": 0.0523,
+      "B1": 0.1762,
+      "B2": 0.0596,
+      "B3": 0.1243,
+      "R1": 0.0207,
+      "M1": 0.0939,
+      "M2": 0.1231,
+      "W1": 0.0418,
+      "W2": 0.0363,
+      "E1": 0.0531
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0251,
+      "G2": 0.0959,
+      "G3": 0.0264,
+      "G4": 0.0183,
+      "P1": 0.0256,
+      "B1": 0.0886,
+      "B2": 0.0688,
+      "B3": 0.0836,
+      "R1": 0.0258,
+      "M1": 0.0741,
+      "M2": 0.1142,
+      "W1": 0.025,
+      "W2": 0.0122,
+      "E1": 0.0384,
+      "none": 0.278
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0986,
+      "war": 0.3258,
+      "abundance": 0.416,
+      "wisdom": 0.1597
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.5817
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.7309
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.661
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3717
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4329
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.7168
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.4591
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.6524
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.448
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.5799
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.6249
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.55
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.5341
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.5363
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3329
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.3961
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.3736
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3392
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3918
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.3525
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.3013
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.3365
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.4677
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.4163
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.3316
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.4216
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.261
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3025
+    }
+   },
+   "latencyMs": 5114
+  }
+ },
+ "hard-7.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0371,
+      "G2": 0.0471,
+      "G3": 0.03,
+      "G4": 0.0155,
+      "P1": 0.058,
+      "B1": 0.0476,
+      "B2": 0.048,
+      "B3": 0.075,
+      "R1": 0.0216,
+      "M1": 0.04,
+      "M2": 0.1028,
+      "W1": 0.0288,
+      "W2": 0.0343,
+      "E1": 0.4142
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.036,
+      "G2": 0.047,
+      "G3": 0.0201,
+      "G4": 0.0207,
+      "P1": 0.0212,
+      "B1": 0.0525,
+      "B2": 0.06,
+      "B3": 0.0312,
+      "R1": 0.0236,
+      "M1": 0.0246,
+      "M2": 0.0802,
+      "W1": 0.0174,
+      "W2": 0.013,
+      "E1": 0.1526,
+      "none": 0.4
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1412,
+      "war": 0.0516,
+      "abundance": 0.1675,
+      "wisdom": 0.6397
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.4705
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.5641
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.5017
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.4127
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3885
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4997
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2957
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.5915
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.5659
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4573
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.482
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.4462
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.6067
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.8048
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2559
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.308
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.3019
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3346
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3246
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2878
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.311
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2833
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.3652
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3455
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2962
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.3139
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.263
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3115
+    }
+   },
+   "latencyMs": 5323
+  }
+ },
+ "hard-8.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0297,
+      "G2": 0.0884,
+      "G3": 0.0425,
+      "G4": 0.0122,
+      "P1": 0.0758,
+      "B1": 0.127,
+      "B2": 0.0773,
+      "B3": 0.1201,
+      "R1": 0.0317,
+      "M1": 0.1258,
+      "M2": 0.2011,
+      "W1": 0.0236,
+      "W2": 0.0176,
+      "E1": 0.0271
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0336,
+      "G2": 0.0449,
+      "G3": 0.022,
+      "G4": 0.0253,
+      "P1": 0.0406,
+      "B1": 0.059,
+      "B2": 0.0962,
+      "B3": 0.089,
+      "R1": 0.0395,
+      "M1": 0.0549,
+      "M2": 0.2309,
+      "W1": 0.0258,
+      "W2": 0.0106,
+      "E1": 0.0579,
+      "none": 0.1699
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.5169,
+      "war": 0.1549,
+      "abundance": 0.1053,
+      "wisdom": 0.2229
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3509
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.5018
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.5011
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.2072
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4841
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4796
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.3123
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4893
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.5052
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.5123
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.5348
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.1857
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.2428
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3208
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3792
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.452
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.4343
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.5126
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.5093
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.379
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2515
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.3594
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.6753
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3673
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.3214
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1401
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2569
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.445
+    }
+   },
+   "latencyMs": 5455
+  }
+ },
+ "hard-9.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0351,
+      "G2": 0.0614,
+      "G3": 0.0356,
+      "G4": 0.012,
+      "P1": 0.053,
+      "B1": 0.0629,
+      "B2": 0.0598,
+      "B3": 0.0747,
+      "R1": 0.0218,
+      "M1": 0.2192,
+      "M2": 0.3061,
+      "W1": 0.023,
+      "W2": 0.0166,
+      "E1": 0.0189
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0332,
+      "G2": 0.0459,
+      "G3": 0.0213,
+      "G4": 0.0266,
+      "P1": 0.0292,
+      "B1": 0.0524,
+      "B2": 0.0956,
+      "B3": 0.0635,
+      "R1": 0.0271,
+      "M1": 0.0892,
+      "M2": 0.1846,
+      "W1": 0.0198,
+      "W2": 0.0091,
+      "E1": 0.0302,
+      "none": 0.2722
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.8612,
+      "war": 0.0416,
+      "abundance": 0.0616,
+      "wisdom": 0.0357
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.528
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.5597
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.5345
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.2409
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4567
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.5861
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.3854
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4983
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.5571
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4648
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.6341
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.2415
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.2803
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3325
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2015
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.242
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2475
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.2475
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3031
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2304
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2012
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2146
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.3781
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.4056
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2426
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2031
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1495
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1829
+    }
+   },
+   "latencyMs": 4699
+  }
+ },
+ "hard-10.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0334,
+      "G2": 0.0341,
+      "G3": 0.0254,
+      "G4": 0.0074,
+      "P1": 0.0196,
+      "B1": 0.0311,
+      "B2": 0.0402,
+      "B3": 0.0443,
+      "R1": 0.0156,
+      "M1": 0.0199,
+      "M2": 0.0778,
+      "W1": 0.1683,
+      "W2": 0.4654,
+      "E1": 0.0176
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0358,
+      "G2": 0.0501,
+      "G3": 0.0231,
+      "G4": 0.0091,
+      "P1": 0.0242,
+      "B1": 0.038,
+      "B2": 0.075,
+      "B3": 0.0287,
+      "R1": 0.0292,
+      "M1": 0.0422,
+      "M2": 0.1378,
+      "W1": 0.0543,
+      "W2": 0.0407,
+      "E1": 0.0216,
+      "none": 0.3902
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1683,
+      "war": 0.5046,
+      "abundance": 0.2034,
+      "wisdom": 0.1237
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3807
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.2963
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.2836
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.2261
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.1555
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.3157
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.167
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.2794
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.3423
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.2567
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.2654
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.594
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.6112
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3059
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2859
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.2832
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2935
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.2736
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.2775
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.3104
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2728
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2703
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.3246
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.2587
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2191
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.5414
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2888
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.239
+    }
+   },
+   "latencyMs": 5120
+  }
+ },
+ "hard-11.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0699,
+      "G2": 0.097,
+      "G3": 0.0603,
+      "G4": 0.0145,
+      "P1": 0.0642,
+      "B1": 0.1106,
+      "B2": 0.1213,
+      "B3": 0.1557,
+      "R1": 0.0296,
+      "M1": 0.046,
+      "M2": 0.0943,
+      "W1": 0.0444,
+      "W2": 0.0373,
+      "E1": 0.055
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0407,
+      "G2": 0.0824,
+      "G3": 0.0292,
+      "G4": 0.0208,
+      "P1": 0.0243,
+      "B1": 0.08,
+      "B2": 0.1598,
+      "B3": 0.0675,
+      "R1": 0.0323,
+      "M1": 0.0277,
+      "M2": 0.0788,
+      "W1": 0.0195,
+      "W2": 0.0123,
+      "E1": 0.0336,
+      "none": 0.2911
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1109,
+      "war": 0.2984,
+      "abundance": 0.3355,
+      "wisdom": 0.2552
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.6089
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.6286
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.6294
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3366
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4421
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.6219
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.5145
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.6008
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4635
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.5032
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.5485
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.4863
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.4696
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.4976
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2806
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.3698
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.3194
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3829
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.4161
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.303
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.346
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2811
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.5229
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3736
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2755
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.3518
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2095
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3075
+    }
+   },
+   "latencyMs": 4667
+  }
+ },
+ "hard-12.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0492,
+      "G2": 0.0631,
+      "G3": 0.0368,
+      "G4": 0.0233,
+      "P1": 0.0692,
+      "B1": 0.1949,
+      "B2": 0.0809,
+      "B3": 0.1468,
+      "R1": 0.0244,
+      "M1": 0.0485,
+      "M2": 0.099,
+      "W1": 0.0411,
+      "W2": 0.045,
+      "E1": 0.0779
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0226,
+      "G2": 0.0365,
+      "G3": 0.0161,
+      "G4": 0.0233,
+      "P1": 0.0316,
+      "B1": 0.0703,
+      "B2": 0.0635,
+      "B3": 0.0621,
+      "R1": 0.0217,
+      "M1": 0.0455,
+      "M2": 0.0967,
+      "W1": 0.0191,
+      "W2": 0.0126,
+      "E1": 0.0401,
+      "none": 0.4383
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0116,
+      "war": 0.0159,
+      "abundance": 0.9338,
+      "wisdom": 0.0387
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.4512
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4865
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.4099
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3363
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3999
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.5774
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.343
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.5284
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4439
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.3775
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4789
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.3985
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3889
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.4691
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2413
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.2834
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.3055
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.308
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3252
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2877
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2682
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2975
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.3632
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3361
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.3035
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2992
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2575
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.2737
+    }
+   },
+   "latencyMs": 5019
+  }
+ },
+ "hard-13.ko": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0542,
+      "G2": 0.0627,
+      "G3": 0.0342,
+      "G4": 0.0194,
+      "P1": 0.053,
+      "B1": 0.0596,
+      "B2": 0.075,
+      "B3": 0.0955,
+      "R1": 0.0241,
+      "M1": 0.0455,
+      "M2": 0.1065,
+      "W1": 0.0674,
+      "W2": 0.2461,
+      "E1": 0.0568
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0375,
+      "G2": 0.0583,
+      "G3": 0.0176,
+      "G4": 0.0352,
+      "P1": 0.0267,
+      "B1": 0.0483,
+      "B2": 0.1085,
+      "B3": 0.045,
+      "R1": 0.0198,
+      "M1": 0.0321,
+      "M2": 0.1683,
+      "W1": 0.0396,
+      "W2": 0.0464,
+      "E1": 0.0351,
+      "none": 0.2816
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0965,
+      "war": 0.2932,
+      "abundance": 0.333,
+      "wisdom": 0.2773
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.4269
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.5103
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.4891
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.282
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3096
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.5155
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2702
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4902
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.3802
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.3465
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4059
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.4345
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.4256
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.4742
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2448
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.2688
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2536
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.255
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.2645
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2737
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2486
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.27
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.312
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.2996
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2776
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.3031
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2339
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.2346
+    }
+   },
+   "latencyMs": 5306
+  }
+ },
+ "basic-0.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0432,
+      "G2": 0.1054,
+      "G3": 0.0331,
+      "G4": 0.0194,
+      "P1": 0.1904,
+      "B1": 0.067,
+      "B2": 0.1064,
+      "B3": 0.0964,
+      "R1": 0.0584,
+      "M1": 0.1222,
+      "M2": 0.1121,
+      "W1": 0.0189,
+      "W2": 0.0156,
+      "E1": 0.0114
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0201,
+      "G2": 0.0429,
+      "G3": 0.0278,
+      "G4": 0.0252,
+      "P1": 0.0526,
+      "B1": 0.0447,
+      "B2": 0.0785,
+      "B3": 0.0717,
+      "R1": 0.0338,
+      "M1": 0.0914,
+      "M2": 0.0456,
+      "W1": 0.0473,
+      "W2": 0.0375,
+      "E1": 0.0158,
+      "none": 0.3651
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.907,
+      "war": 0.0223,
+      "abundance": 0.0106,
+      "wisdom": 0.0601
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.092
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.1072
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.1074
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.0628
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.2586
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.1291
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.0827
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.207
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.1423
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.471
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3512
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.048
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.0929
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.042
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.0753
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.0634
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0604
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.0849
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.0827
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.0888
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1999
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1506
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1132
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.1718
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.205
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1784
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2037
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.0913
+    }
+   },
+   "latencyMs": 4349
+  }
+ },
+ "basic-1.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0386,
+      "G2": 0.2767,
+      "G3": 0.0955,
+      "G4": 0.0117,
+      "P1": 0.1083,
+      "B1": 0.2658,
+      "B2": 0.0383,
+      "B3": 0.0551,
+      "R1": 0.0317,
+      "M1": 0.0269,
+      "M2": 0.0247,
+      "W1": 0.0102,
+      "W2": 0.008,
+      "E1": 0.0085
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0181,
+      "G2": 0.1074,
+      "G3": 0.0547,
+      "G4": 0.022,
+      "P1": 0.0537,
+      "B1": 0.126,
+      "B2": 0.0453,
+      "B3": 0.0686,
+      "R1": 0.0337,
+      "M1": 0.0265,
+      "M2": 0.0165,
+      "W1": 0.019,
+      "W2": 0.0198,
+      "E1": 0.0146,
+      "none": 0.3743
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.3688,
+      "war": 0.0973,
+      "abundance": 0.1397,
+      "wisdom": 0.3943
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.1645
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4158
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.4407
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.0879
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3778
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.5081
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.1051
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3156
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.3452
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.2981
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.2485
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.0849
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.1358
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.08
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.1446
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.1711
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.1561
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1471
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.1609
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1886
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2144
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2119
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.2663
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.2375
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2582
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2125
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2367
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.174
+    }
+   },
+   "latencyMs": 4498
+  }
+ },
+ "basic-2.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0528,
+      "G2": 0.0956,
+      "G3": 0.0253,
+      "G4": 0.0737,
+      "P1": 0.1834,
+      "B1": 0.0708,
+      "B2": 0.1348,
+      "B3": 0.1581,
+      "R1": 0.0636,
+      "M1": 0.0469,
+      "M2": 0.046,
+      "W1": 0.0189,
+      "W2": 0.0137,
+      "E1": 0.0164
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0221,
+      "G2": 0.0285,
+      "G3": 0.0188,
+      "G4": 0.4145,
+      "P1": 0.022,
+      "B1": 0.0419,
+      "B2": 0.0405,
+      "B3": 0.1139,
+      "R1": 0.0336,
+      "M1": 0.0259,
+      "M2": 0.018,
+      "W1": 0.02,
+      "W2": 0.0153,
+      "E1": 0.0171,
+      "none": 0.1678
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1892,
+      "war": 0.1454,
+      "abundance": 0.0505,
+      "wisdom": 0.6149
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.0976
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.0704
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.0568
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.186
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.1831
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.0979
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.1793
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.2744
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.1553
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.2437
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.1691
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.0911
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.1126
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0481
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.4163
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.2658
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.1929
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.6228
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.2317
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.3418
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.4237
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.6487
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.2893
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.4045
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.444
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.4849
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.542
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.4001
+    }
+   },
+   "latencyMs": 4295
+  }
+ },
+ "basic-3.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0287,
+      "G2": 0.0339,
+      "G3": 0.0138,
+      "G4": 0.0142,
+      "P1": 0.0733,
+      "B1": 0.0206,
+      "B2": 0.0702,
+      "B3": 0.0581,
+      "R1": 0.0271,
+      "M1": 0.0903,
+      "M2": 0.0619,
+      "W1": 0.4026,
+      "W2": 0.0938,
+      "E1": 0.0113
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.007,
+      "G2": 0.013,
+      "G3": 0.0078,
+      "G4": 0.0072,
+      "P1": 0.0152,
+      "B1": 0.012,
+      "B2": 0.0377,
+      "B3": 0.0214,
+      "R1": 0.0098,
+      "M1": 0.1055,
+      "M2": 0.0197,
+      "W1": 0.4511,
+      "W2": 0.1082,
+      "E1": 0.0054,
+      "none": 0.1788
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0674,
+      "war": 0.6101,
+      "abundance": 0.0184,
+      "wisdom": 0.3041
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.1197
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.0686
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.0702
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.1062
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.1931
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.0786
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.1677
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.2242
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.0759
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.5932
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3725
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.7102
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.5205
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0578
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.1426
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.1123
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0964
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1372
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.1796
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1218
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1716
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.198
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.164
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.2334
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.249
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2804
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2666
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1442
+    }
+   },
+   "latencyMs": 4556
+  }
+ },
+ "basic-4.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0501,
+      "G2": 0.0689,
+      "G3": 0.0178,
+      "G4": 0.0332,
+      "P1": 0.0817,
+      "B1": 0.049,
+      "B2": 0.1404,
+      "B3": 0.4375,
+      "R1": 0.0256,
+      "M1": 0.0311,
+      "M2": 0.0279,
+      "W1": 0.0125,
+      "W2": 0.0118,
+      "E1": 0.0124
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0091,
+      "G2": 0.0173,
+      "G3": 0.0089,
+      "G4": 0.0131,
+      "P1": 0.0141,
+      "B1": 0.015,
+      "B2": 0.0633,
+      "B3": 0.585,
+      "R1": 0.008,
+      "M1": 0.0099,
+      "M2": 0.0065,
+      "W1": 0.0068,
+      "W2": 0.0094,
+      "E1": 0.0091,
+      "none": 0.2245
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1105,
+      "war": 0.116,
+      "abundance": 0.1777,
+      "wisdom": 0.5958
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.1763
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.1268
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.0846
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.2674
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.2275
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.2023
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2745
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.6751
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.0773
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.1973
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.1316
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.1074
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.1715
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.089
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.1156
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.1032
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0828
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1384
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.1243
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1473
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1609
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1327
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1413
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.1512
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.18
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1588
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1911
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1334
+    }
+   },
+   "latencyMs": 4419
+  }
+ },
+ "basic-5.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0364,
+      "G2": 0.0828,
+      "G3": 0.0439,
+      "G4": 0.0134,
+      "P1": 0.1816,
+      "B1": 0.074,
+      "B2": 0.0621,
+      "B3": 0.0402,
+      "R1": 0.383,
+      "M1": 0.0287,
+      "M2": 0.023,
+      "W1": 0.0115,
+      "W2": 0.0088,
+      "E1": 0.0105
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0117,
+      "G2": 0.0242,
+      "G3": 0.022,
+      "G4": 0.0205,
+      "P1": 0.0274,
+      "B1": 0.0319,
+      "B2": 0.049,
+      "B3": 0.0278,
+      "R1": 0.2777,
+      "M1": 0.0136,
+      "M2": 0.009,
+      "W1": 0.027,
+      "W2": 0.0218,
+      "E1": 0.0083,
+      "none": 0.428
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.8972,
+      "war": 0.0186,
+      "abundance": 0.0129,
+      "wisdom": 0.0713
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.0872
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.1712
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.2309
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.0588
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.2494
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.1886
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.0765
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.145
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.8542
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.1326
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.1194
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.0384
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.0696
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0535
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.1359
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.1475
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.1141
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1877
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.1703
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1717
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2615
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2289
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.5121
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.1976
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.245
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2102
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2216
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1889
+    }
+   },
+   "latencyMs": 4345
+  }
+ },
+ "basic-6.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0208,
+      "G2": 0.0821,
+      "G3": 0.5142,
+      "G4": 0.0052,
+      "P1": 0.0406,
+      "B1": 0.2052,
+      "B2": 0.0274,
+      "B3": 0.0412,
+      "R1": 0.0189,
+      "M1": 0.0175,
+      "M2": 0.0115,
+      "W1": 0.0053,
+      "W2": 0.0038,
+      "E1": 0.0063
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0058,
+      "G2": 0.0267,
+      "G3": 0.6953,
+      "G4": 0.0039,
+      "P1": 0.0107,
+      "B1": 0.0471,
+      "B2": 0.0157,
+      "B3": 0.0203,
+      "R1": 0.0065,
+      "M1": 0.0085,
+      "M2": 0.0043,
+      "W1": 0.0039,
+      "W2": 0.0047,
+      "E1": 0.0054,
+      "none": 0.1412
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1973,
+      "war": 0.0949,
+      "abundance": 0.1833,
+      "wisdom": 0.5245
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.2285
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.3961
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.7811
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.0744
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.2697
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.6356
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.1054
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3815
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.2661
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.3186
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.2123
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.0849
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.1412
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0937
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.0832
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.0899
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0709
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.0765
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.0983
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.092
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1084
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1037
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1392
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.1253
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.145
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1104
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.128
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.0887
+    }
+   },
+   "latencyMs": 4423
+  }
+ },
+ "basic-7.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.051,
+      "G2": 0.0801,
+      "G3": 0.0242,
+      "G4": 0.0331,
+      "P1": 0.1662,
+      "B1": 0.0631,
+      "B2": 0.1142,
+      "B3": 0.0981,
+      "R1": 0.0489,
+      "M1": 0.0652,
+      "M2": 0.0633,
+      "W1": 0.0317,
+      "W2": 0.0368,
+      "E1": 0.1242
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0179,
+      "G2": 0.031,
+      "G3": 0.0184,
+      "G4": 0.0198,
+      "P1": 0.0469,
+      "B1": 0.0308,
+      "B2": 0.0512,
+      "B3": 0.0505,
+      "R1": 0.0236,
+      "M1": 0.0316,
+      "M2": 0.022,
+      "W1": 0.0205,
+      "W2": 0.0462,
+      "E1": 0.155,
+      "none": 0.4346
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0011,
+      "war": 0.0008,
+      "abundance": 0.0002,
+      "wisdom": 0.9979
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.1962
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.207
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.1664
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.1577
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.5327
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.2555
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2066
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.413
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.249
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.3449
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.2803
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.1726
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.336
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.5035
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.1166
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.1093
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0853
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1237
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.1299
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1148
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1597
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1295
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1445
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.1556
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2176
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1569
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1693
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1933
+    }
+   },
+   "latencyMs": 4415
+  }
+ },
+ "basic-8.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0417,
+      "G2": 0.0558,
+      "G3": 0.0178,
+      "G4": 0.02,
+      "P1": 0.1003,
+      "B1": 0.044,
+      "B2": 0.4903,
+      "B3": 0.0804,
+      "R1": 0.039,
+      "M1": 0.038,
+      "M2": 0.0306,
+      "W1": 0.0179,
+      "W2": 0.013,
+      "E1": 0.011
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0171,
+      "G2": 0.0279,
+      "G3": 0.0168,
+      "G4": 0.018,
+      "P1": 0.0312,
+      "B1": 0.0261,
+      "B2": 0.2662,
+      "B3": 0.0485,
+      "R1": 0.0249,
+      "M1": 0.0335,
+      "M2": 0.0161,
+      "W1": 0.0189,
+      "W2": 0.0274,
+      "E1": 0.0141,
+      "none": 0.4134
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1196,
+      "war": 0.6885,
+      "abundance": 0.0419,
+      "wisdom": 0.1499
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.1756
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.1456
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.1012
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.1268
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.2997
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.1352
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.5287
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.2606
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.1695
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.3398
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.2514
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.1259
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.1913
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0791
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.0898
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.0901
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0748
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1052
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.1197
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1153
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1301
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1356
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1464
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.1699
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.1838
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.149
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.172
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1213
+    }
+   },
+   "latencyMs": 4341
+  }
+ },
+ "basic-9.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0458,
+      "G2": 0.0801,
+      "G3": 0.0206,
+      "G4": 0.0216,
+      "P1": 0.2109,
+      "B1": 0.055,
+      "B2": 0.0804,
+      "B3": 0.2825,
+      "R1": 0.0386,
+      "M1": 0.0653,
+      "M2": 0.0465,
+      "W1": 0.0201,
+      "W2": 0.0203,
+      "E1": 0.0124
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0192,
+      "G2": 0.0413,
+      "G3": 0.0272,
+      "G4": 0.0245,
+      "P1": 0.0674,
+      "B1": 0.0435,
+      "B2": 0.0555,
+      "B3": 0.1083,
+      "R1": 0.0323,
+      "M1": 0.0366,
+      "M2": 0.0173,
+      "W1": 0.0146,
+      "W2": 0.0225,
+      "E1": 0.0181,
+      "none": 0.4718
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0395,
+      "war": 0.0399,
+      "abundance": 0.0169,
+      "wisdom": 0.9037
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.1136
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.1175
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.1051
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.1037
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4901
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.1104
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.1112
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.5947
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.1517
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4043
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.2306
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.1035
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.1864
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0648
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.0909
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.0717
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0827
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.0909
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.0969
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.108
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1174
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.125
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1224
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.1542
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.1691
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.115
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1521
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.103
+    }
+   },
+   "latencyMs": 4508
+  }
+ },
+ "hard-0.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0401,
+      "G2": 0.0929,
+      "G3": 0.0337,
+      "G4": 0.0212,
+      "P1": 0.1649,
+      "B1": 0.0607,
+      "B2": 0.1743,
+      "B3": 0.1004,
+      "R1": 0.0667,
+      "M1": 0.0535,
+      "M2": 0.0465,
+      "W1": 0.0874,
+      "W2": 0.0355,
+      "E1": 0.0222
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0225,
+      "G2": 0.048,
+      "G3": 0.0295,
+      "G4": 0.0355,
+      "P1": 0.0295,
+      "B1": 0.0472,
+      "B2": 0.081,
+      "B3": 0.0546,
+      "R1": 0.0339,
+      "M1": 0.032,
+      "M2": 0.0202,
+      "W1": 0.1619,
+      "W2": 0.0784,
+      "E1": 0.021,
+      "none": 0.3048
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1986,
+      "war": 0.6549,
+      "abundance": 0.0176,
+      "wisdom": 0.1288
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.0693
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.0728
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.0775
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.063
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.15
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.0877
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.1441
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.1257
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.0992
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.2305
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.163
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.3781
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.2267
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0677
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2343
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.227
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2279
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.2864
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.2597
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2811
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.4294
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.4173
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.325
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.4308
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.4486
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.5333
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.5191
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3939
+    }
+   },
+   "latencyMs": 4457
+  }
+ },
+ "hard-1.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0304,
+      "G2": 0.0605,
+      "G3": 0.027,
+      "G4": 0.02,
+      "P1": 0.1881,
+      "B1": 0.1093,
+      "B2": 0.1285,
+      "B3": 0.2059,
+      "R1": 0.0724,
+      "M1": 0.0598,
+      "M2": 0.0527,
+      "W1": 0.0148,
+      "W2": 0.0129,
+      "E1": 0.0175
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0823,
+      "G2": 0.0434,
+      "G3": 0.036,
+      "G4": 0.0535,
+      "P1": 0.0387,
+      "B1": 0.1648,
+      "B2": 0.0576,
+      "B3": 0.1484,
+      "R1": 0.0319,
+      "M1": 0.0455,
+      "M2": 0.0318,
+      "W1": 0.0248,
+      "W2": 0.0258,
+      "E1": 0.0218,
+      "none": 0.1937
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.451,
+      "war": 0.0714,
+      "abundance": 0.0367,
+      "wisdom": 0.441
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.0741
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.0458
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.0456
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.0415
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.1611
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.0909
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.0983
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.1406
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.1279
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.2648
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.1886
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.0555
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.0858
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0374
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.7554
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.2853
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.1547
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.258
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.1283
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.555
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2877
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.5893
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1594
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3959
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2878
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2182
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.3613
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1615
+    }
+   },
+   "latencyMs": 4390
+  }
+ },
+ "hard-2.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.041,
+      "G2": 0.105,
+      "G3": 0.0476,
+      "G4": 0.0199,
+      "P1": 0.1848,
+      "B1": 0.0876,
+      "B2": 0.1385,
+      "B3": 0.0811,
+      "R1": 0.097,
+      "M1": 0.0548,
+      "M2": 0.0314,
+      "W1": 0.0608,
+      "W2": 0.0262,
+      "E1": 0.0241
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.006,
+      "G2": 0.0128,
+      "G3": 0.0098,
+      "G4": 0.0071,
+      "P1": 0.011,
+      "B1": 0.0148,
+      "B2": 0.0121,
+      "B3": 0.0123,
+      "R1": 0.0116,
+      "M1": 0.0123,
+      "M2": 0.0067,
+      "W1": 0.7506,
+      "W2": 0.0788,
+      "E1": 0.0048,
+      "none": 0.0496
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.5781,
+      "war": 0.1862,
+      "abundance": 0.0146,
+      "wisdom": 0.2211
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.066
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.1695
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.1247
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.0487
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.2072
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.151
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.0703
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.1112
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.2784
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.1607
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.0664
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.0349
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.0731
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0716
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2085
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.1623
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.1164
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1757
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.1728
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.186
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2596
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2693
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.2219
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.637
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.5436
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.7905
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.7653
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1602
+    }
+   },
+   "latencyMs": 4504
+  }
+ },
+ "hard-3.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0488,
+      "G2": 0.1477,
+      "G3": 0.0486,
+      "G4": 0.0212,
+      "P1": 0.1606,
+      "B1": 0.1118,
+      "B2": 0.1493,
+      "B3": 0.0827,
+      "R1": 0.0645,
+      "M1": 0.0566,
+      "M2": 0.0455,
+      "W1": 0.0265,
+      "W2": 0.0183,
+      "E1": 0.0181
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0186,
+      "G2": 0.0448,
+      "G3": 0.0337,
+      "G4": 0.0407,
+      "P1": 0.0308,
+      "B1": 0.0589,
+      "B2": 0.1003,
+      "B3": 0.0467,
+      "R1": 0.0326,
+      "M1": 0.033,
+      "M2": 0.0213,
+      "W1": 0.2063,
+      "W2": 0.0553,
+      "E1": 0.015,
+      "none": 0.262
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.3415,
+      "war": 0.1126,
+      "abundance": 0.1065,
+      "wisdom": 0.4394
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.0887
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.1636
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.1321
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.0766
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.223
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.1697
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.112
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.1646
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.2275
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.2705
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.1909
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.0941
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.159
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0782
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.2655
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.2316
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2077
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3147
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.1987
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.2895
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.4664
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.3316
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.2655
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.4716
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.4181
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.615
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.6069
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.4196
+    }
+   },
+   "latencyMs": 4557
+  }
+ },
+ "hard-4.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0361,
+      "G2": 0.0593,
+      "G3": 0.0157,
+      "G4": 0.1569,
+      "P1": 0.086,
+      "B1": 0.0385,
+      "B2": 0.0625,
+      "B3": 0.3787,
+      "R1": 0.0406,
+      "M1": 0.0448,
+      "M2": 0.0374,
+      "W1": 0.0162,
+      "W2": 0.0127,
+      "E1": 0.0145
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0117,
+      "G2": 0.0208,
+      "G3": 0.0135,
+      "G4": 0.047,
+      "P1": 0.0213,
+      "B1": 0.0184,
+      "B2": 0.0257,
+      "B3": 0.2361,
+      "R1": 0.0221,
+      "M1": 0.0231,
+      "M2": 0.0126,
+      "W1": 0.0102,
+      "W2": 0.0144,
+      "E1": 0.0138,
+      "none": 0.5093
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1037,
+      "war": 0.0583,
+      "abundance": 0.0309,
+      "wisdom": 0.807
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.0683
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.0615
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.0549
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3247
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.1507
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.0739
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.0938
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4273
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.086
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.2275
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.1596
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.0661
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.1094
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0513
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.0905
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.0829
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0726
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1293
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.1065
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1031
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1197
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1515
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1092
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.1496
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.1577
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1105
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1379
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.0975
+    }
+   },
+   "latencyMs": 4420
+  }
+ },
+ "hard-5.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0477,
+      "G2": 0.0472,
+      "G3": 0.0157,
+      "G4": 0.0169,
+      "P1": 0.1309,
+      "B1": 0.0292,
+      "B2": 0.0766,
+      "B3": 0.0729,
+      "R1": 0.0266,
+      "M1": 0.3874,
+      "M2": 0.0475,
+      "W1": 0.0706,
+      "W2": 0.0217,
+      "E1": 0.0091
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0124,
+      "G2": 0.0184,
+      "G3": 0.0068,
+      "G4": 0.0119,
+      "P1": 0.0361,
+      "B1": 0.0184,
+      "B2": 0.0521,
+      "B3": 0.0337,
+      "R1": 0.0148,
+      "M1": 0.2935,
+      "M2": 0.0171,
+      "W1": 0.0718,
+      "W2": 0.0336,
+      "E1": 0.0075,
+      "none": 0.3719
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1893,
+      "war": 0.3798,
+      "abundance": 0.0461,
+      "wisdom": 0.3849
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.1484
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.1828
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.0895
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.0914
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3292
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.1604
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2302
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.2507
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.1437
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.6554
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3084
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.4598
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.2621
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0823
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.1274
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.1197
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0785
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.096
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.1685
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1172
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1681
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.156
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1711
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.1628
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.1938
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.163
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1714
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1303
+    }
+   },
+   "latencyMs": 4546
+  }
+ },
+ "hard-6.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0708,
+      "G2": 0.0787,
+      "G3": 0.0241,
+      "G4": 0.0259,
+      "P1": 0.3245,
+      "B1": 0.0789,
+      "B2": 0.0842,
+      "B3": 0.141,
+      "R1": 0.026,
+      "M1": 0.0486,
+      "M2": 0.0406,
+      "W1": 0.0216,
+      "W2": 0.0208,
+      "E1": 0.0141
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.028,
+      "G2": 0.0526,
+      "G3": 0.0217,
+      "G4": 0.0202,
+      "P1": 0.1424,
+      "B1": 0.0549,
+      "B2": 0.0632,
+      "B3": 0.1296,
+      "R1": 0.0229,
+      "M1": 0.0392,
+      "M2": 0.0207,
+      "W1": 0.0172,
+      "W2": 0.0233,
+      "E1": 0.0147,
+      "none": 0.3491
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.156,
+      "war": 0.1055,
+      "abundance": 0.0473,
+      "wisdom": 0.6912
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.4311
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4999
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.2114
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.2091
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.7344
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.5302
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.3022
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.5913
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.348
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4194
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3203
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.2391
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3469
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.2155
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.13
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.1455
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.123
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1496
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.2287
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1394
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1591
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1512
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.2464
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.19
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2168
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1825
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2064
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1626
+    }
+   },
+   "latencyMs": 4427
+  }
+ },
+ "hard-7.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0497,
+      "G2": 0.0783,
+      "G3": 0.0224,
+      "G4": 0.023,
+      "P1": 0.1035,
+      "B1": 0.0517,
+      "B2": 0.0621,
+      "B3": 0.0572,
+      "R1": 0.0269,
+      "M1": 0.0489,
+      "M2": 0.0369,
+      "W1": 0.016,
+      "W2": 0.017,
+      "E1": 0.4065
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0187,
+      "G2": 0.0287,
+      "G3": 0.0117,
+      "G4": 0.0109,
+      "P1": 0.0248,
+      "B1": 0.027,
+      "B2": 0.0235,
+      "B3": 0.0231,
+      "R1": 0.0126,
+      "M1": 0.0213,
+      "M2": 0.0136,
+      "W1": 0.0084,
+      "W2": 0.0097,
+      "E1": 0.3872,
+      "none": 0.3787
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0657,
+      "war": 0.0198,
+      "abundance": 0.0179,
+      "wisdom": 0.8966
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.1677
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.1543
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.1448
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.1448
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.2603
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.1829
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.1256
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3301
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.1728
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.3632
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3525
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.1145
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.1882
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.8525
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.0872
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.074
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0792
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1055
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.0981
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.0841
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.116
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1192
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1176
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.1407
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.1417
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1078
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1237
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.082
+    }
+   },
+   "latencyMs": 4688
+  }
+ },
+ "hard-8.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0315,
+      "G2": 0.0953,
+      "G3": 0.0295,
+      "G4": 0.0174,
+      "P1": 0.2419,
+      "B1": 0.0994,
+      "B2": 0.1421,
+      "B3": 0.1455,
+      "R1": 0.0587,
+      "M1": 0.0558,
+      "M2": 0.0411,
+      "W1": 0.0159,
+      "W2": 0.0133,
+      "E1": 0.0127
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0172,
+      "G2": 0.0538,
+      "G3": 0.037,
+      "G4": 0.024,
+      "P1": 0.0859,
+      "B1": 0.0617,
+      "B2": 0.0542,
+      "B3": 0.1014,
+      "R1": 0.0362,
+      "M1": 0.0507,
+      "M2": 0.0368,
+      "W1": 0.0349,
+      "W2": 0.0258,
+      "E1": 0.0153,
+      "none": 0.3651
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.2839,
+      "war": 0.1042,
+      "abundance": 0.0269,
+      "wisdom": 0.5851
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.1021
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.2468
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.1978
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.0842
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.5245
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.2852
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.1995
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4472
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.2585
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.3952
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.259
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.0991
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.1617
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0944
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.1498
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.1835
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.1406
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1723
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.2618
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1947
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.292
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2987
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.3687
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3679
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.4059
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.3255
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.3678
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.2754
+    }
+   },
+   "latencyMs": 5043
+  }
+ },
+ "hard-9.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0415,
+      "G2": 0.0835,
+      "G3": 0.0304,
+      "G4": 0.0175,
+      "P1": 0.1797,
+      "B1": 0.0623,
+      "B2": 0.1252,
+      "B3": 0.1034,
+      "R1": 0.0505,
+      "M1": 0.1491,
+      "M2": 0.11,
+      "W1": 0.0183,
+      "W2": 0.0168,
+      "E1": 0.0118
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0192,
+      "G2": 0.0349,
+      "G3": 0.0202,
+      "G4": 0.0189,
+      "P1": 0.0459,
+      "B1": 0.0366,
+      "B2": 0.0746,
+      "B3": 0.0603,
+      "R1": 0.0334,
+      "M1": 0.107,
+      "M2": 0.0483,
+      "W1": 0.0329,
+      "W2": 0.0309,
+      "E1": 0.0146,
+      "none": 0.4224
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.8349,
+      "war": 0.0314,
+      "abundance": 0.0138,
+      "wisdom": 0.1198
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.1304
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.1715
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.1316
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.0809
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4219
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.1791
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.1218
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3787
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.2136
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.6306
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4963
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.0565
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.1258
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0622
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.0721
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.0664
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0586
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.078
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.094
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.0775
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2038
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1238
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1157
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.1707
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.1835
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2279
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2093
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.0794
+    }
+   },
+   "latencyMs": 4274
+  }
+ },
+ "hard-10.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.045,
+      "G2": 0.0709,
+      "G3": 0.0258,
+      "G4": 0.0184,
+      "P1": 0.0835,
+      "B1": 0.0422,
+      "B2": 0.1031,
+      "B3": 0.0664,
+      "R1": 0.0437,
+      "M1": 0.0642,
+      "M2": 0.0628,
+      "W1": 0.1248,
+      "W2": 0.2362,
+      "E1": 0.0132
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0108,
+      "G2": 0.0243,
+      "G3": 0.016,
+      "G4": 0.0147,
+      "P1": 0.0279,
+      "B1": 0.0187,
+      "B2": 0.0315,
+      "B3": 0.021,
+      "R1": 0.0183,
+      "M1": 0.0299,
+      "M2": 0.0225,
+      "W1": 0.062,
+      "W2": 0.5445,
+      "E1": 0.0089,
+      "none": 0.149
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.396,
+      "war": 0.2796,
+      "abundance": 0.0535,
+      "wisdom": 0.271
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.0702
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.047
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.0492
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.0466
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.0813
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.0511
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.0609
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.0797
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.0679
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.1759
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.1312
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.4555
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.683
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0409
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.1274
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.1031
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0921
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1096
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.2638
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1154
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1831
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2725
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1639
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.2507
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2787
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2808
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.355
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1207
+    }
+   },
+   "latencyMs": 4679
+  }
+ },
+ "hard-11.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.1054,
+      "G2": 0.1087,
+      "G3": 0.0384,
+      "G4": 0.024,
+      "P1": 0.1708,
+      "B1": 0.0827,
+      "B2": 0.1269,
+      "B3": 0.1412,
+      "R1": 0.046,
+      "M1": 0.0522,
+      "M2": 0.0345,
+      "W1": 0.0292,
+      "W2": 0.0215,
+      "E1": 0.0185
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0415,
+      "G2": 0.0496,
+      "G3": 0.0283,
+      "G4": 0.0253,
+      "P1": 0.0656,
+      "B1": 0.0546,
+      "B2": 0.0889,
+      "B3": 0.0988,
+      "R1": 0.0209,
+      "M1": 0.0347,
+      "M2": 0.017,
+      "W1": 0.0231,
+      "W2": 0.0322,
+      "E1": 0.0177,
+      "none": 0.4017
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1529,
+      "war": 0.1553,
+      "abundance": 0.0706,
+      "wisdom": 0.6212
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.6031
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.3778
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3403
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.231
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.5598
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.44
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.3355
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.5915
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.2946
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4034
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3182
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.2146
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3036
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.1948
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.1486
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.1362
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.1166
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1719
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.1857
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1506
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1825
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1963
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1913
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.2193
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.2574
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.23
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2399
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1978
+    }
+   },
+   "latencyMs": 4209
+  }
+ },
+ "hard-12.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0758,
+      "G2": 0.1112,
+      "G3": 0.0394,
+      "G4": 0.0378,
+      "P1": 0.1375,
+      "B1": 0.167,
+      "B2": 0.0847,
+      "B3": 0.1273,
+      "R1": 0.0469,
+      "M1": 0.0589,
+      "M2": 0.0471,
+      "W1": 0.0194,
+      "W2": 0.0204,
+      "E1": 0.0266
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.021,
+      "G2": 0.0402,
+      "G3": 0.0259,
+      "G4": 0.0211,
+      "P1": 0.0361,
+      "B1": 0.0635,
+      "B2": 0.0424,
+      "B3": 0.0544,
+      "R1": 0.0212,
+      "M1": 0.0201,
+      "M2": 0.0138,
+      "W1": 0.0138,
+      "W2": 0.0185,
+      "E1": 0.0199,
+      "none": 0.5881
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.0529,
+      "war": 0.0378,
+      "abundance": 0.7305,
+      "wisdom": 0.1788
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.1282
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.142
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.154
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.1446
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.1441
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.266
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.0718
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.1341
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.0847
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.1395
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.1201
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.0685
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.1075
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0657
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.0883
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.0826
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0741
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1184
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.103
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1093
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1237
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1125
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1328
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.123
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.1155
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.0964
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1163
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.0981
+    }
+   },
+   "latencyMs": 4562
+  }
+ },
+ "hard-13.en": {
+  "SystemOne-4B (WebGPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.1067,
+      "G2": 0.1203,
+      "G3": 0.0386,
+      "G4": 0.0367,
+      "P1": 0.0891,
+      "B1": 0.0809,
+      "B2": 0.0811,
+      "B3": 0.1056,
+      "R1": 0.0446,
+      "M1": 0.0421,
+      "M2": 0.0438,
+      "W1": 0.0415,
+      "W2": 0.1406,
+      "E1": 0.0283
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "probabilities": {
+      "G1": 0.0361,
+      "G2": 0.0499,
+      "G3": 0.0204,
+      "G4": 0.0358,
+      "P1": 0.0358,
+      "B1": 0.0331,
+      "B2": 0.0761,
+      "B3": 0.0431,
+      "R1": 0.0165,
+      "M1": 0.0216,
+      "M2": 0.0239,
+      "W1": 0.0282,
+      "W2": 0.155,
+      "E1": 0.0191,
+      "none": 0.4054
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "probabilities": {
+      "peace": 0.1785,
+      "war": 0.1513,
+      "abundance": 0.081,
+      "wisdom": 0.5892
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.1467
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.0982
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.1295
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.0739
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.0782
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.1026
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.0768
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.122
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.0762
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.1076
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.1419
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.135
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.201
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.0554
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.1601
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.1146
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.0991
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1193
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.136
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1367
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1721
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1652
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1409
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.1663
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.1841
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.1668
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1782
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1381
+    }
+   },
+   "latencyMs": 4858
+  }
+ }
+}
