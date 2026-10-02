@@ -46,9 +46,9 @@
   "ui.main.challengeStart": "도전 시작",
   "ui.challengeTarget": "승점 {n}점을 넘어라",
   "ui.seedN": "시드 {n}",
-  "ui.diffHint.easy": "율법파 행동 +0, 적은 시작 자원",
-  "ui.diffHint.normal": "율법파 행동 +1",
-  "ui.diffHint.hard": "율법파 행동 +2, 율법 카드 두 장 중 위협적인 쪽을 쓴다",
+  "ui.diffHint.easy": "율법파 신도 3·행동 +1, 적은 시작 자원, 맞서는 카드 없음",
+  "ui.diffHint.normal": "율법파 신도 4·행동 +1",
+  "ui.diffHint.hard": "율법파 신도 5·행동 +2, 율법 카드 두 장 중 위협적인 쪽을 쓴다",
   "ui.sigil": {
     "$fn": "(v) => `${{ light: '빛', sword: '칼', dove: '비둘기', grain: '이삭', eye: '눈', storm: '폭풍' }[v.k]} 문장`"
   },
@@ -529,6 +529,10 @@
   "ui.board.aria": "육각 보드 — 제 {n} 장. 우리 땅 {mine}칸, 율법파 땅 {theirs}칸 보임. 승점 {a} 대 {b}.",
   "ui.law.kind": "이번 율법",
   "ui.law.rule": "행동 {n}회를 율법 순서대로",
+  "ui.odds.crusade": {
+    "$fn": "(v) => `원정을 버틸 확률 ${v.p}%`"
+  },
+  "ui.odds.crusadeTip": "대성당을 지으면 다음 장 율법파가 우리 수도를 세 번 친다(공격 +1). 지금의 성벽·내구도로 셈한, 그 세 번을 버틸 확률 — 율법파의 다른 공격은 셈하지 않았다. 성벽을 두르면 오른다",
   "ui.odds.tip": "주사위 두 개(각 1~6)에 보너스를 더해 공격 쪽이 커야 이긴다",
   "ui.first.blockTip": "율법파도 이 칸을 노린다. 우리가 선공이라 먼저 차지해 막는다",
   "ui.first.block": "선공 · 막음",

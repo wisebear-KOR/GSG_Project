@@ -72,13 +72,13 @@
         "wood": 4,
         "stone": 2,
         "faith": 4,
-        "pop": 5,
+        "pop": 6,
         "templeLevel": 1,
         "capitalHp": 2,
         "cathedral": 0,
         "edict": 0,
         "villages": 0,
-        "score": 18
+        "score": 21
       }
     },
     "eventDeck": [
@@ -121,13 +121,14 @@
       "rejected": [],
       "petitionAnswered": false,
       "auto": ["explore:A1:","gather:B2:food"],
-      "enemyPlan": ["build:C2:village","gather:A1:wood","gather:A4:food","build:C3:village","gather:A2:wood"],
+      "enemyPlan": ["build:C2:village","gather:A1:wood","gather:A4:food","build:C3:village","gather:A2:wood","gather:B2:food"],
       "plan": ["pray:D2:","explore:A1:","gather:B2:food"],
       "ordered": ["pray:D2:"],
       "log": [
         {"side":"god","text":"“신전에서 기도하라”","ui":true},
         {"side":"priest","text":"석판이 이르되, 신전에서 기도한다!","ui":true},
         {"side":"enemy","text":"율법파는 안개 지대(A1)를 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"A1"}},
+        {"side":"enemy","text":"율법파는 평원(B2)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"B2"}},
         {
           "side": "player",
           "text": "신도들이 평원(B2)에서 식량을 0 얻었다.",
@@ -185,17 +186,17 @@
           "doctrine": {"peace":0,"war":0,"abundance":0,"wisdom":1}
         },
         "enemy": {
-          "food": 5,
+          "food": 4,
           "wood": 2,
           "stone": 2,
           "faith": 7,
-          "pop": 6,
+          "pop": 7,
           "templeLevel": 1,
           "capitalHp": 2,
           "cathedral": 0,
           "edict": 0,
           "villages": 2,
-          "score": 25
+          "score": 28
         },
         "owners": {"A3":"enemy","C2":"enemy","C3":"enemy","D2":"player"},
         "buildings": {"A3":"capital","C2":"village","C3":"village","D2":"capital"},
@@ -267,7 +268,6 @@
           "fx": {"kind":"treasure","tile":"A3","gain":{"wood":2}},
           "act": "explore:A3:"
         },
-        {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {"side":"leader","text":"철의 대제사장 바락: “'신전'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
       ],
       "digest": {
@@ -706,7 +706,7 @@
       "enemy": [{"key":"pop","n":6,"w":3},{"key":"village","n":4,"w":2},{"key":"temple","n":2,"w":1},{"key":"hp","n":2,"w":1}]
     },
     "history": [
-      {"round":1,"ps":12,"es":25},
+      {"round":1,"ps":12,"es":28},
       {"round":2,"ps":13,"es":31},
       {"round":3,"ps":15,"es":26},
       {"round":4,"ps":9,"es":33},

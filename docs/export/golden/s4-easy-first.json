@@ -42,7 +42,7 @@
     "rows": 4,
     "cols": 4,
     "maxRounds": 8,
-    "enemyBonus": 0,
+    "enemyBonus": 1,
     "leader": "elder",
     "priest": "loyal",
     "judgement": "classic",

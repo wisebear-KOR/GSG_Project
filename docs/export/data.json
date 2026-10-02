@@ -3,7 +3,7 @@
     "source": "js/game/data.js",
     "generator": "tools/export-data.mjs",
     "lang": "ko",
-    "ruleset": 24,
+    "ruleset": 25,
     "conventions": [
       "A function value is written as an object whose only key is \"$fn\" (its JS source text). Port the logic by hand; see docs/spec/03-data.md.",
       "A RegExp value is written as an object with keys \"$re\" (source) and \"flags\"."
@@ -183,7 +183,7 @@
   "DIFFICULTY": {
     "easy": {
       "name": "쉬움",
-      "enemyBonus": 0,
+      "enemyBonus": 1,
       "enemyStart": {
         "food": 3,
         "wood": 1,
@@ -211,7 +211,7 @@
         "wood": 4,
         "stone": 2,
         "faith": 4,
-        "pop": 4
+        "pop": 5
       }
     }
   },
@@ -1237,7 +1237,7 @@
     "graceDoctrineBelow": 3,
     "maxNames": 3
   },
-  "RULESET": 24,
+  "RULESET": 25,
   "SACRED_WORDS": [
     {
       "word": "무지개",

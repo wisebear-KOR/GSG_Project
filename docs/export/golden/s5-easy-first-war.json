@@ -56,7 +56,7 @@
     "rows": 5,
     "cols": 5,
     "maxRounds": 12,
-    "enemyBonus": 0,
+    "enemyBonus": 1,
     "leader": "preacher",
     "priest": "loyal",
     "judgement": "classic",
@@ -656,12 +656,13 @@
       "rejected": [],
       "petitionAnswered": false,
       "auto": ["gather:B1:food","gather:D2:wood"],
-      "enemyPlan": ["gather:B5:stone","gather:A5:wood","gather:C2:stone","gather:B4:wood","gather:A1:food"],
+      "enemyPlan": ["gather:B5:stone","gather:A5:wood","gather:C2:stone","gather:B4:wood","gather:A1:food","gather:D2:wood"],
       "plan": ["gather:B1:food","gather:D2:wood"],
       "ordered": [],
       "log": [
         {"side":"god","text":"“율법파의 마을을 쳐라”","ui":true},
         {"side":"priest","text":"석판은 그 뜻을 헤아렸으나 지금은 할 수 없도다 — 공격(닿는 율법파 땅이 없다). 나머지는 각자 할 일을 하라.","ui":true},
+        {"side":"player","text":"신도들은 숲(D2)을 상대에게 먼저 빼앗겨 행동하지 못했다.","fx":{"kind":"blocked","tile":"D2"}},
         {
           "side": "enemy",
           "text": "율법파가 안개 지대(B5)에서 돌을 2 얻었다.",
@@ -693,16 +694,16 @@
           "act": "gather:A1:food"
         },
         {
+          "side": "enemy",
+          "text": "율법파가 숲(D2)에서 목재를 2 얻었다.",
+          "fx": {"kind":"gain","tile":"D2","gain":{"wood":2}},
+          "act": "gather:D2:wood"
+        },
+        {
           "side": "player",
           "text": "신도들이 우리 마을(B1)에서 식량을 4 얻었다.",
           "fx": {"kind":"gain","tile":"B1","gain":{"food":4}},
           "act": "gather:B1:food"
-        },
-        {
-          "side": "player",
-          "text": "신도들이 숲(D2)에서 목재를 2 얻었다.",
-          "fx": {"kind":"gain","tile":"D2","gain":{"wood":2}},
-          "act": "gather:D2:wood"
         },
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {"side":"leader","text":"설교자 아모스: “'율법파'… 그 말을 돌판에 새길 수 있겠느냐?”","ui":true}
@@ -710,7 +711,7 @@
       "digest": {
         "player": {
           "food": 6,
-          "wood": 2,
+          "wood": 0,
           "stone": 4,
           "faith": 12,
           "pop": 7,
@@ -725,7 +726,7 @@
         },
         "enemy": {
           "food": 0,
-          "wood": 9,
+          "wood": 11,
           "stone": 10,
           "faith": 23,
           "pop": 3,
@@ -768,9 +769,9 @@
       "accepted": [],
       "rejected": [],
       "petitionAnswered": false,
-      "auto": ["gather:B1:food","gather:A2:food"],
-      "enemyPlan": ["build:A4:temple","gather:A1:food","gather:A2:food","gather:A3:food","gather:A5:wood"],
-      "plan": ["gather:B1:food","gather:A2:food"],
+      "auto": ["gather:B1:food","gather:A2:food","gather:D2:wood"],
+      "enemyPlan": ["build:A4:temple","gather:A1:food","gather:A2:food","gather:A3:food","gather:B5:stone","gather:A5:wood"],
+      "plan": ["gather:B1:food","gather:A2:food","gather:D2:wood"],
       "ordered": [],
       "log": [
         {"side":"god","text":"“율법파에게 재앙을! 그들의 수도를 쳐라”","ui":true},
@@ -796,6 +797,12 @@
         },
         {
           "side": "enemy",
+          "text": "율법파가 안개 지대(B5)에서 돌을 2 얻었다.",
+          "fx": {"kind":"gain","tile":"B5","gain":{"stone":2}},
+          "act": "gather:B5:stone"
+        },
+        {
+          "side": "enemy",
           "text": "율법파가 안개 지대(A5)에서 목재를 2 얻었다.",
           "fx": {"kind":"gain","tile":"A5","gain":{"wood":2}},
           "act": "gather:A5:wood"
@@ -805,6 +812,12 @@
           "text": "신도들이 우리 마을(B1)에서 식량을 4 얻었다.",
           "fx": {"kind":"gain","tile":"B1","gain":{"food":4}},
           "act": "gather:B1:food"
+        },
+        {
+          "side": "player",
+          "text": "신도들이 숲(D2)에서 목재를 2 얻었다.",
+          "fx": {"kind":"gain","tile":"D2","gain":{"wood":2}},
+          "act": "gather:D2:wood"
         },
         {"side":"enemy","text":"율법파의 신전이 3단계로 높아졌다.","fx":{"kind":"build","tile":"A4"},"act":"build:A4:temple"},
         {"side":"leader","text":"설교자 아모스: “'율법파'… 그 말을 돌판에 새길 수 있겠느냐?”","ui":true}
@@ -827,8 +840,8 @@
         },
         "enemy": {
           "food": 3,
-          "wood": 8,
-          "stone": 6,
+          "wood": 10,
+          "stone": 8,
           "faith": 27,
           "pop": 3,
           "templeLevel": 3,
@@ -921,8 +934,8 @@
         },
         "enemy": {
           "food": 2,
-          "wood": 8,
-          "stone": 6,
+          "wood": 10,
+          "stone": 8,
           "faith": 31,
           "pop": 3,
           "templeLevel": 3,
@@ -1025,8 +1038,8 @@
         },
         "enemy": {
           "food": 2,
-          "wood": 8,
-          "stone": 6,
+          "wood": 10,
+          "stone": 8,
           "faith": 35,
           "pop": 3,
           "templeLevel": 3,
@@ -1148,8 +1161,8 @@
         },
         "enemy": {
           "food": 1,
-          "wood": 8,
-          "stone": 6,
+          "wood": 10,
+          "stone": 8,
           "faith": 38,
           "pop": 1,
           "templeLevel": 3,
@@ -1300,8 +1313,8 @@
         },
         "enemy": {
           "food": 5,
-          "wood": 10,
-          "stone": 8,
+          "wood": 12,
+          "stone": 10,
           "faith": 40,
           "pop": 1,
           "templeLevel": 3,
@@ -1437,8 +1450,8 @@
         },
         "enemy": {
           "food": 11,
-          "wood": 12,
-          "stone": 13,
+          "wood": 14,
+          "stone": 15,
           "faith": 45,
           "pop": 2,
           "templeLevel": 3,

@@ -4,7 +4,7 @@ import {
   recordRevelation, castMiracle, actionLimit, FLIP_MARKS, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
   faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent,
   grantGrace, petitionAnswered, nameTile, sealProphecy, takeMiracle, resolveSite,
-  scoreBreakdown, miracleCost, nextEvent, nextLawCard, dilemmaChoice, graceOn, keepVows, hasUlt, ULT_ROUND, actionOdds,
+  scoreBreakdown, miracleCost, nextEvent, nextLawCard, dilemmaChoice, graceOn, crusadeSurvival, keepVows, hasUlt, ULT_ROUND, actionOdds,
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
   canCarve, carveCommandment, findSacred, distance, previewGains, ultRound, draftRound,
   applySilence, markLegends, serializeState, hydrateState, monthOf, payDilemma, carvable,
@@ -1889,6 +1889,12 @@ function omenReel() {
 function oddsTag(a) {
   // 율법파가 이번 장에 그 칸에 성벽을 두른다고 예고했으면 그 성벽까지 셈한다 (건설이 공격보다 먼저 풀린다)
   const wallAhead = enemyIntent(state).some((x) => x.shown && x.build === 'wall' && x.tile === a.tile);
+  // 대성당: 다음 장 원정(수도를 세 번 친다)을 버틸 확률 — 이번 장에 우리 수도에 성벽을 두르면 그 성벽까지
+  if (a.build === 'cathedral') {
+    const walling = (pending?.accepted ?? []).some((x) => x.build === 'wall' && x.tile === a.tile);
+    const s = crusadeSurvival(state, { wallAhead: walling });
+    return `<span class="why odds ${s >= 0.75 ? 'good' : 'low'}" title="${t('ui.odds.crusadeTip')}">${t('ui.odds.crusade', { p: Math.round(s * 100) })}</span>`;
+  }
   const p = actionOdds(state, a, { wallAhead });
   return p == null ? '' : `<span class="why odds ${p >= 0.5 ? 'good' : 'low'}" title="${t('ui.odds.tip')}">${Math.round(p * 100)}%</span>`;
 }

@@ -283,6 +283,19 @@ export function preachBonus(state, side) {
 }
 
 // 선교·공격의 보너스와 승률 (확인 화면 표시용 — resolveAction과 같은 계산)
+// 대성당을 지으면 다음 장 율법파가 우리 수도를 세 번 친다(+1) — 지금의 성벽·내구도로 그 세 번을 버틸 확률 (다른 공격은 셈하지 않는다)
+export function crusadeSurvival(state, { wallAhead = false } = {}) {
+  const cap = capitalOf(state, 'player');
+  if (!cap) return 0;
+  const atk = (state.sides.enemy.doctrine.war >= 2 ? 1 : 0) + CATHEDRAL.crusade.bonus + enemyZeal(state, 'enemy');
+  const def = (cap.wall || wallAhead ? 2 : 0) + 1;
+  let w = 0;
+  for (let x = 1; x <= 6; x++) for (let y = 1; y <= 6; y++) if (x + atk > y + def) w++;
+  const p = w / 36; const n = CATHEDRAL.crusade.attacks; const hp = state.sides.player.capitalHp;
+  let surv = 0; let comb = 1;
+  for (let k = 0; k < Math.min(hp, n + 1); k++) { surv += comb * p ** k * (1 - p) ** (n - k); comb = (comb * (n - k)) / (k + 1); }
+  return Math.min(1, surv);
+}
 export function actionOdds(state, a, { wallAhead = false } = {}) {
   const side = a.side ?? 'player';
   const s = state.sides[side]; const f = state.sides[other(side)];

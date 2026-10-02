@@ -236,7 +236,7 @@ export const BLESSINGS = {
 export const AWE_TITLES = t('data.aweTitles');
 
 // 규칙 판: 규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)
-export const RULESET = 24;
+export const RULESET = 25;
 
 // 시련: 고정된 맵과 한 가지 비틀린 규칙. 별 셋 (승리 / 10점 차 / 20점 차 또는 일찍 끝냄)
 export const TRIALS = {
@@ -351,9 +351,9 @@ export const ENEMY_LEADERS = {
 
 // 난이도: 율법파의 추가 행동과 시작 자원
 export const DIFFICULTY = {
-  easy:   { name: t('data.difficulty.easy.name'), enemyBonus: 0, enemyStart: { food: 3, wood: 1, stone: 0, faith: 2, pop: 3 } },
+  easy:   { name: t('data.difficulty.easy.name'), enemyBonus: 1, enemyStart: { food: 3, wood: 1, stone: 0, faith: 2, pop: 3 } },
   normal: { name: t('data.difficulty.normal.name'), enemyBonus: 1, enemyStart: { food: 5, wood: 3, stone: 1, faith: 3, pop: 4 } },
-  hard:   { name: t('data.difficulty.hard.name'), enemyBonus: 2, enemyStart: { food: 6, wood: 4, stone: 2, faith: 4, pop: 4 } },
+  hard:   { name: t('data.difficulty.hard.name'), enemyBonus: 2, enemyStart: { food: 6, wood: 4, stone: 2, faith: 4, pop: 5 } },
 };
 
 // 판 크기 표: 판마다 다른 수는 모두 여기 한곳에 둔다 (규칙서의 표와 같다)
