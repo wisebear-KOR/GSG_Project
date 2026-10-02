@@ -12,8 +12,8 @@ const ga = (w) => (batchim(w) ? '이' : '가');
 const LEGEND_ADJ = { war: '분노의', peace: '빛의', abundance: '넘치는', wisdom: '별의' };
 
 export default {
-  'log.rally': '저울이 기운다 — 우리가 6점 넘게 앞서자 율법파가 결집한다: 행동 +1, 신도가 줄어도 손이 줄지 않는다.',
-  'log.scaleUs': '저울이 기운다 — 6점 넘게 뒤진 우리 신도들이 힘을 낸다: 행동 +1, 신도 수를 넘어도 하나 더.',
+  'log.rally': '저울이 기운다 — 우리가 6점 이상 앞서자 율법파가 결집한다: 행동 +1, 신도가 줄어도 손이 줄지 않는다.',
+  'log.scaleUs': '저울이 기운다 — 크게 뒤진 우리 신도들이 힘을 낸다: 행동 +1, 신도 수를 넘어도 하나 더.',
   'log.remnant': (v) => `${tribe(v.who)}의 마지막 신도가 쓰러졌다 — ${v.hp > 0 ? `수도가 흔들리고(내구도 ${v.hp}) 한 명이 수도로 돌아온다.` : '수도가 무너졌다.'}`,
   'log.echo': '같은 말씀이 되풀이되어 무뎌졌다 — 교리가 오르지 않는다.',
   'log.attackRetreat': (v) => `율법파 원정대가 ${josa(v.place, '을', '를')} 넘지 못하고 물러났다 (율법파 식량 -1).`,
@@ -89,7 +89,6 @@ export default {
 
   // ---------- 율법 석판이 움직인 까닭 (log.edict의 {why}) ----------
   'eng.edict.lightning': '번개가 율법파 수도의 돌판을 쪼갰다',
-  'eng.edict.doom': '심판의 날이 돌판을 갈랐다',
   'eng.edict.holyEnemy': '율법파가 성지에서 율법을 외웠다',
   'eng.edict.holyPlayer': '성지의 말씀이 율법을 지웠다',
   'eng.edict.mira': '미라의 소문이 율법파에 닿았다',
@@ -101,7 +100,6 @@ export default {
   'eng.why.vow': (v) => `${josa(v.types.map((x) => (x === 'attack' ? '칼' : '설교')).join('과 '), '을', '를')} 거두는 서원을 지켰다`,
 
   // ---------- 승패 사유 ----------
-  'eng.win.doom': '적 수도 점령 (심판의 날)',
   'eng.win.cathedral': '대성당이 원정을 버텼다',
   'eng.win.capital': (v) => (v?.who === 'enemy' ? '우리 수도 함락' : '적 수도 점령'),
   'eng.win.draw': '양쪽 부족이 모두 사라짐',
@@ -150,7 +148,6 @@ export default {
   'log.lightningHit': '⚡ 번개가 {place}에 떨어져 율법파 1명이 쓰러졌다.',
   'log.rain': '🌧️ 단비가 내렸다. 식량 +3.',
   'log.bounty': '🎁 풍요의 기적. 목재 +2, 돌 +2.',
-  'log.doom': '심판의 날 — 하늘이 갈라져 율법파 수도가 흔들리고(내구도 {hp}) 한 사람이 쓰러졌다. 신의 분노가 가라앉는다.',
   'log.manna': '만나가 내렸다. 식량 +4.',
   'log.ark': '방주의 기적 — 이번 장에는 아무도 잃지 않으리라.',
   'log.tongues': '방언의 은사 — 이번 장 선교에 힘이 실린다.',
@@ -174,8 +171,6 @@ export default {
   'log.blocked': (v) => `${topic(v.who)} ${josa(v.place, '을', '를')} 상대에게 먼저 빼앗겨 행동하지 못했다.`,
 
   // 신의 분노
-  'log.wrathFull': (v) => (v?.doom === false ? '신의 분노가 가득 찼다 — 기적이 가장 싸다.' : '신의 분노가 가득 찼다. 「심판의 날」을 내릴 수 있다 (판에 한 번).'),
-  'log.wrath': '신의 분노가 차오른다 ({n}/3) — 기적이 {n}만큼 싸진다.',
 
   // 율법 석판 (plus: 올랐는가, d: 실제 변화량)
   'log.edict': (v) => `율법 석판 ${v.plus ? '+' : ''}${v.d} — ${v.why} (${v.edict}/${v.max}).`,

@@ -127,7 +127,6 @@ export const MIRACLES = [
 ];
 export const FIRST_HAND = ['lightning', 'rain', 'bounty'];
 // 신의 분노가 가득 차면 손에 들어오는 숨은 기적 (드래프트에 나오지 않는다)
-export const DOOM = { id: 'doom', name: t('data.miracle.doom.name'), cost: 0, hidden: true, text: t('data.miracle.doom.text') };
 
 // 교리가 깊어지면 대사제의 말투가 바뀐다 (최고 교리 3칸: 먹빛, 4칸: 프롬프트 한 줄)
 export const DOCTRINE_VOICE = {
@@ -360,12 +359,12 @@ export const DIFFICULTY = {
 
 // 판 크기 표: 판마다 다른 수는 모두 여기 한곳에 둔다 (규칙서의 표와 같다)
 //   cathedralCost: 대성당 비용 배율 · cathedralVillages: 대성당에 더 필요한 마을 (기본 둘) · enemyActions: 율법파 행동 +
-//   faith: 신앙 승리의 인구 합·장·개종 문턱 · rounds.ult/draft/wrath: 궁극이 깨어나는 장·기적 드래프트 장·신의 분노가 차기 시작하는 장
+//   faith: 신앙 승리의 인구 합·장·개종 문턱 · rounds.ult/draft: 궁극이 깨어나는 장·기적 드래프트 장
 export const MAP_SIZES = {
-  4: { name: t('data.mapSize.4.name'), rounds: 8, cathedralCost: 0.7, cathedralVillages: 0, enemyActions: 0, faith: { pop: 6, round: 4, converts: 1 }, at: { ult: 6, draft: 3, wrath: 3 } },
-  5: { name: t('data.mapSize.5.name'), rounds: 12, cathedralCost: 1, cathedralVillages: 0, enemyActions: 0, faith: { pop: 8, round: 6, converts: 2 }, at: { ult: 8, draft: 5, wrath: 4 } },
-  6: { name: t('data.mapSize.6.name'), rounds: 12, cathedralCost: 1.5, cathedralVillages: 1, enemyActions: 0, faith: { pop: 8, round: 6, converts: 2 }, at: { ult: 8, draft: 5, wrath: 4 } },
-  7: { name: t('data.mapSize.7.name'), rounds: 14, cathedralCost: 2, cathedralVillages: 3, enemyActions: 1, faith: { pop: 8, round: 6, converts: 2 }, at: { ult: 8, draft: 5, wrath: 4 } },
+  4: { name: t('data.mapSize.4.name'), rounds: 8, cathedralCost: 0.7, cathedralVillages: 0, enemyActions: 0, faith: { pop: 6, round: 4, converts: 1 }, at: { ult: 6, draft: 3 } },
+  5: { name: t('data.mapSize.5.name'), rounds: 12, cathedralCost: 1, cathedralVillages: 0, enemyActions: 0, faith: { pop: 8, round: 6, converts: 2 }, at: { ult: 8, draft: 5 } },
+  6: { name: t('data.mapSize.6.name'), rounds: 12, cathedralCost: 1.5, cathedralVillages: 1, enemyActions: 0, faith: { pop: 8, round: 6, converts: 2 }, at: { ult: 8, draft: 5 } },
+  7: { name: t('data.mapSize.7.name'), rounds: 14, cathedralCost: 2, cathedralVillages: 3, enemyActions: 1, faith: { pop: 8, round: 6, converts: 2 }, at: { ult: 8, draft: 5 } },
 };
 
 export const PLAYER_START = { food: 4, wood: 2, stone: 0, faith: 4, pop: 3 };

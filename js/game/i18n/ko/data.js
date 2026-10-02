@@ -119,8 +119,6 @@ export default {
   'data.miracle.pillar.text': '이번 장 공격 주사위 +1. 우리 땅 둘레 3칸의 안개가 걷힌다.',
   'data.miracle.revive.name': '부활',
   'data.miracle.revive.text': '쓰러진 신도 1명이 돌아온다 (인구 한도 안에서).',
-  'data.miracle.doom.name': '심판의 날',
-  'data.miracle.doom.text': '율법파 수도가 흔들리고(내구도 -1) 한 사람이 쓰러진다. 분노가 가라앉는다. 판에 한 번.',
   'data.voice.war.prompt': '말투: 짧고 거칠게, 불과 칼의 비유로.',
   'data.voice.war.prefix': '불이 말하노니,',
   'data.voice.peace.prompt': '말투: 부드럽고 따뜻하게, 빛과 물의 비유로.',

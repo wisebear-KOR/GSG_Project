@@ -4,7 +4,7 @@
 import {
   TERRAIN, RESOURCE_NAME, GATHER_VERB, COST, MAX_TEMPLE, CAPITAL_HP, MAX_ACTIONS, RULES,
   DOCTRINES, DOCTRINE_MAX, EVENTS, LAW_CARDS, MIRACLES, DIFFICULTY, MAP_SIZES, PLAYER_START, TUTORIAL, ENEMY_LEADERS,
-  PRIESTS, PETITIONERS, PROPHECY, FIRST_HAND, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT,
+  PRIESTS, PETITIONERS, PROPHECY, FIRST_HAND, SITES, JUDGEMENTS, OPPOSED, REACT,
   CATHEDRAL, EDICT_MAX, DESTINIES, DESTINY_POINTS, ACTS, DILEMMAS, FEATURES, COMMANDMENTS, MAX_COMMANDMENTS, SACRED_WORDS,
   MIRA, MIRA_TWIST, MONTHS, TRIALS, RULESET,
 } from './data.js';
@@ -83,7 +83,7 @@ export function createState(config = DEFAULT_CONFIG) {
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
     priest: 'loyal', names: {}, lessons: [], petition: null, prophecy: null,
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
-    judgement: 'classic', crusadeEnd: null, prayedAt: 0, trailing: null, wrath: 0, streak: null, vowNext: null, reacted: null, doomUsed: false, miracleUses: {}, lawGuard: 0, rally: false, ruleset: RULESET,
+    judgement: 'classic', crusadeEnd: null, prayedAt: 0, trailing: null, streak: null, vowNext: null, reacted: null, miracleUses: {}, lawGuard: 0, rally: false, ruleset: RULESET,
     edictOn: !tutorial && (cfg.unlock ?? (cfg.veteran ? MODULES : 0)) >= 1, destiny: null, destinyOffer: null, holyId: null,
     commandments: [], saints: [], deeds: {}, fallen: [], silentRun: 0, legends: {},
     miraDone: false, miraQuote: null, pendingDilemma: null,
@@ -202,7 +202,6 @@ export const ULT_ROUND = 8;
 export const quick = (state) => state.rows <= 4 && !state.tutorial;
 export const ultRound = (state) => sizeRules(state).at.ult;
 export const draftRound = (state) => sizeRules(state).at.draft;
-export const wrathRound = (state) => (state.config?.trial === 'last' ? 1 : sizeRules(state).at.wrath);
 export const hasUlt = (state, side, key) => side === 'player' && state.sides[side].doctrine[key] >= DOCTRINE_MAX && state.round >= ultRound(state);
 // 판 크기 표 (튜토리얼·시련의 작은 판은 5×5 값을 따른다)
 export const sizeRules = (state) => MAP_SIZES[state.rows] ?? MAP_SIZES[5];
@@ -793,17 +792,15 @@ export function enemyIntent(state) {
   return plan.map((a) => ({ ...a, shown: shown(a) && state.tileAt[a.tile].revealed }));
 }
 
-// 기적 비용: 신의 분노만큼 싸진다 (최소 1). 심판의 날은 공짜
+// 기적 비용 (최소 1)
 // 같은 기적을 다시 쓸 때마다 신앙 1이 더 든다 (번개 하나로 판을 끌고 가지 않게)
-export const miracleCost = (state, m) => (m.id === DOOM.id ? 0 : Math.max(1, m.cost - (state.wrath ?? 0) - (state.config.trial === 'storm' && m.id === 'lightning' ? 1 : 0)) + (state.miracleUses?.[m.id] ?? 0));
+export const miracleCost = (state, m) => (Math.max(1, m.cost - (state.config.trial === 'storm' && m.id === 'lightning' ? 1 : 0)) + (state.miracleUses?.[m.id] ?? 0));
 const usedMiracle = (state, id) => { state.miracleUses = { ...(state.miracleUses ?? {}), [id]: (state.miracleUses?.[id] ?? 0) + 1 }; };
-// 심판의 날은 판에 한 번 — 일부러 뒤처져 여러 번 내리는 길을 막는다
-export const doomReady = (state) => (state.wrath ?? 0) >= 3 && !state.tutorial && !state.doomUsed;
 
 export function castMiracle(state, id, targetTile) {
-  const m = id === DOOM.id ? DOOM : MIRACLES.find((x) => x.id === id);
+  const m = MIRACLES.find((x) => x.id === id);
   const s = state.sides.player;
-  if (id === DOOM.id ? !doomReady(state) : !state.miracleHand.includes(id)) return { ok: false, text: t('eng.miracle.notInHand') };
+  if (!state.miracleHand.includes(id)) return { ok: false, text: t('eng.miracle.notInHand') };
   const cost = miracleCost(state, m);
   if (state.miracleUsed || s.faith < cost) return { ok: false, text: t('eng.miracle.cannot') };
   const home = capitalOf(state, 'player')?.id;
@@ -839,16 +836,6 @@ export function castMiracle(state, id, targetTile) {
 
 // 새 기적들 (번개·단비·풍요는 castMiracle 안에 있다)
 const MIRACLE_FX = {
-  doom: (state, s, home) => {
-    const e = state.sides.enemy;
-    const cap = capitalOf(state, 'enemy');
-    e.capitalHp = Math.max(0, e.capitalHp - 1);
-    e.pop = Math.max(0, e.pop - 1);
-    state.wrath = 0; state.doomUsed = true;
-    raiseEdict(state, -2, t('eng.edict.doom'));
-    logEvent(state, 'player', t('log.doom', { hp: e.capitalHp }), null, { kind: 'lightning', tile: cap?.id });
-    if (e.capitalHp <= 0) { state.winner = 'player'; state.winReason = t('eng.win.doom'); state.winKind = 'doom'; }
-  },
   manna: (state, s, home) => { s.food += 4; logEvent(state, 'player', t('log.manna'), null, { kind: 'rain', gain: { food: 4 }, tile: home }); },
   ark: (state, s, home) => { state.roundMods.ark = true; logEvent(state, 'player', t('log.ark'), null, { kind: 'bless', tile: home, label: t('eng.fx.ark') }); },
   tongues: (state, s, home) => { state.roundMods.tongues = 1; logEvent(state, 'player', t('log.tongues'), null, { kind: 'bless', tile: home, label: t('eng.fx.tongues') }); },
@@ -1003,7 +990,7 @@ function recordHistory(state) {
   state.rally = state.trailing === 'enemy';
   if (state.trailing && state.trailing !== was) {
     const tile = capitalOf(state, state.trailing)?.id;
-    logEvent(state, state.trailing, t(state.trailing === 'enemy' ? 'log.rally' : 'log.scaleUs'), null, { kind: state.trailing === 'enemy' ? 'rally' : 'wrath', tile });
+    logEvent(state, state.trailing, t(state.trailing === 'enemy' ? 'log.rally' : 'log.scaleUs'), null, { kind: state.trailing === 'enemy' ? 'rally' : 'scale', tile });
   }
 }
 
@@ -1197,9 +1184,9 @@ export function hydrateState(obj) {
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
   state.priest ??= 'loyal'; state.names ??= {}; state.lessons ??= []; state.prophecy ??= null;
   if (typeof state.lawGuard !== 'number') state.lawGuard = Math.max(state.lawGuard?.attack ?? 0, state.lawGuard?.preach ?? 0);
-  state.rally ??= false; state.doomUsed ??= false; state.miracleUses ??= {};
+  state.rally ??= false; state.miracleUses ??= {};
   for (const sd of Object.values(state.sides)) sd.capitalHp = Math.min(sd.capitalHp, CAPITAL_HP);
-  state.judgement ??= 'classic'; state.wrath ??= 0; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null;
+  state.judgement ??= 'classic'; state.streak ??= null; state.vowNext ??= null; state.reacted ??= null;
   state.edictOn ??= false; state.dilemmaPick ??= null; state.winKind ??= null;
   state.silentRun ??= 0; state.legends ??= {}; state.miraDone ??= false; state.pendingDilemma ??= null; state.miraQuote ??= null;
   state.commandments ??= []; state.saints ??= []; state.deeds ??= {}; state.fallen ??= []; state.sacred ??= null; state.destiny ??= null; state.destinyOffer ??= null; state.holyId ??= null;
@@ -1208,7 +1195,8 @@ export function hydrateState(obj) {
   if ((state.ruleset ?? 0) < 16 && state.sides.player.cathedral > 0) { state.sides.player.cathedral = 1; state.crusadeEnd ??= state.round + 1; }
   state.crusadeEnd ??= null; state.prayedAt ??= 0; state.trailing ??= null;
   // 규칙 21 전의 저장: 신의 분노·결집이 저울 하나로 바뀌었다
-  if ((state.ruleset ?? 0) < 21) { state.wrath = 0; state.rally = false; }
+  if ((state.ruleset ?? 0) < 21) state.rally = false;
+  delete state.wrath; delete state.doomUsed;
   // 규칙 10 전의 저장: 석판이 12칸이었다 — 새 한계에 닿아 곧바로 지지 않게 한 칸 아래로
   if ((state.ruleset ?? 0) < 10) for (const sd of Object.values(state.sides)) sd.edict = Math.min(sd.edict, edictMax(state) - 1);
   state.ruleset = RULESET;

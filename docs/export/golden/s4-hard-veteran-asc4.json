@@ -163,8 +163,8 @@
         {"side":"enemy","text":"율법파에 새 구성원이 태어났다.","fx":{"kind":"birth"}},
         {
           "side": "player",
-          "text": "저울이 기운다 — 6점 넘게 뒤진 우리 신도들이 힘을 낸다: 행동 +1, 신도 수를 넘어도 하나 더.",
-          "fx": {"kind":"wrath","tile":"D2"}
+          "text": "저울이 기운다 — 크게 뒤진 우리 신도들이 힘을 낸다: 행동 +1, 신도 수를 넘어도 하나 더.",
+          "fx": {"kind":"scale","tile":"D2"}
         },
         {"side":"leader","text":"철의 대제사장 바락: “'그 말'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
       ],
@@ -202,7 +202,6 @@
         "walls": [],
         "revealed": "1100111011111111",
         "holyOwner": null,
-        "wrath": 0,
         "streak": null,
         "silentRun": 0,
         "destiny": {"id":"convert","done":false},
@@ -305,7 +304,6 @@
         "walls": [],
         "revealed": "1111111011111111",
         "holyOwner": null,
-        "wrath": 0,
         "streak": null,
         "silentRun": 0,
         "destiny": {"id":"convert","done":false},
@@ -443,7 +441,6 @@
         "walls": [],
         "revealed": "1111111011111111",
         "holyOwner": null,
-        "wrath": 0,
         "streak": {"doctrine":"war","n":1},
         "silentRun": 0,
         "legends": {"C3":"분노의 마을"},
@@ -562,7 +559,6 @@
         "walls": [],
         "revealed": "1111111011111111",
         "holyOwner": null,
-        "wrath": 0,
         "streak": null,
         "silentRun": 0,
         "legends": {"C3":"분노의 마을"},
@@ -687,7 +683,6 @@
         "walls": ["C2","C3"],
         "revealed": "1111111011111111",
         "holyOwner": null,
-        "wrath": 0,
         "streak": {"doctrine":"war","n":1},
         "silentRun": 0,
         "legends": {"C3":"분노의 마을"},

@@ -250,7 +250,6 @@
         "walls": [],
         "revealed": "0000010000111001110011110",
         "holyOwner": null,
-        "wrath": 0,
         "streak": null,
         "silentRun": 0,
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
@@ -364,7 +363,6 @@
         "walls": [],
         "revealed": "0000010000111001110011110",
         "holyOwner": null,
-        "wrath": 0,
         "streak": null,
         "silentRun": 0,
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
@@ -439,7 +437,7 @@
         {"side":"player","text":"우리 부족에 새 신도가 태어났다.","fx":{"kind":"birth"}},
         {
           "side": "enemy",
-          "text": "저울이 기운다 — 우리가 6점 넘게 앞서자 율법파가 결집한다: 행동 +1, 신도가 줄어도 손이 줄지 않는다.",
+          "text": "저울이 기운다 — 우리가 6점 이상 앞서자 율법파가 결집한다: 행동 +1, 신도가 줄어도 손이 줄지 않는다.",
           "fx": {"kind":"rally","tile":"A4"}
         },
         {"side":"leader","text":"철의 대제사장 바락: “'그 말'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
@@ -478,7 +476,6 @@
         "walls": [],
         "revealed": "0110011100111001110011110",
         "holyOwner": null,
-        "wrath": 0,
         "streak": null,
         "silentRun": 0,
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
@@ -593,7 +590,6 @@
         "walls": ["A4"],
         "revealed": "1110011110111111111011110",
         "holyOwner": null,
-        "wrath": 0,
         "streak": null,
         "silentRun": 0,
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
@@ -708,7 +704,6 @@
         "walls": ["A4"],
         "revealed": "1110011110111111111011110",
         "holyOwner": null,
-        "wrath": 0,
         "streak": null,
         "silentRun": 0,
         "stats": {"converted":0,"captured":0,"miracles":0,"prophecies":0,"petitions":0},
@@ -792,8 +787,8 @@
         },
         {
           "side": "player",
-          "text": "저울이 기운다 — 6점 넘게 뒤진 우리 신도들이 힘을 낸다: 행동 +1, 신도 수를 넘어도 하나 더.",
-          "fx": {"kind":"wrath","tile":"E2"}
+          "text": "저울이 기운다 — 크게 뒤진 우리 신도들이 힘을 낸다: 행동 +1, 신도 수를 넘어도 하나 더.",
+          "fx": {"kind":"scale","tile":"E2"}
         },
         {"side":"player","text":"이 땅은 이제 「분노의 마을」이라 불린다 — “두 장 안에 율법파의 마을이 무너지리라”.","fx":{"kind":"legend","tile":"C2"}},
         {"side":"leader","text":"철의 대제사장 바락: “싸움을 원하는구나. 우리가 먼저 간다.”","ui":true}
@@ -832,7 +827,6 @@
         "walls": ["A4"],
         "revealed": "1110011110111111111011110",
         "holyOwner": null,
-        "wrath": 0,
         "streak": {"doctrine":"war","n":1},
         "silentRun": 0,
         "legends": {"C2":"분노의 마을"},
@@ -950,7 +944,6 @@
         "walls": ["A4","C2"],
         "revealed": "1110011110111111111011110",
         "holyOwner": null,
-        "wrath": 0,
         "streak": {"doctrine":"war","n":2},
         "silentRun": 0,
         "legends": {"C2":"분노의 마을","D1":"분노의 마을"},
@@ -1068,7 +1061,6 @@
         "walls": ["A4","C2","D2"],
         "revealed": "1110011110111111111011110",
         "holyOwner": null,
-        "wrath": 0,
         "streak": {"doctrine":"peace","n":3},
         "silentRun": 0,
         "legends": {"C2":"분노의 마을","D1":"분노의 마을"},
@@ -1164,8 +1156,8 @@
         {"side":"enemy","text":"역병으로 율법파 1명을 잃었다.","fx":{"kind":"loss"}},
         {
           "side": "player",
-          "text": "저울이 기운다 — 6점 넘게 뒤진 우리 신도들이 힘을 낸다: 행동 +1, 신도 수를 넘어도 하나 더.",
-          "fx": {"kind":"wrath","tile":"E2"}
+          "text": "저울이 기운다 — 크게 뒤진 우리 신도들이 힘을 낸다: 행동 +1, 신도 수를 넘어도 하나 더.",
+          "fx": {"kind":"scale","tile":"E2"}
         },
         {"side":"leader","text":"철의 대제사장 바락: “'곡식'… 칼 앞에서도 그 말을 하겠느냐.”","ui":true}
       ],
@@ -1203,7 +1195,6 @@
         "walls": ["A4","D2"],
         "revealed": "1110011110111111111011110",
         "holyOwner": null,
-        "wrath": 0,
         "streak": null,
         "silentRun": 0,
         "legends": {"C2":"분노의 마을","D1":"분노의 마을"},
@@ -1319,7 +1310,6 @@
         "walls": ["A4","D2"],
         "revealed": "1110011110111111111111111",
         "holyOwner": null,
-        "wrath": 0,
         "streak": null,
         "silentRun": 0,
         "legends": {"C2":"분노의 마을","D1":"분노의 마을"},
@@ -1463,7 +1453,6 @@
         "walls": ["A4","D1","D2"],
         "revealed": "1110011110111111111111111",
         "holyOwner": null,
-        "wrath": 0,
         "streak": {"doctrine":"war","n":1},
         "silentRun": 0,
         "legends": {"C2":"분노의 마을","D1":"분노의 마을","C1":"분노의 마을"},
@@ -1603,7 +1592,6 @@
         "walls": ["A4","D1"],
         "revealed": "1110011110111111111111111",
         "holyOwner": null,
-        "wrath": 0,
         "streak": {"doctrine":"war","n":2},
         "silentRun": 0,
         "legends": {"C2":"분노의 마을","D1":"분노의 마을","C1":"분노의 마을"},

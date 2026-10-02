@@ -187,6 +187,8 @@ const RATHER = kw('kw.rather', 'g');
 const ASIDE = kw('kw.aside', 'g');
 const ONLY_THIS = kw('kw.onlyThis', 'g');
 const NEITHER = kw('kw.neitherNor', 'g');
+const LEAVE_AND = kw('kw.leaveAnd', 'g');
+const ID_LIST = kw('kw.idList', 'g');
 const PLENTY_AND = kw('kw.plentyAnd', 'g');
 const IS_ID = kw('kw.place.idOnly');
 const NOT_BUT_PLACE = kw('kw.notButPlace');
@@ -194,7 +196,7 @@ const FEAR = kw('kw.fear');
 const toNeg = (m, verb) => (FEAR.test(verb) ? `${verb} ` : t('kw.dontAndNeg', { verb }));
 // 앞의 것을 금지 절로 떼어 낸다: "숲을 베지 말고 돌을 캐라" → "숲을 베지 마라, 돌을 캐라", "공격 말고 선교",
 // "나무는 그만 베고 돌을 캐라", "기도는 됐고 일이나 해". "두려워하지 말고 쳐라"는 금지가 아니다 → "두려워하 쳐라"
-const splitDont = (text) => text.replace(NEITHER, toNeg).replace(ONLY_THIS, (m, a) => `${a} `).replace(ASIDE, ' ').replace(RATHER, ' ').replace(PLENTY_AND, toNeg).replace(DONT_AND, toNeg).replace(STOP_AND, toNeg).replace(ENOUGH_AND, toNeg).replace(NOT_BUT, (m, a, b) => (NOT_BUT_PLACE.test(a ?? b) ? ' ' : IS_ID.test(a ?? b) ? m : toNeg(m, a ?? b))).replace(INSTEAD, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a))).replace(NOUN_AND, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a)));
+const splitDont = (text) => text.replace(ID_LIST, '$1 ').replace(LEAVE_AND, toNeg).replace(NEITHER, toNeg).replace(ONLY_THIS, (m, a) => `${a} `).replace(ASIDE, ' ').replace(RATHER, ' ').replace(PLENTY_AND, toNeg).replace(DONT_AND, toNeg).replace(STOP_AND, toNeg).replace(ENOUGH_AND, toNeg).replace(NOT_BUT, (m, a, b) => (NOT_BUT_PLACE.test(a ?? b) ? ' ' : IS_ID.test(a ?? b) ? m : toNeg(m, a ?? b))).replace(INSTEAD, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a))).replace(NOUN_AND, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a)));
 // 같은 채집이면 더 많이 나오는 칸부터, 무엇을 거둘지 말하지 않았으면 가장 모자란 자원부터
 const WEAKEST = kw('kw.place.weakest');
 const FOEWARD = kw('kw.place.foeward');
@@ -303,7 +305,10 @@ function placeOf(state, clause) {
   } else if (PLACE.aim.test(clause)) {
     const inside = (x) => x.type === 'pray' || (x.type === 'build' && x.build !== 'village');
     const shown = enemyIntent(state).filter((x) => x.shown && !inside(x));
-    const pool = PLACE.aimBuild.test(clause) ? shown.filter((x) => x.build === 'village') : shown;
+    // "노리는 곳"은 한 곳: 율법파가 드러낸 뜻 가운데 하나 (다른 칸은 이름으로 짚는다)
+    const aimed = PLACE.aimBuild.test(clause) ? shown.filter((x) => x.build === 'village') : shown;
+    // 다툴 수 있는 칸(율법파 땅이 아닌 칸)의 뜻을 먼저 — 없으면 처음 드러난 뜻
+    const pool = (aimed.filter((x) => state.tileAt[x.tile].owner !== 'enemy').length ? aimed.filter((x) => state.tileAt[x.tile].owner !== 'enemy') : aimed).slice(0, 1);
     for (const x of pool) { anchors.add(x.tile); if (x.build === 'village') aimBonus.set(x.tile, 0.5); }
     if (pool.length) named.push('aim');
   }

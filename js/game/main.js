@@ -4,14 +4,14 @@ import {
   recordRevelation, castMiracle, actionLimit, FLIP_MARKS, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
   faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent,
   grantGrace, petitionAnswered, nameTile, sealProphecy, takeMiracle, resolveSite,
-  scoreBreakdown, miracleCost, doomReady, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
+  scoreBreakdown, miracleCost, nextEvent, keepVows, hasUlt, ULT_ROUND, actionOdds,
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
   canCarve, carveCommandment, findSacred, distance, previewGains, ultRound, draftRound,
   applySilence, markLegends, serializeState, hydrateState, monthOf, payDilemma, carvable,
   isEcho, spokenOf, wouldRead, marchRange, unlocked, MODULES,
 } from './engine.js';
 import {
-  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, DOOM, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, FESTIVALS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, TRIALS, ASCENSION, RULESET, LAW_CARDS, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
+  DOCTRINES, DOCTRINE, DOCTRINE_MAX, MIRACLES, REVELATION_MAX, RESOURCE_NAME, ENEMY_LEADERS, EVENTS, TONES, PROPHECY, PRIESTS, SITES, JUDGEMENTS, OPPOSED, REACT, DILEMMAS, FESTIVALS, DESTINIES, DESTINY_POINTS, ACTS, SIGILS, FEATURES, COMMANDMENTS, AWE_LEVELS, BLESSINGS, AWE_TITLES, TRIALS, ASCENSION, RULESET, LAW_CARDS, CAPITAL_HP, MAX_TEMPLE, TERRAIN, RULES, DIFFICULTY, MAP_SIZES,
 } from './data.js';
 import { renderBoard, tileToHost, markerToScreen, tileCenter } from './board.js';
 import { installArt } from './art.js';
@@ -33,7 +33,7 @@ const svgUse = (id, cls = '', vb = '0 0 24 24') => `<svg class="${cls}" viewBox=
 // 미플 심볼은 원점이 (0,0)이 아니므로 위치와 크기를 명시해야 잘리지 않는다
 const meepleSvg = (side, cls = '') => `<svg class="${cls}" viewBox="-14 -16 28 30" aria-hidden="true"><use href="#s-meeple" x="-14" y="-16" width="28" height="30" fill="url(#g-meeple-${side})" stroke="rgba(0,0,0,.55)" stroke-width="1.1"/></svg>`;
 const RES_KEYS = ['food', 'wood', 'stone', 'faith'];
-const MIRACLE_ART = { doom: 'm-pillar', lightning: 'm-lightning', rain: 'm-rain', bounty: 'm-bounty', manna: 'm-manna', ark: 'm-ark', tongues: 'm-tongues', pillar: 'm-pillar', revive: 'm-revive' };
+const MIRACLE_ART = { lightning: 'm-lightning', rain: 'm-rain', bounty: 'm-bounty', manna: 'm-manna', ark: 'm-ark', tongues: 'm-tongues', pillar: 'm-pillar', revive: 'm-revive' };
 // 계시 원문 탐지 정규식 (언어마다 새로 쓰는 kw.* 원본)
 const KW_SPEECH = new RegExp(t('kw.ui.speech'));
 const KW_PREACH = new RegExp(t('kw.ui.preach'));
@@ -1472,7 +1472,7 @@ function bannerFor(log, seen) {
     gain: [isPray ? 'i-temple' : `i-${res}`, isPray ? t('ui.banner.pray') : t('ui.banner.gather')],
     treasure: ['i-faith', t('ui.banner.treasure')], explore: ['e-prophet', t('ui.banner.explore')], build: ['i-house', t('ui.banner.build')], cathedral: ['i-temple', t('ui.banner.cathedral')],
     preach: ['d-peace', t('ui.banner.preach')], attack: ['d-war', t('ui.banner.attack')], blocked: ['i-shield', t('ui.banner.blocked')], fail: ['i-shield', t('ui.banner.fail')],
-    birth: ['i-house', t('ui.banner.birth')], loss: ['i-shield', t('ui.banner.loss')], warn: ['i-faith', t('ui.banner.warn')], ban: ['s-tablet', t('ui.banner.ban')], grace: ['i-faith', t('ui.banner.grace')], prophecy: ['i-faith', t('ui.banner.prophecy')], bless: ['i-faith', t('ui.banner.bless')], wrath: ['d-war', t('ui.banner.wrath')], edict: ['s-tablet', t('ui.banner.edict')], dilemma: ['e-prophet', t('ui.banner.dilemma')], saint: ['i-faith', t('ui.banner.saint')], legend: ['i-faith', t('ui.banner.legend')], commandment: ['s-tablet', t('ui.banner.commandment')], site: ['e-prophet', t('ui.banner.site')], lightning: ['m-lightning', t('ui.banner.lightning')], rain: ['m-rain', t('ui.banner.rain')], bounty: ['m-bounty', t('ui.banner.bounty')],
+    birth: ['i-house', t('ui.banner.birth')], loss: ['i-shield', t('ui.banner.loss')], warn: ['i-faith', t('ui.banner.warn')], ban: ['s-tablet', t('ui.banner.ban')], grace: ['i-faith', t('ui.banner.grace')], prophecy: ['i-faith', t('ui.banner.prophecy')], bless: ['i-faith', t('ui.banner.bless')], scale: ['d-war', t('ui.banner.scale')], edict: ['s-tablet', t('ui.banner.edict')], dilemma: ['e-prophet', t('ui.banner.dilemma')], saint: ['i-faith', t('ui.banner.saint')], legend: ['i-faith', t('ui.banner.legend')], commandment: ['s-tablet', t('ui.banner.commandment')], site: ['e-prophet', t('ui.banner.site')], lightning: ['m-lightning', t('ui.banner.lightning')], rain: ['m-rain', t('ui.banner.rain')], bounty: ['m-bounty', t('ui.banner.bounty')],
   }[e.kind];
   if (!map) return null;
   const [icon, verb] = map;
@@ -1582,10 +1582,9 @@ async function playFx(log) {
       sfx.page();
       if (home) fx.ring(svg, home, '#f4efe4', true);
       return fx.wait(700);
-    case 'wrath':
-      sfx.thunder?.();
-      fx.flash('rgba(160,30,20,.35)', 600);
-      if (home) fx.floatText(svg, home, t('ui.fx.wrath'), 'bad');
+    case 'scale':
+      sfx.click?.();
+      if (home) { fx.ring(svg, home, '#f4d58a', true); fx.floatText(svg, home, t('ui.fx.scale'), 'good'); }
       return fx.wait(700);
     case 'rally':
     case 'guard':
@@ -2009,11 +2008,11 @@ function renderAltar() {
   const altar = $('altar');
   const p = state.sides.player;
   const canMiracle = phase === 'speak';
-  const cards = [...state.miracleHand.map((id) => MIRACLES.find((m) => m.id === id)), ...(doomReady(state) ? [DOOM] : [])];
+  const cards = state.miracleHand.map((id) => MIRACLES.find((m) => m.id === id));
   const hand = `<div class="hand">${cards.map((m) => `
     <button class="mcard${targeting === m.id ? ' on' : ''}${m.hidden ? ' doom' : ''}" data-m="${m.id}" type="button" ${!canMiracle || state.miracleUsed || p.faith < miracleCost(state, m) ? 'disabled' : ''}>
       <span class="cost${miracleCost(state, m) < m.cost ? ' cut' : ''}">${miracleCost(state, m)}</span>${miracleCost(state, m) < m.cost ? `<s class="was">${m.cost}</s>` : ''}${svgUse(MIRACLE_ART[m.id], 'art', '0 0 48 48')}<div class="nm">${m.name}</div>
-      <span class="tip"><b>${m.name}</b> · ${t('ui.faithCost', { n: miracleCost(state, m) })}${state.wrath && !m.hidden && m.cost > miracleCost(state, m) - (state.miracleUses?.[m.id] ?? 0) ? t('ui.hand.wrath', { n: state.wrath, off: m.cost - (miracleCost(state, m) - (state.miracleUses?.[m.id] ?? 0)) }) : ''}${state.miracleUses?.[m.id] && !m.hidden ? t('ui.hand.reuse', { n: state.miracleUses[m.id] }) : ''}<br>${esc(m.text)}${state.miracleUsed ? `<br><i>${t('ui.hand.used')}</i>` : ''}</span>
+      <span class="tip"><b>${m.name}</b> · ${t('ui.faithCost', { n: miracleCost(state, m) })}${state.miracleUses?.[m.id] && !m.hidden ? t('ui.hand.reuse', { n: state.miracleUses[m.id] }) : ''}<br>${esc(m.text)}${state.miracleUsed ? `<br><i>${t('ui.hand.used')}</i>` : ''}</span>
     </button>`).join('')}</div>`;
   const noticeHTML = notice ? `<div class="notice">${esc(notice)}</div>` : '';
   let scroll = '';
