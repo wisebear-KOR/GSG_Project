@@ -23,7 +23,7 @@ export const COST = {
 // 대성당: 신전 3단계에서 한 번에 짓는다 (돌 4·나무 4·신앙 4 — 큰 판은 판 크기 표의 배율, 우리 마을 둘 + 판 크기 표).
 // 지으면 율법파가 원정한다: 다음 장 율법파는 선공을 쥐고 우리 수도를 세 번 친다(거리 상관없이, 공격 +1). 그 장이 끝날 때 수도가 서 있으면 이긴다
 export const CATHEDRAL = { cost: { stone: 4, wood: 4, faith: 4 }, crusade: { attacks: 3, bonus: 1 }, villages: 2 };
-export const EDICT_MAX = 10;         // 율법 석판이 이만큼 차면 율법파가 이긴다 (오름: 율법파가 성지를 쥠·신전을 높임 / 내림: 우리가 성지를 쥠·번개·심판의 날)
+export const EDICT_MAX = 10;         // 율법 석판이 이만큼 차면 율법파가 이긴다 (오름: 율법파가 성지를 쥠·신전을 높임 / 내림: 우리가 성지를 쥠·번개)
 
 // 소명: 두 번째 판부터 판 시작에 셋 중 하나를 고른다. 이루면 승점 +5
 export const DESTINIES = {
@@ -126,7 +126,6 @@ export const MIRACLES = [
   { id: 'revive',    name: t('data.miracle.revive.name'), cost: 5, text: t('data.miracle.revive.text') },
 ];
 export const FIRST_HAND = ['lightning', 'rain', 'bounty'];
-// 신의 분노가 가득 차면 손에 들어오는 숨은 기적 (드래프트에 나오지 않는다)
 
 // 교리가 깊어지면 대사제의 말투가 바뀐다 (최고 교리 3칸: 먹빛, 4칸: 프롬프트 한 줄)
 export const DOCTRINE_VOICE = {
@@ -237,7 +236,7 @@ export const BLESSINGS = {
 export const AWE_TITLES = t('data.aweTitles');
 
 // 규칙 판: 규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)
-export const RULESET = 21;
+export const RULESET = 22;
 
 // 시련: 고정된 맵과 한 가지 비틀린 규칙. 별 셋 (승리 / 10점 차 / 20점 차 또는 일찍 끝냄)
 export const TRIALS = {
@@ -273,7 +272,7 @@ export const LAW_CARDS = [
   { id: 'L5', name: t('data.law.L5.name'), text: t('data.law.L5.text'),
     rules: [{ type: 'attack' }, { type: 'attack' }, { type: 'gather', gather: 'food' }] },
   { id: 'L6', name: t('data.law.L6.name'), text: t('data.law.L6.text'),
-    rules: [{ type: 'pray' }, { type: 'build', build: 'temple' }, { type: 'gather', gather: 'food' }] },
+    rules: [{ type: 'build', build: 'temple' }, { type: 'pray' }, { type: 'gather', gather: 'food' }] },
   { id: 'L7', name: t('data.law.L7.name'), text: t('data.law.L7.text'),
     rules: [{ type: 'preach' }, { type: 'preach' }, { type: 'pray' }] },
   { id: 'L8', name: t('data.law.L8.name'), text: t('data.law.L8.text'),

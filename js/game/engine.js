@@ -1136,19 +1136,24 @@ export function dilemmaByText(state, text) {
   return opts.find((o) => new RegExp(o.tags).test(text))?.id ?? null;
 }
 // 갈림길 비용을 먼저 치른다. 감당할 수 없으면 비용 없는 선택으로 바뀐다
+// 갈림길에서 실제로 치르게 될 선택: 고른 것을 치를 수 없으면 무료 선택으로, 그것도 없으면 치를 수 있는 선택으로 (상태는 바꾸지 않는다)
+export function dilemmaChoice(state, pick) {
+  const ev = state.event;
+  if (!ev?.choice) return null;
+  const o = ev.choice.find((x) => x.id === pick) ?? ev.choice[0];
+  const s = state.sides.player;
+  if (!Object.entries(o.gain ?? {}).some(([k, v]) => v < 0 && s[k] < -v)) return o;
+  const affordable = (x) => Object.entries(x.gain ?? {}).every(([k, v]) => v >= 0 || s[k] >= -v);
+  return ev.choice.find((x) => !Object.values(x.gain ?? {}).some((v) => v < 0)) ?? ev.choice.find(affordable) ?? o;
+}
 export function payDilemma(state, pick) {
   const ev = state.event;
   if (!ev?.choice) return null;
-  let o = ev.choice.find((x) => x.id === pick) ?? ev.choice[0];
+  const want = ev.choice.find((x) => x.id === pick) ?? ev.choice[0];
+  const o = dilemmaChoice(state, pick);
   const s = state.sides.player;
-  const cost = Object.entries(o.gain ?? {}).filter(([, v]) => v < 0);
-  if (cost.some(([k, v]) => s[k] < -v)) {
-    // 무료 선택이 없으면 치를 수 있는 선택으로, 그것도 없으면 가진 만큼만 치른다 (자원이 음수가 되지 않게)
-    const affordable = (x) => Object.entries(x.gain ?? {}).every(([k, v]) => v >= 0 || s[k] >= -v);
-    const free = ev.choice.find((x) => !Object.values(x.gain ?? {}).some((v) => v < 0)) ?? ev.choice.find(affordable) ?? o;
-    if (free !== o) logEvent(state, 'player', t('log.dilemmaFallback', { ev: ev.name, label: o.label, free: free.label }), null, { kind: 'dilemma' });
-    o = free;
-  }
+  // 무료 선택이 없으면 가진 만큼만 치른다 (자원이 음수가 되지 않게)
+  if (o !== want) logEvent(state, 'player', t('log.dilemmaFallback', { ev: ev.name, label: want.label, free: o.label }), null, { kind: 'dilemma' });
   for (const [k, v] of Object.entries(o.gain ?? {})) if (v < 0) s[k] = Math.max(0, s[k] + v);
   if (o.ark) state.roundMods.ark = true;
   state.pendingDilemma = o.id;

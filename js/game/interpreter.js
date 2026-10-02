@@ -297,6 +297,7 @@ function placeOf(state, clause) {
     }
   }
   const aimBonus = new Map();
+  let aimPool = null;
   // "율법파가 성벽을 두르려는 마을": 율법파가 이번 장 성벽을 두르는 칸
   if (PLACE.aimWall.test(clause) && PLACE.foe.test(clause)) {
     const pool = enemyIntent(state).filter((x) => x.shown && x.build === 'wall');
@@ -308,8 +309,12 @@ function placeOf(state, clause) {
     // "노리는 곳"은 한 곳: 율법파가 드러낸 뜻 가운데 하나 (다른 칸은 이름으로 짚는다)
     const aimed = PLACE.aimBuild.test(clause) ? shown.filter((x) => x.build === 'village') : shown;
     // 다툴 수 있는 칸(율법파 땅이 아닌 칸)의 뜻을 먼저 — 없으면 처음 드러난 뜻
-    const pool = (aimed.filter((x) => state.tileAt[x.tile].owner !== 'enemy').length ? aimed.filter((x) => state.tileAt[x.tile].owner !== 'enemy') : aimed).slice(0, 1);
-    for (const x of pool) { anchors.add(x.tile); if (x.build === 'village') aimBonus.set(x.tile, 0.5); }
+    const contest = aimed.filter((x) => state.tileAt[x.tile].owner !== 'enemy');
+    const pool = (contest.length ? contest : aimed).slice(0, 1);
+    // 일마다 그 일을 할 수 있는 칸으로 바꿔 짚는다 (aimFor)
+    aimPool = [...new Set([...contest, ...aimed].map((x) => x.tile))];
+    for (const x of aimed) if (x.build === 'village') aimBonus.set(x.tile, 0.5);
+    for (const x of pool) anchors.add(x.tile);
     if (pool.length) named.push('aim');
   }
   // 칸 이름과 붙인 이름은 넓은 가리킴(마을·수도)보다 앞선다 ("C2 마을에 성벽을")
@@ -329,7 +334,16 @@ function placeOf(state, clause) {
   if (farthest) { for (const id of spec) anchors.delete(id); named.length = 0; exact.clear(); aimBonus.clear(); }
   const closeRef = PLACE.closest.test(clause) && refs.length ? refs : null;
   if (closeRef && spec.size) named.length = 0; // 기준으로 짚은 곳은 닿지 않아도 알리지 않는다
-  return { anchors, exact, avoid, named, terrains, near, text, dir, home, aimBonus, farthest, closeRef, closest: PLACE.closest.test(clause) };
+  return { anchors, exact, avoid, named, terrains, near, text, dir, home, aimBonus, aimPool, farthest, closeRef, closest: PLACE.closest.test(clause) };
+}
+// "노리는 곳": 율법파가 드러낸 뜻 가운데 이 일을 할 수 있는 칸 n곳을 짚는다 (없으면 처음 짚은 곳 그대로)
+function aimFor(place, ms, n) {
+  if (!place.aimPool) return place;
+  const fit = place.aimPool.filter((id) => ms.some((a) => a.tile === id)).slice(0, n);
+  if (!fit.length) return place;
+  const anchors = new Set([...place.anchors].filter((id) => !place.aimPool.includes(id)));
+  for (const id of fit) anchors.add(id);
+  return { ...place, anchors };
 }
 // 방향과 얼마나 곧게 놓였는가 (0~1): 육각 칸의 화면 좌표로 본 방향과 그 방향의 코사인
 const hexXY = (tl) => [tl.c + (tl.r & 1) / 2, tl.r * 0.866];
@@ -427,11 +441,15 @@ export function interpretWithTablet(state, revelation) {
     }
     if (negative && !hits.length && place.anchors.size) { forbidden.push(...legal.filter((a) => place.anchors.has(a.tile) && (a.type === 'attack' || a.type === 'preach'))); continue; }
     const onTerrain = (rule, ms) => { if (!place.terrains.size || negative || place.near || !['attack', 'preach', 'gather'].includes(rule.kind)) return ms; const on = ms.filter((a) => place.terrains.has(state.tileAt[a.tile].terrain)); return on.length ? on : ms; };
-    const found = hits.map((h) => ({ ...h, matches: onTerrain(h.rule, lastLost(lost, place, byPlace(state, place, rankMatches(state, h.rule, legal.filter((a) => h.rule.match(a, state.tileAt[a.tile])), clause)))) }));
+    const found = hits.map((h) => {
+      const ms = legal.filter((a) => h.rule.match(a, state.tileAt[a.tile]));
+      const pl = aimFor(place, ms, implicit ? 1 : many);
+      return { ...h, pl, matches: onTerrain(h.rule, lastLost(lost, pl, byPlace(state, pl, rankMatches(state, h.rule, ms, clause)))) };
+    });
     // 무엇을 거둘지 말했으면 "거두라" 같은 두루뭉술한 채집은 쓰지 않는다
     const gathered = found.some((h) => !h.rule.fallback && !h.rule.lastResort && h.matches.some((a) => a.type === 'gather'));
     const plain = found.some((h) => !h.rule.lastResort);
-    for (const { rule, matches, pos } of found) {
+    for (const { rule, matches, pos, pl } of found) {
       if ((rule.fallback && gathered) || (rule.lastResort && plain)) continue;
       if (negative) {
         const scoped = rule.fallback ? matches.filter((a) => a.gather === 'food') : place.terrains.size || place.anchors.size ? matches.filter((a) => place.terrains.has(state.tileAt[a.tile].terrain) || place.anchors.has(a.tile)) : matches;
@@ -455,7 +473,7 @@ export function interpretWithTablet(state, revelation) {
           if (alt) holder.a = alt;
         }
         if (!free(a)) continue;
-        picks.push({ a, ci, pos, kind: rule.kind, alts: matches, aimed: place.anchors.size > 0, pinned: place.exact.has(a.tile) || (place.named.length > 0 && place.anchors.has(a.tile)), nth: implicit ? took : 0, cnt: Math.max(implicit ? 0 : many, Math.min(3, place.exact.size)) }); took += 1;
+        picks.push({ a, ci, pos, kind: rule.kind, alts: matches, aimed: pl.anchors.size > 0, pinned: pl.exact.has(a.tile) || (pl.named.length > 0 && pl.anchors.has(a.tile)), nth: implicit ? took : 0, cnt: Math.max(implicit ? 0 : many, Math.min(3, place.exact.size)) }); took += 1;
       }
       // 칸이 모두 찼으면 먼저 온 일을 다른 칸으로 옮길 수 있는지 본다 ("성벽을 쌓고 기도하라" → 성벽은 마을에)
       for (const a of took ? [] : matches) {
@@ -472,8 +490,8 @@ export function interpretWithTablet(state, revelation) {
     // 짚은 칸(E4·붙인 이름)에서 할 수 있는 일이 없으면 다른 칸에서 한 까닭을 알린다
     // (그 일 자체를 할 수 없으면 — 닿는 율법파 땅이 없다 등 — 그 까닭만 알린다)
     const able = found.some((h) => h.matches.length);
-    for (const id of place.exact) if (!negative && able && !picks.some((p) => p.a.tile === id)) heard.push(`far:${id}`);
-    if (!negative && able && place.named.length && !place.exact.size && !picks.some((p) => p.ci === ci && [...place.anchors].some((id) => distance(state.tileAt[p.a.tile], state.tileAt[id]) <= (place.near ? 1 : 0)))) heard.push(`far:${place.named[0]}`);
+    for (const id of place.exact) if (!negative && able && !picks.some((p) => distance(state.tileAt[p.a.tile], state.tileAt[id]) <= (place.near ? 1 : 0))) heard.push(`far:${id}`);
+    if (!negative && able && place.named.length && !place.exact.size && !picks.some((p) => p.ci === ci && [...place.anchors, ...(place.aimPool ?? [])].some((id) => distance(state.tileAt[p.a.tile], state.tileAt[id]) <= (place.near ? 1 : 0)))) heard.push(`far:${place.named[0]}`);
   }
   // 뒤 절이 금한 칸을 앞 절이 골랐으면 금하지 않은 다른 칸으로 옮긴다 ("공격은 하되 수도는 건드리지 마라")
   const ban = new Set(forbidden.map((f) => f.key));

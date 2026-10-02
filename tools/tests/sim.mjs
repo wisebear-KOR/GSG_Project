@@ -271,7 +271,7 @@ export function runGame(cfg, policyName, botSeed, opts = {}) {
     w: null, k: null, r: 0, mr: state.maxRounds, h: [],
     en: { atkPlan: 0, atkCapPlan: 0, atkN: 0, atkW: 0, capture: 0, capHit: 0, prN: 0, prW: 0, turn: 0, blocked: 0 },
     pl: { atkN: 0, atkW: 0, prN: 0, prW: 0, capHit: 0, blocked: 0, types: {}, acc: 0, auto: 0, heeded: 0 },
-    neg: 0, edictMax: 0, wrathMax: 0, doom: 0, miracles: 0, silent: 0,
+    neg: 0, edictMax: 0, miracles: 0, silent: 0,
     legal: [], lim: [], plans: [], tiles: [], types: [], elimLim: [],
     pop: [], enPop: [],
   };
@@ -291,7 +291,7 @@ export function runGame(cfg, policyName, botSeed, opts = {}) {
     if (opts.textSpace) M.elimLim.push(textSpace(state, opts.textSpace));
     // miracle
     const mir = pol.miracle(state, rng);
-    if (mir) { const r = E.castMiracle(state, mir[0], mir[1]); if (r.ok) { M.miracles++; if (mir[0] === 'doom') M.doom++; } }
+    if (mir) { const r = E.castMiracle(state, mir[0], mir[1]); if (r.ok) M.miracles++; }
     if (state.winner) { M.r = state.round; break; }
     const sp = pol.speak(state, rng, ctx);
     const pd = doSpeak(state, sp.text, { reinterpret: !!sp.reinterpret, seal: !!sp.seal });
@@ -318,7 +318,6 @@ export function runGame(cfg, policyName, botSeed, opts = {}) {
     logSeen = state.log.length;
     for (const side of E.SIDES) { const s = state.sides[side]; for (const k of ['food', 'wood', 'stone', 'faith', 'pop']) if (s[k] < 0) M.neg++; }
     M.edictMax = Math.max(M.edictMax, state.sides.enemy.edict ?? 0);
-    M.wrathMax = Math.max(M.wrathMax, state.wrath ?? 0);
     M.pop.push(state.sides.player.pop); M.enPop.push(state.sides.enemy.pop);
     M.r = state.round;
   }

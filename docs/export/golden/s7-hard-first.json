@@ -1071,7 +1071,7 @@
       "rejected": [],
       "petitionAnswered": false,
       "auto": ["explore:D2:","gather:G3:food"],
-      "enemyPlan": ["pray:A6:","attack:G2:","gather:A3:food","gather:A5:food","gather:A4:wood","gather:B3:food"],
+      "enemyPlan": ["attack:G2:","pray:A6:","gather:A3:food","gather:A5:food","gather:A4:wood","gather:B3:food"],
       "plan": ["build:G2:temple","explore:D2:","gather:G3:food"],
       "ordered": ["build:G2:temple"],
       "log": [

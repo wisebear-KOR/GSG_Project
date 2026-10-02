@@ -4,7 +4,7 @@ import {
   recordRevelation, castMiracle, actionLimit, FLIP_MARKS, popCap, villageCount, score, tileName, snapshot, capitalOf, other,
   faithIncome, DEFAULT_CONFIG, enemyIntent, revelationCostFor, chooseEvent,
   grantGrace, petitionAnswered, nameTile, sealProphecy, takeMiracle, resolveSite,
-  scoreBreakdown, miracleCost, nextEvent, nextLawCard, keepVows, hasUlt, ULT_ROUND, actionOdds,
+  scoreBreakdown, miracleCost, nextEvent, nextLawCard, dilemmaChoice, keepVows, hasUlt, ULT_ROUND, actionOdds,
   holyOwner, edictMax, chooseDestiny, actOf, actStart, dilemmaByText, resolveDilemma, yieldOf,
   canCarve, carveCommandment, findSacred, distance, previewGains, ultRound, draftRound,
   applySilence, markLegends, serializeState, hydrateState, monthOf, payDilemma, carvable,
@@ -1776,7 +1776,7 @@ function renderSeason() {
         <div class="rule">${esc(ev.rule)}</div>
         ${state.eventChoice && phase === 'speak' ? seasonChoiceHTML() : ''}
       </div>
-    </div>${nextEvent(state) && state.round < state.maxRounds ? `<div class="next-season"><span title="${esc(nextEvent(state).rule)}">${t('ui.season.next')}${svgUse(nextEvent(state).choice ? 'e-prophet' : `e-${nextEvent(state).id}`)}${esc(nextEvent(state).name)}</span><span class="next-law" id="nextLaw">${nextLawHTML(phase === 'speak' ? draft : null)}</span></div>` : ''}${destinyHTML()}`;
+    </div>${nextEvent(state) && state.round < state.maxRounds ? `<div class="next-season"><span title="${esc(nextEvent(state).rule)}">${t('ui.season.next')}${svgUse(nextEvent(state).choice ? 'e-prophet' : `e-${nextEvent(state).id}`)}${esc(nextEvent(state).name)}</span><span class="next-law" id="nextLaw">${nextLawHTML()}</span></div>` : ''}${destinyHTML()}`;
   if (dealSeason) setTimeout(() => sfx.deal(), 250);
   dealSeason = false;
   $('season').querySelectorAll('.card').forEach((c) => fx.attachTilt(c, 8));
@@ -2010,7 +2010,7 @@ function renderAltar() {
   const canMiracle = phase === 'speak';
   const cards = state.miracleHand.map((id) => MIRACLES.find((m) => m.id === id));
   const hand = `<div class="hand">${cards.map((m) => `
-    <button class="mcard${targeting === m.id ? ' on' : ''}${m.hidden ? ' doom' : ''}" data-m="${m.id}" type="button" ${!canMiracle || state.miracleUsed || p.faith < miracleCost(state, m) ? 'disabled' : ''}>
+    <button class="mcard${targeting === m.id ? ' on' : ''}" data-m="${m.id}" type="button" ${!canMiracle || state.miracleUsed || p.faith < miracleCost(state, m) ? 'disabled' : ''}>
       <span class="cost${miracleCost(state, m) < m.cost ? ' cut' : ''}">${miracleCost(state, m)}</span>${miracleCost(state, m) < m.cost ? `<s class="was">${m.cost}</s>` : ''}${svgUse(MIRACLE_ART[m.id], 'art', '0 0 48 48')}<div class="nm">${m.name}</div>
       <span class="tip"><b>${m.name}</b> · ${t('ui.faithCost', { n: miracleCost(state, m) })}${state.miracleUses?.[m.id] && !m.hidden ? t('ui.hand.reuse', { n: state.miracleUses[m.id] }) : ''}<br>${esc(m.text)}${state.miracleUsed ? `<br><i>${t('ui.hand.used')}</i>` : ''}</span>
     </button>`).join('')}</div>`;
@@ -2226,7 +2226,7 @@ function bindAltar() {
   on('.silence', silence);
   on('.accept', () => { sfx.click(); accept(); });
   a.querySelectorAll('.dl-opt').forEach((b) => {
-    b.onclick = () => { if (phase !== 'speak') return; state.dilemmaPick = b.dataset.opt; meta.saveGame(state, 'speak'); sfx.click(); a.querySelectorAll('.dl-opt').forEach((x) => x.classList.toggle('on', x === b)); };
+    b.onclick = () => { if (phase !== 'speak') return; state.dilemmaPick = b.dataset.opt; meta.saveGame(state, 'speak'); sfx.click(); a.querySelectorAll('.dl-opt').forEach((x) => x.classList.toggle('on', x === b)); refreshNextLaw(); };
   });
   // 확인 칩을 눌러 그 행동을 빼거나 되살린다 (장당 두 개까지, 빈 자리는 신도들이 알아서). ⇄는 같은 일을 다른 칸으로 옮긴다
   if (phase === 'confirm' && pending) {
@@ -2347,12 +2347,17 @@ async function typeInto(text) {
 // 알아들은 말: 계시를 쓰는 동안 석판이 알아들은 낱말과 그 일을 보여 준다 (LLM 모드에서는 '예감')
 // 다음 장 율법 카드: 지금 적는 말씀(적지 않았으면 이번 장에 내린 말씀)을 들은 율법파가 다음 장에 쓸 카드
 // — 무엇을 말하느냐가 다음 장 율법파를 정한다. 침묵이면 덱 맨 위 카드
-function nextLawHTML(text) {
+function nextLawHTML() {
   let doctrine = null; let vow = false;
-  if (text?.trim()) {
-    const r = interpretWithTablet(state, text.trim());
-    doctrine = r.doctrine; vow = r.forbidden.some((a) => a.type === 'attack');
-  } else if (text === null) doctrine = state.revelations.find((r) => r.round === state.round)?.doctrine ?? null;
+  const swordBan = (r) => r.forbidden.some((a) => a.type === 'attack');
+  const provokes = (byText) => !!(state.event?.choice && dilemmaChoice(state, byText ?? state.dilemmaPick ?? state.event.choice[0].id)?.provoke);
+  if (phase === 'confirm' && pending) {
+    doctrine = pending.result.doctrine; vow = swordBan(pending.result) || provokes(pending.dilemma);
+  } else if (phase === 'speak' || phase === 'thinking') {
+    const text = draft.trim();
+    const r = text ? interpretWithTablet(state, text) : null;
+    doctrine = r?.doctrine ?? null; vow = (!!r && swordBan(r)) || provokes(text ? dilemmaByText(state, text) : null);
+  } else doctrine = state.revelations.find((r) => r.round === state.round)?.doctrine ?? null;
   const nx = state.round < state.maxRounds ? nextLawCard(state, doctrine, vow) : null;
   if (!nx) return '';
   const alt = nx.alt && { name: nx.alt.card.name, reacted: nx.alt.reacted };
@@ -2377,6 +2382,17 @@ function heardHTML(text) {
 }
 const kindName = (a) => t('ui.heard.kind', { type: a.type, build: a.build, res: a.gather ? RESOURCE_NAME[a.gather] : '' });
 
+// 다음 장 율법 카드 칸을 지금 말씀에 맞춰 바꾼다 (바뀌면 살짝 뒤집힌다)
+function refreshNextLaw() {
+  const law = $('nextLaw');
+  if (!law) return;
+  const h = nextLawHTML();
+  const key = (s) => `${s.match(/data-k="([^"]*)"/)?.[1] ?? ''}${s.includes('next-law-react') ? '!' : ''}`;
+  if (key(h) === key(law.innerHTML)) return;
+  law.innerHTML = h;
+  law.classList.remove('flip'); void law.offsetWidth; law.classList.add('flip');
+}
+
 // 계시를 쓰는 동안 석판 해석으로 말씀이 닿을 칸을 미리 흐리게 비춘다 (LLM의 결정과는 다를 수 있는 '예감')
 function scheduleHints() {
   clearTimeout(hintTimer);
@@ -2385,15 +2401,7 @@ function scheduleHints() {
     const text = draft.trim();
     const line = $('heardLine');
     if (line) line.innerHTML = heardHTML(text);
-    const law = $('nextLaw');
-    if (law) {
-      const h = nextLawHTML(text);
-      const k = (s) => /data-k="([^"]*)"/.exec(s)?.[1] ?? '';
-      if (k(h) !== k(law.innerHTML) || h.includes('next-law-react') !== law.innerHTML.includes('next-law-react')) {
-        law.innerHTML = h;
-        law.classList.remove('flip'); void law.offsetWidth; law.classList.add('flip');
-      }
-    }
+    refreshNextLaw();
     const next = text ? [...new Set(interpretWithTablet(state, text).orders.map((a) => a.tile))].slice(0, 6) : [];
     if (next.join() === hintTiles.join()) return;
     if (next.some((t) => !hintTiles.includes(t))) sfx.hover();

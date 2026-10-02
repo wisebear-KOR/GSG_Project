@@ -26,7 +26,7 @@ function stripComments(src) {
     if (c === '"' || c === "'" || c === '`') { q = c; out += c; i++; continue; }
     if (c === '}' && depth.length) { q = depth.pop(); out += c; i++; continue; }
     if (c === '{' && depth.length) depth.push(null);
-    if (c === '/' && /[=(,:;!&|?{}[\n]\s*$/.test(out.slice(-20))) {
+    if (c === '/' && /(?:[=(,:;!&|?{}[\n]|=>)\s*$/.test(out.slice(-20))) {
       // 정규식 리터럴
       out += c; i++;
       let cls = false;

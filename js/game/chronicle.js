@@ -11,7 +11,7 @@ export function outcomeKind(state) {
   if (state.winner === 'draw') return 'draw';
   const mine = state.winner === 'player';
   switch (state.winKind) {
-    case 'doom': case 'capital': return mine ? 'conquest' : 'conquered';
+    case 'doom': case 'capital': // 'doom'은 옛 기록(심판의 날) return mine ? 'conquest' : 'conquered';
     case 'cathedral': return mine ? 'cathedral' : 'lost';
     case 'faith': case 'convertAll': return mine ? 'faith' : 'lost';
     case 'extinct': return 'extinct';

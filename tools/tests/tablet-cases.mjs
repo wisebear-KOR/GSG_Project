@@ -1365,6 +1365,21 @@ const CASES = [
   ['바위 같은 믿음으로 기도하라', ['pray'], ['gather:stone']],
   ['강물처럼 말씀이 흘러가게 하라', ['preach'], []],
   ['Attack!', ['attack'], []],
+  // 18차 평가자 문장
+  ['우리는 더 넓은 땅이 필요하다', ['build:village'], []],
+  ['목자가 양을 부르듯 저들을 불러 모으라', ['preach'], ['gather:food']],
+  ['평화의 말로 원수의 마음을 녹이라', ['preach'], ['attack']],
+  ['주춧돌을 놓고 성전을 올리라', ['build:temple'], ['gather:stone']],
+  ['피를 흘리지 말고 저들을 얻어라', ['preach', 'forbid:attack'], []],
+  ['저 교만한 자들의 성읍을 무너뜨리라', ['attack'], ['build:village']],
+  ['율법파의 신전을 부숴라', ['attack'], ['build:temple']],
+  ['적이 빼앗으려는 우리 마을을 지켜라', ['build:wall'], ['attack']],
+  ['공격하지 않으면 우리가 진다, 쳐라', ['attack'], []],
+  ['적을 미워하지 말고 사랑으로 감싸라', ['preach'], ['attack']],
+  ['목재 캐자', ['gather:wood'], ['gather:stone']],
+  ['율법파의 계획을 막아라', [], ['build:wall']],
+  ['세 명은 곡식을 거두고 한 명은 기도하라', ['gather:food', 'pray'], []],
+  ['거룩한 언덕을 되찾아라', [], ['gather:stone', 'gather:food']],
 ];
 
 const kindOf = (a) => (a.type === 'gather' ? `gather:${a.gather}` : a.type === 'build' ? `build:${a.build}` : a.type);

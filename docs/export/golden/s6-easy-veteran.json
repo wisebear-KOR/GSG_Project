@@ -1395,7 +1395,7 @@
       "rejected": [],
       "petitionAnswered": false,
       "auto": ["gather:E4:food","gather:C2:stone"],
-      "enemyPlan": ["pray:A5:","gather:A2:food","gather:A3:food","gather:B1:food"],
+      "enemyPlan": ["build:A5:temple","gather:A2:food","gather:A3:food","gather:B1:food"],
       "plan": ["attack:C3:","attack:D3:","gather:E4:food","gather:C2:stone"],
       "ordered": ["attack:C3:","attack:D3:"],
       "log": [
@@ -1433,10 +1433,11 @@
         },
         {
           "side": "enemy",
-          "text": "율법파가 기도해 신앙을 2 얻었다.",
-          "fx": {"kind":"gain","tile":"A5","gain":{"faith":2}},
-          "act": "pray:A5:"
+          "text": "율법 석판 +2 — 율법파가 신전을 높였다 (2/10).",
+          "fx": {"kind":"edict","tile":"A5","up":true},
+          "act": "build:A5:temple"
         },
+        {"side":"enemy","text":"율법파의 신전이 2단계로 높아졌다.","fx":{"kind":"build","tile":"A5"},"act":"build:A5:temple"},
         {
           "side": "player",
           "text": "신도들의 공격이 율법파 마을(C3)에서 막혔다. 공격자 1명이 쓰러졌다.",
@@ -1481,16 +1482,16 @@
         },
         "enemy": {
           "food": 6,
-          "wood": 3,
-          "stone": 5,
-          "faith": 47,
+          "wood": 1,
+          "stone": 3,
+          "faith": 46,
           "pop": 6,
-          "templeLevel": 1,
+          "templeLevel": 2,
           "capitalHp": 2,
           "cathedral": 0,
-          "edict": 0,
+          "edict": 2,
           "villages": 4,
-          "score": 40
+          "score": 43
         },
         "owners": {
           "A5": "enemy",
@@ -1534,8 +1535,8 @@
     "rounds": 12,
     "winner": "player",
     "winKind": "score",
-    "winReason": "12장 종료 — 승점 44 : 40",
-    "score": {"player":44,"enemy":40},
+    "winReason": "12장 종료 — 승점 44 : 43",
+    "score": {"player":44,"enemy":43},
     "breakdown": {
       "player": [
         {"key":"pop","n":5,"w":2},
@@ -1548,7 +1549,7 @@
       "enemy": [
         {"key":"pop","n":6,"w":2},
         {"key":"village","n":4,"w":2},
-        {"key":"temple","n":1,"w":3},
+        {"key":"temple","n":2,"w":3},
         {"key":"hp","n":2,"w":1},
         {"key":"faith","n":15,"w":1}
       ]
@@ -1565,7 +1566,7 @@
       {"round":9,"ps":36,"es":38},
       {"round":10,"ps":36,"es":45},
       {"round":11,"ps":42,"es":39},
-      {"round":12,"ps":44,"es":40}
+      {"round":12,"ps":44,"es":43}
     ],
     "revelations": [
       {"round":1,"doctrine":"abundance"},

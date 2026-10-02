@@ -1235,7 +1235,7 @@
       "rejected": [],
       "petitionAnswered": false,
       "auto": ["gather:D1:food","gather:D2:food"],
-      "enemyPlan": ["pray:A5:","attack:D1:","gather:A2:food","gather:A4:food","gather:A3:wood","gather:B4:food"],
+      "enemyPlan": ["attack:D1:","pray:A5:","gather:A2:food","gather:A4:food","gather:A3:wood","gather:B4:food"],
       "dilemma": {"pick":"host","byText":false,"paid":"host"},
       "plan": ["build:F2:temple","gather:D1:food","gather:D2:food"],
       "ordered": ["build:F2:temple"],

@@ -60,6 +60,7 @@ export function doSpeak(state, text, { reinterpret = false, seal = false } = {})
   if (reinterpret && !state.reinterpretUsed && p.faith >= 1) { p.faith -= 1; state.reinterpretUsed = true; pending = interpret(state, t, naming); }
   pending.seal = seal;
   pending.spoken = spoken;
+  pending.dilemma = E.dilemmaByText(state, t);
   return pending;
 }
 function interpret(state, text, naming) {
@@ -86,9 +87,17 @@ export function doAccept(state, pending) {
     state.log.push({ round: state.round, side: 'priest', text: result.interpretation });
   }
   const enemyPlan = E.planEnemy(state);
+  const from = state.log.length;
+  if (!text) state.streak = null;
+  const pick = state.event?.choice ? pending.dilemma ?? state.dilemmaPick ?? state.event.choice[0].id : null;
+  if (pick) E.payDilemma(state, pick);
+  const plan = [...accepted, ...auto];
+  if (text) E.findSacred(state, text);
   if (pending.seal && pending.prophecy) E.sealProphecy(state, pending.prophecy);
-  E.resolveRound(state, [...accepted, ...auto], enemyPlan);
-  if (!state.winner && text) E.keepVows(state, result.forbidden, [...accepted, ...auto]);
+  E.resolveRound(state, plan, enemyPlan);
+  if (!state.winner) E.applySilence(state, !!text);
+  if (!state.winner && text) E.markLegends(state, text, result.doctrine, plan.filter((a) => !a.auto), state.log.slice(from));
+  if (!state.winner && text) E.keepVows(state, result.forbidden, plan);
   if (!state.winner) wordsAfter(state, pending);
   if (text) E.recordRevelation(state, text, result.doctrine, pending.spoken);
   const last = state.history.at(-1);

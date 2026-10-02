@@ -1,6 +1,6 @@
 {
   "generator": "tools/golden.mjs",
-  "ruleset": 21,
+  "ruleset": 22,
   "lang": "ko",
   "games": [
     {
@@ -23,17 +23,17 @@
       "file": "s5-normal-first.json",
       "config": {"mode":"standard","size":5,"difficulty":"normal","seed":2026,"veteran":false},
       "rounds": 12,
-      "winner": "player",
-      "winKind": "score",
-      "score": {"player":30,"enemy":21}
+      "winner": "enemy",
+      "winKind": "capital",
+      "score": {"player":4,"enemy":25}
     },
     {
       "file": "s5-hard-veteran.json",
       "config": {"mode":"standard","size":5,"difficulty":"hard","seed":5303,"veteran":true},
-      "rounds": 11,
+      "rounds": 10,
       "winner": "enemy",
       "winKind": "edict",
-      "score": {"player":17,"enemy":55}
+      "score": {"player":21,"enemy":44}
     },
     {
       "file": "s6-normal-veteran.json",
@@ -49,7 +49,7 @@
       "rounds": 12,
       "winner": "player",
       "winKind": "score",
-      "score": {"player":44,"enemy":40}
+      "score": {"player":44,"enemy":43}
     },
     {
       "file": "s7-hard-first.json",
@@ -62,10 +62,10 @@
     {
       "file": "s7-normal-veteran.json",
       "config": {"mode":"standard","size":7,"difficulty":"normal","seed":7707,"veteran":true},
-      "rounds": 14,
+      "rounds": 13,
       "winner": "enemy",
-      "winKind": "score",
-      "score": {"player":35,"enemy":60}
+      "winKind": "edict",
+      "score": {"player":28,"enemy":56}
     },
     {
       "file": "s4-easy-first-war.json",
@@ -73,7 +73,7 @@
       "rounds": 8,
       "winner": "player",
       "winKind": "score",
-      "score": {"player":32,"enemy":8}
+      "score": {"player":32,"enemy":10}
     },
     {
       "file": "s5-easy-first-war.json",
@@ -81,7 +81,7 @@
       "rounds": 12,
       "winner": "player",
       "winKind": "score",
-      "score": {"player":31,"enemy":23}
+      "score": {"player":38,"enemy":14}
     },
     {
       "file": "s4-hard-veteran-asc4.json",

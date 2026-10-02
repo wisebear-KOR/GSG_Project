@@ -170,8 +170,6 @@ export default {
   // 동시 공개: 같은 칸
   'log.blocked': (v) => `${topic(v.who)} ${josa(v.place, '을', '를')} 상대에게 먼저 빼앗겨 행동하지 못했다.`,
 
-  // 신의 분노
-
   // 율법 석판 (plus: 올랐는가, d: 실제 변화량)
   'log.edict': (v) => `율법 석판 ${v.plus ? '+' : ''}${v.d} — ${v.why} (${v.edict}/${v.max}).`,
   'log.edictNear': '율법 석판이 거의 완성되었다! 성지를 쥐거나 번개로 율법파 수도를 쳐서 막아야 한다.',

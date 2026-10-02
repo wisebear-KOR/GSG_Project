@@ -279,7 +279,6 @@ function digest(state) {
   };
   if (Object.keys(faithMarks).length) d.faithMarks = faithMarks;
   d.holyOwner = E.holyOwner(state);
-  d.wrath = state.wrath;
   d.streak = state.streak;
   d.silentRun = state.silentRun;
   if (Object.keys(state.names).length) d.names = { ...state.names };
