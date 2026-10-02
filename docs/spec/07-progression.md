@@ -73,7 +73,7 @@ export function set(key, value) {
 | `gsg.blessing` | JSON | 은사 id 또는 `null` | 메인 은사 버튼 (`main.js:185`) | `blessingPick` (`main.js:200`) | 고른 은사 (§5.3) |
 | `gsg.god` | JSON | `{ name: 최대 8자, sigil: SIGILS 키 }` (`{ name: '', sigil: 'light' }`) | 메인 이름 입력·상징 버튼 (`main.js:186-188`) | `godOf`, `godConfig` (`main.js:198, 209`) | 신의 이름과 상징 (§9) |
 | `gsg.speed` | JSON | `"1"` \| `"2"` \| `"instant"` (`"1"`) | 설정·재생 중 속도 버튼 (`main.js:1094, 2229`) | `main.js:76` | 재생 속도 |
-| `gsg.suggest` | JSON | bool (`true`) | 설정, 제안 칩 ✕ (`main.js:1095, 2268`) | `suggestOn` (`main.js:2298`) | 계시 제안 칩 |
+| `gsg.suggest` | JSON | bool (`true`) | 설정, 제안 칩 ✕ (`main.js:1095, 2268`) | `suggestOn` (`main.js:2300`) | 계시 제안 칩 |
 | `gsg.a11y.cb` | JSON | bool (`false`) | 설정 (`main.js:1096`) | `applyA11y` (`main.js:1048`) | 색각 무늬 |
 | `gsg.a11y.zoom` | JSON | `1` \| `1.1` \| `1.2` (`1`) | 설정 (`main.js:1097`) | `applyA11y` (`main.js:1049-1051`) | 글자 크기 |
 | `gsg.unlockNote` | JSON | 정수 0~4 — 마지막으로 보인 해금 단계 (`8ba0ef8`; 그 전에는 `true` — 읽을 때 `Number(…) \|\| 0`이라 옛 `true`는 1) | `showUnlockNote` (`main.js:1184`) | `main.js:1182` | 해금 안내를 단계마다 한 번 (§16.1) |
@@ -555,7 +555,7 @@ export const bestKey = (c) => `${c.size}-${c.difficulty}-${c.seed}${c.ascension 
 
 메인 화면을 띄울 때마다 `gsg.lastVisit`를 지금으로 바꾼다. 그 전 방문이 **3일 이상** 전이고 서고가 있으면 한 줄: `다시 오셨군요. 지난 판 — 크기 승패, n장, 승점 a : b. 「칭호」 (· 이어하던 판이 있다.)`.
 
-### 16.3 계시 제안 칩 (`main.js:2230-2286`)
+### 16.3 계시 제안 칩 (`main.js:2232-2288`)
 
 speak 단계에서 두루마리가 **8초** 동안 비어 있으면 제안 두 개를 띄운다. 조건: 튜토리얼 아님, `gsg.suggest`가 참, **서고가 3판 미만**. 후보는 청원의 필요·율법파 공격 예고(성벽)·신앙 부족(기도)·마을·탐험·선교 순이고, 봉인된 말이 든 것과 석판이 아무 명령도 못 읽는 것을 뺀다. 누르면 한 글자씩 입력된다. ✕는 영구히 끈다.
 
