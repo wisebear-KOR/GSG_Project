@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>브라우저 Kev 시험</title>
+<style>
+  :root { --bg: #faf8f4; --fg: #222; --muted: #777; --line: #ddd; --hit: #2e7d32; --miss: #c62828; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #1b1a18; --fg: #e8e4dc; --muted: #9a958c; --line: #3a3833; --hit: #81c784; --miss: #ef9a9a; } }
+  body { background: var(--bg); color: var(--fg); font: 14px/1.5 system-ui, sans-serif; margin: 0 auto; max-width: 1000px; padding: 16px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .muted { color: var(--muted); }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+  button { font: inherit; padding: 4px 10px; }
+  pre#log { background: rgba(127,127,127,.08); border: 1px solid var(--line); padding: 8px; max-height: 360px; overflow: auto; white-space: pre-wrap; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>브라우저 Kev 시험</h1>
+<p class="muted">Kev-0.8B를 ONNX(fp16)로 바꿔 onnxruntime-web WebGPU로 돌린다. 판정 헤드는 JS. 모델 파일은 <code>lab/kev-web/model/</code> (저장소 밖).
+  대조 기준은 PyTorch Kev의 확률 (<code>reference.json</code>, 파이썬 인코딩 그대로).</p>
+<div class="bar">
+  <button id="load">모델 불러오기</button>
+  <button id="parity" disabled>정확도 대조</button>
+  <button id="tok" disabled>토크나이저 대조</button>
+  <button id="speed" disabled>속도</button>
+  <span id="gpu" class="muted"></span>
+</div>
+<pre id="log"></pre>
+<script type="module">
+import { Kev } from './kev-web/kev.js';
+
+const $ = (id) => document.getElementById(id);
+const log = (s) => { $('log').textContent += `${s}\n`; $('log').scrollTop = 1e9; };
+const base = new URL('./kev-web/model/', location.href).href;
+$('gpu').textContent = 'gpu' in navigator ? 'WebGPU 있음' : 'WebGPU 없음';
+window.out = {};
+let kev = null;
+
+$('load').onclick = async () => {
+  $('load').disabled = true;
+  try {
+    kev = await Kev.load(base, { onProgress: (s) => log(`불러오는 중: ${s}`) });
+    log(`불러옴 ${Math.round(kev.loadMs)} ms · 특수 토큰 ${kev.special.join(',')} · 출력 ${kev.hiddenName}`);
+    window.out.loadMs = kev.loadMs;
+    for (const b of ['parity', 'tok', 'speed']) $(b).disabled = false;
+  } catch (e) { log(`실패: ${e.message}`); console.error(e); $('load').disabled = false; }
+};
+
+// 파이썬 인코딩 그대로 넣어 PyTorch 확률과 견준다 (모델 변환·헤드·fp16의 차이만 본다)
+$('parity').onclick = async () => {
+  const ref = await (await fetch(`${base}reference.json`)).json();
+  let worst = 0; let flips = 0; let n = 0; const times = [];
+  for (const mode of ['batch', 'prefix', 'rows']) {
+    worst = 0; flips = 0; n = 0; times.length = 0;
+    for (const r of ref) {
+      const enc = { stateIds: r.state_ids, rows: r.rows };
+      const t0 = performance.now();
+      const probs = await kev.score(enc, mode);
+      times.push(performance.now() - t0);
+      probs.forEach((p, i) => {
+        const t = r.torch[i]; n += 1;
+        worst = Math.max(worst, ...p.map((x, j) => Math.abs(x - t[j])));
+        if (p.indexOf(Math.max(...p)) !== t.indexOf(Math.max(...t))) flips += 1;
+      });
+    }
+    const med = [...times].sort((a, b) => a - b)[Math.floor(times.length / 2)];
+    log(`[${mode}] ${ref.length}건 · 질문 ${n}개 · 최대 |dp| ${worst.toFixed(4)} · 1순위 뒤바뀜 ${flips} · 중앙값 ${Math.round(med)} ms/건 (첫 건 ${Math.round(times[0])} ms)`);
+    window.out[`parity_${mode}`] = { cases: ref.length, questions: n, worst, flips, medianMs: med, firstMs: times[0] };
+  }
+};
+
+// JS 인코딩이 파이썬 인코딩과 같은가
+$('tok').onclick = async () => {
+  const reqs = await (await fetch(`${base}requests.json`)).json();
+  const ref = await (await fetch(`${base}reference.json`)).json();
+  let same = 0; const diff = [];
+  for (const r of ref) {
+    const q = reqs.find((x) => x.key === r.key);
+    const e = kev.encode(q.state, q.questions);
+    const ok = JSON.stringify(e.stateIds) === JSON.stringify(r.state_ids) && e.rows.every((x, i) => JSON.stringify(x.ids) === JSON.stringify(r.rows[i].ids) && x.decide === r.rows[i].decide && JSON.stringify(x.opts) === JSON.stringify(r.rows[i].opts));
+    if (ok) same += 1; else diff.push(r.key);
+  }
+  log(`토크나이저: ${same}/${ref.length} 같음${diff.length ? ` · 다름: ${diff.slice(0, 5).join(', ')}` : ''}`);
+  window.out.tokenizer = { same, total: ref.length, diff };
+};
+
+// 1단계 크기 요청 (JSON 상태 + 질문 13개)을 두 방식으로 다섯 번씩
+$('speed').onclick = async () => {
+  const reqs = await (await fetch(`${base}requests.json`)).json();
+  const s1 = reqs.find((x) => x.key === 'stage1');
+  for (const mode of ['batch', 'prefix', 'rows']) {
+    const t = [];
+    let res;
+    for (let i = 0; i < 5; i++) { res = await kev.ask(s1.state, s1.questions, mode); t.push(res.ms); }
+    const sorted = [...t].sort((a, b) => a - b);
+    log(`[1단계 ${mode}] 토큰 ${res.tokens} · ${t.map((x) => Math.round(x)).join(' / ')} ms · 중앙값 ${Math.round(sorted[2])} ms`);
+    window.out[`speed_${mode}`] = { tokens: res.tokens, ms: t, medianMs: sorted[2], answers: res.answers };
+  }
+
+  log(`답 (batch): ${Object.entries(window.out.speed_batch.answers).map(([k, v]) => `${k}=${v.choice}`).join(' ')}`);
+};
+</script>
+</body>
+</html>
