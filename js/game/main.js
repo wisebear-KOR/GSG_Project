@@ -508,6 +508,11 @@ async function newRound() {
   if (state.round === 1 && state.destinyOffer) setTimeout(showDestinyChoice, fx.motion.reduced ? 400 : 2600);
   if (state.round === 1 && state.leader) setTimeout(() => leaderSay(leaderLine(state, 'intro')), fx.motion.reduced ? 300 : 2400);
   else if (state.reacted && REACT[state.reacted]) setTimeout(() => leaderSay(REACT[state.reacted].line), fx.motion.reduced ? 300 : 2400);
+  // 땅의 운을 처음 보는 판: 첫 장에 대사제가 한 번 알려 준다 (규칙 28 — 플레이어마다 한 번)
+  if (state.round === 1 && !cfg.tutorial && !meta.get('gsg.tip.fortune', false)) {
+    meta.set('gsg.tip.fortune', true);
+    setTimeout(() => priestSay(t('ui.tip.landIntro')), fx.motion.reduced ? 700 : 4600);
+  }
   // 대사제의 성향이 열린 판이면 첫 장에 사제가 자기 버릇을 말한다 (뜻을 헤아리는 손이 달라진다)
   if (state.round === 1 && state.priest && state.priest !== 'loyal') setTimeout(() => priestSay(t('ui.priestIntro', { trait: PRIESTS[state.priest].trait })), fx.motion.reduced ? 500 : 3600);
   if (tutorial) {
@@ -1395,6 +1400,11 @@ async function playback(before) {
   if (phase !== 'over') revealPerk(before);
   if (resolved.verdict) setTimeout(() => (resolved.verdict.grade === 'miss' ? sfx.fail() : sfx.seal?.()), 200);
   if (pendingLesson) { const l = pendingLesson; pendingLesson = null; setTimeout(() => priestSay(t('ui.lesson.learned', { word: l.word, meaning: describeLesson(l) })), 900); }
+  // 우리가 거둔 땅이 처음 지쳤을 때: 대사제가 한 번 알려 준다 (플레이어마다 한 번)
+  else if (phase !== 'over' && !state.tutorial && !meta.get('gsg.tip.tired', false) && state.tiles.some((tl) => tl.activity === 'poor' && tl.workedAt === state.round && tl.revealed)) {
+    meta.set('gsg.tip.tired', true);
+    setTimeout(() => priestSay(t('ui.tip.landTired')), 900);
+  }
   if (state.pendingSite && phase !== 'over') await showSiteChoice();
   if (phase === 'over') { if (!state.tutorial) meta.clearSave(); } else meta.saveGame(state, 'resolved');
   if (tutorial) {

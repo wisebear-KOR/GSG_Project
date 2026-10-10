@@ -92,6 +92,8 @@ export default {
   'ui.tip.gather': (v) => `${v.feature ? `${v.feature} — ` : ''}${v.res} 채집 +${v.n}`,
   'ui.tip.barren': '메마른 땅 — 아무것도 얻을 수 없다',
   'ui.tip.legend': '「{name}」 — “{quote}” ({round}장)',
+  'ui.tip.landIntro': '땅에도 기운이 있습니다. 사건 카드 아래 "땅의 운"이 이번 장과 다음 장에 기름지거나 마를 땅을 알려 주고, 보드의 점선이 그 자리입니다.',
+  'ui.tip.landTired': '거둔 땅이 지쳤습니다(−1). 한 장 쉬게 하면 돌아옵니다. "기름진 들판에서", "쉬던 숲에서"처럼 말씀하시면 좋은 땅으로 가겠습니다.',
   'ui.tip.rich': '풍요 — 거두면 +1 (거두면 장 끝에 정상으로)',
   'ui.tip.poor': (v) => `빈곤 — 거두면 −1 · 아무도 거두지 않으면 ${v.n}장 뒤 정상`,
   'ui.tip.fortuneNext': (v) => `다음 장 땅의 운 「${v.name}」 — 이 땅이 ${v.to === 'rich' ? '풍요' : '빈곤'}로`,
