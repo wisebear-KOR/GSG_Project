@@ -6,7 +6,8 @@ import { hasLanguageModel, createBaseSession, promptJSON } from '../llm.js';
 import { DOCTRINES, DOCTRINE, PRIESTS, TERRAIN, DOCTRINE_VOICE } from './data.js';
 import { nouns } from './lore.js';
 import { legalActions, tileName, villageCount, defaultAmount, cathedralVillages, setPlanSig, capitalOf, distance, actionOdds } from './engine.js';
-import { Res, gameInfo, sideInfo, intentsInfo, turnInfo } from './domain/index.js';
+import { Res, gameInfo, sideInfo, intentsInfo, turnInfo, kindOf } from './domain/index.js';
+import { judge } from './ai/judge.js';
 import { t } from './i18n.js';
 
 // 실험 v5 프롬프트를 게임에 맞게 옮긴 것 (docs/EXPERIMENTS.md).
@@ -546,6 +547,65 @@ export function interpretWithTablet(state, revelation) {
     forbidden,
     doctrine: doctrine ?? (forbidden.length || banned.length ? 'peace' : null),
     source: 'tablet',
+  };
+}
+
+// ---------- 판정기와 함께 읽기 (게임의 기본 해석기) ----------
+// 판정기(js/game/ai/judge.js)는 계시 글만 보고 일의 종류마다 하라 / 하지 마라 / 말 없음을 정한다.
+// 석판이 먼저 읽는다. 판정기가 일의 종류를 정하는 것은 둘 가운데 하나일 때다:
+//   석판이 아무것도 못 알아들었을 때(침묵 — 시킨 일도, 금한 일도, 알아들었으나 못 한 일도 없음)에 판정기가 조금이라도 확신하면(≥ JUDGE_RESCUE),
+//   또는 석판이 시킨 일이 있는데 판정기가 확신하면서(≥ JUDGE_GATE) 그 일과 하나도 겹치지 않는 일을 읽었을 때
+//   (금지만 읽은 석판은 일부러 내린 부정이라 덮지 않는다)
+// 그때 칸은 석판이 말에서 짚은 칸을 쓴다 (석판이 그 일을 못 알아들었으면 석판의 기본 배치로 한 손).
+// 석판은 알던 말·칸·수·신의 일을 결정적으로 읽고, 판정기는 처음 보는 말투를 잘 푼다 (docs/redesign/AI-OPTIONS.md §3.2, H7)
+export const JUDGE_GATE = 0.6;
+export const JUDGE_RESCUE = 0.4;
+export function interpretWithJudge(state, revelation) {
+  const r = interpretWithTablet(state, revelation);
+  const text = (revelation ?? '').trim();
+  if (!text) return r;
+  const j = judge(text);
+  const tabletDo = [...new Set(r.orders.map(kindOf))];
+  const tabletDont = [...new Set(r.forbidden.map(kindOf))];
+  const same = (a, b) => a.length === b.length && a.every((k) => b.includes(k));
+  const note = { conf: j.conf, do: j.do, dont: j.dont, doctrine: j.doctrine?.id ?? null };
+  const silent = !r.orders.length && !r.forbidden.length && !r.heard.length;
+  const rescue = silent && j.conf >= JUDGE_RESCUE && (j.do.length || j.dont.length);
+  const overrule = r.orders.length && j.conf >= JUDGE_GATE && !j.do.some((k) => tabletDo.includes(k));
+  if (!rescue && !overrule) return { ...r, judge: { ...note, took: false } };
+  if (same(j.do, tabletDo) && same(j.dont, tabletDont)) return { ...r, judge: { ...note, took: false } };
+  const legal = legalActions(state, 'player');
+  const limit = sideInfo(state, 'player').actions;
+  const place = placeOf(state, text);
+  const forbidden = j.dont.flatMap((k) => {
+    const scoped = r.forbidden.filter((a) => kindOf(a) === k);
+    return scoped.length ? scoped : legal.filter((a) => kindOf(a) === k);
+  });
+  const fkeys = new Set(forbidden.map((a) => a.key));
+  const orders = [];
+  const take = (a) => { if (orders.length < limit && !fkeys.has(a.key) && !orders.some((o) => o.tile === a.tile)) orders.push(a); };
+  for (const k of j.do) {
+    const mine = r.orders.filter((a) => kindOf(a) === k);
+    if (mine.length) { mine.forEach(take); continue; }
+    const ms = legal.filter((a) => kindOf(a) === k && !fkeys.has(a.key) && !orders.some((o) => o.tile === a.tile));
+    const ranked = byPlace(state, place, rankMatches(state, {}, ms, text));
+    if (ranked[0]) take(ranked[0]);
+  }
+  // 교리: 판정기가 일을 바꿨으니 판정기의 교리를 (확신이 낮으면 석판의 것)
+  const doctrine = (j.doctrine && j.doctrine.p >= 0.5 ? j.doctrine.id : null) ?? r.doctrine ?? j.doctrine?.id ?? (forbidden.length ? 'peace' : null);
+  const prefix = voiceOf(state) ? DOCTRINE_VOICE[voiceOf(state)].prefix : t('interp.tablet.prefix');
+  const verbs = orders.map((a) => a.text.replace(/ \(.*\)$/, ''));
+  const kindsOf = (list) => [...new Set(list.map((a) => (a.type === 'gather' ? `gather:${a.gather}` : baseKind(a))))];
+  return {
+    ...r,
+    interpretation: orders.length ? t('interp.tablet.say', { prefix, verbs })
+      : forbidden.length ? t('interp.tablet.forbidOnly', { kinds: kindsOf(forbidden) }) : t('interp.tablet.blur'),
+    heard: r.heard.filter((h) => !orders.some((a) => baseKind(a) === h.split(':')[0])),
+    banned: [...new Set([...r.banned.filter((b) => forbidden.some((a) => baseKind(a) === b)), ...forbidden.map(baseKind)])],
+    orders, forbidden, doctrine,
+    source: 'judge',
+    // rescued: 석판이 아무것도 못 알아들은 말을 판정기가 풀었다 — 그 낱말은 대사제의 말버릇이 된다 (석판이 배운다)
+    judge: { ...note, took: true, rescued: !r.orders.length && !r.forbidden.length },
   };
 }
 

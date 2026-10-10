@@ -6,7 +6,7 @@ const E = await import(W + 'js/game/engine.js');
 const I = await import(W + 'js/game/interpreter.js');
 const { KINDS, kindOf } = await import(W + 'js/game/domain/index.js');
 const cases = JSON.parse(fs.readFileSync(new URL('./cases.json', import.meta.url), 'utf8'));
-const s = E.createState({ mode: 'tutorial' }); E.startRound(s);
+const s = E.createState({ mode: 'tutorial', seed: 1 }); E.startRound(s); Object.assign(s.sides.player, { wood: 6, stone: 6, food: 6 });
 const NEG = {
   'gather:food': ['곡식은 거두지 마라', '고기는 잡지 마라'], 'gather:wood': ['나무는 베지 마라', '숲은 건드리지 마라'], 'gather:stone': ['돌은 캐지 마라', '산은 파지 마라'],
   'build:village': ['마을은 세우지 마라', '집은 짓지 마라'], 'build:wall': ['성벽은 쌓지 마라', '담은 두르지 마라'], 'build:temple': ['신전은 올리지 마라'],

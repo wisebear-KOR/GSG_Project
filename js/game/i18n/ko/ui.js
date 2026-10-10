@@ -439,6 +439,7 @@ export default {
   'ui.notice.pickLightning': '번개를 내릴 율법파의 땅을 보드에서 고르라.',
   // ---------- 머리띠·트랙·계절·율법 ----------
   'ui.ai.tablet': '석판',
+  'ui.ai.judge': '석판 + 판정기',
   'ui.ai.toggleTip': '눌러서 LLM / 석판 전환 (모델: {state})',
   'ui.ai.unavailableTip': 'Prompt API를 쓸 수 없어 석판(키워드)으로만 해석한다',
   'ui.tools.musicOn': '배경음악 켜짐',

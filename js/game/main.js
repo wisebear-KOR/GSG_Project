@@ -25,7 +25,7 @@ import { leaderLine, nouns, detectTone, parseNaming, parseProphecy, parseMiracle
 import {
   summarizeGame, epilogue, topRevelations, decisiveScene, diceLuck, evaluateAchievements, closestAchievement, ACHIEVEMENTS, difficultyName, doctrineName,
 } from './chronicle.js';
-import { llmStatus, prepareLLM, interpretWithLLM, interpretWithTablet, linkWords, extractLesson, describeLesson, voiceOf } from './interpreter.js';
+import { llmStatus, prepareLLM, interpretWithLLM, interpretWithJudge, linkWords, extractLesson, describeLesson, voiceOf } from './interpreter.js';
 import * as fx from './fx.js';
 import { t, lang, LOCALES, setLang } from './i18n.js';
 import { sfx, soundOn, setSound, musicOn, setMusic, music, unlockAudio, volume, setVolume } from './sound.js';
@@ -573,11 +573,11 @@ async function runInterpretation(text) {
       const timer = setTimeout(() => ctl.abort(), 30000);
       try { return { result: await interpretWithLLM(state, text, ctl.signal) }; } finally { clearTimeout(timer); }
     } catch (e) {
-      return { result: interpretWithTablet(state, text), notice: t('ui.notice.llmFailed', { err: e.name }) };
+      return { result: interpretWithJudge(state, text), notice: t('ui.notice.llmFailed', { err: e.name }) };
     }
   }
   await fx.wait(700);
-  return { result: interpretWithTablet(state, text) };
+  return { result: interpretWithJudge(state, text) };
 }
 
 async function interpret(text, job = runInterpretation(text), naming = pending?.naming ?? null) {
@@ -756,7 +756,8 @@ async function accept() {
   // 교리는 해결이 끝난 뒤에 오른다: 확인 화면에 보인 수치 그대로 해결되도록
   if (text) recordRevelation(state, text, result.doctrine, speakSnap?.spoken ?? spokenOf(state, text));
   // 신학 노트: LLM이 석판 규칙에 없는 말버릇을 행동으로 읽었으면 배운다
-  const lesson = text && result.source === 'llm' ? extractLesson(state, text, accepted) : null;
+  // 말버릇: LLM이 알아들은 말, 또는 석판이 못 알아들은 말을 판정기가 푼 것 — 석판이 다음부터 알아듣는다
+  const lesson = text && (result.source === 'llm' || result.judge?.rescued) ? extractLesson(state, text, accepted) : null;
   if (lesson) { state.lessons.push(lesson); if (state.lessons.length > 3) state.lessons.shift(); pendingLesson = lesson; }
   const last = state.history.at(-1);
   if (last) last.text = text;
@@ -2080,7 +2081,7 @@ function renderAltar() {
     const { text, result, accepted, rejected, auto } = pending;
     const fresh = pending.fresh;
     const source = result.source;
-    const src = { llm: 'LLM', tablet: t('ui.ai.tablet'), silence: t('ui.src.silence') }[result.source];
+    const src = { llm: 'LLM', tablet: t('ui.ai.tablet'), judge: t('ui.ai.judge'), silence: t('ui.src.silence') }[result.source];
     const doc = result.doctrine ? ` · ${DOCTRINE[result.doctrine].name}` : '';
     const short = (a) => esc(actionLabel(a));
     const links = pending.links ?? {};
@@ -2328,7 +2329,7 @@ function suggestions() {
   if (usInfo(state).lowFaith) out.push(byNeed.pray);
   out.push(byNeed.village, byNeed.explore, t('ui.suggest.preach'));
   return [...new Set(out.filter(Boolean))]
-    .filter((s) => !words.banned.some((w) => s.includes(w)) && interpretWithTablet(state, s).orders.length)
+    .filter((s) => !words.banned.some((w) => s.includes(w)) && interpretWithJudge(state, s).orders.length)
     .slice(0, 2)
     // 두 말을 이은 한 줄도 보인다 — 계시 한 줄에 여러 일을 시킬 수 있다
     .flatMap((s, i, all) => (i === 1 ? [s, `${all[0]}, ${s}`] : [s]));
@@ -2373,7 +2374,7 @@ function nextLawHTML() {
     doctrine = pending.result.doctrine; vow = swordBan(pending.result) || provokes(pending.dilemma);
   } else if (phase === 'speak' || phase === 'thinking') {
     const text = draft.trim();
-    const r = text ? interpretWithTablet(state, text) : null;
+    const r = text ? interpretWithJudge(state, text) : null;
     doctrine = r?.doctrine ?? null; vow = (!!r && swordBan(r)) || provokes(text ? dilemmaByText(state, text) : null);
   } else doctrine = state.revelations.find((r) => r.round === state.round)?.doctrine ?? null;
   const nx = nextLawInfo(state, { doctrine, vow });
@@ -2384,7 +2385,7 @@ function nextLawHTML() {
 
 function heardHTML(text) {
   if (!text?.trim()) return '';
-  const r = interpretWithTablet(state, text.trim());
+  const r = interpretWithJudge(state, text.trim());
   const links = linkWords(state, text, r.orders);
   // 금한 일·못 한 일도 함께 보인다 (금지만 있는 계시도 알아들은 것이다)
   const fk = r.forbidden.length ? [...new Set(r.forbidden.map(kindName))] : (r.banned ?? []).map((k) => t('ui.heard.kindWord', { k }));
@@ -2420,7 +2421,7 @@ function scheduleHints() {
     const line = $('heardLine');
     if (line) line.innerHTML = heardHTML(text);
     refreshNextLaw();
-    const next = text ? [...new Set(interpretWithTablet(state, text).orders.map((a) => a.tile))].slice(0, 6) : [];
+    const next = text ? [...new Set(interpretWithJudge(state, text).orders.map((a) => a.tile))].slice(0, 6) : [];
     if (next.join() === hintTiles.join()) return;
     if (next.some((t) => !hintTiles.includes(t))) sfx.hover();
     hintTiles = next;

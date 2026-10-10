@@ -40,7 +40,7 @@ def run(spec):
         Xtr, Xte = feat(tr, te)
         heads, dm = fit_heads(Xtr, Y[tr], D[tr], C)
         P, _ = predict(heads, dm, Xte)
-        cnt = {'석판': 0, '학습형': 0, 'H1': 0, 'H2': 0, 'H3': 0, 'H4': 0, 'H5': 0}
+        cnt = {'석판': 0, '학습형': 0, 'H1': 0, 'H2': 0, 'H3': 0, 'H4': 0, 'H5': 0, 'H6': 0, 'H7': 0}
         for k, i in enumerate(te):
             c = cases[i]; t = old[i]; do, dont = decode(P[k]); conf = float(P[k][:, 1].max())
             top = KINDS[int(P[k][:, 1].argmax())]
@@ -54,6 +54,11 @@ def run(spec):
             # H4: 명령은 학습형(석판이 금한 것은 뺀다), 금지는 둘의 합 · H5: 명령은 학습형(석판 금지 뺌), 금지는 석판만
             cnt['H4'] += passes(c, [k for k in do if k not in t['dont']], sorted(set(dont) | set(t['dont'])))
             cnt['H5'] += passes(c, [k for k in do if k not in t['dont']], t['dont'])
+            # H6: 석판 먼저 — 석판이 침묵하거나, 학습형이 아주 확신(≥ 0.8)하면서 석판과 겹치는 명령이 없을 때만 학습형
+            # H7: H6과 같되 문턱 0.6
+            for name, th in [('H6', 0.8), ('H7', 0.6)]:
+                use = silent or (conf >= th and not set(do) & set(t['do']))
+                cnt[name] += passes(c, *((do, dont) if use else (t['do'], t['dont'])))
         rows.append((bn, e - s, cnt))
     return rows
 

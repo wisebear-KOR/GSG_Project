@@ -14,8 +14,8 @@ let depth = 0, end = -1;
 for (let i = src.indexOf('[', start); i < src.length; i++) { if (src[i] === '[') depth++; else if (src[i] === ']') { depth--; if (!depth) { end = i + 1; break; } } }
 const CASES = (0, eval)(src.slice(src.indexOf('[', start), end));
 
-// tablet-cases와 같은 상태: 튜토리얼 3×3 1장
-const fresh = () => { const s = E.createState({ mode: 'tutorial' }); E.startRound(s); return s; };
+// tablet-cases.mjs와 같은 상태 (돌·목재·식량이 있어야 성벽·마을 명령이 가능하다)
+const fresh = () => { const s = E.createState({ mode: 'tutorial', seed: 1 }); E.startRound(s); Object.assign(s.sides.player, { wood: 6, stone: 6, food: 6 }); return s; };
 const base = fresh();
 const label = (r) => {
   const say = Object.fromEntries(KINDS.map((k) => [k, 'none']));
