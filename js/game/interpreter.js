@@ -558,7 +558,7 @@ export function interpretWithTablet(state, revelation) {
 //   (금지만 읽은 석판은 일부러 내린 부정이라 덮지 않는다)
 // 그때 칸은 석판이 말에서 짚은 칸을 쓴다 (석판이 그 일을 못 알아들었으면 석판의 기본 배치로 한 손).
 // 석판은 알던 말·칸·수·신의 일을 결정적으로 읽고, 판정기는 처음 보는 말투를 잘 푼다 (docs/redesign/AI-OPTIONS.md §3.2, H7)
-export const JUDGE_GATE = 0.6;
+export const JUDGE_GATE = 0.7;
 export const JUDGE_RESCUE = 0.4;
 export function interpretWithJudge(state, revelation) {
   const r = interpretWithTablet(state, revelation);

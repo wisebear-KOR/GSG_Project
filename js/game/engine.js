@@ -1307,7 +1307,9 @@ export function hydrateState(obj) {
   if ([state.event, state.lawCard, ...state.eventDeck, ...state.lawDeck].some((c) => c === undefined)) throw new Error(t('eng.unknownCard'));
   state.tileAt = Object.fromEntries(state.tiles.map((t) => [t.id, t]));
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
-  state.priest = 'loyal'; // 대사제 성향은 걷어냈다 — 옛 저장의 성향도 충직으로 state.names ??= {}; state.lessons ??= []; state.prophecy ??= null;
+  state.priest = 'loyal'; // 대사제 성향은 걷어냈다 — 옛 저장의 성향도 충직으로
+  // (34f4cbd에서 위 주석이 이 줄을 삼켰다 — 아주 옛 저장의 이름·말버릇·예언 기본값)
+  state.names ??= {}; state.lessons ??= []; state.prophecy ??= null;
   if (typeof state.lawGuard !== 'number') state.lawGuard = Math.max(state.lawGuard?.attack ?? 0, state.lawGuard?.preach ?? 0);
   state.rally ??= false; state.miracleUses ??= {};
   for (const sd of Object.values(state.sides)) sd.capitalHp = Math.min(sd.capitalHp, CAPITAL_HP);

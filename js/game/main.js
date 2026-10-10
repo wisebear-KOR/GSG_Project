@@ -762,7 +762,8 @@ async function accept() {
   if (text) recordRevelation(state, text, result.doctrine, speakSnap?.spoken ?? spokenOf(state, text));
   // 신학 노트: LLM이 석판 규칙에 없는 말버릇을 행동으로 읽었으면 배운다
   // 말버릇: LLM이 알아들은 말, 또는 석판이 못 알아들은 말을 판정기가 푼 것 — 석판이 다음부터 알아듣는다
-  const lesson = text && (result.source === 'llm' || result.judge?.rescued) ? extractLesson(state, text, accepted) : null;
+  // (판정기가 푼 말은 확신이 높을 때만 — 흔한 말이 엉뚱한 버릇이 되지 않게)
+  const lesson = text && (result.source === 'llm' || (result.judge?.rescued && result.judge.conf >= 0.7)) ? extractLesson(state, text, accepted) : null;
   if (lesson) { state.lessons.push(lesson); if (state.lessons.length > 3) state.lessons.shift(); pendingLesson = lesson; }
   const last = state.history.at(-1);
   if (last) last.text = text;

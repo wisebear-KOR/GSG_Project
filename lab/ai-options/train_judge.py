@@ -3,7 +3,7 @@
 #   python lab/ai-options/train_judge.py
 # 정답: 석판 시험 문장 1372(석판 출력) + 합성 금지 문장 400. 머리: 일 12가지마다 하라/하지 마라/말 없음 + 교리 4.
 # 내보내는 꼴: 어휘(글자 1~3 조각, 두 문장 이상에 나온 것), idf(float32), 머리마다 int8 가중치와 배율·절편.
-# 같이 내보내는 judge-parity.json으로 JS 추론이 파이썬과 같은지 tools/tests/judge.mjs가 본다.
+# 같이 내보내는 judge-parity.json으로 JS 추론이 파이썬과 같은지 lab/ai-options/parity.mjs가 본다 (이식판도 이 파일로 대조한다).
 import json, os, base64, sys
 import numpy as np
 from sklearn.linear_model import LogisticRegression
