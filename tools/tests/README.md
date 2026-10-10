@@ -28,6 +28,12 @@
 | `node --no-warnings lab/prompt-snap.mjs > a.jsonl` | 40판의 장마다 `buildPrompt`의 글·스키마·행동 목록을 한 줄씩. 고치기 전과 뒤의 파일이 같아야 한다(`2026-10-07` 도메인 영역 작업 전후 md5 `ddbd845e…`, 382줄). 다른 사본은 루트를 `file:///` URL로 넘긴다 |
 | `lab/ui-snap.js` (브라우저 콘솔) | 다섯 장면(`SCENARIOS`)을 저장해 불러온 뒤 말하기·쓰기·확인·결산의 패널 HTML과 칸 툴팁을 떠서 `base`와 `new`를 견준다. 그린 뒤에 던진 오류도 보고한다. 사관의 과제 진행(`gsg.onboard`)이 장면마다 바뀌어 다시 그리는 횟수가 달라질 수 있으니, base를 뜬 순서대로 돌리고 첫 장면 전에 같은 값으로 맞춘다 |
 
+## 판정기 시험
+
+| 명령 | 하는 일 |
+|---|---|
+| `node tools/tests/judge.mjs [--all]` | 게임의 기본 해석기 `interpretWithJudge`(석판 + 글자 n-gram 판정기 `js/game/ai/judge.js`, [docs/redesign/AI-OPTIONS.md](../../docs/redesign/AI-OPTIONS.md)): 석판 시험 문장을 `tablet-cases.mjs`와 같은 상태·판정으로 돌려 판정기가 끼어도 알던 말을 잃지 않는지(1372/1372), 은유 세트(`lab/scenario.js` 채점 20)에서 석판보다 못하지 않은지, 같은 글이 늘 같은 판정인지. 어기면 종료 코드 1. 판정기 가중치는 `lab/ai-options/train_judge.py`가 만들고, 평가 전용 은유 116문장은 `lab/ai-options/eval_words.mjs`로 잰다 |
+
 ## 석판 해석기 회귀 시험
 
 | 명령 | 하는 일 |

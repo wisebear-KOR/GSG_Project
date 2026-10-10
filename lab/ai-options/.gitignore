@@ -4,3 +4,5 @@
 *.npz
 *.log
 old/
+!words-train.json
+!words-eval.json

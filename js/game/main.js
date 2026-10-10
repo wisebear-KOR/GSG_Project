@@ -1183,7 +1183,7 @@ function showRules() {
       t('ui.rules.faith3'),
     ])}
     ${sec(t('ui.rules.doctrine'), [t('ui.rules.doctrine1'), t('ui.rules.doctrine2')])}
-    ${sec(t('ui.rules.words'), [t('ui.rules.words1'), t('ui.rules.words2'), t('ui.rules.words4'), t('ui.rules.words6'), t('ui.rules.words7')])}
+    ${sec(t('ui.rules.words'), [t('ui.rules.words1'), t('ui.rules.words2'), t('ui.rules.words4'), t('ui.rules.words6'), t('ui.rules.words7'), t('ui.rules.words8')])}
     ${sec(t('ui.rules.enemy'), [t('ui.rules.enemy1'), t('ui.rules.enemy2'), t('ui.rules.enemy4')])}
     ${sec(t('ui.rules.miracle'), [t('ui.rules.miracle1'), t('ui.rules.miracle2')])}
     ${sec(t('ui.rules.keys'), [t('ui.rules.keys1')])}

@@ -18,7 +18,10 @@ C = 10.0
 
 rows = json.load(open(os.path.join(here, 'cases.json'), encoding='utf-8'))
 syn = json.load(open(os.path.join(here, 'synth.json'), encoding='utf-8'))
-data = [(r['text'], r['say'], r['doctrine']) for r in rows] + [(r['text'], r['say'], r['doctrine']) for r in syn]
+# 은유·간접 명령 문장 (Claude가 정답을 붙였다). 평가 전용 words-eval.json은 쓰지 않는다
+words = json.load(open(os.path.join(here, 'words-train.json'), encoding='utf-8'))['rows']
+said = lambda do, dont: {k: 'do' if k in do else 'dont' if k in dont else 'none' for k in KINDS}
+data = [(r['text'], r['say'], r['doctrine']) for r in rows] + [(r['text'], r['say'], r['doctrine']) for r in syn] + [(w[0], said(w[1], w[2]), w[3]) for w in words]
 texts = [d[0] for d in data]
 Y = np.array([[CLS[d[1][k]] for k in KINDS] for d in data])
 D = np.array([DOCS.index(d[2]) if d[2] in DOCS else -1 for d in data])
@@ -56,7 +59,7 @@ out = {
     'idf': base64.b64encode(vec.idf_.astype(np.float32).tobytes()).decode(),
     'heads': heads, 'doctrine': doctrine,
 }
-js = '// 판정기 가중치 — lab/ai-options/train_judge.py가 만든다 (손으로 고치지 않는다). 석판 시험 문장 1372 + 합성 금지 400으로 배웠다\n'
+js = f'// 판정기 가중치 — lab/ai-options/train_judge.py가 만든다 (손으로 고치지 않는다). 석판 시험 문장 {len(rows)} + 합성 금지 {len(syn)} + 은유 {len(words)}로 배웠다\n'
 js += 'export default ' + json.dumps(out, ensure_ascii=False, separators=(',', ':')) + ';\n'
 dest = os.path.join(root, 'js', 'game', 'ai', 'judge-weights.js')
 os.makedirs(os.path.dirname(dest), exist_ok=True)
