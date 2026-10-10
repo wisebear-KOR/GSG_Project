@@ -3,6 +3,14 @@
 > `js/game/data.js`가 내보내는 표 52개(`0c95856`에서 쓰이지 않던 `revelationCost`를 지워 54 → 53, `b1ff73e`에서 심판의 날 `DOOM`을 지워 52)의 뜻·스키마·행 수·쓰는 곳. **실제 값은 [`docs/export/data.json`](../export/data.json)** 에 있다 (`node tools/export-data.mjs`로 만든다 — [export README](../export/README.md)).
 > 표의 수치를 **어떻게 쓰는지**(판정 공식)는 [02 규칙](02-rules.md), 상태 객체와 결정론은 [04 구조](04-architecture.md)에 있다. 코드와 이 문서가 다르면 코드가 기준이다.
 
+
+> **규칙 28 (2026-10-10, 재설계 가지 `redesign/placement-score`) — 아래 표보다 앞선다**: 땅의 활성도와 땅의 운.
+> 칸마다 `activity`(`rich`/`normal`/`poor`, 거둘 때 +1/0/−1)·`rest`·`workedAt`. 거둔 칸(`state.worked`)은 장 끝 `restLand`에서 한 단계 지치고, 쉰 빈곤 칸은 `REST_ROUNDS`(쉬움·보통 1, 어려움 2) 뒤 정상. 튜토리얼은 바뀌지 않는다(`landOn`).
+> 땅의 운: `FORTUNES`·`FORTUNE_DECK`(여덟 장 한 바퀴), 난수 줄기 `rng.land`, `state.fortune = { now, next }` — 장 시작 `turnFortune`이 예고된 카드를 적용하고 다음 카드를 뽑는다. 칸은 그 자원을 내는 점대칭 쌍(`mirrorOf`, 수도 제외, 이미 그 상태인 쌍은 피함).
+> 가뭄·풍년은 사건 덱에서 빠졌다(옛 저장의 그 사건은 평온으로 읽는다). `gatherAmount` = 지형 + 활성도 + 풍요 교리(식량 +1). 단비는 식량 +3과 우리가 닿는 빈곤한 식량 칸을 정상으로(`rainActive`는 쓰지 않는다). 청원의 가뭄 조건은 땅의 운 가뭄.
+> 기본 배치(석판 `rankMatches`·우리 남는 손 `autoFill`)는 `defaultAmount` — 활성도를 빼고 지형만 (쉬움·튜토리얼은 활성도까지). 율법파의 채집은 닿는 땅 가운데 가장 기름진 곳부터. 석판의 새 장소 말: 기름진·쉬던·지친 (`kw.place.fertile/rested/tired`, [05](05-interpreter.md)).
+> 규칙서: [RULEBOOK §4 땅의 상태](../RULEBOOK.md), 설계: [redesign §5.1·5.2](../redesign/README.md). 이 본문의 §7.1 가뭄·풍년 행, `gatherAmount` 의사코드, 기적 표의 단비, 청원 표 1행은 규칙 27까지의 것이다.
+
 ## 읽는 법
 
 - **글 칸**(`name`, `text`, `rule`, `desc`, `label`, `trait`, `prompt`, `intro`, `lines` …)은 언어팩 키를 `t()`로 풀어 넣은 한국어다. 원래 키는 `data.js` 소스에 그대로 보인다. 모양은 거의 `data.<표>.<id>.<칸>` — 예: `TERRAIN.plain.name` ← `data.terrain.plain.name`, `EVENTS[drought].rule` ← `data.event.drought.rule`, `ENEMY_LEADERS.iron.lines.card.L5` ← `data.leader.iron.line.card.L5`. 다국어 Godot판은 키를 들고 있다가 그릴 때 번역하는 편이 낫다.

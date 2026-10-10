@@ -72,6 +72,12 @@ export interface Tile {
   site?: { id: string; found: boolean };
   /** 선교로 쌓인 믿음의 표식 — FLIP_MARKS(4)면 마을이 넘어온다 */
   faithMarks?: { side: Side; n: number; round: number } | null;
+  /** 땅의 활성도 (규칙 28) */
+  activity?: Activity;
+  /** 빈곤한 채 쉰 장 수 */
+  rest?: number;
+  /** 마지막으로 거둔 장 (없으면 0) */
+  workedAt?: number;
 }
 
 /** 한 진영. 자원은 엔진에서 낱칸으로 섞여 있다 (정보 객체에서는 Resources로 묶는다) */
@@ -287,6 +293,10 @@ export interface GameState {
   miracleUses: Record<string, number>;
   miracleUsed: boolean;
   rainActive: boolean;
+  /** 땅의 운 덱 (뒤에서 뽑는다), 이번 장·다음 장 카드와 바꾸는 칸, 이번 장에 거둔 칸 (규칙 28) */
+  fortuneDeck: string[];
+  fortune: { now: { id: string; tiles: string[] } | null; next: { id: string; tiles: string[] } | null };
+  worked: string[];
   roundMods: Record<string, number | boolean>;
 
   // 판 밖의 목표·이야기
@@ -411,12 +421,14 @@ export interface EventInfo {
   fortune: { now: FortuneInfo | null; next: FortuneInfo | null };
 }
 
-/** 땅의 운 카드 하나: 점대칭인 두 칸의 활성도를 바꾼다 */
+/** 땅의 운 카드 하나: 그 자원을 내는 땅 가운데 점대칭인 두 칸의 활성도를 바꾼다 (고요는 바꾸지 않는다) */
 export interface FortuneInfo {
   id: string;
   name: string;
+  text: string;
+  res: ResourceKey | null;
+  to: Activity | null;
   tiles: string[];
-  to: Activity;
 }
 
 export interface BoardInfo {
@@ -455,6 +467,8 @@ export interface SeenTileInfo {
   /** 전설 (별칭, 이야기용) */
   legend: Legend | null;
   activity: Activity;
+  /** 빈곤 땅이 쉬면 정상으로 돌아오기까지 남은 장 수 (빈곤이 아니면 null) */
+  recover: number | null;
   /** 기본 수확: 지형·특징이 주는 자원과 양 (사건·교리 보정 전, 수도도 지형대로) */
   yield: { resource: ResourceKey | null; amount: number };
   /** 절대 가치: 이 칸을 거두면 지금 나오는 자원 — 누가 쥐었든 칸의 값 (활성도·사건·우리 교리 특전 반영, 수도는 0) */

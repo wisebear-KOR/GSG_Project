@@ -5,7 +5,7 @@
 import { hasLanguageModel, createBaseSession, promptJSON } from '../llm.js';
 import { DOCTRINES, DOCTRINE, PRIESTS, TERRAIN, DOCTRINE_VOICE } from './data.js';
 import { nouns } from './lore.js';
-import { legalActions, tileName, villageCount, gatherAmount, cathedralVillages, setPlanSig, capitalOf, distance, actionOdds } from './engine.js';
+import { legalActions, tileName, villageCount, defaultAmount, cathedralVillages, setPlanSig, capitalOf, distance, actionOdds } from './engine.js';
 import { Res, gameInfo, sideInfo, intentsInfo, turnInfo } from './domain/index.js';
 import { t } from './i18n.js';
 
@@ -199,7 +199,7 @@ const toNeg = (m, verb) => (FEAR.test(verb) ? `${verb} ` : t('kw.dontAndNeg', { 
 // 앞의 것을 금지 절로 떼어 낸다: "숲을 베지 말고 돌을 캐라" → "숲을 베지 마라, 돌을 캐라", "공격 말고 선교",
 // "나무는 그만 베고 돌을 캐라", "기도는 됐고 일이나 해". "두려워하지 말고 쳐라"는 금지가 아니다 → "두려워하 쳐라"
 const splitDont = (text) => text.replace(ID_LIST, '$1 ').replace(LEAVE_AND, toNeg).replace(NEITHER, toNeg).replace(ONLY_THIS, (m, a) => `${a} `).replace(ASIDE, ' ').replace(RATHER, ' ').replace(PLENTY_AND, toNeg).replace(DONT_AND, toNeg).replace(STOP_AND, toNeg).replace(ENOUGH_AND, toNeg).replace(NOT_BUT, (m, a, b) => (NOT_BUT_PLACE.test(a ?? b) ? ' ' : IS_ID.test(a ?? b) ? m : toNeg(m, a ?? b))).replace(INSTEAD, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a))).replace(NOUN_AND, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a)));
-// 같은 채집이면 더 많이 나오는 칸부터, 무엇을 거둘지 말하지 않았으면 가장 모자란 자원부터
+// 같은 채집이면 지형이 더 내는 칸부터(활성도는 보지 않는다 — 쉬움만 본다. 기름진 곳은 말로 짚는다), 무엇을 거둘지 말하지 않았으면 가장 모자란 자원부터
 const WEAKEST = kw('kw.place.weakest');
 const FOEWARD = kw('kw.place.foeward');
 const UNWALLED = kw('kw.place.unwalled');
@@ -223,7 +223,7 @@ function rankMatches(state, rule, matches, clause = '') {
   if (matches[0].type !== 'gather') return matches;
   const p = Res.of(state.sides.player);
   const need = (a) => (rule.fallback ? p[a.gather] ?? 0 : 0);
-  return matches.map((a, i) => ({ a, i, n: need(a), g: gatherAmount(state, 'player', state.tileAt[a.tile]) }))
+  return matches.map((a, i) => ({ a, i, n: need(a), g: defaultAmount(state, 'player', state.tileAt[a.tile]) }))
     .sort((x, y) => x.n - y.n || y.g - x.g || x.i - y.i).map((x) => x.a);
 }
 // "두려워하지 말고 쳐라"는 금지가 아니다 (두려워는 부정어가 아니다)
@@ -241,6 +241,7 @@ const PLACE = {
   capital: kw('kw.place.capital'), holy: kw('kw.place.holy'), aim: kw('kw.place.aim'), near: kw('kw.place.near'),
   foe: kw('kw.place.foe'), ours: kw('kw.place.ours'), id: kw('kw.place.id'), village: kw('kw.place.village'),
   nearTerrain: kw('kw.place.nearTerrain'), home: kw('kw.place.home'), dir: kw('kw.place.dirWord'), closest: kw('kw.place.closest'), farthest: kw('kw.place.farthest'),
+  fertile: kw('kw.place.fertile'), rested: kw('kw.place.rested'), tired: kw('kw.place.tired'), landWords: kw('kw.place.landWords', 'g'),
   foeVillage: kw('kw.place.foeVillage'), oasis: kw('kw.place.oasis'), gatherAt: kw('kw.place.gatherAt'), aimBuild: kw('kw.place.aimBuild'), aimWall: kw('kw.place.aimWall'), quarry: kw('kw.place.quarry'), oasisAt: kw('kw.place.oasisAt'), claim: kw('kw.tablet.claim'), avoidId: kw('kw.place.avoidId', 'g'), ids: kw('kw.place.id', 'g'),
 };
 const HOSTILE = [kw('kw.tablet.attack'), kw('kw.tablet.preach')];
@@ -249,7 +250,10 @@ const VILLAGE_EXCEPT = kw('kw.tablet.villageExcept');
 function placeOf(state, clause) {
   const anchors = new Set();
   const terrains = new Set();
-  let text = clause;
+  // 땅의 상태 말 (규칙 28): "기름진 곳", "쉬던 땅", "지친 땅" — 칸을 고르는 데만 쓰고 규칙을 읽는 글에서는 지운다 ("쉬던"은 쉬라는 말이 아니다)
+  const land = { fertile: PLACE.fertile.test(clause), rested: PLACE.rested.test(clause), tired: PLACE.tired.test(clause) };
+  const bare = clause.replace(PLACE.landWords, ' ');
+  let text = bare;
   // "산 옆에": 그 지형 칸들을 가리키고 그 이웃을 고른다 (산을 캐라는 말로 읽지 않는다)
   const nt = clause.match(PLACE.nearTerrain);
   if (nt) {
@@ -338,7 +342,7 @@ function placeOf(state, clause) {
   if (farthest) { for (const id of spec) anchors.delete(id); named.length = 0; exact.clear(); aimBonus.clear(); }
   const closeRef = PLACE.closest.test(clause) && refs.length ? refs : null;
   if (closeRef && spec.size) named.length = 0; // 기준으로 짚은 곳은 닿지 않아도 알리지 않는다
-  return { anchors, exact, avoid, named, terrains, near, text, dir, home, aimBonus, aimPool, farthest, closeRef, closest: PLACE.closest.test(clause) };
+  return { anchors, exact, avoid, named, terrains, near, text, dir, home, aimBonus, aimPool, farthest, closeRef, closest: PLACE.closest.test(clause), bare, ...land };
 }
 // 땅에 나가는 일 (수도·건물 안의 일 — 기도·신전·대성당·성벽 — 이 아닌 것)
 const field = (a) => !(a.type === 'pray' || (a.type === 'build' && a.build !== 'village'));
@@ -360,7 +364,7 @@ function aligned(tl, home, [dr, dc]) {
 }
 // 가리킨 곳에 맞을수록 앞 (같으면 원래 순서): 가리킨 칸 4 ("옆에"면 그 이웃이 4), 가리킨 칸의 이웃 2, 지형이 맞으면 +1
 function byPlace(state, place, matches) {
-  if (!place.anchors.size && !place.terrains.size && !place.dir && !place.closest && !place.farthest && !place.avoid?.size) return matches;
+  if (!place.anchors.size && !place.terrains.size && !place.dir && !place.closest && !place.farthest && !place.avoid?.size && !place.fertile && !place.rested && !place.tired) return matches;
   const score = (a) => {
     const tl = state.tileAt[a.tile];
     let s = 0;
@@ -375,6 +379,11 @@ function byPlace(state, place, matches) {
     // "가까운": 우리 수도에서 가까울수록 조금 앞 (같은 점수끼리의 순서)
     if (place.closeRef) s += (20 - Math.min(...place.closeRef.map((r) => distance(tl, r)))) / 10;
     if (place.farthest) s += Math.min(...place.farthest.map((f) => distance(tl, f))) / 2;
+    // 땅의 상태: 기름진 곳은 풍요 > 정상 > 빈곤, 쉬던 땅은 지난 장에 거두지 않은 지치지 않은 땅, 지친 땅은 피한다
+    const act = tl.activity ?? 'normal';
+    if (place.fertile) s += act === 'rich' ? 3 : act === 'normal' ? 1 : 0;
+    if (place.rested && act !== 'poor' && !(tl.workedAt && tl.workedAt === state.round - 1)) s += 2;
+    if (place.tired && act === 'poor') s -= 3;
     return s + (place.terrains.has(tl.terrain) ? 1 : 0);
   };
   return matches.map((a, i) => ({ a, i, s: score(a) })).sort((x, y) => y.s - x.s || x.i - y.i).map((x) => x.a);
@@ -438,7 +447,8 @@ export function interpretWithTablet(state, revelation) {
     const BUILDS = ['village', 'wall', 'temple'];
     const many = Math.max(COUNT.find(([re]) => re.test(clause))?.[1] ?? (MANY.test(clause) ? 2 : dflt), Math.min(3, place.exact.size));
     let hits = hitsOf(place.text);
-    if (!hits.length && place.text !== clause) hits = hitsOf(clause);
+    // 장소 말을 지운 글에 할 일이 없으면 지우기 전의 글로 (땅의 상태 말은 그때도 지운다 — "쉬던"·"쉬게 하라"는 기도가 아니다)
+    if (!hits.length && place.text !== place.bare) hits = hitsOf(place.bare);
     // 할 일 말 없는 금지가 곳을 가리키면 그곳에서 하는 일을 금한다 ("수도는 건드리지 마라")
     // "율법파를 건드리지 마": 곳 없이 율법파만 말했으면 율법파 땅 모두 ("율법파 마을은 말고"처럼 곳을 말했으면 그곳만)
     if (negative && !hits.length && !place.anchors.size && PLACE.foe.test(clause) && !FEAR.test(clause) && !PLACE.village.test(clause) && !PLACE.capital.test(clause)) {

@@ -20,6 +20,7 @@ export const SEEN = {
   'board.tiles.site': 'player',
   'board.tiles.legend': 'player',
   'board.tiles.activity': 'player',
+  'board.tiles.recover': 'player',
   'board.tiles.yield': 'player',
   'board.tiles.value': 'player',
   'board.tiles.marks': 'player', // △ 믿음의 표식

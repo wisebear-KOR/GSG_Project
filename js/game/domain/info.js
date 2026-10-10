@@ -6,10 +6,10 @@
 
 import {
   legalActions, actionLimit, popCap, villageCount, faithIncome, score, scoreBreakdown, enemyIntent, marchRange,
-  edictMax, buildCost, gatherAmount, yieldOf, miracleCost, nextEvent, actOf, actStart, monthOf, previewGains, revelationCostFor,
+  edictMax, buildCost, gatherAmount, yieldOf, miracleCost, nextEvent, actOf, actStart, monthOf, previewGains, revelationCostFor, fortuneCard,
   actionOdds, crusadeSurvival, wouldRead, isEcho, prayValue, graceOn, unlocked, nextLawCard,
 } from '../engine.js';
-import { RULES, MAX_TEMPLE, MIRACLES, ENEMY_LEADERS, JUDGEMENTS, EVENTS, DILEMMAS, REVELATION_MAX } from '../data.js';
+import { RULES, MAX_TEMPLE, MIRACLES, ENEMY_LEADERS, JUDGEMENTS, EVENTS, DILEMMAS, REVELATION_MAX, REST_ROUNDS } from '../data.js';
 import { Res } from './resources.js';
 import { KINDS, kindOf, fromKey, isHomeAct } from './kinds.js';
 
@@ -73,9 +73,15 @@ export function eventInfo(state) {
     picked: ev?.choice ? state.dilemmaPick ?? ev.choice[0].id : null,
     options: state.eventChoice ? state.eventChoice.map((id) => ({ id, name: byId(id).name, rule: byId(id).rule ?? '' })) : null,
     quote: ev?.id === 'mira' ? state.miraQuote ?? null : null,
-    // 땅의 운 (재설계 §5.2) — 엔진에 아직 없다
-    fortune: { now: null, next: null },
+    // 땅의 운 (규칙 28): 이번 장 카드와 한 장 앞서 보이는 다음 장 카드, 그리고 바꾸는 칸
+    fortune: { now: fortuneInfo(state.fortune?.now), next: fortuneInfo(state.fortune?.next) },
   };
+}
+
+/** @param {{ id: string, tiles: string[] } | null | undefined} f @returns {import('./types').FortuneInfo | null} */
+function fortuneInfo(f) {
+  const c = f ? fortuneCard(f.id) : null;
+  return c && f ? { id: c.id, name: c.name, text: c.text, res: /** @type {import('./types').ResourceKey | null} */ (c.res), to: /** @type {import('./types').Activity | null} */ (c.to), tiles: [...f.tiles] } : null;
 }
 
 // ---------- 판 ----------
@@ -97,8 +103,9 @@ export function tileInfo(state, t) {
     cathedral: t.building === 'capital' && t.owner === 'player' && !!state.sides?.player?.cathedral,
     name: state.names?.[t.id] ?? null,
     legend: lg ? { name: lg.name, quote: lg.quote, round: lg.round } : null,
-    // 활성도 (재설계 §5.1) — 엔진에 아직 없어 모두 정상
-    activity: 'normal',
+    // 활성도 (규칙 28): 풍요 +1 · 정상 · 빈곤 −1. recover: 빈곤 땅이 아무도 거두지 않으면 정상으로 돌아오기까지 남은 장 수
+    activity: t.activity ?? 'normal',
+    recover: (t.activity ?? 'normal') === 'poor' && !state.tutorial ? Math.max(1, (REST_ROUNDS[/** @type {keyof typeof REST_ROUNDS} */ (state.config.difficulty)] ?? 1) - (t.rest ?? 0)) : null,
     yield: { resource: y.gather ?? null, amount: y.amount ?? 0 },
     // 절대 가치: 누가 쥐었든 칸의 값. 수도는 거둘 수 없어 0
     value: t.building === 'capital' || !y.gather ? Res.zero() : Res.of({ [y.gather]: gatherAmount(state, 'player', t) }),

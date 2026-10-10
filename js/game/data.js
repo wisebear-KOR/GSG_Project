@@ -107,12 +107,29 @@ export const DOCTRINE_MAX = 6;
 // 사건 카드: LLM에 '최근 사건'으로 전달되고 규칙에도 영향을 준다
 export const EVENTS = [
   { id: 'calm',    name: t('data.event.calm.name'), text: t('data.event.calm.text'), rule: t('data.event.calm.rule') },
-  { id: 'drought', name: t('data.event.drought.name'), text: t('data.event.drought.text'), rule: t('data.event.drought.rule') },
-  { id: 'harvest', name: t('data.event.harvest.name'), text: t('data.event.harvest.text'), rule: t('data.event.harvest.rule') },
   { id: 'plague',  name: t('data.event.plague.name'), text: t('data.event.plague.text'), rule: t('data.event.plague.rule') },
   { id: 'threat',  name: t('data.event.threat.name'), text: t('data.event.threat.text'), rule: t('data.event.threat.rule') },
   { id: 'prophet', name: t('data.event.prophet.name'), text: t('data.event.prophet.text'), rule: t('data.event.prophet.rule') },
 ];
+
+// 땅의 활성도 (규칙 28): 풍요는 거둘 때 +1, 빈곤은 −1 (0 아래로는 내려가지 않는다).
+// 거둔 땅은 장이 끝날 때 한 단계 지치고(풍요 → 정상 → 빈곤), 아무도 거두지 않고 쉰 빈곤 땅은 정상으로 돌아온다. 풍요는 하늘(땅의 운)만 준다
+export const ACTIVITY = { rich: 1, normal: 0, poor: -1 };
+export const ACTIVITY_DOWN = { rich: 'normal', normal: 'poor', poor: 'poor' };
+// 빈곤에서 정상으로 돌아오는 데 쉬어야 하는 장 수
+export const REST_ROUNDS = { easy: 1, normal: 1, hard: 2 };
+// 땅의 운 (규칙 28): 사건 덱과 따로, 장마다 한 장이 열리고 다음 장 카드가 한 장 앞서 보인다.
+// 그 자원을 내는 땅 가운데 점대칭인 두 칸(양쪽에 공평한 자리)을 풍요나 빈곤으로 바꾼다. 고요는 아무것도 바꾸지 않는다
+export const FORTUNES = [
+  { id: 'harvest', res: 'food',  to: 'rich', name: t('data.fortune.harvest.name'), text: t('data.fortune.harvest.text') },
+  { id: 'grove',   res: 'wood',  to: 'rich', name: t('data.fortune.grove.name'), text: t('data.fortune.grove.text') },
+  { id: 'vein',    res: 'stone', to: 'rich', name: t('data.fortune.vein.name'), text: t('data.fortune.vein.text') },
+  { id: 'dew',     res: 'faith', to: 'rich', name: t('data.fortune.dew.name'), text: t('data.fortune.dew.text') },
+  { id: 'drought', res: 'food',  to: 'poor', name: t('data.fortune.drought.name'), text: t('data.fortune.drought.text') },
+  { id: 'still',   res: null,    to: null,   name: t('data.fortune.still.name'), text: t('data.fortune.still.text') },
+];
+// 한 바퀴(여덟 장)의 구성: 풍년 둘, 숲·산·언덕 하나씩, 가뭄 둘, 고요 하나
+export const FORTUNE_DECK = ['harvest', 'harvest', 'grove', 'vein', 'dew', 'drought', 'drought', 'still'];
 
 // 기적: 계시 전에 장마다 하나 쓸 수 있다. 첫 판은 앞의 셋, 그 뒤로는 판마다 셋을 받고 5장에 하나를 더 고른다
 export const MIRACLES = [
@@ -236,7 +253,7 @@ export const BLESSINGS = {
 export const AWE_TITLES = t('data.aweTitles');
 
 // 규칙 판: 규칙이 바뀌면 올린다 (같은 시드의 기록끼리만 비교한다)
-export const RULESET = 27;
+export const RULESET = 28;
 
 // 시련: 고정된 맵과 한 가지 비틀린 규칙. 별 셋 (승리 / 10점 차 / 20점 차 또는 일찍 끝냄)
 export const TRIALS = {
@@ -385,6 +402,6 @@ export const TUTORIAL = {
     enemy:  { food: 3, wood: 1, stone: 0, faith: 2, pop: 3 },
   },
   enemyBonus: 0,
-  events: ['calm', 'calm', 'harvest', 'calm', 'prophet'],
+  events: ['calm', 'calm', 'calm', 'calm', 'prophet'],
   lawCards: ['L2', 'L1', 'L6', 'L2', 'L8'],
 };

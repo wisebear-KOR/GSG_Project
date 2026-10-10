@@ -89,7 +89,7 @@ const lastEdges = new WeakMap();
 const INTENT_ICON = { attack: 'd-war', preach: 'd-peace', build: 'i-house', gather: 'i-food', pray: 'i-temple' };
 
 // board: 도메인의 판 정보 (domain/info.js boardInfo) — 칸마다 자리·지형·주인·건물·성벽·이름·전설·표식, 안개 속은 자리와 "?"만
-export function renderBoard(svg, board, { markers = [], highlight = [], hints = [], intents = [], onTileClick, selectable = [], focus = null } = {}) {
+export function renderBoard(svg, board, { markers = [], highlight = [], hints = [], intents = [], onTileClick, selectable = [], focus = null, fortune = null } = {}) {
   const { width, height } = sizeOf(board.rows ?? 5, board.cols ?? 5);
   const tileAt = new Map(board.tiles.map((t) => [t.id, t]));
   svg.setAttribute('viewBox', `0 0 ${width.toFixed(0)} ${height.toFixed(0)}`);
@@ -131,6 +131,15 @@ export function renderBoard(svg, board, { markers = [], highlight = [], hints = 
     if (t.name && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name' }, t.name));
     else if (t.legend && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name legend' }, t.legend.name));
     else if (t.feature && !hidden && !t.building) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name feat' }, t.feature === 'oasis' ? tr('shell.feature.oasis') : tr('shell.feature.quarry')));
+    // 땅의 활성도 (규칙 28): 풍요 +1 · 빈곤 −1 배지 (칸 안쪽 왼쪽 아래 — 율법파의 뜻 배지와 겹치지 않게). 정상은 표시하지 않는다
+    if (!hidden && t.yield?.resource && t.building !== 'capital' && t.activity && t.activity !== 'normal') {
+      const b = el('g', { class: `act-badge act-${t.activity}` });
+      b.append(el('circle', { cx: c.x - R * 0.46, cy: c.y + R * 0.36, r: 10 }));
+      b.append(el('text', { x: c.x - R * 0.46, y: c.y + R * 0.36 + 0.5 }, t.activity === 'rich' ? '+1' : '−1'));
+      g.append(b);
+    }
+    // 다음 장 땅의 운이 바꿀 칸: 점선 테두리 (풍요는 금빛, 빈곤은 잿빛)
+    if (fortune?.tiles?.includes(t.id) && fortune.to) g.append(el('polygon', { points: hexPoints(c, R - 6), class: `fortune-next fn-${fortune.to}` }));
     if (t.marks && !hidden) {
       // 믿음의 표식: 표식 하나마다 테두리의 1/4만큼 상대 색으로 물든다 (넷이면 넘어간다)
       g.append(el('polygon', { points: hexPoints(c, R - 5), class: `faith-mark fm-${t.marks.side}`, pathLength: 12, 'stroke-dasharray': `${3 * t.marks.n} 12` }));

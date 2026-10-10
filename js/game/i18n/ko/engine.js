@@ -144,7 +144,7 @@ export default {
   // 기적
   'log.lightningWall': '⚡ 번개가 {place}의 성벽을 무너뜨렸다.',
   'log.lightningHit': '⚡ 번개가 {place}에 떨어져 율법파 1명이 쓰러졌다.',
-  'log.rain': '🌧️ 단비가 내렸다. 식량 +3.',
+  'log.rain': (v) => `🌧️ 단비가 내렸다. 식량 +3.${v.n ? ` 마른 땅 ${v.n}곳이 되살아났다.` : ''}`,
   'log.bounty': '🎁 풍요의 기적. 목재 +2, 돌 +2.',
   'log.manna': '만나가 내렸다. 식량 +4.',
   'log.ark': '방주의 기적 — 이번 장에는 아무도 잃지 않으리라.',

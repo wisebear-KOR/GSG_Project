@@ -422,15 +422,19 @@ function tileTipHTML(cur, id) {
   if (!tile.revealed) return `<b>${t('ui.tip.fogTitle', { id: tile.id })}</b><span>${t('ui.tip.fogBody')}</span>`;
   const owner = tile.owner === 'player' ? t('ui.tip.ownPlayer') : tile.owner === 'enemy' ? t('ui.tip.ownEnemy') : t('ui.tip.ownNone');
   const bld = tile.building === 'capital' ? (tile.owner === 'player' ? t('ui.tip.temple') : t('ui.tip.tower')) : tile.building === 'village' ? t('ui.tip.village') : '';
+  // 채집 줄은 지금 거두면 나오는 양(절대 가치 — 활성도·교리 반영), 활성도 줄이 그 까닭을 적는다
   const y = tile.yield;
-  const gather = tile.building === 'capital' ? '' : y.resource ? t('ui.tip.gather', { feature: tile.feature ? FEATURES[tile.feature].name : null, res: RESOURCE_NAME[y.resource], n: y.amount }) : t('ui.tip.barren');
+  const gather = tile.building === 'capital' ? '' : y.resource ? t('ui.tip.gather', { feature: tile.feature ? FEATURES[tile.feature].name : null, res: RESOURCE_NAME[y.resource], n: tile.value[y.resource] ?? y.amount }) : t('ui.tip.barren');
   const legend = tile.legend ? t('ui.tip.legend', { name: tile.legend.name, quote: tile.legend.quote, round: tile.legend.round }) : '';
   const holy = tile.holy ? t('ui.tip.holy', { edict: setupInfo(state).edict }) : '';
   const marks = tile.marks ? t('ui.tip.marks', { n: tile.marks.n, of: FLIP_MARKS, side: tile.marks.side }) : '';
   const intent = ['speak', 'thinking', 'confirm'].includes(phase) ? intentsInfo(state).shown.find((i) => i.tile === tile.id) : null;
   const threat = intent ? t('ui.tip.threat', { what: enemyLabel(intentAct(intent), 'what'), first: turnInfo(state).first }) : '';
   const cath = tile.cathedral ? t('ui.tip.cathedral') : '';
-  return `<b>${esc(tileName(cur, tile, 'player'))}</b><span>${[legend, owner, bld, gather, tile.wall ? t('ui.tip.wall') : '', holy, cath, marks, threat].filter(Boolean).map(esc).join('<br>')}</span>`;
+  const land = !y.resource || tile.building === 'capital' ? '' : tile.activity === 'rich' ? t('ui.tip.rich') : tile.activity === 'poor' ? t('ui.tip.poor', { n: tile.recover }) : '';
+  const fn = eventInfo(state).fortune.next;
+  const luck = fn?.to && fn.tiles.includes(tile.id) ? t('ui.tip.fortuneNext', { name: fn.name, to: fn.to }) : '';
+  return `<b>${esc(tileName(cur, tile, 'player'))}</b><span>${[legend, owner, bld, gather, land, luck, tile.wall ? t('ui.tip.wall') : '', holy, cath, marks, threat].filter(Boolean).map(esc).join('<br>')}</span>`;
 }
 
 function bindTools() {
@@ -1170,6 +1174,7 @@ function showRules() {
   const html = `<div class="rules">
     ${sec(t('ui.rules.core'), [t('ui.rules.core1'), t('ui.rules.core2'), t('ui.rules.core3'), t('ui.rules.core4'), t('ui.rules.core6'), t('ui.rules.core5')], true)}
     ${sec(t('ui.rules.flow'), [t('ui.rules.flow1'), t('ui.rules.flow2'), t('ui.rules.flow3'), t('ui.rules.flow4')])}
+    ${sec(t('ui.rules.land'), [t('ui.rules.land1'), t('ui.rules.land2'), t('ui.rules.land3')])}
     ${sec(t('ui.rules.win'), [t('ui.rules.win1'), t('ui.rules.win2'), t('ui.rules.win3'), t('ui.rules.win4'), t('ui.rules.win5')])}
     ${sec(t('ui.rules.faith'), [
       t('ui.rules.faith1', { perAction: RULES.followersPerAction, perFaith: RULES.followersPerFaith }),
@@ -1781,7 +1786,7 @@ function renderSeason() {
         <div class="rule">${esc(ev.rule)}</div>
         ${event.options && phase === 'speak' ? seasonChoiceHTML(event) : ''}
       </div>
-    </div>${nx ? `<div class="next-season"><span title="${esc(nx.rule)}">${t('ui.season.next')}${svgUse(nx.dilemma ? 'e-prophet' : `e-${nx.id}`)}${esc(nx.name)}</span><span class="next-law" id="nextLaw">${nextLawHTML()}</span></div>` : ''}${destinyHTML()}`;
+    </div>${fortuneHTML(event.fortune)}${nx ? `<div class="next-season"><span title="${esc(nx.rule)}">${t('ui.season.next')}${svgUse(nx.dilemma ? 'e-prophet' : `e-${nx.id}`)}${esc(nx.name)}</span><span class="next-law" id="nextLaw">${nextLawHTML()}</span></div>` : ''}${destinyHTML()}`;
   if (dealSeason) setTimeout(() => sfx.deal(), 250);
   dealSeason = false;
   $('season').querySelectorAll('.card').forEach((c) => fx.attachTilt(c, 8));
@@ -1792,6 +1797,15 @@ function renderSeason() {
     dealSeason = true;
     render();
   });
+}
+
+// 땅의 운 (규칙 28): 이번 장 카드와 한 장 앞서 보이는 다음 장 카드, 바꾸는 칸 (안개 속이면 "안개 속")
+const FORTUNE_ICON = { harvest: 'i-food', grove: 'i-wood', vein: 'i-stone', dew: 'i-faith', drought: 'e-drought', still: 'e-calm' };
+function fortuneHTML(f) {
+  if (!f.now && !f.next) return '';
+  const where = (c) => [...new Set(c.tiles.map((id) => (state.tileAt[id]?.revealed ? id : t('ui.fortune.fog'))))].join('·');
+  const item = (c, next) => `<span class="fr-item${next ? ' fr-next' : ''}" title="${esc(c.text)}">${svgUse(FORTUNE_ICON[c.id] ?? 'e-calm')}${t(next ? 'ui.fortune.next' : 'ui.fortune.now', { name: `<b>${esc(c.name)}</b>` })}${c.to ? ` <span class="fr-${c.to}">${t('ui.fortune.where', { where: where(c), to: c.to })}</span>` : ''}</span>`;
+  return `<div class="fortune-row" title="${t('ui.fortune.tip')}">${f.now ? item(f.now, false) : ''}${f.next ? item(f.next, true) : ''}</div>`;
 }
 
 function destinyHTML() {
@@ -1827,7 +1841,8 @@ function renderBoardView() {
   // 율법파의 뜻은 장이 열린 뒤 판이 끝나기 전까지만 있다 (intentsInfo)
   const intents = ['speak', 'thinking', 'confirm'].includes(phase)
     ? intentsInfo(state).shown.map((i) => ({ tile: i.tile, type: kindParts(i.kind).type })) : [];
-  renderBoard($('board'), board, { markers, highlight, hints, intents, selectable, onTileClick, focus: focusId });
+  const fn = eventInfo(state).fortune.next;
+  renderBoard($('board'), board, { markers, highlight, hints, intents, selectable, onTileClick, focus: focusId, fortune: fn && fn.to ? { tiles: fn.tiles, to: fn.to } : null });
   $('board').setAttribute('aria-label', t('ui.board.aria', { n: turnInfo(state).round, mine: board.tiles.filter((tl) => tl.revealed && tl.owner === 'player').length, theirs: board.tiles.filter((tl) => tl.revealed && tl.owner === 'enemy').length, a: sideInfo(cur, 'player').score, b: sideInfo(cur, 'enemy').score }));
   frameEl().classList.toggle('thinking', phase === 'thinking');
 }
