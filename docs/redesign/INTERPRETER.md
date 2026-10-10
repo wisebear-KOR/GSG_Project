@@ -3,7 +3,7 @@
 재설계 세 요소 가운데 2번(해석을 결정형 AI로)과 3번(해석문 쓰는 방식)의 논의 상태를 남긴다.
 여기서 멈췄다: **질문 구성(1단계 질문의 꼴)을 정하기 전에, ONNX로 변환한 Kev가 브라우저에서 얼마나 빠르고 정확한지부터 확인하기로 했다.**
 
-관련 문서: [README.md](README.md) (용어·원칙·결정) · [ROUND.md](ROUND.md) (한 장의 STEP) · [DECISION-MODELS-2026-10-03.md](../DECISION-MODELS-2026-10-03.md) (기성 결정형 모델 실험).
+관련 문서: [README.md](README.md) (용어·원칙·결정) · [ROUND.md](ROUND.md) (한 장의 STEP) · [DECISION-MODELS-2026-10-03.md](../DECISION-MODELS-2026-10-03.md) (기성 결정형 모델 실험) · [INFO.md](INFO.md) (정보 — 도메인 영역) · [KEV.md](KEV.md) (도메인 위에서 Kev 활용 검토 — O1~O6 다시 보기, 새로 정할 K1~K6) · [AI-OPTIONS.md](AI-OPTIONS.md) (방법 견주기 실험과 최적안 — 정할 A1~A5).
 
 ---
 
