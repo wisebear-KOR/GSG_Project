@@ -58,6 +58,7 @@ python lab/ai-options/probe.py f08.npz f4b.npz
 | `train_judge.py` | 게임이 싣는 판정기 가중치 `js/game/ai/judge-weights.js`를 만든다 (석판 정답 + 합성 금지 + `words-train.json`). 함께 만드는 `judge-parity.json`으로 `parity.mjs`가 JS 추론을 대조한다 | 1분 |
 | `parity.mjs` | JS 판정기가 파이썬과 같은 확률을 내는지 (최대 차이·판정 뒤바뀜) | 수 초 |
 | `words-train.json` · `words-eval.json` | 은유·간접 명령·감정·부정 문장과 정답 (Claude가 씀). 학습 241 · 평가 전용 116 — 평가 세트는 학습에 쓰지 않는다 | — |
+| `sweep_judge.py` | 판정기 설정 고르기 — 글자 조각 길이·낱말 특징·C를 평가 116과 석판 문장 블록 5겹으로 (결과는 AI-OPTIONS 맨 위) | 5분 |
 | `eval_words.mjs` | 평가 전용 116문장에서 석판 · 판정기 · 석판 + 판정기 (엄격·느슨·교리) | 수 초 |
 | `measure-state.mjs` | 대사제의 눈을 Kev 상태 꼴로 펼친 길이·후보 칸 수 (`node measure-state.mjs out.jsonl`, 토큰은 Kev 토크나이저로 따로 센다) | 수 초 |
 
