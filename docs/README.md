@@ -33,6 +33,8 @@
 | [EXPERIMENTS.md](EXPERIMENTS.md) | 대사제(LLM) 프롬프트 실험 기록 |
 | [PLAYTEST-2026-09-27.md](PLAYTEST-2026-09-27.md) | LLM 모드 4판 플레이테스트 보고서 |
 | [EVALUATION-2026-09-30.md](EVALUATION-2026-09-30.md) | 보드게임 장르 평가: 독립 평가자 셋의 채점(평균 54.7/100), 지배 전략·오토마·해석 이해력 데이터, 개선 순위 |
+| [redesign/](redesign/README.md) | 재설계 (2026-10-03 시작): 절대 가치·상대 가치·배치 점수, 결정 목록, 단계 · [재사용 분류표](redesign/INVENTORY.md) · [정보 — 도메인 영역](redesign/INFO.md) · [Kev 활용 검토](redesign/KEV.md) · [결정형 AI 방법 견주기](redesign/AI-OPTIONS.md) |
+| [DECISION-MODELS-2026-10-03.md](DECISION-MODELS-2026-10-03.md) | 결정형(판정) 모델 실험: Kev-0.8B·Kev-4B·SystemOne-4B를 Gemma 4 실험 세트로 비교 |
 | [i18n.md](i18n.md) | 언어팩 구조, 새 언어 더하는 법, 언어별로 새로 써야 하는 키 |
 | [naming.md](naming.md) | 제목 후보 12개와 결정 이유 |
 

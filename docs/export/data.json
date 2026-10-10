@@ -3,7 +3,7 @@
     "source": "js/game/data.js",
     "generator": "tools/export-data.mjs",
     "lang": "ko",
-    "ruleset": 27,
+    "ruleset": 28,
     "conventions": [
       "A function value is written as an object whose only key is \"$fn\" (its JS source text). Port the logic by hand; see docs/spec/03-data.md.",
       "A RegExp value is written as an object with keys \"$re\" (source) and \"flags\"."
@@ -16,6 +16,16 @@
     "plainWordFields": [
       "SACRED_WORDS[].word"
     ]
+  },
+  "ACTIVITY": {
+    "rich": 1,
+    "normal": 0,
+    "poor": -1
+  },
+  "ACTIVITY_DOWN": {
+    "rich": "normal",
+    "normal": "poor",
+    "poor": "poor"
   },
   "ACTS": [
     {
@@ -634,18 +644,6 @@
       "rule": "이번 장 우리 선교 +1"
     },
     {
-      "id": "drought",
-      "name": "가뭄",
-      "text": "가뭄이 들어 곡식이 말라 가고 있다.",
-      "rule": "식량 채집 -2"
-    },
-    {
-      "id": "harvest",
-      "name": "풍년",
-      "text": "풍년의 기운이 들판에 가득하다.",
-      "rule": "평원·강 식량 채집 +2"
-    },
-    {
       "id": "plague",
       "name": "역병",
       "text": "역병이 돌아 양쪽 부족 모두 병자가 생겼다.",
@@ -687,6 +685,60 @@
     "lightning",
     "rain",
     "bounty"
+  ],
+  "FORTUNES": [
+    {
+      "id": "harvest",
+      "res": "food",
+      "to": "rich",
+      "name": "풍년",
+      "text": "풍년의 기운이 들판 두 곳에 내린다."
+    },
+    {
+      "id": "grove",
+      "res": "wood",
+      "to": "rich",
+      "name": "숲의 은혜",
+      "text": "숲 두 곳의 나무가 굵게 자란다."
+    },
+    {
+      "id": "vein",
+      "res": "stone",
+      "to": "rich",
+      "name": "산의 맥",
+      "text": "산 두 곳에서 새 돌맥이 드러난다."
+    },
+    {
+      "id": "dew",
+      "res": "faith",
+      "to": "rich",
+      "name": "언덕의 이슬",
+      "text": "언덕 두 곳에 거룩한 이슬이 맺힌다."
+    },
+    {
+      "id": "drought",
+      "res": "food",
+      "to": "poor",
+      "name": "가뭄",
+      "text": "가뭄이 들판 두 곳을 말린다."
+    },
+    {
+      "id": "still",
+      "res": null,
+      "to": null,
+      "name": "고요",
+      "text": "땅이 숨을 고른다. 아무것도 바뀌지 않는다."
+    }
+  ],
+  "FORTUNE_DECK": [
+    "harvest",
+    "harvest",
+    "grove",
+    "vein",
+    "dew",
+    "drought",
+    "drought",
+    "still"
   ],
   "GATHER_VERB": {
     "food": "곡식을 거둔다",
@@ -1053,7 +1105,7 @@
       "id": "rain",
       "name": "단비",
       "cost": 3,
-      "text": "식량 +3. 이번 장의 가뭄을 없앤다."
+      "text": "식량 +3. 우리가 닿는 빈곤한 식량 땅이 모두 정상으로 돌아온다."
     },
     {
       "id": "bounty",
@@ -1226,6 +1278,11 @@
     "stone": "돌",
     "faith": "신앙"
   },
+  "REST_ROUNDS": {
+    "easy": 1,
+    "normal": 1,
+    "hard": 2
+  },
   "REVELATION_MAX": 100,
   "RULES": {
     "followersPerAction": 4,
@@ -1237,7 +1294,7 @@
     "graceDoctrineBelow": 3,
     "maxNames": 3
   },
-  "RULESET": 27,
+  "RULESET": 28,
   "SACRED_WORDS": [
     {
       "word": "무지개",
@@ -1458,7 +1515,7 @@
     "events": [
       "calm",
       "calm",
-      "harvest",
+      "calm",
       "calm",
       "prophet"
     ],

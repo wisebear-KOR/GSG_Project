@@ -5,7 +5,9 @@
 import { hasLanguageModel, createBaseSession, promptJSON } from '../llm.js';
 import { DOCTRINES, DOCTRINE, PRIESTS, TERRAIN, DOCTRINE_VOICE } from './data.js';
 import { nouns } from './lore.js';
-import { legalActions, actionLimit, tileName, villageCount, enemyIntent, nextEvent, gatherAmount, cathedralVillages, setPlanSig, capitalOf, distance, actionOdds } from './engine.js';
+import { legalActions, tileName, villageCount, defaultAmount, cathedralVillages, setPlanSig, capitalOf, distance, actionOdds } from './engine.js';
+import { Res, gameInfo, sideInfo, intentsInfo, turnInfo, kindOf } from './domain/index.js';
+import { judge } from './ai/judge.js';
 import { t } from './i18n.js';
 
 // 실험 v5 프롬프트를 게임에 맞게 옮긴 것 (docs/EXPERIMENTS.md).
@@ -28,23 +30,24 @@ export function buildPrompt(state, revelation) {
     const note = list.length > 1 ? t('interp.oneOnly') : '';
     return `[${name}]${note}\n${list.map((a) => `  ${a.id}: ${a.text}`).join('\n')}`;
   });
-  const p = state.sides.player;
-  const e = state.sides.enemy;
-  const limit = actionLimit(state, 'player');
-  const recent = state.revelations.slice(-2).map((r) => `"${r.text}"`).join(', ') || t('interp.none');
-  const threat = enemyIntent(state).filter((a) => a.shown && ['attack', 'preach'].includes(a.type))
-    .map((a) => t('interp.threat', { place: tileName(state, state.tileAt[a.tile], 'player'), type: a.type })).join(', ');
+  // 판의 정보는 정보 객체 하나에서 (domain/info.js)
+  const g = gameInfo(state);
+  const { us, enemy, words, event, setup } = g;
+  const limit = us.actions;
+  // 최근 두 계시, 오래된 것부터
+  const recent = [...words.revelations].reverse().map((r) => `"${r.text}"`).join(', ') || t('interp.none');
+  const threat = enemy.intents.filter((i) => i.kind === 'attack' || i.kind === 'preach')
+    .map((i) => t('interp.threat', { place: tileName(state, state.tileAt[i.tile], 'player'), type: i.kind })).join(', ');
   const voice = voiceOf(state, 4);
-  const next = nextEvent(state) && state.round < state.maxRounds ? nextEvent(state).name : '';
   const text = t('interp.prompt', {
-    food: p.food, wood: p.wood, stone: p.stone, faith: p.faith,
-    pop: p.pop, limit, templeLevel: p.templeLevel, villages: villageCount(state, 'player'),
-    enemyPop: e.pop, enemyVillages: villageCount(state, 'enemy'), capitalHp: e.capitalHp, threat,
-    recent, god: state.config.god?.name ?? '', lessons: lessonList(state),
-    voice: voice ? DOCTRINE_VOICE[voice].prompt : '', canon: state.config.canon ? state.config.canon.text : null,
-    priest: PRIESTS[state.priest]?.prompt ?? '',
-    actions: lines.join('\n'), event: state.event.text,
-    choice: state.event.choice ? state.event.choice.map((o) => o.label).join(' / ') : '', next,
+    ...us.resources,
+    pop: us.pop, limit, templeLevel: us.temple, villages: us.villages,
+    enemyPop: enemy.pop, enemyVillages: enemy.villages, capitalHp: enemy.capitalHp, threat,
+    recent, god: setup.god.name ?? '', lessons: lessonList(us.lessons),
+    voice: voice ? DOCTRINE_VOICE[voice].prompt : '', canon: setup.canon,
+    priest: PRIESTS[setup.priest]?.prompt ?? '',
+    actions: lines.join('\n'), event: event.now.text,
+    choice: event.choice ? event.choice.map((o) => o.label).join(' / ') : '', next: event.next?.name ?? '',
     revelation,
   });
   const idList = ids.map((a) => a.id);
@@ -64,9 +67,9 @@ export function buildPrompt(state, revelation) {
 
 const lessonName = (l) => t('interp.lessonName', { type: l.type, gather: l.gather, build: l.build });
 // 신학 노트 목록 (프롬프트에 넣는다). 없으면 빈 문자열
-function lessonList(state) {
-  if (!state.lessons?.length) return '';
-  return state.lessons.map((l) => t('interp.lessonItem', { word: l.word, name: lessonName(l) })).join(', ');
+function lessonList(lessons) {
+  if (!lessons.length) return '';
+  return lessons.map((l) => t('interp.lessonItem', { word: l.word, name: lessonName(l) })).join(', ');
 }
 export const describeLesson = lessonName;
 
@@ -197,7 +200,7 @@ const toNeg = (m, verb) => (FEAR.test(verb) ? `${verb} ` : t('kw.dontAndNeg', { 
 // 앞의 것을 금지 절로 떼어 낸다: "숲을 베지 말고 돌을 캐라" → "숲을 베지 마라, 돌을 캐라", "공격 말고 선교",
 // "나무는 그만 베고 돌을 캐라", "기도는 됐고 일이나 해". "두려워하지 말고 쳐라"는 금지가 아니다 → "두려워하 쳐라"
 const splitDont = (text) => text.replace(ID_LIST, '$1 ').replace(LEAVE_AND, toNeg).replace(NEITHER, toNeg).replace(ONLY_THIS, (m, a) => `${a} `).replace(ASIDE, ' ').replace(RATHER, ' ').replace(PLENTY_AND, toNeg).replace(DONT_AND, toNeg).replace(STOP_AND, toNeg).replace(ENOUGH_AND, toNeg).replace(NOT_BUT, (m, a, b) => (NOT_BUT_PLACE.test(a ?? b) ? ' ' : IS_ID.test(a ?? b) ? m : toNeg(m, a ?? b))).replace(INSTEAD, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a))).replace(NOUN_AND, (m, a) => (IS_ID.test(a) ? m : toNeg(m, a)));
-// 같은 채집이면 더 많이 나오는 칸부터, 무엇을 거둘지 말하지 않았으면 가장 모자란 자원부터
+// 같은 채집이면 지형이 더 내는 칸부터(활성도는 보지 않는다 — 쉬움만 본다. 기름진 곳은 말로 짚는다), 무엇을 거둘지 말하지 않았으면 가장 모자란 자원부터
 const WEAKEST = kw('kw.place.weakest');
 const FOEWARD = kw('kw.place.foeward');
 const UNWALLED = kw('kw.place.unwalled');
@@ -214,14 +217,14 @@ function rankMatches(state, rule, matches, clause = '') {
     return matches.map((a, i) => ({ a, i, d: dist(a) })).sort((x, y) => cap(x.a) - cap(y.a) || x.d - y.d || x.i - y.i).map((x) => x.a);
   }
   if (matches[0].type === 'attack' || matches[0].type === 'preach') {
-    const walls = new Set(enemyIntent(state).filter((x) => x.shown && x.build === 'wall').map((x) => x.tile));
+    const walls = new Set(intentsInfo(state).shown.filter((i) => i.kind === 'build:wall').map((i) => i.tile));
     if (UNWALLED.test(clause)) { const open = matches.filter((a) => !state.tileAt[a.tile].wall && !walls.has(a.tile)); if (open.length) matches = open; }
     return matches.map((a, i) => ({ a, i, p: actionOdds(state, a, { wallAhead: walls.has(a.tile) }) ?? 0 })).sort((x, y) => y.p - x.p || x.i - y.i).map((x) => x.a);
   }
   if (matches[0].type !== 'gather') return matches;
-  const p = state.sides.player;
+  const p = Res.of(state.sides.player);
   const need = (a) => (rule.fallback ? p[a.gather] ?? 0 : 0);
-  return matches.map((a, i) => ({ a, i, n: need(a), g: gatherAmount(state, 'player', state.tileAt[a.tile]) }))
+  return matches.map((a, i) => ({ a, i, n: need(a), g: defaultAmount(state, 'player', state.tileAt[a.tile]) }))
     .sort((x, y) => x.n - y.n || y.g - x.g || x.i - y.i).map((x) => x.a);
 }
 // "두려워하지 말고 쳐라"는 금지가 아니다 (두려워는 부정어가 아니다)
@@ -239,6 +242,7 @@ const PLACE = {
   capital: kw('kw.place.capital'), holy: kw('kw.place.holy'), aim: kw('kw.place.aim'), near: kw('kw.place.near'),
   foe: kw('kw.place.foe'), ours: kw('kw.place.ours'), id: kw('kw.place.id'), village: kw('kw.place.village'),
   nearTerrain: kw('kw.place.nearTerrain'), home: kw('kw.place.home'), dir: kw('kw.place.dirWord'), closest: kw('kw.place.closest'), farthest: kw('kw.place.farthest'),
+  fertile: kw('kw.place.fertile'), rested: kw('kw.place.rested'), tired: kw('kw.place.tired'), landWords: kw('kw.place.landWords', 'g'),
   foeVillage: kw('kw.place.foeVillage'), oasis: kw('kw.place.oasis'), gatherAt: kw('kw.place.gatherAt'), aimBuild: kw('kw.place.aimBuild'), aimWall: kw('kw.place.aimWall'), quarry: kw('kw.place.quarry'), oasisAt: kw('kw.place.oasisAt'), claim: kw('kw.tablet.claim'), avoidId: kw('kw.place.avoidId', 'g'), ids: kw('kw.place.id', 'g'),
 };
 const HOSTILE = [kw('kw.tablet.attack'), kw('kw.tablet.preach')];
@@ -247,7 +251,10 @@ const VILLAGE_EXCEPT = kw('kw.tablet.villageExcept');
 function placeOf(state, clause) {
   const anchors = new Set();
   const terrains = new Set();
-  let text = clause;
+  // 땅의 상태 말 (규칙 28): "기름진 곳", "쉬던 땅", "지친 땅" — 칸을 고르는 데만 쓰고 규칙을 읽는 글에서는 지운다 ("쉬던"은 쉬라는 말이 아니다)
+  const land = { fertile: PLACE.fertile.test(clause), rested: PLACE.rested.test(clause), tired: PLACE.tired.test(clause) };
+  const bare = clause.replace(PLACE.landWords, ' ');
+  let text = bare;
   // "산 옆에": 그 지형 칸들을 가리키고 그 이웃을 고른다 (산을 캐라는 말로 읽지 않는다)
   const nt = clause.match(PLACE.nearTerrain);
   if (nt) {
@@ -300,20 +307,20 @@ function placeOf(state, clause) {
   let aimPool = null;
   // "율법파가 성벽을 두르려는 마을": 율법파가 이번 장 성벽을 두르는 칸
   if (PLACE.aimWall.test(clause) && PLACE.foe.test(clause)) {
-    const pool = enemyIntent(state).filter((x) => x.shown && x.build === 'wall');
+    const pool = intentsInfo(state).shown.filter((i) => i.kind === 'build:wall');
     for (const x of pool) anchors.add(x.tile);
     if (pool.length) named.push('aim');
   } else if (PLACE.aim.test(clause)) {
-    const inside = (x) => x.type === 'pray' || (x.type === 'build' && x.build !== 'village');
-    const shown = enemyIntent(state).filter((x) => x.shown && !inside(x));
+    const inside = (k) => k === 'pray' || (k.startsWith('build:') && k !== 'build:village');
+    const shown = intentsInfo(state).shown.filter((i) => !inside(i.kind));
     // "노리는 곳"은 한 곳: 율법파가 드러낸 뜻 가운데 하나 (다른 칸은 이름으로 짚는다)
-    const aimed = PLACE.aimBuild.test(clause) ? shown.filter((x) => x.build === 'village') : shown;
+    const aimed = PLACE.aimBuild.test(clause) ? shown.filter((x) => x.kind === 'build:village') : shown;
     // 다툴 수 있는 칸(율법파 땅이 아닌 칸)의 뜻을 먼저 — 없으면 처음 드러난 뜻
     const contest = aimed.filter((x) => state.tileAt[x.tile].owner !== 'enemy');
     const pool = (contest.length ? contest : aimed).slice(0, 1);
     // 일마다 그 일을 할 수 있는 칸으로 바꿔 짚는다 (aimFor)
     aimPool = [...new Set([...contest, ...aimed].map((x) => x.tile))];
-    for (const x of aimed) if (x.build === 'village') aimBonus.set(x.tile, 0.5);
+    for (const x of aimed) if (x.kind === 'build:village') aimBonus.set(x.tile, 0.5);
     for (const x of pool) anchors.add(x.tile);
     if (pool.length) named.push('aim');
   }
@@ -336,7 +343,7 @@ function placeOf(state, clause) {
   if (farthest) { for (const id of spec) anchors.delete(id); named.length = 0; exact.clear(); aimBonus.clear(); }
   const closeRef = PLACE.closest.test(clause) && refs.length ? refs : null;
   if (closeRef && spec.size) named.length = 0; // 기준으로 짚은 곳은 닿지 않아도 알리지 않는다
-  return { anchors, exact, avoid, named, terrains, near, text, dir, home, aimBonus, aimPool, farthest, closeRef, closest: PLACE.closest.test(clause) };
+  return { anchors, exact, avoid, named, terrains, near, text, dir, home, aimBonus, aimPool, farthest, closeRef, closest: PLACE.closest.test(clause), bare, ...land };
 }
 // 땅에 나가는 일 (수도·건물 안의 일 — 기도·신전·대성당·성벽 — 이 아닌 것)
 const field = (a) => !(a.type === 'pray' || (a.type === 'build' && a.build !== 'village'));
@@ -358,7 +365,7 @@ function aligned(tl, home, [dr, dc]) {
 }
 // 가리킨 곳에 맞을수록 앞 (같으면 원래 순서): 가리킨 칸 4 ("옆에"면 그 이웃이 4), 가리킨 칸의 이웃 2, 지형이 맞으면 +1
 function byPlace(state, place, matches) {
-  if (!place.anchors.size && !place.terrains.size && !place.dir && !place.closest && !place.farthest && !place.avoid?.size) return matches;
+  if (!place.anchors.size && !place.terrains.size && !place.dir && !place.closest && !place.farthest && !place.avoid?.size && !place.fertile && !place.rested && !place.tired) return matches;
   const score = (a) => {
     const tl = state.tileAt[a.tile];
     let s = 0;
@@ -373,6 +380,11 @@ function byPlace(state, place, matches) {
     // "가까운": 우리 수도에서 가까울수록 조금 앞 (같은 점수끼리의 순서)
     if (place.closeRef) s += (20 - Math.min(...place.closeRef.map((r) => distance(tl, r)))) / 10;
     if (place.farthest) s += Math.min(...place.farthest.map((f) => distance(tl, f))) / 2;
+    // 땅의 상태: 기름진 곳은 풍요 > 정상 > 빈곤, 쉬던 땅은 지난 장에 거두지 않은 지치지 않은 땅, 지친 땅은 피한다
+    const act = tl.activity ?? 'normal';
+    if (place.fertile) s += act === 'rich' ? 3 : act === 'normal' ? 1 : 0;
+    if (place.rested && act !== 'poor' && !(tl.workedAt && tl.workedAt === state.round - 1)) s += 2;
+    if (place.tired && act === 'poor') s -= 3;
     return s + (place.terrains.has(tl.terrain) ? 1 : 0);
   };
   return matches.map((a, i) => ({ a, i, s: score(a) })).sort((x, y) => y.s - x.s || x.i - y.i).map((x) => x.a);
@@ -392,16 +404,16 @@ const baseKind = (a) => (a.type === 'gather' ? 'gather' : a.type === 'build' ? (
 
 // 이번 장 율법파가 먼저 차지하는 칸 (선공이 율법파이고 드러난, 칸을 차지하는 뜻) — 짚지 않은 일은 그 칸을 피한다
 function lostTiles(state) {
-  if (state.first !== 'enemy') return new Set();
-  const inside = (x) => x.type === 'pray' || (x.type === 'build' && x.build !== 'village');
-  return new Set(enemyIntent(state).filter((x) => x.shown && !inside(x)).map((x) => x.tile));
+  if (turnInfo(state).first !== 'enemy') return new Set();
+  const inside = (k) => k === 'pray' || (k.startsWith('build:') && k !== 'build:village');
+  return new Set(intentsInfo(state).shown.filter((i) => !inside(i.kind)).map((i) => i.tile));
 }
 const takes = (a) => !(a.type === 'pray' || (a.type === 'build' && a.build !== 'village'));
 const lastLost = (lost, place, matches) => (lost.size ? [...matches.filter((a) => !takes(a) || !lost.has(a.tile) || place.anchors.has(a.tile)), ...matches.filter((a) => takes(a) && lost.has(a.tile) && !place.anchors.has(a.tile))] : matches);
 export function interpretWithTablet(state, revelation) {
   const legal = legalActions(state, 'player');
   const lost = lostTiles(state);
-  const limit = actionLimit(state, 'player');
+  const limit = sideInfo(state, 'player').actions;
   const orders = [];
   const forbidden = [];
   let doctrine = null;
@@ -436,7 +448,8 @@ export function interpretWithTablet(state, revelation) {
     const BUILDS = ['village', 'wall', 'temple'];
     const many = Math.max(COUNT.find(([re]) => re.test(clause))?.[1] ?? (MANY.test(clause) ? 2 : dflt), Math.min(3, place.exact.size));
     let hits = hitsOf(place.text);
-    if (!hits.length && place.text !== clause) hits = hitsOf(clause);
+    // 장소 말을 지운 글에 할 일이 없으면 지우기 전의 글로 (땅의 상태 말은 그때도 지운다 — "쉬던"·"쉬게 하라"는 기도가 아니다)
+    if (!hits.length && place.text !== place.bare) hits = hitsOf(place.bare);
     // 할 일 말 없는 금지가 곳을 가리키면 그곳에서 하는 일을 금한다 ("수도는 건드리지 마라")
     // "율법파를 건드리지 마": 곳 없이 율법파만 말했으면 율법파 땅 모두 ("율법파 마을은 말고"처럼 곳을 말했으면 그곳만)
     if (negative && !hits.length && !place.anchors.size && PLACE.foe.test(clause) && !FEAR.test(clause) && !PLACE.village.test(clause) && !PLACE.capital.test(clause)) {
@@ -534,6 +547,65 @@ export function interpretWithTablet(state, revelation) {
     forbidden,
     doctrine: doctrine ?? (forbidden.length || banned.length ? 'peace' : null),
     source: 'tablet',
+  };
+}
+
+// ---------- 판정기와 함께 읽기 (게임의 기본 해석기) ----------
+// 판정기(js/game/ai/judge.js)는 계시 글만 보고 일의 종류마다 하라 / 하지 마라 / 말 없음을 정한다.
+// 석판이 먼저 읽는다. 판정기가 일의 종류를 정하는 것은 둘 가운데 하나일 때다:
+//   석판이 아무것도 못 알아들었을 때(침묵 — 시킨 일도, 금한 일도, 알아들었으나 못 한 일도 없음)에 판정기가 조금이라도 확신하면(≥ JUDGE_RESCUE),
+//   또는 석판이 시킨 일이 있는데 판정기가 확신하면서(≥ JUDGE_GATE) 그 일과 하나도 겹치지 않는 일을 읽었을 때
+//   (금지만 읽은 석판은 일부러 내린 부정이라 덮지 않는다)
+// 그때 칸은 석판이 말에서 짚은 칸을 쓴다 (석판이 그 일을 못 알아들었으면 석판의 기본 배치로 한 손).
+// 석판은 알던 말·칸·수·신의 일을 결정적으로 읽고, 판정기는 처음 보는 말투를 잘 푼다 (docs/redesign/AI-OPTIONS.md §3.2, H7)
+export const JUDGE_GATE = 0.7;
+export const JUDGE_RESCUE = 0.4;
+export function interpretWithJudge(state, revelation) {
+  const r = interpretWithTablet(state, revelation);
+  const text = (revelation ?? '').trim();
+  if (!text) return r;
+  const j = judge(text);
+  const tabletDo = [...new Set(r.orders.map(kindOf))];
+  const tabletDont = [...new Set(r.forbidden.map(kindOf))];
+  const same = (a, b) => a.length === b.length && a.every((k) => b.includes(k));
+  const note = { conf: j.conf, do: j.do, dont: j.dont, doctrine: j.doctrine?.id ?? null };
+  const silent = !r.orders.length && !r.forbidden.length && !r.heard.length;
+  const rescue = silent && j.conf >= JUDGE_RESCUE && (j.do.length || j.dont.length);
+  const overrule = r.orders.length && j.conf >= JUDGE_GATE && !j.do.some((k) => tabletDo.includes(k));
+  if (!rescue && !overrule) return { ...r, judge: { ...note, took: false } };
+  if (same(j.do, tabletDo) && same(j.dont, tabletDont)) return { ...r, judge: { ...note, took: false } };
+  const legal = legalActions(state, 'player');
+  const limit = sideInfo(state, 'player').actions;
+  const place = placeOf(state, text);
+  const forbidden = j.dont.flatMap((k) => {
+    const scoped = r.forbidden.filter((a) => kindOf(a) === k);
+    return scoped.length ? scoped : legal.filter((a) => kindOf(a) === k);
+  });
+  const fkeys = new Set(forbidden.map((a) => a.key));
+  const orders = [];
+  const take = (a) => { if (orders.length < limit && !fkeys.has(a.key) && !orders.some((o) => o.tile === a.tile)) orders.push(a); };
+  for (const k of j.do) {
+    const mine = r.orders.filter((a) => kindOf(a) === k);
+    if (mine.length) { mine.forEach(take); continue; }
+    const ms = legal.filter((a) => kindOf(a) === k && !fkeys.has(a.key) && !orders.some((o) => o.tile === a.tile));
+    const ranked = byPlace(state, place, rankMatches(state, {}, ms, text));
+    if (ranked[0]) take(ranked[0]);
+  }
+  // 교리: 판정기가 일을 바꿨으니 판정기의 교리를 (확신이 낮으면 석판의 것)
+  const doctrine = (j.doctrine && j.doctrine.p >= 0.5 ? j.doctrine.id : null) ?? r.doctrine ?? j.doctrine?.id ?? (forbidden.length ? 'peace' : null);
+  const prefix = voiceOf(state) ? DOCTRINE_VOICE[voiceOf(state)].prefix : t('interp.tablet.prefix');
+  const verbs = orders.map((a) => a.text.replace(/ \(.*\)$/, ''));
+  const kindsOf = (list) => [...new Set(list.map((a) => (a.type === 'gather' ? `gather:${a.gather}` : baseKind(a))))];
+  return {
+    ...r,
+    interpretation: orders.length ? t('interp.tablet.say', { prefix, verbs })
+      : forbidden.length ? t('interp.tablet.forbidOnly', { kinds: kindsOf(forbidden) }) : t('interp.tablet.blur'),
+    heard: r.heard.filter((h) => !orders.some((a) => baseKind(a) === h.split(':')[0])),
+    banned: [...new Set([...r.banned.filter((b) => forbidden.some((a) => baseKind(a) === b)), ...forbidden.map(baseKind)])],
+    orders, forbidden, doctrine,
+    source: 'judge',
+    // rescued: 석판이 아무것도 못 알아들은 말을 판정기가 풀었다 — 그 낱말은 대사제의 말버릇이 된다 (석판이 배운다)
+    judge: { ...note, took: true, rescued: !r.orders.length && !r.forbidden.length },
   };
 }
 

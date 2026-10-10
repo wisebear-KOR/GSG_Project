@@ -18,7 +18,8 @@ const load = (p) => import(pathToFileURL(join(root, p)).href);
 const E = await load('js/game/engine.js');
 const D = await load('js/game/data.js');
 const L = await load('js/game/lore.js');
-const { interpretWithTablet } = await load('js/game/interpreter.js');
+// 게임과 같은 해석기: 석판 + 판정기 (판정기는 결정적이라 이식판도 같은 가중치로 같은 답을 낸다)
+const { interpretWithJudge } = await load('js/game/interpreter.js');
 const { t, lang } = await load('js/game/i18n.js');
 const { generateMap } = await load('js/game/mapgen.js');
 if (lang !== 'ko') throw new Error(`expected the Korean pack, got '${lang}'`);
@@ -157,7 +158,7 @@ function speak(state, entry, rec) {
   // 이름 붙이기는 해석 전에 새긴다 (새 이름이 석판 규칙에 들어간다)
   const naming = E.nameTile(state, L.parseNaming(text));
   if (naming) naming.name = state.names[naming.tile];
-  const result = interpretWithTablet(state, text);
+  const result = interpretWithJudge(state, text);
   const pending = {
     text, result, naming, dropped: new Set(),
     tone: L.detectTone(text), prophecy: state.prophecy || !E.graceOn(state) ? null : L.parseProphecy(text),

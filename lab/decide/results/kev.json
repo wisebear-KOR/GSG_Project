@@ -1,0 +1,7780 @@
+{
+ "basic-0.ko": {
+  "roundTripMs": 9502,
+  "Kev-4B": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.3393,
+     "probabilities": {
+      "G1": 0.0274,
+      "G2": 0.0355,
+      "G3": 0.088,
+      "G4": 0.0104,
+      "P1": 0.0313,
+      "B1": 0.0321,
+      "B2": 0.0198,
+      "B3": 0.0551,
+      "R1": 0.0116,
+      "M1": 0.2694,
+      "M2": 0.3865,
+      "W1": 0.0124,
+      "W2": 0.0092,
+      "E1": 0.0112
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.2164,
+     "probabilities": {
+      "G1": 0.033,
+      "G2": 0.0531,
+      "G3": 0.0905,
+      "G4": 0.036,
+      "P1": 0.0235,
+      "B1": 0.0295,
+      "B2": 0.0395,
+      "B3": 0.0717,
+      "R1": 0.0172,
+      "M1": 0.1194,
+      "M2": 0.2686,
+      "W1": 0.0319,
+      "W2": 0.0147,
+      "E1": 0.0226,
+      "none": 0.1487
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.8223,
+     "probabilities": {
+      "peace": 0.8667,
+      "war": 0.0161,
+      "abundance": 0.0117,
+      "wisdom": 0.1054
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.6369
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.681
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.7274
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.7325
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.78
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.7606
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.6939
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.7747
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.7805
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.7404
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.8209
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.37
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.6101
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.7548
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.147
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.1465
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.1319
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.1361
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.1641
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.1831
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.1487
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.1444
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.1773
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.1957
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.1688
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.0858
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.1574
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.1397
+    }
+   },
+   "latencyMs": 5028.5,
+   "tokens": 1847
+  },
+  "Kev-0.8B": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0851,
+     "probabilities": {
+      "G1": 0.0397,
+      "G2": 0.1158,
+      "G3": 0.0589,
+      "G4": 0.0359,
+      "P1": 0.0634,
+      "B1": 0.1273,
+      "B2": 0.026,
+      "B3": 0.0827,
+      "R1": 0.0677,
+      "M1": 0.0908,
+      "M2": 0.1505,
+      "W1": 0.0246,
+      "W2": 0.0476,
+      "E1": 0.0692
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1042,
+     "probabilities": {
+      "G1": 0.0359,
+      "G2": 0.0628,
+      "G3": 0.0401,
+      "G4": 0.0355,
+      "P1": 0.0483,
+      "B1": 0.0545,
+      "B2": 0.0526,
+      "B3": 0.0543,
+      "R1": 0.1151,
+      "M1": 0.052,
+      "M2": 0.1349,
+      "W1": 0.0345,
+      "W2": 0.048,
+      "E1": 0.0675,
+      "none": 0.1639
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.591,
+     "probabilities": {
+      "peace": 0.6933,
+      "war": 0.0294,
+      "abundance": 0.0622,
+      "wisdom": 0.2151
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3459
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4344
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3513
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.2451
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4789
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4676
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2608
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4102
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4063
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4284
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3509
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.2316
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.2928
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3366
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3163
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.3766
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2326
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3558
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3519
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.3798
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.3017
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2888
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.5421
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.4048
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.5131
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.3415
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.318
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3508
+    }
+   },
+   "latencyMs": 848.7,
+   "tokens": 1847
+  },
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0851,
+     "probabilities": {
+      "G1": 0.0397,
+      "G2": 0.1158,
+      "G3": 0.0589,
+      "G4": 0.0359,
+      "P1": 0.0634,
+      "B1": 0.1273,
+      "B2": 0.026,
+      "B3": 0.0827,
+      "R1": 0.0677,
+      "M1": 0.0908,
+      "M2": 0.1505,
+      "W1": 0.0246,
+      "W2": 0.0476,
+      "E1": 0.0692
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1042,
+     "probabilities": {
+      "G1": 0.0359,
+      "G2": 0.0628,
+      "G3": 0.0401,
+      "G4": 0.0355,
+      "P1": 0.0483,
+      "B1": 0.0545,
+      "B2": 0.0526,
+      "B3": 0.0543,
+      "R1": 0.1151,
+      "M1": 0.052,
+      "M2": 0.1349,
+      "W1": 0.0345,
+      "W2": 0.048,
+      "E1": 0.0675,
+      "none": 0.1639
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.591,
+     "probabilities": {
+      "peace": 0.6933,
+      "war": 0.0294,
+      "abundance": 0.0622,
+      "wisdom": 0.2151
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3459
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4344
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3513
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.2451
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4789
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4676
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2608
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.4102
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4063
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4284
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3509
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.2316
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.2928
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3366
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3163
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.3766
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2326
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3558
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3519
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.3798
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.3017
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2888
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.5421
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.4048
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.5131
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.3415
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.318
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3508
+    }
+   },
+   "latencyMs": 26338.1,
+   "tokens": 1847
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.3393,
+     "probabilities": {
+      "G1": 0.0274,
+      "G2": 0.0355,
+      "G3": 0.088,
+      "G4": 0.0104,
+      "P1": 0.0313,
+      "B1": 0.0321,
+      "B2": 0.0198,
+      "B3": 0.0551,
+      "R1": 0.0116,
+      "M1": 0.2694,
+      "M2": 0.3865,
+      "W1": 0.0124,
+      "W2": 0.0092,
+      "E1": 0.0112
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.2164,
+     "probabilities": {
+      "G1": 0.033,
+      "G2": 0.0531,
+      "G3": 0.0905,
+      "G4": 0.036,
+      "P1": 0.0235,
+      "B1": 0.0295,
+      "B2": 0.0395,
+      "B3": 0.0717,
+      "R1": 0.0172,
+      "M1": 0.1194,
+      "M2": 0.2686,
+      "W1": 0.0319,
+      "W2": 0.0147,
+      "E1": 0.0226,
+      "none": 0.1487
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.8223,
+     "probabilities": {
+      "peace": 0.8667,
+      "war": 0.0161,
+      "abundance": 0.0117,
+      "wisdom": 0.1054
+     }
+    }
+   },
+   "latencyMs": 14515.1,
+   "tokens": 829
+  }
+ },
+ "basic-1.ko": {
+  "roundTripMs": 5455,
+  "Kev-4B": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.2035,
+     "probabilities": {
+      "G1": 0.032,
+      "G2": 0.2604,
+      "G3": 0.2302,
+      "G4": 0.0099,
+      "P1": 0.0455,
+      "B1": 0.0672,
+      "B2": 0.0136,
+      "B3": 0.0599,
+      "R1": 0.0411,
+      "M1": 0.0538,
+      "M2": 0.1272,
+      "W1": 0.0183,
+      "W2": 0.0159,
+      "E1": 0.0251
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "G3",
+     "confidence": 0.1066,
+     "probabilities": {
+      "G1": 0.0423,
+      "G2": 0.1516,
+      "G3": 0.1661,
+      "G4": 0.0262,
+      "P1": 0.0253,
+      "B1": 0.0466,
+      "B2": 0.037,
+      "B3": 0.0816,
+      "R1": 0.0224,
+      "M1": 0.0565,
+      "M2": 0.1128,
+      "W1": 0.0262,
+      "W2": 0.0167,
+      "E1": 0.0287,
+      "none": 0.16
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "abundance",
+     "confidence": 0.5539,
+     "probabilities": {
+      "peace": 0.1019,
+      "war": 0.0362,
+      "abundance": 0.6654,
+      "wisdom": 0.1965
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.4398
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.7925
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.6853
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.263
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.6
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.6433
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.222
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.5411
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.5591
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.3351
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4182
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.3313
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.4159
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.4615
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3587
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.3489
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.3358
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3087
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3842
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.3982
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2726
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.3755
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.5153
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3256
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.3239
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2438
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.3377
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3026
+    }
+   },
+   "latencyMs": 4034.7,
+   "tokens": 1851
+  },
+  "Kev-0.8B": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.0696,
+     "probabilities": {
+      "G1": 0.0473,
+      "G2": 0.1361,
+      "G3": 0.0751,
+      "G4": 0.0395,
+      "P1": 0.0582,
+      "B1": 0.1268,
+      "B2": 0.0143,
+      "B3": 0.0828,
+      "R1": 0.0841,
+      "M1": 0.0873,
+      "M2": 0.1256,
+      "W1": 0.016,
+      "W2": 0.0313,
+      "E1": 0.0756
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1351,
+     "probabilities": {
+      "G1": 0.0315,
+      "G2": 0.0649,
+      "G3": 0.0437,
+      "G4": 0.0291,
+      "P1": 0.0441,
+      "B1": 0.0554,
+      "B2": 0.0262,
+      "B3": 0.0461,
+      "R1": 0.1596,
+      "M1": 0.0526,
+      "M2": 0.1227,
+      "W1": 0.023,
+      "W2": 0.0371,
+      "E1": 0.0713,
+      "none": 0.1927
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2163,
+     "probabilities": {
+      "peace": 0.3771,
+      "war": 0.0522,
+      "abundance": 0.1585,
+      "wisdom": 0.4123
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3832
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4745
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3178
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3017
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4261
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4178
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2396
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3446
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4936
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4634
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3789
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.2893
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.2715
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3764
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3782
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.4329
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2922
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3606
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3675
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.4025
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2429
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2842
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.4901
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.369
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.3644
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2437
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2237
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3379
+    }
+   },
+   "latencyMs": 838.8,
+   "tokens": 1851
+  },
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.0696,
+     "probabilities": {
+      "G1": 0.0473,
+      "G2": 0.1361,
+      "G3": 0.0751,
+      "G4": 0.0395,
+      "P1": 0.0582,
+      "B1": 0.1268,
+      "B2": 0.0143,
+      "B3": 0.0828,
+      "R1": 0.0841,
+      "M1": 0.0873,
+      "M2": 0.1256,
+      "W1": 0.016,
+      "W2": 0.0313,
+      "E1": 0.0756
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1351,
+     "probabilities": {
+      "G1": 0.0315,
+      "G2": 0.0649,
+      "G3": 0.0437,
+      "G4": 0.0291,
+      "P1": 0.0441,
+      "B1": 0.0554,
+      "B2": 0.0262,
+      "B3": 0.0461,
+      "R1": 0.1596,
+      "M1": 0.0526,
+      "M2": 0.1227,
+      "W1": 0.023,
+      "W2": 0.0371,
+      "E1": 0.0713,
+      "none": 0.1927
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2163,
+     "probabilities": {
+      "peace": 0.3771,
+      "war": 0.0522,
+      "abundance": 0.1585,
+      "wisdom": 0.4123
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3832
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4745
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3178
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3017
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4261
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4178
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2396
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3446
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4936
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4634
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3789
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.2893
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.2715
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3764
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3782
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.4329
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2922
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3606
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3675
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.4025
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2429
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2842
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.4901
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.369
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.3644
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2437
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2237
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3379
+    }
+   },
+   "latencyMs": 25902.7,
+   "tokens": 1851
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.2035,
+     "probabilities": {
+      "G1": 0.032,
+      "G2": 0.2604,
+      "G3": 0.2302,
+      "G4": 0.0099,
+      "P1": 0.0455,
+      "B1": 0.0672,
+      "B2": 0.0136,
+      "B3": 0.0599,
+      "R1": 0.0411,
+      "M1": 0.0538,
+      "M2": 0.1272,
+      "W1": 0.0183,
+      "W2": 0.0159,
+      "E1": 0.0251
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "G3",
+     "confidence": 0.1066,
+     "probabilities": {
+      "G1": 0.0423,
+      "G2": 0.1516,
+      "G3": 0.1661,
+      "G4": 0.0262,
+      "P1": 0.0253,
+      "B1": 0.0466,
+      "B2": 0.037,
+      "B3": 0.0816,
+      "R1": 0.0224,
+      "M1": 0.0565,
+      "M2": 0.1128,
+      "W1": 0.0262,
+      "W2": 0.0167,
+      "E1": 0.0287,
+      "none": 0.16
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "abundance",
+     "confidence": 0.5539,
+     "probabilities": {
+      "peace": 0.1019,
+      "war": 0.0362,
+      "abundance": 0.6654,
+      "wisdom": 0.1965
+     }
+    }
+   },
+   "latencyMs": 15623,
+   "tokens": 833
+  }
+ },
+ "basic-2.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0607,
+     "probabilities": {
+      "G1": 0.057,
+      "G2": 0.0946,
+      "G3": 0.0643,
+      "G4": 0.0654,
+      "P1": 0.0565,
+      "B1": 0.1028,
+      "B2": 0.0443,
+      "B3": 0.0934,
+      "R1": 0.062,
+      "M1": 0.0792,
+      "M2": 0.1278,
+      "W1": 0.0244,
+      "W2": 0.0379,
+      "E1": 0.0906
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.0915,
+     "probabilities": {
+      "G1": 0.0489,
+      "G2": 0.0638,
+      "G3": 0.0466,
+      "G4": 0.0524,
+      "P1": 0.0471,
+      "B1": 0.0595,
+      "B2": 0.0532,
+      "B3": 0.0662,
+      "R1": 0.0968,
+      "M1": 0.0441,
+      "M2": 0.1115,
+      "W1": 0.0281,
+      "W2": 0.0432,
+      "E1": 0.0863,
+      "none": 0.1521
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.1155,
+     "probabilities": {
+      "peace": 0.3367,
+      "war": 0.2311,
+      "abundance": 0.1423,
+      "wisdom": 0.29
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3455
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.3677
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.2919
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.384
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3602
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.3786
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.3667
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3286
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.431
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4013
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4159
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.3636
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3254
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3562
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3559
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.4461
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2799
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3696
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3771
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.4635
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2991
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.3083
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.4371
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.4264
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.4089
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2505
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2889
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.343
+    }
+   },
+   "latencyMs": 26033.3,
+   "tokens": 1846
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G4",
+     "confidence": 0.1069,
+     "probabilities": {
+      "G1": 0.0279,
+      "G2": 0.0328,
+      "G3": 0.0811,
+      "G4": 0.1707,
+      "P1": 0.0485,
+      "B1": 0.0354,
+      "B2": 0.1024,
+      "B3": 0.1633,
+      "R1": 0.0218,
+      "M1": 0.0593,
+      "M2": 0.1603,
+      "W1": 0.0347,
+      "W2": 0.0236,
+      "E1": 0.0382
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.142,
+     "probabilities": {
+      "G1": 0.0557,
+      "G2": 0.0283,
+      "G3": 0.0445,
+      "G4": 0.1856,
+      "P1": 0.0188,
+      "B1": 0.0288,
+      "B2": 0.0735,
+      "B3": 0.0946,
+      "R1": 0.0135,
+      "M1": 0.0423,
+      "M2": 0.1204,
+      "W1": 0.044,
+      "W2": 0.0191,
+      "E1": 0.0319,
+      "none": 0.1992
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2993,
+     "probabilities": {
+      "peace": 0.072,
+      "war": 0.421,
+      "abundance": 0.0325,
+      "wisdom": 0.4744
+     }
+    }
+   },
+   "latencyMs": 16764,
+   "tokens": 828
+  }
+ },
+ "basic-3.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.1379,
+     "probabilities": {
+      "G1": 0.0413,
+      "G2": 0.0747,
+      "G3": 0.0504,
+      "G4": 0.0381,
+      "P1": 0.0457,
+      "B1": 0.102,
+      "B2": 0.0262,
+      "B3": 0.0827,
+      "R1": 0.0654,
+      "M1": 0.1995,
+      "M2": 0.1265,
+      "W1": 0.0338,
+      "W2": 0.0506,
+      "E1": 0.0633
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1222,
+     "probabilities": {
+      "G1": 0.0365,
+      "G2": 0.0502,
+      "G3": 0.039,
+      "G4": 0.0331,
+      "P1": 0.0402,
+      "B1": 0.0502,
+      "B2": 0.0361,
+      "B3": 0.0512,
+      "R1": 0.1136,
+      "M1": 0.0884,
+      "M2": 0.1258,
+      "W1": 0.039,
+      "W2": 0.0536,
+      "E1": 0.0624,
+      "none": 0.1807
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.2181,
+     "probabilities": {
+      "peace": 0.4136,
+      "war": 0.1522,
+      "abundance": 0.1077,
+      "wisdom": 0.3266
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3609
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.3934
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3073
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3306
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.4464
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.3769
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.3503
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3511
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4588
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4813
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.5347
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.4101
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3672
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3624
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3335
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.4015
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2867
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.2827
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3292
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.3891
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2676
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2864
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.4061
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3658
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.3817
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2121
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2295
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.2816
+    }
+   },
+   "latencyMs": 26077.7,
+   "tokens": 1852
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "W1",
+     "confidence": 0.3319,
+     "probabilities": {
+      "G1": 0.0108,
+      "G2": 0.0273,
+      "G3": 0.0578,
+      "G4": 0.0093,
+      "P1": 0.0194,
+      "B1": 0.0178,
+      "B2": 0.0186,
+      "B3": 0.0444,
+      "R1": 0.0071,
+      "M1": 0.1609,
+      "M2": 0.1812,
+      "W1": 0.3796,
+      "W2": 0.0584,
+      "E1": 0.0073
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "W1",
+     "confidence": 0.4773,
+     "probabilities": {
+      "G1": 0.0113,
+      "G2": 0.0243,
+      "G3": 0.0369,
+      "G4": 0.0097,
+      "P1": 0.0073,
+      "B1": 0.0097,
+      "B2": 0.0166,
+      "B3": 0.0294,
+      "R1": 0.0052,
+      "M1": 0.0811,
+      "M2": 0.1083,
+      "W1": 0.5121,
+      "W2": 0.0645,
+      "E1": 0.0079,
+      "none": 0.0757
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "war",
+     "confidence": 0.9559,
+     "probabilities": {
+      "peace": 0.0032,
+      "war": 0.9669,
+      "abundance": 0.0058,
+      "wisdom": 0.0241
+     }
+    }
+   },
+   "latencyMs": 15456.3,
+   "tokens": 834
+  }
+ },
+ "basic-4.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0701,
+     "probabilities": {
+      "G1": 0.0587,
+      "G2": 0.0956,
+      "G3": 0.0585,
+      "G4": 0.0501,
+      "P1": 0.0623,
+      "B1": 0.1163,
+      "B2": 0.0314,
+      "B3": 0.1074,
+      "R1": 0.0532,
+      "M1": 0.0807,
+      "M2": 0.1365,
+      "W1": 0.0214,
+      "W2": 0.0392,
+      "E1": 0.0888
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.0833,
+     "probabilities": {
+      "G1": 0.0475,
+      "G2": 0.0671,
+      "G3": 0.0491,
+      "G4": 0.0427,
+      "P1": 0.0532,
+      "B1": 0.0619,
+      "B2": 0.0474,
+      "B3": 0.0803,
+      "R1": 0.0902,
+      "M1": 0.0453,
+      "M2": 0.121,
+      "W1": 0.0246,
+      "W2": 0.0446,
+      "E1": 0.0807,
+      "none": 0.1444
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.1043,
+     "probabilities": {
+      "peace": 0.2726,
+      "war": 0.0879,
+      "abundance": 0.3112,
+      "wisdom": 0.3282
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3757
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4494
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3564
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3229
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3732
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4604
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.4025
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3516
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.419
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4376
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3922
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.3477
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3314
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3507
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3636
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.4043
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2485
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.4167
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3752
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.3803
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.3001
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.2931
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.5166
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3979
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.4782
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.3118
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.281
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.385
+    }
+   },
+   "latencyMs": 25307.7,
+   "tokens": 1849
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "B3",
+     "confidence": 0.4721,
+     "probabilities": {
+      "G1": 0.0228,
+      "G2": 0.0294,
+      "G3": 0.0521,
+      "G4": 0.0806,
+      "P1": 0.0228,
+      "B1": 0.0647,
+      "B2": 0.0635,
+      "B3": 0.5098,
+      "R1": 0.0074,
+      "M1": 0.027,
+      "M2": 0.0708,
+      "W1": 0.0122,
+      "W2": 0.0137,
+      "E1": 0.0229
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "B3",
+     "confidence": 0.4215,
+     "probabilities": {
+      "G1": 0.0219,
+      "G2": 0.0341,
+      "G3": 0.0504,
+      "G4": 0.0459,
+      "P1": 0.0113,
+      "B1": 0.0278,
+      "B2": 0.0849,
+      "B3": 0.4601,
+      "R1": 0.0074,
+      "M1": 0.0252,
+      "M2": 0.0736,
+      "W1": 0.0171,
+      "W2": 0.0136,
+      "E1": 0.0209,
+      "none": 0.1056
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.1523,
+     "probabilities": {
+      "peace": 0.0674,
+      "war": 0.2329,
+      "abundance": 0.3355,
+      "wisdom": 0.3643
+     }
+    }
+   },
+   "latencyMs": 13953.6,
+   "tokens": 831
+  }
+ },
+ "basic-5.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.061,
+     "probabilities": {
+      "G1": 0.05,
+      "G2": 0.1122,
+      "G3": 0.0664,
+      "G4": 0.0448,
+      "P1": 0.0672,
+      "B1": 0.1203,
+      "B2": 0.0257,
+      "B3": 0.0986,
+      "R1": 0.0784,
+      "M1": 0.0751,
+      "M2": 0.1281,
+      "W1": 0.0206,
+      "W2": 0.0344,
+      "E1": 0.0782
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1037,
+     "probabilities": {
+      "G1": 0.0449,
+      "G2": 0.0658,
+      "G3": 0.0476,
+      "G4": 0.0417,
+      "P1": 0.0499,
+      "B1": 0.058,
+      "B2": 0.0386,
+      "B3": 0.054,
+      "R1": 0.1276,
+      "M1": 0.0479,
+      "M2": 0.1187,
+      "W1": 0.0274,
+      "W2": 0.0414,
+      "E1": 0.0731,
+      "none": 0.1635
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.3482,
+     "probabilities": {
+      "peace": 0.5111,
+      "war": 0.0711,
+      "abundance": 0.1449,
+      "wisdom": 0.2728
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3491
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4225
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3319
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3446
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3671
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4037
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2884
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3248
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4772
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4132
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4142
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.2933
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3209
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3557
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3752
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.4359
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.3187
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3735
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3896
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.4364
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2866
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.31
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.472
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.422
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.4147
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2654
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.3256
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3686
+    }
+   },
+   "latencyMs": 22590.7,
+   "tokens": 1847
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "R1",
+     "confidence": 0.5505,
+     "probabilities": {
+      "G1": 0.0074,
+      "G2": 0.0276,
+      "G3": 0.0563,
+      "G4": 0.0116,
+      "P1": 0.0426,
+      "B1": 0.0168,
+      "B2": 0.025,
+      "B3": 0.0715,
+      "R1": 0.5826,
+      "M1": 0.0463,
+      "M2": 0.0802,
+      "W1": 0.0068,
+      "W2": 0.0106,
+      "E1": 0.0148
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "R1",
+     "confidence": 0.2536,
+     "probabilities": {
+      "G1": 0.0542,
+      "G2": 0.048,
+      "G3": 0.0461,
+      "G4": 0.0246,
+      "P1": 0.0252,
+      "B1": 0.0241,
+      "B2": 0.0299,
+      "B3": 0.0598,
+      "R1": 0.3034,
+      "M1": 0.0406,
+      "M2": 0.087,
+      "W1": 0.0186,
+      "W2": 0.0125,
+      "E1": 0.0249,
+      "none": 0.2012
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.8699,
+     "probabilities": {
+      "peace": 0.9024,
+      "war": 0.0086,
+      "abundance": 0.0106,
+      "wisdom": 0.0784
+     }
+    }
+   },
+   "latencyMs": 14184.4,
+   "tokens": 829
+  }
+ },
+ "basic-6.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "B1",
+     "confidence": 0.0664,
+     "probabilities": {
+      "G1": 0.0554,
+      "G2": 0.1205,
+      "G3": 0.0984,
+      "G4": 0.0415,
+      "P1": 0.054,
+      "B1": 0.133,
+      "B2": 0.0159,
+      "B3": 0.0895,
+      "R1": 0.054,
+      "M1": 0.0798,
+      "M2": 0.1261,
+      "W1": 0.0179,
+      "W2": 0.0346,
+      "E1": 0.0792
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.0951,
+     "probabilities": {
+      "G1": 0.0473,
+      "G2": 0.073,
+      "G3": 0.0709,
+      "G4": 0.0399,
+      "P1": 0.0459,
+      "B1": 0.0695,
+      "B2": 0.0332,
+      "B3": 0.0569,
+      "R1": 0.1029,
+      "M1": 0.0445,
+      "M2": 0.1172,
+      "W1": 0.0252,
+      "W2": 0.0435,
+      "E1": 0.0747,
+      "none": 0.1555
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.164,
+     "probabilities": {
+      "peace": 0.2973,
+      "war": 0.0455,
+      "abundance": 0.2843,
+      "wisdom": 0.373
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3597
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.5056
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.4326
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.279
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3619
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4983
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.2514
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3424
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4184
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4251
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.3094
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.2812
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.2767
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3336
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3726
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.425
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.381
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.4186
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3785
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.4277
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.271
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.3057
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.5911
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3814
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.399
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2634
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2466
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3719
+    }
+   },
+   "latencyMs": 22979.3,
+   "tokens": 1849
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G3",
+     "confidence": 0.6255,
+     "probabilities": {
+      "G1": 0.0136,
+      "G2": 0.0333,
+      "G3": 0.6522,
+      "G4": 0.0084,
+      "P1": 0.024,
+      "B1": 0.0444,
+      "B2": 0.0104,
+      "B3": 0.0321,
+      "R1": 0.0093,
+      "M1": 0.0371,
+      "M2": 0.0887,
+      "W1": 0.0134,
+      "W2": 0.012,
+      "E1": 0.0211
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "G3",
+     "confidence": 0.5276,
+     "probabilities": {
+      "G1": 0.0226,
+      "G2": 0.031,
+      "G3": 0.559,
+      "G4": 0.0132,
+      "P1": 0.0149,
+      "B1": 0.0309,
+      "B2": 0.0181,
+      "B3": 0.0344,
+      "R1": 0.0069,
+      "M1": 0.0305,
+      "M2": 0.0729,
+      "W1": 0.0161,
+      "W2": 0.0103,
+      "E1": 0.0209,
+      "none": 0.1183
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "abundance",
+     "confidence": 0.6466,
+     "probabilities": {
+      "peace": 0.0421,
+      "war": 0.0306,
+      "abundance": 0.7349,
+      "wisdom": 0.1924
+     }
+    }
+   },
+   "latencyMs": 13839.6,
+   "tokens": 831
+  }
+ },
+ "basic-7.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "B1",
+     "confidence": 0.0615,
+     "probabilities": {
+      "G1": 0.0548,
+      "G2": 0.1122,
+      "G3": 0.0655,
+      "G4": 0.0411,
+      "P1": 0.0676,
+      "B1": 0.1285,
+      "B2": 0.0194,
+      "B3": 0.1098,
+      "R1": 0.0424,
+      "M1": 0.0784,
+      "M2": 0.1104,
+      "W1": 0.0154,
+      "W2": 0.0276,
+      "E1": 0.1269
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.0967,
+     "probabilities": {
+      "G1": 0.0463,
+      "G2": 0.0664,
+      "G3": 0.0488,
+      "G4": 0.0381,
+      "P1": 0.0519,
+      "B1": 0.0701,
+      "B2": 0.0357,
+      "B3": 0.0654,
+      "R1": 0.0822,
+      "M1": 0.0449,
+      "M2": 0.1219,
+      "W1": 0.0256,
+      "W2": 0.0391,
+      "E1": 0.1068,
+      "none": 0.1569
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.4479,
+     "probabilities": {
+      "peace": 0.2804,
+      "war": 0.0358,
+      "abundance": 0.0978,
+      "wisdom": 0.586
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3904
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4707
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3205
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.329
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3769
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4327
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.3309
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3407
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.441
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4259
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4097
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.3081
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3301
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3757
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.366
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.4245
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.3138
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3336
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3627
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.4404
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.2868
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.3258
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.4541
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.3764
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.3573
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2205
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.2725
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3413
+    }
+   },
+   "latencyMs": 22162.8,
+   "tokens": 1849
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "E1",
+     "confidence": 0.697,
+     "probabilities": {
+      "G1": 0.0068,
+      "G2": 0.0137,
+      "G3": 0.0223,
+      "G4": 0.0135,
+      "P1": 0.0111,
+      "B1": 0.01,
+      "B2": 0.0069,
+      "B3": 0.0289,
+      "R1": 0.0045,
+      "M1": 0.031,
+      "M2": 0.1112,
+      "W1": 0.0096,
+      "W2": 0.0119,
+      "E1": 0.7186
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "E1",
+     "confidence": 0.6627,
+     "probabilities": {
+      "G1": 0.0093,
+      "G2": 0.0156,
+      "G3": 0.0221,
+      "G4": 0.0138,
+      "P1": 0.0056,
+      "B1": 0.007,
+      "B2": 0.009,
+      "B3": 0.0223,
+      "R1": 0.0041,
+      "M1": 0.0205,
+      "M2": 0.1116,
+      "W1": 0.013,
+      "W2": 0.0109,
+      "E1": 0.6852,
+      "none": 0.0498
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.931,
+     "probabilities": {
+      "peace": 0.017,
+      "war": 0.0234,
+      "abundance": 0.0115,
+      "wisdom": 0.9482
+     }
+    }
+   },
+   "latencyMs": 13932.3,
+   "tokens": 831
+  }
+ },
+ "basic-8.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0716,
+     "probabilities": {
+      "G1": 0.0508,
+      "G2": 0.0895,
+      "G3": 0.054,
+      "G4": 0.047,
+      "P1": 0.0658,
+      "B1": 0.1106,
+      "B2": 0.0339,
+      "B3": 0.1023,
+      "R1": 0.0526,
+      "M1": 0.1132,
+      "M2": 0.1379,
+      "W1": 0.0238,
+      "W2": 0.0414,
+      "E1": 0.0773
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.0952,
+     "probabilities": {
+      "G1": 0.0499,
+      "G2": 0.058,
+      "G3": 0.0434,
+      "G4": 0.0445,
+      "P1": 0.0483,
+      "B1": 0.0599,
+      "B2": 0.0509,
+      "B3": 0.0655,
+      "R1": 0.1023,
+      "M1": 0.0499,
+      "M2": 0.1259,
+      "W1": 0.0288,
+      "W2": 0.0471,
+      "E1": 0.07,
+      "none": 0.1555
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.1819,
+     "probabilities": {
+      "peace": 0.3865,
+      "war": 0.0938,
+      "abundance": 0.1715,
+      "wisdom": 0.3482
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3511
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.3909
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3185
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3157
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3482
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4166
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.332
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3326
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.3853
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4221
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4258
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.36
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3251
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3175
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.3576
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.3816
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2741
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.3573
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.3512
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.4294
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.3016
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.3167
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.4656
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.4129
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.4557
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.2847
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.3118
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3383
+    }
+   },
+   "latencyMs": 22542.2,
+   "tokens": 1847
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "B2",
+     "confidence": 0.2586,
+     "probabilities": {
+      "G1": 0.0418,
+      "G2": 0.0478,
+      "G3": 0.0856,
+      "G4": 0.0506,
+      "P1": 0.0327,
+      "B1": 0.0355,
+      "B2": 0.3115,
+      "B3": 0.0721,
+      "R1": 0.0143,
+      "M1": 0.065,
+      "M2": 0.1461,
+      "W1": 0.0597,
+      "W2": 0.0235,
+      "E1": 0.0136
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "B2",
+     "confidence": 0.2113,
+     "probabilities": {
+      "G1": 0.0331,
+      "G2": 0.0588,
+      "G3": 0.0757,
+      "G4": 0.0471,
+      "P1": 0.0193,
+      "B1": 0.0237,
+      "B2": 0.2639,
+      "B3": 0.0674,
+      "R1": 0.0117,
+      "M1": 0.0418,
+      "M2": 0.112,
+      "W1": 0.0647,
+      "W2": 0.0236,
+      "E1": 0.0203,
+      "none": 0.1369
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "war",
+     "confidence": 0.8074,
+     "probabilities": {
+      "peace": 0.0471,
+      "war": 0.8556,
+      "abundance": 0.0268,
+      "wisdom": 0.0706
+     }
+    }
+   },
+   "latencyMs": 13772.9,
+   "tokens": 829
+  }
+ },
+ "basic-9.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0837,
+     "probabilities": {
+      "G1": 0.0428,
+      "G2": 0.0882,
+      "G3": 0.0551,
+      "G4": 0.041,
+      "P1": 0.0857,
+      "B1": 0.1081,
+      "B2": 0.0261,
+      "B3": 0.1084,
+      "R1": 0.0664,
+      "M1": 0.1018,
+      "M2": 0.1492,
+      "W1": 0.0221,
+      "W2": 0.0391,
+      "E1": 0.0661
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.0965,
+     "probabilities": {
+      "G1": 0.0441,
+      "G2": 0.0621,
+      "G3": 0.0461,
+      "G4": 0.0399,
+      "P1": 0.0624,
+      "B1": 0.0519,
+      "B2": 0.0377,
+      "B3": 0.07,
+      "R1": 0.1128,
+      "M1": 0.0507,
+      "M2": 0.1345,
+      "W1": 0.0258,
+      "W2": 0.0422,
+      "E1": 0.0632,
+      "none": 0.1567
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.2387,
+     "probabilities": {
+      "peace": 0.429,
+      "war": 0.0444,
+      "abundance": 0.1082,
+      "wisdom": 0.4184
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3368
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.3719
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3216
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.2845
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3682
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.3642
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.3018
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3161
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.3993
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4349
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.377
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.3094
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3089
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3186
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.4009
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.4088
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.2968
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.4401
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.4047
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.4024
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.3086
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.3377
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.5357
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.403
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.5075
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.3242
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.3241
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.3914
+    }
+   },
+   "latencyMs": 22260.8,
+   "tokens": 1851
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "B3",
+     "confidence": 0.1705,
+     "probabilities": {
+      "G1": 0.021,
+      "G2": 0.0568,
+      "G3": 0.0852,
+      "G4": 0.0301,
+      "P1": 0.0696,
+      "B1": 0.0458,
+      "B2": 0.0325,
+      "B3": 0.2298,
+      "R1": 0.0203,
+      "M1": 0.1005,
+      "M2": 0.2278,
+      "W1": 0.0302,
+      "W2": 0.0288,
+      "E1": 0.0216
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.1247,
+     "probabilities": {
+      "G1": 0.0288,
+      "G2": 0.0421,
+      "G3": 0.0754,
+      "G4": 0.0408,
+      "P1": 0.0426,
+      "B1": 0.0371,
+      "B2": 0.0485,
+      "B3": 0.1576,
+      "R1": 0.0159,
+      "M1": 0.0888,
+      "M2": 0.1831,
+      "W1": 0.0387,
+      "W2": 0.0233,
+      "E1": 0.0264,
+      "none": 0.1509
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.7012,
+     "probabilities": {
+      "peace": 0.0422,
+      "war": 0.1455,
+      "abundance": 0.0365,
+      "wisdom": 0.7759
+     }
+    }
+   },
+   "latencyMs": 14064.5,
+   "tokens": 833
+  }
+ },
+ "hard-0.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0726,
+     "probabilities": {
+      "G1": 0.0459,
+      "G2": 0.0913,
+      "G3": 0.0624,
+      "G4": 0.0431,
+      "P1": 0.0595,
+      "B1": 0.1086,
+      "B2": 0.0314,
+      "B3": 0.0915,
+      "R1": 0.0691,
+      "M1": 0.12,
+      "M2": 0.1388,
+      "W1": 0.026,
+      "W2": 0.0448,
+      "E1": 0.0676
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1156,
+     "probabilities": {
+      "G1": 0.0418,
+      "G2": 0.0537,
+      "G3": 0.0389,
+      "G4": 0.0349,
+      "P1": 0.0424,
+      "B1": 0.0486,
+      "B2": 0.0567,
+      "B3": 0.0535,
+      "R1": 0.1304,
+      "M1": 0.0534,
+      "M2": 0.1252,
+      "W1": 0.0315,
+      "W2": 0.0474,
+      "E1": 0.067,
+      "none": 0.1746
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.2198,
+     "probabilities": {
+      "peace": 0.4148,
+      "war": 0.1175,
+      "abundance": 0.1117,
+      "wisdom": 0.356
+     }
+    },
+    "do_G1": {
+     "type": "noul",
+     "noul": 0.3469
+    },
+    "do_G2": {
+     "type": "noul",
+     "noul": 0.4023
+    },
+    "do_G3": {
+     "type": "noul",
+     "noul": 0.3419
+    },
+    "do_G4": {
+     "type": "noul",
+     "noul": 0.3402
+    },
+    "do_P1": {
+     "type": "noul",
+     "noul": 0.3475
+    },
+    "do_B1": {
+     "type": "noul",
+     "noul": 0.4155
+    },
+    "do_B2": {
+     "type": "noul",
+     "noul": 0.3618
+    },
+    "do_B3": {
+     "type": "noul",
+     "noul": 0.3316
+    },
+    "do_R1": {
+     "type": "noul",
+     "noul": 0.4152
+    },
+    "do_M1": {
+     "type": "noul",
+     "noul": 0.4368
+    },
+    "do_M2": {
+     "type": "noul",
+     "noul": 0.4258
+    },
+    "do_W1": {
+     "type": "noul",
+     "noul": 0.3238
+    },
+    "do_W2": {
+     "type": "noul",
+     "noul": 0.3348
+    },
+    "do_E1": {
+     "type": "noul",
+     "noul": 0.3276
+    },
+    "ban_G1": {
+     "type": "noul",
+     "noul": 0.4481
+    },
+    "ban_G2": {
+     "type": "noul",
+     "noul": 0.5268
+    },
+    "ban_G3": {
+     "type": "noul",
+     "noul": 0.4027
+    },
+    "ban_G4": {
+     "type": "noul",
+     "noul": 0.4346
+    },
+    "ban_P1": {
+     "type": "noul",
+     "noul": 0.4672
+    },
+    "ban_B1": {
+     "type": "noul",
+     "noul": 0.4955
+    },
+    "ban_B2": {
+     "type": "noul",
+     "noul": 0.3946
+    },
+    "ban_B3": {
+     "type": "noul",
+     "noul": 0.373
+    },
+    "ban_R1": {
+     "type": "noul",
+     "noul": 0.5127
+    },
+    "ban_M1": {
+     "type": "noul",
+     "noul": 0.5522
+    },
+    "ban_M2": {
+     "type": "noul",
+     "noul": 0.4962
+    },
+    "ban_W1": {
+     "type": "noul",
+     "noul": 0.3328
+    },
+    "ban_W2": {
+     "type": "noul",
+     "noul": 0.394
+    },
+    "ban_E1": {
+     "type": "noul",
+     "noul": 0.4164
+    }
+   },
+   "latencyMs": 23072.8,
+   "tokens": 1850
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G3",
+     "confidence": 0.1216,
+     "probabilities": {
+      "G1": 0.0651,
+      "G2": 0.107,
+      "G3": 0.1844,
+      "G4": 0.0206,
+      "P1": 0.0726,
+      "B1": 0.0559,
+      "B2": 0.0542,
+      "B3": 0.1004,
+      "R1": 0.0392,
+      "M1": 0.0887,
+      "M2": 0.1582,
+      "W1": 0.014,
+      "W2": 0.0155,
+      "E1": 0.0241
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.123,
+     "probabilities": {
+      "G1": 0.0423,
+      "G2": 0.0588,
+      "G3": 0.0997,
+      "G4": 0.0283,
+      "P1": 0.0248,
+      "B1": 0.0309,
+      "B2": 0.0454,
+      "B3": 0.0765,
+      "R1": 0.0211,
+      "M1": 0.0541,
+      "M2": 0.1587,
+      "W1": 0.1101,
+      "W2": 0.041,
+      "E1": 0.0267,
+      "none": 0.1815
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.4581,
+     "probabilities": {
+      "peace": 0.5936,
+      "war": 0.1011,
+      "abundance": 0.0446,
+      "wisdom": 0.2607
+     }
+    }
+   },
+   "latencyMs": 14381.1,
+   "tokens": 832
+  }
+ },
+ "hard-1.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0687,
+     "probabilities": {
+      "G1": 0.0749,
+      "G2": 0.0834,
+      "G3": 0.0552,
+      "G4": 0.0432,
+      "P1": 0.0435,
+      "B1": 0.1194,
+      "B2": 0.0254,
+      "B3": 0.1019,
+      "R1": 0.0749,
+      "M1": 0.0902,
+      "M2": 0.1352,
+      "W1": 0.0202,
+      "W2": 0.0363,
+      "E1": 0.096
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1217,
+     "probabilities": {
+      "G1": 0.0612,
+      "G2": 0.0532,
+      "G3": 0.0345,
+      "G4": 0.0365,
+      "P1": 0.0329,
+      "B1": 0.06,
+      "B2": 0.0458,
+      "B3": 0.061,
+      "R1": 0.1401,
+      "M1": 0.0445,
+      "M2": 0.1126,
+      "W1": 0.0222,
+      "W2": 0.0373,
+      "E1": 0.0778,
+      "none": 0.1802
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2389,
+     "probabilities": {
+      "peace": 0.3093,
+      "war": 0.0993,
+      "abundance": 0.1622,
+      "wisdom": 0.4292
+     }
+    }
+   },
+   "latencyMs": 2520.3,
+   "tokens": 830
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G3",
+     "confidence": 0.1768,
+     "probabilities": {
+      "G1": 0.0132,
+      "G2": 0.0698,
+      "G3": 0.2356,
+      "G4": 0.0347,
+      "P1": 0.0565,
+      "B1": 0.0323,
+      "B2": 0.0481,
+      "B3": 0.1162,
+      "R1": 0.0418,
+      "M1": 0.113,
+      "M2": 0.1593,
+      "W1": 0.0202,
+      "W2": 0.019,
+      "E1": 0.0402
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "G1",
+     "confidence": 0.4607,
+     "probabilities": {
+      "G1": 0.4966,
+      "G2": 0.0102,
+      "G3": 0.031,
+      "G4": 0.0164,
+      "P1": 0.01,
+      "B1": 0.031,
+      "B2": 0.0258,
+      "B3": 0.0529,
+      "R1": 0.0095,
+      "M1": 0.0338,
+      "M2": 0.0687,
+      "W1": 0.013,
+      "W2": 0.0098,
+      "E1": 0.0184,
+      "none": 0.173
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.3532,
+     "probabilities": {
+      "peace": 0.3258,
+      "war": 0.0509,
+      "abundance": 0.1084,
+      "wisdom": 0.5149
+     }
+    }
+   },
+   "latencyMs": 14085.8,
+   "tokens": 830
+  }
+ },
+ "hard-2.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.1148,
+     "probabilities": {
+      "G1": 0.0303,
+      "G2": 0.0555,
+      "G3": 0.0381,
+      "G4": 0.0356,
+      "P1": 0.0354,
+      "B1": 0.0807,
+      "B2": 0.0407,
+      "B3": 0.066,
+      "R1": 0.0651,
+      "M1": 0.178,
+      "M2": 0.1496,
+      "W1": 0.0941,
+      "W2": 0.073,
+      "E1": 0.0578
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1295,
+     "probabilities": {
+      "G1": 0.0262,
+      "G2": 0.0366,
+      "G3": 0.0264,
+      "G4": 0.0234,
+      "P1": 0.0311,
+      "B1": 0.0407,
+      "B2": 0.0431,
+      "B3": 0.0411,
+      "R1": 0.0876,
+      "M1": 0.0703,
+      "M2": 0.1686,
+      "W1": 0.0909,
+      "W2": 0.0733,
+      "E1": 0.0534,
+      "none": 0.1875
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.2554,
+     "probabilities": {
+      "peace": 0.4416,
+      "war": 0.2644,
+      "abundance": 0.0644,
+      "wisdom": 0.2297
+     }
+    }
+   },
+   "latencyMs": 2886.4,
+   "tokens": 833
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G3",
+     "confidence": 0.1676,
+     "probabilities": {
+      "G1": 0.094,
+      "G2": 0.0934,
+      "G3": 0.2271,
+      "G4": 0.0286,
+      "P1": 0.0681,
+      "B1": 0.0417,
+      "B2": 0.0292,
+      "B3": 0.1291,
+      "R1": 0.0582,
+      "M1": 0.0813,
+      "M2": 0.0802,
+      "W1": 0.0102,
+      "W2": 0.0135,
+      "E1": 0.0455
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1935,
+     "probabilities": {
+      "G1": 0.0197,
+      "G2": 0.059,
+      "G3": 0.1137,
+      "G4": 0.0241,
+      "P1": 0.0271,
+      "B1": 0.0342,
+      "B2": 0.0341,
+      "B3": 0.0927,
+      "R1": 0.0231,
+      "M1": 0.0374,
+      "M2": 0.073,
+      "W1": 0.1378,
+      "W2": 0.0382,
+      "E1": 0.0386,
+      "none": 0.2473
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.5349,
+     "probabilities": {
+      "peace": 0.6512,
+      "war": 0.0598,
+      "abundance": 0.0342,
+      "wisdom": 0.2548
+     }
+    }
+   },
+   "latencyMs": 14477.5,
+   "tokens": 833
+  }
+ },
+ "hard-3.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0693,
+     "probabilities": {
+      "G1": 0.0508,
+      "G2": 0.0907,
+      "G3": 0.0618,
+      "G4": 0.0479,
+      "P1": 0.0547,
+      "B1": 0.1104,
+      "B2": 0.0255,
+      "B3": 0.096,
+      "R1": 0.069,
+      "M1": 0.1142,
+      "M2": 0.1358,
+      "W1": 0.0268,
+      "W2": 0.0406,
+      "E1": 0.0756
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1077,
+     "probabilities": {
+      "G1": 0.0492,
+      "G2": 0.0602,
+      "G3": 0.0465,
+      "G4": 0.0407,
+      "P1": 0.0424,
+      "B1": 0.0558,
+      "B2": 0.0368,
+      "B3": 0.0591,
+      "R1": 0.103,
+      "M1": 0.0553,
+      "M2": 0.1347,
+      "W1": 0.031,
+      "W2": 0.0474,
+      "E1": 0.0706,
+      "none": 0.1672
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2147,
+     "probabilities": {
+      "peace": 0.3568,
+      "war": 0.0936,
+      "abundance": 0.1386,
+      "wisdom": 0.4111
+     }
+    }
+   },
+   "latencyMs": 2881.7,
+   "tokens": 834
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G3",
+     "confidence": 0.1396,
+     "probabilities": {
+      "G1": 0.0385,
+      "G2": 0.1612,
+      "G3": 0.201,
+      "G4": 0.0299,
+      "P1": 0.04,
+      "B1": 0.064,
+      "B2": 0.0427,
+      "B3": 0.0845,
+      "R1": 0.0539,
+      "M1": 0.0751,
+      "M2": 0.143,
+      "W1": 0.0219,
+      "W2": 0.0145,
+      "E1": 0.0296
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1267,
+     "probabilities": {
+      "G1": 0.0582,
+      "G2": 0.0883,
+      "G3": 0.1234,
+      "G4": 0.028,
+      "P1": 0.0246,
+      "B1": 0.0356,
+      "B2": 0.0403,
+      "B3": 0.0731,
+      "R1": 0.0174,
+      "M1": 0.0494,
+      "M2": 0.1369,
+      "W1": 0.0889,
+      "W2": 0.0233,
+      "E1": 0.0274,
+      "none": 0.185
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.2469,
+     "probabilities": {
+      "peace": 0.4351,
+      "war": 0.1092,
+      "abundance": 0.1394,
+      "wisdom": 0.3162
+     }
+    }
+   },
+   "latencyMs": 13916,
+   "tokens": 834
+  }
+ },
+ "hard-4.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0695,
+     "probabilities": {
+      "G1": 0.0477,
+      "G2": 0.0785,
+      "G3": 0.055,
+      "G4": 0.0741,
+      "P1": 0.069,
+      "B1": 0.1098,
+      "B2": 0.0278,
+      "B3": 0.1195,
+      "R1": 0.0503,
+      "M1": 0.1001,
+      "M2": 0.136,
+      "W1": 0.0202,
+      "W2": 0.0347,
+      "E1": 0.0771
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.0838,
+     "probabilities": {
+      "G1": 0.0414,
+      "G2": 0.0563,
+      "G3": 0.0397,
+      "G4": 0.0723,
+      "P1": 0.0489,
+      "B1": 0.051,
+      "B2": 0.0531,
+      "B3": 0.0747,
+      "R1": 0.1002,
+      "M1": 0.0552,
+      "M2": 0.124,
+      "W1": 0.027,
+      "W2": 0.0436,
+      "E1": 0.0676,
+      "none": 0.1449
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.3356,
+     "probabilities": {
+      "peace": 0.2531,
+      "war": 0.0815,
+      "abundance": 0.1637,
+      "wisdom": 0.5017
+     }
+    }
+   },
+   "latencyMs": 2900.6,
+   "tokens": 831
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G4",
+     "confidence": 0.6806,
+     "probabilities": {
+      "G1": 0.0067,
+      "G2": 0.0106,
+      "G3": 0.0301,
+      "G4": 0.7034,
+      "P1": 0.0175,
+      "B1": 0.0187,
+      "B2": 0.0147,
+      "B3": 0.0877,
+      "R1": 0.0052,
+      "M1": 0.0209,
+      "M2": 0.0546,
+      "W1": 0.0076,
+      "W2": 0.0119,
+      "E1": 0.0105
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "G4",
+     "confidence": 0.2982,
+     "probabilities": {
+      "G1": 0.0183,
+      "G2": 0.0297,
+      "G3": 0.0614,
+      "G4": 0.345,
+      "P1": 0.022,
+      "B1": 0.0256,
+      "B2": 0.0289,
+      "B3": 0.0969,
+      "R1": 0.011,
+      "M1": 0.042,
+      "M2": 0.0947,
+      "W1": 0.0181,
+      "W2": 0.018,
+      "E1": 0.0251,
+      "none": 0.1634
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.4451,
+     "probabilities": {
+      "peace": 0.0674,
+      "war": 0.1415,
+      "abundance": 0.2072,
+      "wisdom": 0.5838
+     }
+    }
+   },
+   "latencyMs": 14090.6,
+   "tokens": 831
+  }
+ },
+ "hard-5.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.1138,
+     "probabilities": {
+      "G1": 0.0359,
+      "G2": 0.0822,
+      "G3": 0.0516,
+      "G4": 0.0337,
+      "P1": 0.0534,
+      "B1": 0.106,
+      "B2": 0.024,
+      "B3": 0.0864,
+      "R1": 0.0527,
+      "M1": 0.1771,
+      "M2": 0.1271,
+      "W1": 0.034,
+      "W2": 0.0511,
+      "E1": 0.0849
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.1021,
+     "probabilities": {
+      "G1": 0.0275,
+      "G2": 0.0462,
+      "G3": 0.0308,
+      "G4": 0.028,
+      "P1": 0.0397,
+      "B1": 0.0472,
+      "B2": 0.0362,
+      "B3": 0.0635,
+      "R1": 0.1068,
+      "M1": 0.0971,
+      "M2": 0.162,
+      "W1": 0.0351,
+      "W2": 0.0617,
+      "E1": 0.0807,
+      "none": 0.1375
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2575,
+     "probabilities": {
+      "peace": 0.3998,
+      "war": 0.0689,
+      "abundance": 0.0881,
+      "wisdom": 0.4431
+     }
+    }
+   },
+   "latencyMs": 2879.3,
+   "tokens": 839
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.2214,
+     "probabilities": {
+      "G1": 0.025,
+      "G2": 0.0554,
+      "G3": 0.0825,
+      "G4": 0.0225,
+      "P1": 0.0392,
+      "B1": 0.0553,
+      "B2": 0.0493,
+      "B3": 0.0906,
+      "R1": 0.024,
+      "M1": 0.1981,
+      "M2": 0.2771,
+      "W1": 0.0497,
+      "W2": 0.0222,
+      "E1": 0.0092
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.1665,
+     "probabilities": {
+      "G1": 0.022,
+      "G2": 0.0677,
+      "G3": 0.0817,
+      "G4": 0.0276,
+      "P1": 0.0294,
+      "B1": 0.0341,
+      "B2": 0.0505,
+      "B3": 0.0699,
+      "R1": 0.0257,
+      "M1": 0.1123,
+      "M2": 0.2221,
+      "W1": 0.0559,
+      "W2": 0.023,
+      "E1": 0.017,
+      "none": 0.1612
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "war",
+     "confidence": 0.2893,
+     "probabilities": {
+      "peace": 0.1372,
+      "war": 0.467,
+      "abundance": 0.0391,
+      "wisdom": 0.3567
+     }
+    }
+   },
+   "latencyMs": 14009.6,
+   "tokens": 839
+  }
+ },
+ "hard-6.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.057,
+     "probabilities": {
+      "G1": 0.0499,
+      "G2": 0.1244,
+      "G3": 0.0605,
+      "G4": 0.0345,
+      "P1": 0.0672,
+      "B1": 0.1071,
+      "B2": 0.0252,
+      "B3": 0.1027,
+      "R1": 0.0723,
+      "M1": 0.1053,
+      "M2": 0.1147,
+      "W1": 0.0179,
+      "W2": 0.0379,
+      "E1": 0.0804
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "R1",
+     "confidence": 0.1036,
+     "probabilities": {
+      "G1": 0.0305,
+      "G2": 0.0609,
+      "G3": 0.0366,
+      "G4": 0.0248,
+      "P1": 0.0402,
+      "B1": 0.0587,
+      "B2": 0.0324,
+      "B3": 0.0528,
+      "R1": 0.1634,
+      "M1": 0.0646,
+      "M2": 0.145,
+      "W1": 0.0247,
+      "W2": 0.0429,
+      "E1": 0.0797,
+      "none": 0.143
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2528,
+     "probabilities": {
+      "peace": 0.3595,
+      "war": 0.0572,
+      "abundance": 0.1437,
+      "wisdom": 0.4396
+     }
+    }
+   },
+   "latencyMs": 2979.5,
+   "tokens": 836
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.241,
+     "probabilities": {
+      "G1": 0.0489,
+      "G2": 0.0553,
+      "G3": 0.1073,
+      "G4": 0.0208,
+      "P1": 0.0293,
+      "B1": 0.0523,
+      "B2": 0.0272,
+      "B3": 0.0585,
+      "R1": 0.0207,
+      "M1": 0.1801,
+      "M2": 0.2952,
+      "W1": 0.0551,
+      "W2": 0.0257,
+      "E1": 0.0236
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.1398,
+     "probabilities": {
+      "G1": 0.0527,
+      "G2": 0.0546,
+      "G3": 0.0955,
+      "G4": 0.026,
+      "P1": 0.0208,
+      "B1": 0.042,
+      "B2": 0.0364,
+      "B3": 0.0739,
+      "R1": 0.0169,
+      "M1": 0.0878,
+      "M2": 0.1972,
+      "W1": 0.058,
+      "W2": 0.026,
+      "E1": 0.0284,
+      "none": 0.1837
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "war",
+     "confidence": 0.2626,
+     "probabilities": {
+      "peace": 0.1191,
+      "war": 0.447,
+      "abundance": 0.0769,
+      "wisdom": 0.3571
+     }
+    }
+   },
+   "latencyMs": 16114.2,
+   "tokens": 836
+  }
+ },
+ "hard-7.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0849,
+     "probabilities": {
+      "G1": 0.0358,
+      "G2": 0.0738,
+      "G3": 0.0524,
+      "G4": 0.0402,
+      "P1": 0.0606,
+      "B1": 0.0904,
+      "B2": 0.027,
+      "B3": 0.1091,
+      "R1": 0.0527,
+      "M1": 0.1299,
+      "M2": 0.1503,
+      "W1": 0.0273,
+      "W2": 0.0521,
+      "E1": 0.0983
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0982,
+     "probabilities": {
+      "G1": 0.0305,
+      "G2": 0.0454,
+      "G3": 0.0315,
+      "G4": 0.0324,
+      "P1": 0.04,
+      "B1": 0.0493,
+      "B2": 0.0466,
+      "B3": 0.067,
+      "R1": 0.1057,
+      "M1": 0.0629,
+      "M2": 0.1583,
+      "W1": 0.031,
+      "W2": 0.0548,
+      "E1": 0.1052,
+      "none": 0.1393
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.2912,
+     "probabilities": {
+      "peace": 0.4684,
+      "war": 0.0584,
+      "abundance": 0.0908,
+      "wisdom": 0.3824
+     }
+    }
+   },
+   "latencyMs": 2920.6,
+   "tokens": 843
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "E1",
+     "confidence": 0.5964,
+     "probabilities": {
+      "G1": 0.0145,
+      "G2": 0.018,
+      "G3": 0.038,
+      "G4": 0.0096,
+      "P1": 0.0147,
+      "B1": 0.0182,
+      "B2": 0.0098,
+      "B3": 0.0274,
+      "R1": 0.0076,
+      "M1": 0.0503,
+      "M2": 0.1465,
+      "W1": 0.0106,
+      "W2": 0.0097,
+      "E1": 0.6252
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "E1",
+     "confidence": 0.4752,
+     "probabilities": {
+      "G1": 0.0165,
+      "G2": 0.0315,
+      "G3": 0.0522,
+      "G4": 0.0142,
+      "P1": 0.0104,
+      "B1": 0.0143,
+      "B2": 0.0169,
+      "B3": 0.0322,
+      "R1": 0.0095,
+      "M1": 0.0366,
+      "M2": 0.1196,
+      "W1": 0.0134,
+      "W2": 0.0099,
+      "E1": 0.5102,
+      "none": 0.1126
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.3267,
+     "probabilities": {
+      "peace": 0.0469,
+      "war": 0.0313,
+      "abundance": 0.4268,
+      "wisdom": 0.495
+     }
+    }
+   },
+   "latencyMs": 16797.2,
+   "tokens": 843
+  }
+ },
+ "hard-8.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0631,
+     "probabilities": {
+      "G1": 0.046,
+      "G2": 0.1274,
+      "G3": 0.0756,
+      "G4": 0.0417,
+      "P1": 0.063,
+      "B1": 0.1232,
+      "B2": 0.02,
+      "B3": 0.0995,
+      "R1": 0.0685,
+      "M1": 0.0773,
+      "M2": 0.1301,
+      "W1": 0.0196,
+      "W2": 0.0369,
+      "E1": 0.0711
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1081,
+     "probabilities": {
+      "G1": 0.0383,
+      "G2": 0.0651,
+      "G3": 0.0527,
+      "G4": 0.0358,
+      "P1": 0.0513,
+      "B1": 0.0709,
+      "B2": 0.0349,
+      "B3": 0.0675,
+      "R1": 0.0981,
+      "M1": 0.0503,
+      "M2": 0.1246,
+      "W1": 0.0278,
+      "W2": 0.0418,
+      "E1": 0.0732,
+      "none": 0.1676
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.269,
+     "probabilities": {
+      "peace": 0.3841,
+      "war": 0.0642,
+      "abundance": 0.1,
+      "wisdom": 0.4517
+     }
+    }
+   },
+   "latencyMs": 2910.2,
+   "tokens": 846
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.1341,
+     "probabilities": {
+      "G1": 0.0315,
+      "G2": 0.1136,
+      "G3": 0.1703,
+      "G4": 0.0156,
+      "P1": 0.0847,
+      "B1": 0.0544,
+      "B2": 0.0223,
+      "B3": 0.0924,
+      "R1": 0.0533,
+      "M1": 0.1193,
+      "M2": 0.1959,
+      "W1": 0.0102,
+      "W2": 0.013,
+      "E1": 0.0234
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1484,
+     "probabilities": {
+      "G1": 0.0412,
+      "G2": 0.0595,
+      "G3": 0.1016,
+      "G4": 0.0212,
+      "P1": 0.1048,
+      "B1": 0.0321,
+      "B2": 0.0252,
+      "B3": 0.0847,
+      "R1": 0.0258,
+      "M1": 0.0702,
+      "M2": 0.1542,
+      "W1": 0.0361,
+      "W2": 0.014,
+      "E1": 0.0243,
+      "none": 0.2052
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.5117,
+     "probabilities": {
+      "peace": 0.2911,
+      "war": 0.0253,
+      "abundance": 0.0499,
+      "wisdom": 0.6338
+     }
+    }
+   },
+   "latencyMs": 16939.5,
+   "tokens": 846
+  }
+ },
+ "hard-9.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0717,
+     "probabilities": {
+      "G1": 0.0405,
+      "G2": 0.118,
+      "G3": 0.0608,
+      "G4": 0.0342,
+      "P1": 0.0669,
+      "B1": 0.1292,
+      "B2": 0.0197,
+      "B3": 0.0844,
+      "R1": 0.0682,
+      "M1": 0.1076,
+      "M2": 0.138,
+      "W1": 0.0227,
+      "W2": 0.0429,
+      "E1": 0.067
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1181,
+     "probabilities": {
+      "G1": 0.0392,
+      "G2": 0.0656,
+      "G3": 0.0483,
+      "G4": 0.0348,
+      "P1": 0.0476,
+      "B1": 0.061,
+      "B2": 0.037,
+      "B3": 0.0509,
+      "R1": 0.1153,
+      "M1": 0.0483,
+      "M2": 0.1198,
+      "W1": 0.0374,
+      "W2": 0.0479,
+      "E1": 0.0699,
+      "none": 0.1769
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.5642,
+     "probabilities": {
+      "peace": 0.6732,
+      "war": 0.0254,
+      "abundance": 0.0671,
+      "wisdom": 0.2344
+     }
+    }
+   },
+   "latencyMs": 2875,
+   "tokens": 827
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.2843,
+     "probabilities": {
+      "G1": 0.0364,
+      "G2": 0.0536,
+      "G3": 0.1115,
+      "G4": 0.0166,
+      "P1": 0.0373,
+      "B1": 0.0463,
+      "B2": 0.0279,
+      "B3": 0.066,
+      "R1": 0.0217,
+      "M1": 0.2076,
+      "M2": 0.3355,
+      "W1": 0.0161,
+      "W2": 0.01,
+      "E1": 0.0136
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.1759,
+     "probabilities": {
+      "G1": 0.0459,
+      "G2": 0.0688,
+      "G3": 0.1039,
+      "G4": 0.0408,
+      "P1": 0.0231,
+      "B1": 0.0356,
+      "B2": 0.0469,
+      "B3": 0.074,
+      "R1": 0.0191,
+      "M1": 0.0922,
+      "M2": 0.2309,
+      "W1": 0.0484,
+      "W2": 0.017,
+      "E1": 0.0216,
+      "none": 0.1318
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.6438,
+     "probabilities": {
+      "peace": 0.7328,
+      "war": 0.03,
+      "abundance": 0.0188,
+      "wisdom": 0.2184
+     }
+    }
+   },
+   "latencyMs": 16578.5,
+   "tokens": 827
+  }
+ },
+ "hard-10.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0865,
+     "probabilities": {
+      "G1": 0.0436,
+      "G2": 0.0837,
+      "G3": 0.0479,
+      "G4": 0.0444,
+      "P1": 0.0575,
+      "B1": 0.1129,
+      "B2": 0.0277,
+      "B3": 0.0974,
+      "R1": 0.0634,
+      "M1": 0.1062,
+      "M2": 0.1518,
+      "W1": 0.024,
+      "W2": 0.0661,
+      "E1": 0.0734
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1222,
+     "probabilities": {
+      "G1": 0.0378,
+      "G2": 0.0533,
+      "G3": 0.0366,
+      "G4": 0.035,
+      "P1": 0.0448,
+      "B1": 0.0538,
+      "B2": 0.0474,
+      "B3": 0.0608,
+      "R1": 0.0962,
+      "M1": 0.056,
+      "M2": 0.1261,
+      "W1": 0.0294,
+      "W2": 0.067,
+      "E1": 0.075,
+      "none": 0.1807
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.3823,
+     "probabilities": {
+      "peace": 0.5367,
+      "war": 0.0648,
+      "abundance": 0.1044,
+      "wisdom": 0.2941
+     }
+    }
+   },
+   "latencyMs": 2876.8,
+   "tokens": 837
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "W2",
+     "confidence": 0.2253,
+     "probabilities": {
+      "G1": 0.0538,
+      "G2": 0.0289,
+      "G3": 0.0754,
+      "G4": 0.014,
+      "P1": 0.0267,
+      "B1": 0.0273,
+      "B2": 0.0235,
+      "B3": 0.0508,
+      "R1": 0.0152,
+      "M1": 0.0605,
+      "M2": 0.1276,
+      "W1": 0.2026,
+      "W2": 0.2806,
+      "E1": 0.013
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "W2",
+     "confidence": 0.2235,
+     "probabilities": {
+      "G1": 0.0209,
+      "G2": 0.022,
+      "G3": 0.0531,
+      "G4": 0.0223,
+      "P1": 0.0119,
+      "B1": 0.021,
+      "B2": 0.0295,
+      "B3": 0.0469,
+      "R1": 0.0117,
+      "M1": 0.0376,
+      "M2": 0.0815,
+      "W1": 0.1781,
+      "W2": 0.2752,
+      "E1": 0.0206,
+      "none": 0.1676
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "war",
+     "confidence": 0.8426,
+     "probabilities": {
+      "peace": 0.0208,
+      "war": 0.8819,
+      "abundance": 0.01,
+      "wisdom": 0.0872
+     }
+    }
+   },
+   "latencyMs": 16842.7,
+   "tokens": 837
+  }
+ },
+ "hard-11.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0712,
+     "probabilities": {
+      "G1": 0.0522,
+      "G2": 0.0841,
+      "G3": 0.0594,
+      "G4": 0.0443,
+      "P1": 0.0643,
+      "B1": 0.1094,
+      "B2": 0.0257,
+      "B3": 0.0911,
+      "R1": 0.0639,
+      "M1": 0.1127,
+      "M2": 0.1375,
+      "W1": 0.0279,
+      "W2": 0.0421,
+      "E1": 0.0854
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.0992,
+     "probabilities": {
+      "G1": 0.0409,
+      "G2": 0.0573,
+      "G3": 0.0456,
+      "G4": 0.0399,
+      "P1": 0.0473,
+      "B1": 0.061,
+      "B2": 0.0421,
+      "B3": 0.0545,
+      "R1": 0.113,
+      "M1": 0.0529,
+      "M2": 0.133,
+      "W1": 0.0358,
+      "W2": 0.0474,
+      "E1": 0.0701,
+      "none": 0.1592
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.1881,
+     "probabilities": {
+      "peace": 0.3301,
+      "war": 0.092,
+      "abundance": 0.1869,
+      "wisdom": 0.3911
+     }
+    }
+   },
+   "latencyMs": 2873.6,
+   "tokens": 825
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.1542,
+     "probabilities": {
+      "G1": 0.0559,
+      "G2": 0.0412,
+      "G3": 0.1221,
+      "G4": 0.0538,
+      "P1": 0.0533,
+      "B1": 0.0524,
+      "B2": 0.0517,
+      "B3": 0.1386,
+      "R1": 0.0238,
+      "M1": 0.096,
+      "M2": 0.2146,
+      "W1": 0.0371,
+      "W2": 0.0268,
+      "E1": 0.0325
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.1147,
+     "probabilities": {
+      "G1": 0.044,
+      "G2": 0.0606,
+      "G3": 0.0989,
+      "G4": 0.0478,
+      "P1": 0.0284,
+      "B1": 0.0376,
+      "B2": 0.0564,
+      "B3": 0.0935,
+      "R1": 0.0179,
+      "M1": 0.064,
+      "M2": 0.1737,
+      "W1": 0.0599,
+      "W2": 0.0268,
+      "E1": 0.036,
+      "none": 0.1547
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.185,
+     "probabilities": {
+      "peace": 0.1453,
+      "war": 0.272,
+      "abundance": 0.194,
+      "wisdom": 0.3887
+     }
+    }
+   },
+   "latencyMs": 13775.6,
+   "tokens": 825
+  }
+ },
+ "hard-12.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "B1",
+     "confidence": 0.075,
+     "probabilities": {
+      "G1": 0.0574,
+      "G2": 0.1195,
+      "G3": 0.069,
+      "G4": 0.0488,
+      "P1": 0.0628,
+      "B1": 0.1411,
+      "B2": 0.017,
+      "B3": 0.0869,
+      "R1": 0.051,
+      "M1": 0.0723,
+      "M2": 0.1345,
+      "W1": 0.0206,
+      "W2": 0.0395,
+      "E1": 0.0796
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1139,
+     "probabilities": {
+      "G1": 0.0448,
+      "G2": 0.0685,
+      "G3": 0.0535,
+      "G4": 0.0411,
+      "P1": 0.0504,
+      "B1": 0.0704,
+      "B2": 0.0304,
+      "B3": 0.0597,
+      "R1": 0.0867,
+      "M1": 0.0507,
+      "M2": 0.1215,
+      "W1": 0.0263,
+      "W2": 0.0458,
+      "E1": 0.0775,
+      "none": 0.173
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "abundance",
+     "confidence": 0.1341,
+     "probabilities": {
+      "peace": 0.2757,
+      "war": 0.054,
+      "abundance": 0.3506,
+      "wisdom": 0.3197
+     }
+    }
+   },
+   "latencyMs": 2874.5,
+   "tokens": 834
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.1466,
+     "probabilities": {
+      "G1": 0.0151,
+      "G2": 0.0975,
+      "G3": 0.0807,
+      "G4": 0.0812,
+      "P1": 0.0445,
+      "B1": 0.0715,
+      "B2": 0.0479,
+      "B3": 0.1198,
+      "R1": 0.0159,
+      "M1": 0.0929,
+      "M2": 0.2076,
+      "W1": 0.0341,
+      "W2": 0.0343,
+      "E1": 0.0571
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.1341,
+     "probabilities": {
+      "G1": 0.0237,
+      "G2": 0.0871,
+      "G3": 0.0759,
+      "G4": 0.0733,
+      "P1": 0.0222,
+      "B1": 0.0417,
+      "B2": 0.0479,
+      "B3": 0.0826,
+      "R1": 0.0114,
+      "M1": 0.0714,
+      "M2": 0.1918,
+      "W1": 0.0447,
+      "W2": 0.0259,
+      "E1": 0.0453,
+      "none": 0.155
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "abundance",
+     "confidence": 0.8757,
+     "probabilities": {
+      "peace": 0.016,
+      "war": 0.0324,
+      "abundance": 0.9068,
+      "wisdom": 0.0448
+     }
+    }
+   },
+   "latencyMs": 13896,
+   "tokens": 834
+  }
+ },
+ "hard-13.ko": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.0974,
+     "probabilities": {
+      "G1": 0.0419,
+      "G2": 0.0896,
+      "G3": 0.06,
+      "G4": 0.0391,
+      "P1": 0.0559,
+      "B1": 0.1049,
+      "B2": 0.0278,
+      "B3": 0.074,
+      "R1": 0.07,
+      "M1": 0.1618,
+      "M2": 0.1345,
+      "W1": 0.0251,
+      "W2": 0.0514,
+      "E1": 0.0639
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1145,
+     "probabilities": {
+      "G1": 0.0308,
+      "G2": 0.0496,
+      "G3": 0.0378,
+      "G4": 0.0335,
+      "P1": 0.0432,
+      "B1": 0.0562,
+      "B2": 0.0471,
+      "B3": 0.0525,
+      "R1": 0.1241,
+      "M1": 0.0591,
+      "M2": 0.1307,
+      "W1": 0.0318,
+      "W2": 0.0576,
+      "E1": 0.0725,
+      "none": 0.1735
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2019,
+     "probabilities": {
+      "peace": 0.3497,
+      "war": 0.1071,
+      "abundance": 0.1418,
+      "wisdom": 0.4014
+     }
+    }
+   },
+   "latencyMs": 2884.5,
+   "tokens": 842
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "W2",
+     "confidence": 0.2779,
+     "probabilities": {
+      "G1": 0.04,
+      "G2": 0.0733,
+      "G3": 0.0724,
+      "G4": 0.0219,
+      "P1": 0.0191,
+      "B1": 0.0469,
+      "B2": 0.0358,
+      "B3": 0.0889,
+      "R1": 0.012,
+      "M1": 0.0517,
+      "M2": 0.1666,
+      "W1": 0.0289,
+      "W2": 0.3295,
+      "E1": 0.013
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "W2",
+     "confidence": 0.3726,
+     "probabilities": {
+      "G1": 0.0366,
+      "G2": 0.0497,
+      "G3": 0.0511,
+      "G4": 0.0236,
+      "P1": 0.0106,
+      "B1": 0.0285,
+      "B2": 0.0284,
+      "B3": 0.0612,
+      "R1": 0.007,
+      "M1": 0.0373,
+      "M2": 0.121,
+      "W1": 0.0325,
+      "W2": 0.4145,
+      "E1": 0.0171,
+      "none": 0.081
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "abundance",
+     "confidence": 0.1175,
+     "probabilities": {
+      "peace": 0.0885,
+      "war": 0.2606,
+      "abundance": 0.3381,
+      "wisdom": 0.3128
+     }
+    }
+   },
+   "latencyMs": 13967.6,
+   "tokens": 842
+  }
+ },
+ "basic-0.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0825,
+     "probabilities": {
+      "G1": 0.0638,
+      "G2": 0.1068,
+      "G3": 0.0357,
+      "G4": 0.0295,
+      "P1": 0.0809,
+      "B1": 0.0701,
+      "B2": 0.0374,
+      "B3": 0.0579,
+      "R1": 0.0561,
+      "M1": 0.137,
+      "M2": 0.148,
+      "W1": 0.0409,
+      "W2": 0.0631,
+      "E1": 0.0727
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1229,
+     "probabilities": {
+      "G1": 0.0515,
+      "G2": 0.0899,
+      "G3": 0.0249,
+      "G4": 0.0349,
+      "P1": 0.0596,
+      "B1": 0.048,
+      "B2": 0.0995,
+      "B3": 0.0419,
+      "R1": 0.053,
+      "M1": 0.0685,
+      "M2": 0.0828,
+      "W1": 0.053,
+      "W2": 0.0452,
+      "E1": 0.066,
+      "none": 0.1814
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.3413,
+     "probabilities": {
+      "peace": 0.506,
+      "war": 0.0559,
+      "abundance": 0.0778,
+      "wisdom": 0.3603
+     }
+    }
+   },
+   "latencyMs": 2349.8,
+   "tokens": 667
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.3656,
+     "probabilities": {
+      "G1": 0.0222,
+      "G2": 0.0489,
+      "G3": 0.0285,
+      "G4": 0.0056,
+      "P1": 0.1282,
+      "B1": 0.05,
+      "B2": 0.0294,
+      "B3": 0.1444,
+      "R1": 0.0257,
+      "M1": 0.4109,
+      "M2": 0.071,
+      "W1": 0.0063,
+      "W2": 0.0149,
+      "E1": 0.014
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.1966,
+     "probabilities": {
+      "G1": 0.0231,
+      "G2": 0.03,
+      "G3": 0.0223,
+      "G4": 0.0259,
+      "P1": 0.0342,
+      "B1": 0.0369,
+      "B2": 0.0943,
+      "B3": 0.0745,
+      "R1": 0.0165,
+      "M1": 0.2501,
+      "M2": 0.0702,
+      "W1": 0.1083,
+      "W2": 0.0479,
+      "E1": 0.0218,
+      "none": 0.1439
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.4643,
+     "probabilities": {
+      "peace": 0.5982,
+      "war": 0.0234,
+      "abundance": 0.0263,
+      "wisdom": 0.352
+     }
+    }
+   },
+   "latencyMs": 12007.2,
+   "tokens": 667
+  }
+ },
+ "basic-1.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0815,
+     "probabilities": {
+      "G1": 0.0849,
+      "G2": 0.1105,
+      "G3": 0.0404,
+      "G4": 0.0262,
+      "P1": 0.0768,
+      "B1": 0.0902,
+      "B2": 0.0221,
+      "B3": 0.0654,
+      "R1": 0.0639,
+      "M1": 0.1163,
+      "M2": 0.1471,
+      "W1": 0.0313,
+      "W2": 0.0623,
+      "E1": 0.0627
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1304,
+     "probabilities": {
+      "G1": 0.0629,
+      "G2": 0.0998,
+      "G3": 0.0312,
+      "G4": 0.0253,
+      "P1": 0.0582,
+      "B1": 0.0595,
+      "B2": 0.059,
+      "B3": 0.0507,
+      "R1": 0.0729,
+      "M1": 0.0755,
+      "M2": 0.0743,
+      "W1": 0.0389,
+      "W2": 0.0416,
+      "E1": 0.0619,
+      "none": 0.1883
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.3439,
+     "probabilities": {
+      "peace": 0.2306,
+      "war": 0.0874,
+      "abundance": 0.174,
+      "wisdom": 0.5079
+     }
+    }
+   },
+   "latencyMs": 2352.2,
+   "tokens": 671
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.1527,
+     "probabilities": {
+      "G1": 0.0331,
+      "G2": 0.2132,
+      "G3": 0.148,
+      "G4": 0.0055,
+      "P1": 0.1241,
+      "B1": 0.1078,
+      "B2": 0.0243,
+      "B3": 0.1334,
+      "R1": 0.0447,
+      "M1": 0.0546,
+      "M2": 0.0511,
+      "W1": 0.012,
+      "W2": 0.0303,
+      "E1": 0.0179
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1163,
+     "probabilities": {
+      "G1": 0.0249,
+      "G2": 0.0844,
+      "G3": 0.0707,
+      "G4": 0.0241,
+      "P1": 0.0456,
+      "B1": 0.057,
+      "B2": 0.0599,
+      "B3": 0.1023,
+      "R1": 0.1091,
+      "M1": 0.0802,
+      "M2": 0.0578,
+      "W1": 0.0405,
+      "W2": 0.0427,
+      "E1": 0.0256,
+      "none": 0.1753
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "abundance",
+     "confidence": 0.5741,
+     "probabilities": {
+      "peace": 0.1372,
+      "war": 0.019,
+      "abundance": 0.6806,
+      "wisdom": 0.1632
+     }
+    }
+   },
+   "latencyMs": 11623.1,
+   "tokens": 671
+  }
+ },
+ "basic-2.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.0655,
+     "probabilities": {
+      "G1": 0.0822,
+      "G2": 0.1323,
+      "G3": 0.0413,
+      "G4": 0.0499,
+      "P1": 0.074,
+      "B1": 0.0666,
+      "B2": 0.0454,
+      "B3": 0.0587,
+      "R1": 0.0589,
+      "M1": 0.093,
+      "M2": 0.1256,
+      "W1": 0.0446,
+      "W2": 0.0578,
+      "E1": 0.0698
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.0934,
+     "probabilities": {
+      "G1": 0.0617,
+      "G2": 0.0992,
+      "G3": 0.029,
+      "G4": 0.0619,
+      "P1": 0.0545,
+      "B1": 0.0478,
+      "B2": 0.1045,
+      "B3": 0.0515,
+      "R1": 0.0514,
+      "M1": 0.0484,
+      "M2": 0.0682,
+      "W1": 0.058,
+      "W2": 0.0423,
+      "E1": 0.068,
+      "none": 0.1539
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2784,
+     "probabilities": {
+      "peace": 0.2153,
+      "war": 0.1461,
+      "abundance": 0.1799,
+      "wisdom": 0.4588
+     }
+    }
+   },
+   "latencyMs": 2359,
+   "tokens": 666
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "B3",
+     "confidence": 0.1095,
+     "probabilities": {
+      "G1": 0.0597,
+      "G2": 0.0622,
+      "G3": 0.0401,
+      "G4": 0.0438,
+      "P1": 0.1615,
+      "B1": 0.0678,
+      "B2": 0.093,
+      "B3": 0.1731,
+      "R1": 0.051,
+      "M1": 0.0866,
+      "M2": 0.0593,
+      "W1": 0.0308,
+      "W2": 0.0381,
+      "E1": 0.033
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.2056,
+     "probabilities": {
+      "G1": 0.1299,
+      "G2": 0.0292,
+      "G3": 0.0254,
+      "G4": 0.1189,
+      "P1": 0.0147,
+      "B1": 0.046,
+      "B2": 0.0451,
+      "B3": 0.0783,
+      "R1": 0.0132,
+      "M1": 0.0707,
+      "M2": 0.0495,
+      "W1": 0.0423,
+      "W2": 0.0445,
+      "E1": 0.0338,
+      "none": 0.2586
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.5365,
+     "probabilities": {
+      "peace": 0.085,
+      "war": 0.2242,
+      "abundance": 0.0384,
+      "wisdom": 0.6524
+     }
+    }
+   },
+   "latencyMs": 11688.8,
+   "tokens": 666
+  }
+ },
+ "basic-3.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0954,
+     "probabilities": {
+      "G1": 0.0719,
+      "G2": 0.111,
+      "G3": 0.0344,
+      "G4": 0.0329,
+      "P1": 0.0634,
+      "B1": 0.0511,
+      "B2": 0.0331,
+      "B3": 0.0526,
+      "R1": 0.0484,
+      "M1": 0.1417,
+      "M2": 0.16,
+      "W1": 0.0538,
+      "W2": 0.0822,
+      "E1": 0.0636
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.122,
+     "probabilities": {
+      "G1": 0.0465,
+      "G2": 0.0857,
+      "G3": 0.0259,
+      "G4": 0.0335,
+      "P1": 0.0502,
+      "B1": 0.0377,
+      "B2": 0.069,
+      "B3": 0.042,
+      "R1": 0.0475,
+      "M1": 0.0854,
+      "M2": 0.1054,
+      "W1": 0.0634,
+      "W2": 0.0586,
+      "E1": 0.0686,
+      "none": 0.1805
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.3129,
+     "probabilities": {
+      "peace": 0.1902,
+      "war": 0.2164,
+      "abundance": 0.1088,
+      "wisdom": 0.4847
+     }
+    }
+   },
+   "latencyMs": 2344,
+   "tokens": 672
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "W1",
+     "confidence": 0.2348,
+     "probabilities": {
+      "G1": 0.0286,
+      "G2": 0.0613,
+      "G3": 0.0224,
+      "G4": 0.0087,
+      "P1": 0.0958,
+      "B1": 0.0348,
+      "B2": 0.0335,
+      "B3": 0.0967,
+      "R1": 0.0224,
+      "M1": 0.1105,
+      "M2": 0.0691,
+      "W1": 0.2894,
+      "W2": 0.115,
+      "E1": 0.0119
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "W1",
+     "confidence": 0.283,
+     "probabilities": {
+      "G1": 0.0194,
+      "G2": 0.0386,
+      "G3": 0.0187,
+      "G4": 0.0151,
+      "P1": 0.0329,
+      "B1": 0.0253,
+      "B2": 0.0324,
+      "B3": 0.0612,
+      "R1": 0.0114,
+      "M1": 0.1155,
+      "M2": 0.0692,
+      "W1": 0.3308,
+      "W2": 0.0984,
+      "E1": 0.014,
+      "none": 0.1173
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "war",
+     "confidence": 0.6652,
+     "probabilities": {
+      "peace": 0.0234,
+      "war": 0.7489,
+      "abundance": 0.0227,
+      "wisdom": 0.2051
+     }
+    }
+   },
+   "latencyMs": 11552,
+   "tokens": 672
+  }
+ },
+ "basic-4.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.0735,
+     "probabilities": {
+      "G1": 0.0958,
+      "G2": 0.1397,
+      "G3": 0.0418,
+      "G4": 0.0494,
+      "P1": 0.0726,
+      "B1": 0.0878,
+      "B2": 0.0457,
+      "B3": 0.0775,
+      "R1": 0.0544,
+      "M1": 0.0725,
+      "M2": 0.111,
+      "W1": 0.0359,
+      "W2": 0.055,
+      "E1": 0.061
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.0935,
+     "probabilities": {
+      "G1": 0.0647,
+      "G2": 0.0981,
+      "G3": 0.0313,
+      "G4": 0.0498,
+      "P1": 0.0616,
+      "B1": 0.0691,
+      "B2": 0.089,
+      "B3": 0.0769,
+      "R1": 0.0551,
+      "M1": 0.0475,
+      "M2": 0.0632,
+      "W1": 0.0365,
+      "W2": 0.0384,
+      "E1": 0.0649,
+      "none": 0.1539
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2454,
+     "probabilities": {
+      "peace": 0.2274,
+      "war": 0.0991,
+      "abundance": 0.2395,
+      "wisdom": 0.434
+     }
+    }
+   },
+   "latencyMs": 2342.2,
+   "tokens": 669
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "B3",
+     "confidence": 0.2625,
+     "probabilities": {
+      "G1": 0.0672,
+      "G2": 0.0744,
+      "G3": 0.0368,
+      "G4": 0.0222,
+      "P1": 0.1318,
+      "B1": 0.0613,
+      "B2": 0.0658,
+      "B3": 0.3152,
+      "R1": 0.035,
+      "M1": 0.061,
+      "M2": 0.0521,
+      "W1": 0.0143,
+      "W2": 0.0339,
+      "E1": 0.0289
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "B3",
+     "confidence": 0.1843,
+     "probabilities": {
+      "G1": 0.0485,
+      "G2": 0.051,
+      "G3": 0.0278,
+      "G4": 0.0439,
+      "P1": 0.0617,
+      "B1": 0.0512,
+      "B2": 0.0887,
+      "B3": 0.2387,
+      "R1": 0.0188,
+      "M1": 0.0607,
+      "M2": 0.045,
+      "W1": 0.0318,
+      "W2": 0.0382,
+      "E1": 0.0347,
+      "none": 0.1594
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2866,
+     "probabilities": {
+      "peace": 0.0707,
+      "war": 0.1405,
+      "abundance": 0.3238,
+      "wisdom": 0.465
+     }
+    }
+   },
+   "latencyMs": 11481.7,
+   "tokens": 669
+  }
+ },
+ "basic-5.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.0704,
+     "probabilities": {
+      "G1": 0.0767,
+      "G2": 0.1368,
+      "G3": 0.046,
+      "G4": 0.0342,
+      "P1": 0.0836,
+      "B1": 0.07,
+      "B2": 0.0243,
+      "B3": 0.0568,
+      "R1": 0.1229,
+      "M1": 0.0871,
+      "M2": 0.1279,
+      "W1": 0.0282,
+      "W2": 0.0477,
+      "E1": 0.0579
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1147,
+     "probabilities": {
+      "G1": 0.059,
+      "G2": 0.0939,
+      "G3": 0.0302,
+      "G4": 0.0374,
+      "P1": 0.0512,
+      "B1": 0.0473,
+      "B2": 0.0684,
+      "B3": 0.0424,
+      "R1": 0.15,
+      "M1": 0.0471,
+      "M2": 0.0672,
+      "W1": 0.0362,
+      "W2": 0.0339,
+      "E1": 0.0621,
+      "none": 0.1737
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.261,
+     "probabilities": {
+      "peace": 0.4458,
+      "war": 0.0689,
+      "abundance": 0.1489,
+      "wisdom": 0.3364
+     }
+    }
+   },
+   "latencyMs": 2341.3,
+   "tokens": 667
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "R1",
+     "confidence": 0.4921,
+     "probabilities": {
+      "G1": 0.0155,
+      "G2": 0.0483,
+      "G3": 0.0364,
+      "G4": 0.0051,
+      "P1": 0.0864,
+      "B1": 0.0388,
+      "B2": 0.0278,
+      "B3": 0.0858,
+      "R1": 0.5283,
+      "M1": 0.0532,
+      "M2": 0.0333,
+      "W1": 0.0081,
+      "W2": 0.0174,
+      "E1": 0.0156
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "R1",
+     "confidence": 0.2149,
+     "probabilities": {
+      "G1": 0.0443,
+      "G2": 0.0401,
+      "G3": 0.0303,
+      "G4": 0.0186,
+      "P1": 0.0315,
+      "B1": 0.0345,
+      "B2": 0.0598,
+      "B3": 0.0696,
+      "R1": 0.2673,
+      "M1": 0.0711,
+      "M2": 0.0333,
+      "W1": 0.0344,
+      "W2": 0.0306,
+      "E1": 0.0248,
+      "none": 0.2102
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.8405,
+     "probabilities": {
+      "peace": 0.8804,
+      "war": 0.0055,
+      "abundance": 0.0193,
+      "wisdom": 0.0948
+     }
+    }
+   },
+   "latencyMs": 11827.8,
+   "tokens": 667
+  }
+ },
+ "basic-6.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.0944,
+     "probabilities": {
+      "G1": 0.1011,
+      "G2": 0.1591,
+      "G3": 0.0854,
+      "G4": 0.0295,
+      "P1": 0.0634,
+      "B1": 0.0816,
+      "B2": 0.0194,
+      "B3": 0.0538,
+      "R1": 0.0682,
+      "M1": 0.0805,
+      "M2": 0.1189,
+      "W1": 0.0282,
+      "W2": 0.052,
+      "E1": 0.0591
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1309,
+     "probabilities": {
+      "G1": 0.0716,
+      "G2": 0.1326,
+      "G3": 0.0953,
+      "G4": 0.0283,
+      "P1": 0.044,
+      "B1": 0.0669,
+      "B2": 0.0398,
+      "B3": 0.0368,
+      "R1": 0.0803,
+      "M1": 0.0414,
+      "M2": 0.0544,
+      "W1": 0.0275,
+      "W2": 0.0319,
+      "E1": 0.0602,
+      "none": 0.1889
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "abundance",
+     "confidence": 0.4247,
+     "probabilities": {
+      "peace": 0.1081,
+      "war": 0.0288,
+      "abundance": 0.5685,
+      "wisdom": 0.2946
+     }
+    }
+   },
+   "latencyMs": 2360.8,
+   "tokens": 669
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G3",
+     "confidence": 0.5285,
+     "probabilities": {
+      "G1": 0.0279,
+      "G2": 0.1264,
+      "G3": 0.5622,
+      "G4": 0.0033,
+      "P1": 0.0446,
+      "B1": 0.0829,
+      "B2": 0.0117,
+      "B3": 0.0506,
+      "R1": 0.02,
+      "M1": 0.0196,
+      "M2": 0.0221,
+      "W1": 0.0051,
+      "W2": 0.0127,
+      "E1": 0.0108
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "G3",
+     "confidence": 0.5481,
+     "probabilities": {
+      "G1": 0.0221,
+      "G2": 0.0615,
+      "G3": 0.5783,
+      "G4": 0.0128,
+      "P1": 0.0172,
+      "B1": 0.0421,
+      "B2": 0.0293,
+      "B3": 0.0358,
+      "R1": 0.0124,
+      "M1": 0.0334,
+      "M2": 0.0214,
+      "W1": 0.0138,
+      "W2": 0.0144,
+      "E1": 0.0142,
+      "none": 0.0915
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "abundance",
+     "confidence": 0.7412,
+     "probabilities": {
+      "peace": 0.0521,
+      "war": 0.0132,
+      "abundance": 0.8059,
+      "wisdom": 0.1287
+     }
+    }
+   },
+   "latencyMs": 11760.2,
+   "tokens": 669
+  }
+ },
+ "basic-7.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0623,
+     "probabilities": {
+      "G1": 0.0901,
+      "G2": 0.1268,
+      "G3": 0.0427,
+      "G4": 0.0361,
+      "P1": 0.0809,
+      "B1": 0.0745,
+      "B2": 0.0271,
+      "B3": 0.0587,
+      "R1": 0.0592,
+      "M1": 0.0953,
+      "M2": 0.1293,
+      "W1": 0.0345,
+      "W2": 0.0594,
+      "E1": 0.0855
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1221,
+     "probabilities": {
+      "G1": 0.0688,
+      "G2": 0.1135,
+      "G3": 0.0294,
+      "G4": 0.0394,
+      "P1": 0.0568,
+      "B1": 0.054,
+      "B2": 0.0668,
+      "B3": 0.0413,
+      "R1": 0.0587,
+      "M1": 0.0515,
+      "M2": 0.0703,
+      "W1": 0.0398,
+      "W2": 0.0397,
+      "E1": 0.0895,
+      "none": 0.1806
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.6306,
+     "probabilities": {
+      "peace": 0.1352,
+      "war": 0.0411,
+      "abundance": 0.1008,
+      "wisdom": 0.723
+     }
+    }
+   },
+   "latencyMs": 2348.1,
+   "tokens": 669
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "E1",
+     "confidence": 0.4344,
+     "probabilities": {
+      "G1": 0.0188,
+      "G2": 0.0375,
+      "G3": 0.0277,
+      "G4": 0.0099,
+      "P1": 0.0708,
+      "B1": 0.0274,
+      "B2": 0.0349,
+      "B3": 0.0706,
+      "R1": 0.0326,
+      "M1": 0.0451,
+      "M2": 0.0816,
+      "W1": 0.0218,
+      "W2": 0.0467,
+      "E1": 0.4748
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "E1",
+     "confidence": 0.2801,
+     "probabilities": {
+      "G1": 0.0314,
+      "G2": 0.0318,
+      "G3": 0.0281,
+      "G4": 0.0178,
+      "P1": 0.0255,
+      "B1": 0.0261,
+      "B2": 0.0596,
+      "B3": 0.0488,
+      "R1": 0.0181,
+      "M1": 0.0573,
+      "M2": 0.0879,
+      "W1": 0.0402,
+      "W2": 0.0424,
+      "E1": 0.3281,
+      "none": 0.1569
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.9535,
+     "probabilities": {
+      "peace": 0.0154,
+      "war": 0.01,
+      "abundance": 0.0095,
+      "wisdom": 0.9652
+     }
+    }
+   },
+   "latencyMs": 11802.3,
+   "tokens": 669
+  }
+ },
+ "basic-8.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.0806,
+     "probabilities": {
+      "G1": 0.0828,
+      "G2": 0.1463,
+      "G3": 0.0446,
+      "G4": 0.0382,
+      "P1": 0.0792,
+      "B1": 0.0718,
+      "B2": 0.0362,
+      "B3": 0.0608,
+      "R1": 0.0609,
+      "M1": 0.0933,
+      "M2": 0.1204,
+      "W1": 0.0421,
+      "W2": 0.0587,
+      "E1": 0.0647
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1084,
+     "probabilities": {
+      "G1": 0.0681,
+      "G2": 0.1169,
+      "G3": 0.0329,
+      "G4": 0.0456,
+      "P1": 0.0598,
+      "B1": 0.0528,
+      "B2": 0.0764,
+      "B3": 0.0468,
+      "R1": 0.0653,
+      "M1": 0.0529,
+      "M2": 0.0652,
+      "W1": 0.0437,
+      "W2": 0.0381,
+      "E1": 0.0676,
+      "none": 0.1679
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2765,
+     "probabilities": {
+      "peace": 0.239,
+      "war": 0.097,
+      "abundance": 0.2066,
+      "wisdom": 0.4574
+     }
+    }
+   },
+   "latencyMs": 2327,
+   "tokens": 667
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "B2",
+     "confidence": 0.1378,
+     "probabilities": {
+      "G1": 0.0651,
+      "G2": 0.0679,
+      "G3": 0.0382,
+      "G4": 0.0208,
+      "P1": 0.1192,
+      "B1": 0.0585,
+      "B2": 0.1994,
+      "B3": 0.1488,
+      "R1": 0.0405,
+      "M1": 0.1235,
+      "M2": 0.0521,
+      "W1": 0.0169,
+      "W2": 0.0277,
+      "E1": 0.0214
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1189,
+     "probabilities": {
+      "G1": 0.0379,
+      "G2": 0.0452,
+      "G3": 0.0326,
+      "G4": 0.0368,
+      "P1": 0.0461,
+      "B1": 0.0488,
+      "B2": 0.0985,
+      "B3": 0.0977,
+      "R1": 0.0217,
+      "M1": 0.1339,
+      "M2": 0.065,
+      "W1": 0.0695,
+      "W2": 0.0553,
+      "E1": 0.0333,
+      "none": 0.1777
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "war",
+     "confidence": 0.4345,
+     "probabilities": {
+      "peace": 0.1284,
+      "war": 0.5759,
+      "abundance": 0.0904,
+      "wisdom": 0.2053
+     }
+    }
+   },
+   "latencyMs": 11600.7,
+   "tokens": 667
+  }
+ },
+ "basic-9.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0722,
+     "probabilities": {
+      "G1": 0.0794,
+      "G2": 0.1236,
+      "G3": 0.0408,
+      "G4": 0.0328,
+      "P1": 0.0999,
+      "B1": 0.0616,
+      "B2": 0.0268,
+      "B3": 0.0755,
+      "R1": 0.0607,
+      "M1": 0.1117,
+      "M2": 0.1385,
+      "W1": 0.0348,
+      "W2": 0.061,
+      "E1": 0.0528
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1064,
+     "probabilities": {
+      "G1": 0.0494,
+      "G2": 0.0909,
+      "G3": 0.0295,
+      "G4": 0.0388,
+      "P1": 0.0874,
+      "B1": 0.0484,
+      "B2": 0.0781,
+      "B3": 0.0579,
+      "R1": 0.0598,
+      "M1": 0.0693,
+      "M2": 0.0811,
+      "W1": 0.0433,
+      "W2": 0.0435,
+      "E1": 0.0566,
+      "none": 0.166
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.415,
+     "probabilities": {
+      "peace": 0.2434,
+      "war": 0.0713,
+      "abundance": 0.1241,
+      "wisdom": 0.5612
+     }
+    }
+   },
+   "latencyMs": 2356.1,
+   "tokens": 671
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "B3",
+     "confidence": 0.2305,
+     "probabilities": {
+      "G1": 0.03,
+      "G2": 0.0516,
+      "G3": 0.0311,
+      "G4": 0.0077,
+      "P1": 0.2072,
+      "B1": 0.0476,
+      "B2": 0.0451,
+      "B3": 0.2854,
+      "R1": 0.038,
+      "M1": 0.104,
+      "M2": 0.0751,
+      "W1": 0.02,
+      "W2": 0.0382,
+      "E1": 0.0189
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "B3",
+     "confidence": 0.1232,
+     "probabilities": {
+      "G1": 0.0328,
+      "G2": 0.0353,
+      "G3": 0.0233,
+      "G4": 0.0312,
+      "P1": 0.1183,
+      "B1": 0.0335,
+      "B2": 0.0763,
+      "B3": 0.1816,
+      "R1": 0.0206,
+      "M1": 0.1125,
+      "M2": 0.074,
+      "W1": 0.042,
+      "W2": 0.0488,
+      "E1": 0.0292,
+      "none": 0.1404
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.7637,
+     "probabilities": {
+      "peace": 0.0755,
+      "war": 0.0686,
+      "abundance": 0.0332,
+      "wisdom": 0.8228
+     }
+    }
+   },
+   "latencyMs": 12008,
+   "tokens": 671
+  }
+ },
+ "hard-0.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.062,
+     "probabilities": {
+      "G1": 0.0916,
+      "G2": 0.129,
+      "G3": 0.0438,
+      "G4": 0.0363,
+      "P1": 0.0788,
+      "B1": 0.0703,
+      "B2": 0.0376,
+      "B3": 0.0584,
+      "R1": 0.0664,
+      "M1": 0.1028,
+      "M2": 0.1275,
+      "W1": 0.039,
+      "W2": 0.0556,
+      "E1": 0.0629
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1548,
+     "probabilities": {
+      "G1": 0.0509,
+      "G2": 0.1176,
+      "G3": 0.0381,
+      "G4": 0.0376,
+      "P1": 0.0495,
+      "B1": 0.0462,
+      "B2": 0.0906,
+      "B3": 0.0517,
+      "R1": 0.0758,
+      "M1": 0.0423,
+      "M2": 0.0597,
+      "W1": 0.0394,
+      "W2": 0.0392,
+      "E1": 0.0502,
+      "none": 0.2111
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2674,
+     "probabilities": {
+      "peace": 0.2965,
+      "war": 0.113,
+      "abundance": 0.1399,
+      "wisdom": 0.4505
+     }
+    }
+   },
+   "latencyMs": 2349.2,
+   "tokens": 670
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "P1",
+     "confidence": 0.1072,
+     "probabilities": {
+      "G1": 0.0439,
+      "G2": 0.0894,
+      "G3": 0.052,
+      "G4": 0.0111,
+      "P1": 0.171,
+      "B1": 0.061,
+      "B2": 0.0787,
+      "B3": 0.1475,
+      "R1": 0.0475,
+      "M1": 0.1361,
+      "M2": 0.0638,
+      "W1": 0.0311,
+      "W2": 0.0392,
+      "E1": 0.0276
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "W1",
+     "confidence": 0.2909,
+     "probabilities": {
+      "G1": 0.0161,
+      "G2": 0.0268,
+      "G3": 0.0209,
+      "G4": 0.0198,
+      "P1": 0.0166,
+      "B1": 0.0269,
+      "B2": 0.056,
+      "B3": 0.0451,
+      "R1": 0.0146,
+      "M1": 0.0691,
+      "M2": 0.0393,
+      "W1": 0.3382,
+      "W2": 0.0787,
+      "E1": 0.023,
+      "none": 0.2089
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.2305,
+     "probabilities": {
+      "peace": 0.4229,
+      "war": 0.1885,
+      "abundance": 0.0427,
+      "wisdom": 0.3459
+     }
+    }
+   },
+   "latencyMs": 11937.4,
+   "tokens": 670
+  }
+ },
+ "hard-1.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0653,
+     "probabilities": {
+      "G1": 0.1005,
+      "G2": 0.1172,
+      "G3": 0.0396,
+      "G4": 0.0542,
+      "P1": 0.0661,
+      "B1": 0.0648,
+      "B2": 0.0366,
+      "B3": 0.0597,
+      "R1": 0.0668,
+      "M1": 0.0858,
+      "M2": 0.1321,
+      "W1": 0.0415,
+      "W2": 0.0625,
+      "E1": 0.0725
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1713,
+     "probabilities": {
+      "G1": 0.0995,
+      "G2": 0.1096,
+      "G3": 0.0224,
+      "G4": 0.0567,
+      "P1": 0.0331,
+      "B1": 0.0433,
+      "B2": 0.0835,
+      "B3": 0.0641,
+      "R1": 0.0579,
+      "M1": 0.0265,
+      "M2": 0.0515,
+      "W1": 0.0359,
+      "W2": 0.0376,
+      "E1": 0.0518,
+      "none": 0.2265
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2863,
+     "probabilities": {
+      "peace": 0.2357,
+      "war": 0.1233,
+      "abundance": 0.1763,
+      "wisdom": 0.4648
+     }
+    }
+   },
+   "latencyMs": 2357.4,
+   "tokens": 668
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "B3",
+     "confidence": 0.108,
+     "probabilities": {
+      "G1": 0.0207,
+      "G2": 0.0847,
+      "G3": 0.0725,
+      "G4": 0.0106,
+      "P1": 0.1716,
+      "B1": 0.0752,
+      "B2": 0.0893,
+      "B3": 0.1717,
+      "R1": 0.0735,
+      "M1": 0.0725,
+      "M2": 0.0775,
+      "W1": 0.0138,
+      "W2": 0.0266,
+      "E1": 0.0398
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "G1",
+     "confidence": 0.6537,
+     "probabilities": {
+      "G1": 0.6768,
+      "G2": 0.0175,
+      "G3": 0.0093,
+      "G4": 0.0045,
+      "P1": 0.0053,
+      "B1": 0.0433,
+      "B2": 0.0185,
+      "B3": 0.0354,
+      "R1": 0.0065,
+      "M1": 0.0127,
+      "M2": 0.0151,
+      "W1": 0.0081,
+      "W2": 0.0129,
+      "E1": 0.0114,
+      "none": 0.1225
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.3031,
+     "probabilities": {
+      "peace": 0.4773,
+      "war": 0.0441,
+      "abundance": 0.0667,
+      "wisdom": 0.4119
+     }
+    }
+   },
+   "latencyMs": 12086.5,
+   "tokens": 668
+  }
+ },
+ "hard-2.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0861,
+     "probabilities": {
+      "G1": 0.0622,
+      "G2": 0.0933,
+      "G3": 0.0338,
+      "G4": 0.035,
+      "P1": 0.0556,
+      "B1": 0.0582,
+      "B2": 0.0547,
+      "B3": 0.0429,
+      "R1": 0.0544,
+      "M1": 0.1384,
+      "M2": 0.1514,
+      "W1": 0.0838,
+      "W2": 0.0764,
+      "E1": 0.0598
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "W1",
+     "confidence": 0.2034,
+     "probabilities": {
+      "G1": 0.0204,
+      "G2": 0.0473,
+      "G3": 0.0132,
+      "G4": 0.022,
+      "P1": 0.0226,
+      "B1": 0.023,
+      "B2": 0.089,
+      "B3": 0.028,
+      "R1": 0.0298,
+      "M1": 0.0593,
+      "M2": 0.0731,
+      "W1": 0.2565,
+      "W2": 0.0704,
+      "E1": 0.0383,
+      "none": 0.2071
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.1294,
+     "probabilities": {
+      "peace": 0.2934,
+      "war": 0.2839,
+      "abundance": 0.0758,
+      "wisdom": 0.347
+     }
+    }
+   },
+   "latencyMs": 2351.1,
+   "tokens": 671
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "P1",
+     "confidence": 0.1254,
+     "probabilities": {
+      "G1": 0.0318,
+      "G2": 0.0775,
+      "G3": 0.0575,
+      "G4": 0.0149,
+      "P1": 0.1878,
+      "B1": 0.0648,
+      "B2": 0.0967,
+      "B3": 0.1641,
+      "R1": 0.0881,
+      "M1": 0.0587,
+      "M2": 0.0625,
+      "W1": 0.018,
+      "W2": 0.0351,
+      "E1": 0.0423
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "W1",
+     "confidence": 0.7597,
+     "probabilities": {
+      "G1": 0.0026,
+      "G2": 0.0043,
+      "G3": 0.0041,
+      "G4": 0.0018,
+      "P1": 0.0031,
+      "B1": 0.0077,
+      "B2": 0.0096,
+      "B3": 0.0112,
+      "R1": 0.0027,
+      "M1": 0.0368,
+      "M2": 0.017,
+      "W1": 0.7757,
+      "W2": 0.06,
+      "E1": 0.006,
+      "none": 0.0576
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.3682,
+     "probabilities": {
+      "peace": 0.5262,
+      "war": 0.0925,
+      "abundance": 0.0149,
+      "wisdom": 0.3664
+     }
+    }
+   },
+   "latencyMs": 12071.4,
+   "tokens": 671
+  }
+ },
+ "hard-3.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0725,
+     "probabilities": {
+      "G1": 0.0809,
+      "G2": 0.1313,
+      "G3": 0.0405,
+      "G4": 0.0346,
+      "P1": 0.071,
+      "B1": 0.0703,
+      "B2": 0.0341,
+      "B3": 0.0544,
+      "R1": 0.0642,
+      "M1": 0.1111,
+      "M2": 0.1387,
+      "W1": 0.0426,
+      "W2": 0.0604,
+      "E1": 0.066
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1546,
+     "probabilities": {
+      "G1": 0.0611,
+      "G2": 0.1318,
+      "G3": 0.0307,
+      "G4": 0.0397,
+      "P1": 0.0336,
+      "B1": 0.045,
+      "B2": 0.0798,
+      "B3": 0.0386,
+      "R1": 0.0608,
+      "M1": 0.0422,
+      "M2": 0.0643,
+      "W1": 0.0617,
+      "W2": 0.0466,
+      "E1": 0.053,
+      "none": 0.2109
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.324,
+     "probabilities": {
+      "peace": 0.2355,
+      "war": 0.1003,
+      "abundance": 0.1712,
+      "wisdom": 0.493
+     }
+    }
+   },
+   "latencyMs": 2347.8,
+   "tokens": 672
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.0998,
+     "probabilities": {
+      "G1": 0.0331,
+      "G2": 0.1641,
+      "G3": 0.1079,
+      "G4": 0.0091,
+      "P1": 0.1117,
+      "B1": 0.0854,
+      "B2": 0.0634,
+      "B3": 0.1256,
+      "R1": 0.054,
+      "M1": 0.0969,
+      "M2": 0.0574,
+      "W1": 0.0261,
+      "W2": 0.0379,
+      "E1": 0.0274
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1541,
+     "probabilities": {
+      "G1": 0.0268,
+      "G2": 0.0772,
+      "G3": 0.0498,
+      "G4": 0.016,
+      "P1": 0.0228,
+      "B1": 0.0543,
+      "B2": 0.072,
+      "B3": 0.0657,
+      "R1": 0.0284,
+      "M1": 0.0853,
+      "M2": 0.05,
+      "W1": 0.1434,
+      "W2": 0.0691,
+      "E1": 0.0287,
+      "none": 0.2105
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.1447,
+     "probabilities": {
+      "peace": 0.2597,
+      "war": 0.0723,
+      "abundance": 0.3095,
+      "wisdom": 0.3585
+     }
+    }
+   },
+   "latencyMs": 135387.6,
+   "tokens": 672
+  }
+ },
+ "hard-4.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0614,
+     "probabilities": {
+      "G1": 0.0927,
+      "G2": 0.1239,
+      "G3": 0.0348,
+      "G4": 0.0445,
+      "P1": 0.0744,
+      "B1": 0.0702,
+      "B2": 0.0346,
+      "B3": 0.0664,
+      "R1": 0.058,
+      "M1": 0.1033,
+      "M2": 0.1284,
+      "W1": 0.0372,
+      "W2": 0.0586,
+      "E1": 0.073
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1069,
+     "probabilities": {
+      "G1": 0.0671,
+      "G2": 0.1095,
+      "G3": 0.0272,
+      "G4": 0.0464,
+      "P1": 0.0631,
+      "B1": 0.0538,
+      "B2": 0.07,
+      "B3": 0.0549,
+      "R1": 0.0616,
+      "M1": 0.0593,
+      "M2": 0.0713,
+      "W1": 0.0382,
+      "W2": 0.0385,
+      "E1": 0.0728,
+      "none": 0.1664
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.4239,
+     "probabilities": {
+      "peace": 0.1836,
+      "war": 0.0911,
+      "abundance": 0.1573,
+      "wisdom": 0.5679
+     }
+    }
+   },
+   "latencyMs": 2337.7,
+   "tokens": 669
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G4",
+     "confidence": 0.3552,
+     "probabilities": {
+      "G1": 0.0348,
+      "G2": 0.041,
+      "G3": 0.0217,
+      "G4": 0.4013,
+      "P1": 0.0803,
+      "B1": 0.0351,
+      "B2": 0.0314,
+      "B3": 0.1778,
+      "R1": 0.0299,
+      "M1": 0.0554,
+      "M2": 0.0411,
+      "W1": 0.0103,
+      "W2": 0.0228,
+      "E1": 0.017
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "G4",
+     "confidence": 0.1642,
+     "probabilities": {
+      "G1": 0.0298,
+      "G2": 0.0394,
+      "G3": 0.0224,
+      "G4": 0.2199,
+      "P1": 0.0457,
+      "B1": 0.0346,
+      "B2": 0.0572,
+      "B3": 0.1304,
+      "R1": 0.0164,
+      "M1": 0.0706,
+      "M2": 0.0536,
+      "W1": 0.0351,
+      "W2": 0.0395,
+      "E1": 0.0272,
+      "none": 0.178
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.5903,
+     "probabilities": {
+      "peace": 0.1023,
+      "war": 0.0571,
+      "abundance": 0.1479,
+      "wisdom": 0.6927
+     }
+    }
+   },
+   "latencyMs": 11564.8,
+   "tokens": 669
+  }
+ },
+ "hard-5.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.1498,
+     "probabilities": {
+      "G1": 0.0651,
+      "G2": 0.1013,
+      "G3": 0.0372,
+      "G4": 0.0283,
+      "P1": 0.0641,
+      "B1": 0.072,
+      "B2": 0.031,
+      "B3": 0.0513,
+      "R1": 0.043,
+      "M1": 0.2106,
+      "M2": 0.1123,
+      "W1": 0.0575,
+      "W2": 0.062,
+      "E1": 0.0643
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.0899,
+     "probabilities": {
+      "G1": 0.0731,
+      "G2": 0.1094,
+      "G3": 0.0252,
+      "G4": 0.0301,
+      "P1": 0.037,
+      "B1": 0.0472,
+      "B2": 0.065,
+      "B3": 0.0353,
+      "R1": 0.0404,
+      "M1": 0.1249,
+      "M2": 0.0829,
+      "W1": 0.0733,
+      "W2": 0.0435,
+      "E1": 0.062,
+      "none": 0.1506
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2525,
+     "probabilities": {
+      "peace": 0.2391,
+      "war": 0.1117,
+      "abundance": 0.2099,
+      "wisdom": 0.4393
+     }
+    }
+   },
+   "latencyMs": 2365.7,
+   "tokens": 672
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.482,
+     "probabilities": {
+      "G1": 0.0256,
+      "G2": 0.0521,
+      "G3": 0.0224,
+      "G4": 0.0074,
+      "P1": 0.0817,
+      "B1": 0.0289,
+      "B2": 0.0433,
+      "B3": 0.0764,
+      "R1": 0.0227,
+      "M1": 0.519,
+      "M2": 0.0418,
+      "W1": 0.0349,
+      "W2": 0.0315,
+      "E1": 0.0122
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.381,
+     "probabilities": {
+      "G1": 0.0172,
+      "G2": 0.0348,
+      "G3": 0.0163,
+      "G4": 0.0112,
+      "P1": 0.0272,
+      "B1": 0.0272,
+      "B2": 0.0534,
+      "B3": 0.0536,
+      "R1": 0.0155,
+      "M1": 0.4223,
+      "M2": 0.0566,
+      "W1": 0.0749,
+      "W2": 0.0387,
+      "E1": 0.0181,
+      "none": 0.133
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2025,
+     "probabilities": {
+      "peace": 0.1965,
+      "war": 0.323,
+      "abundance": 0.0787,
+      "wisdom": 0.4019
+     }
+    }
+   },
+   "latencyMs": 11614.7,
+   "tokens": 672
+  }
+ },
+ "hard-6.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0626,
+     "probabilities": {
+      "G1": 0.1009,
+      "G2": 0.086,
+      "G3": 0.0404,
+      "G4": 0.0416,
+      "P1": 0.0777,
+      "B1": 0.0738,
+      "B2": 0.0272,
+      "B3": 0.0547,
+      "R1": 0.0701,
+      "M1": 0.1089,
+      "M2": 0.1296,
+      "W1": 0.0522,
+      "W2": 0.0721,
+      "E1": 0.0649
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.099,
+     "probabilities": {
+      "G1": 0.084,
+      "G2": 0.1057,
+      "G3": 0.0302,
+      "G4": 0.0438,
+      "P1": 0.0476,
+      "B1": 0.0632,
+      "B2": 0.0731,
+      "B3": 0.0486,
+      "R1": 0.0762,
+      "M1": 0.0483,
+      "M2": 0.061,
+      "W1": 0.0615,
+      "W2": 0.047,
+      "E1": 0.0507,
+      "none": 0.159
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.3737,
+     "probabilities": {
+      "peace": 0.1747,
+      "war": 0.108,
+      "abundance": 0.1871,
+      "wisdom": 0.5303
+     }
+    }
+   },
+   "latencyMs": 2338.3,
+   "tokens": 669
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.0734,
+     "probabilities": {
+      "G1": 0.0845,
+      "G2": 0.0495,
+      "G3": 0.0757,
+      "G4": 0.0138,
+      "P1": 0.1339,
+      "B1": 0.1004,
+      "B2": 0.0498,
+      "B3": 0.1316,
+      "R1": 0.0457,
+      "M1": 0.1396,
+      "M2": 0.0777,
+      "W1": 0.0248,
+      "W2": 0.0462,
+      "E1": 0.0268
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.0919,
+     "probabilities": {
+      "G1": 0.0472,
+      "G2": 0.0562,
+      "G3": 0.0409,
+      "G4": 0.022,
+      "P1": 0.0523,
+      "B1": 0.068,
+      "B2": 0.0686,
+      "B3": 0.0923,
+      "R1": 0.0532,
+      "M1": 0.1433,
+      "M2": 0.0584,
+      "W1": 0.0616,
+      "W2": 0.0497,
+      "E1": 0.034,
+      "none": 0.1525
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.3647,
+     "probabilities": {
+      "peace": 0.1936,
+      "war": 0.2132,
+      "abundance": 0.0696,
+      "wisdom": 0.5235
+     }
+    }
+   },
+   "latencyMs": 11823.7,
+   "tokens": 669
+  }
+ },
+ "hard-7.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "E1",
+     "confidence": 0.1426,
+     "probabilities": {
+      "G1": 0.0511,
+      "G2": 0.0728,
+      "G3": 0.0326,
+      "G4": 0.0422,
+      "P1": 0.0504,
+      "B1": 0.0605,
+      "B2": 0.022,
+      "B3": 0.0503,
+      "R1": 0.0501,
+      "M1": 0.1219,
+      "M2": 0.117,
+      "W1": 0.0513,
+      "W2": 0.0739,
+      "E1": 0.2038
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "E1",
+     "confidence": 0.1355,
+     "probabilities": {
+      "G1": 0.0327,
+      "G2": 0.0512,
+      "G3": 0.0227,
+      "G4": 0.0398,
+      "P1": 0.0415,
+      "B1": 0.0367,
+      "B2": 0.0508,
+      "B3": 0.0403,
+      "R1": 0.0431,
+      "M1": 0.0699,
+      "M2": 0.0968,
+      "W1": 0.062,
+      "W2": 0.0547,
+      "E1": 0.1931,
+      "none": 0.1647
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.4936,
+     "probabilities": {
+      "peace": 0.0967,
+      "war": 0.0703,
+      "abundance": 0.2128,
+      "wisdom": 0.6202
+     }
+    }
+   },
+   "latencyMs": 2348,
+   "tokens": 676
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "E1",
+     "confidence": 0.4761,
+     "probabilities": {
+      "G1": 0.0205,
+      "G2": 0.0261,
+      "G3": 0.0197,
+      "G4": 0.0073,
+      "P1": 0.1104,
+      "B1": 0.0281,
+      "B2": 0.0225,
+      "B3": 0.0824,
+      "R1": 0.0254,
+      "M1": 0.0462,
+      "M2": 0.0551,
+      "W1": 0.0093,
+      "W2": 0.0334,
+      "E1": 0.5135
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "E1",
+     "confidence": 0.3429,
+     "probabilities": {
+      "G1": 0.0173,
+      "G2": 0.0217,
+      "G3": 0.0171,
+      "G4": 0.0122,
+      "P1": 0.0241,
+      "B1": 0.0256,
+      "B2": 0.0438,
+      "B3": 0.0443,
+      "R1": 0.014,
+      "M1": 0.0809,
+      "M2": 0.0616,
+      "W1": 0.0266,
+      "W2": 0.0381,
+      "E1": 0.3867,
+      "none": 0.186
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.3526,
+     "probabilities": {
+      "peace": 0.1646,
+      "war": 0.0226,
+      "abundance": 0.2984,
+      "wisdom": 0.5145
+     }
+    }
+   },
+   "latencyMs": 12261,
+   "tokens": 676
+  }
+ },
+ "hard-8.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0704,
+     "probabilities": {
+      "G1": 0.0693,
+      "G2": 0.1142,
+      "G3": 0.0422,
+      "G4": 0.0317,
+      "P1": 0.0761,
+      "B1": 0.0781,
+      "B2": 0.0328,
+      "B3": 0.0551,
+      "R1": 0.0624,
+      "M1": 0.1344,
+      "M2": 0.1368,
+      "W1": 0.0438,
+      "W2": 0.0658,
+      "E1": 0.0573
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1395,
+     "probabilities": {
+      "G1": 0.0487,
+      "G2": 0.0903,
+      "G3": 0.0284,
+      "G4": 0.0257,
+      "P1": 0.0478,
+      "B1": 0.0464,
+      "B2": 0.0875,
+      "B3": 0.0522,
+      "R1": 0.0755,
+      "M1": 0.0513,
+      "M2": 0.0628,
+      "W1": 0.0792,
+      "W2": 0.0535,
+      "E1": 0.0539,
+      "none": 0.1969
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.3248,
+     "probabilities": {
+      "peace": 0.2569,
+      "war": 0.1214,
+      "abundance": 0.1281,
+      "wisdom": 0.4936
+     }
+    }
+   },
+   "latencyMs": 2381.3,
+   "tokens": 684
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "P1",
+     "confidence": 0.1122,
+     "probabilities": {
+      "G1": 0.032,
+      "G2": 0.111,
+      "G3": 0.0818,
+      "G4": 0.0069,
+      "P1": 0.1756,
+      "B1": 0.1029,
+      "B2": 0.0427,
+      "B3": 0.1663,
+      "R1": 0.0718,
+      "M1": 0.0892,
+      "M2": 0.0624,
+      "W1": 0.0103,
+      "W2": 0.0246,
+      "E1": 0.0224
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1684,
+     "probabilities": {
+      "G1": 0.0163,
+      "G2": 0.0363,
+      "G3": 0.0367,
+      "G4": 0.0086,
+      "P1": 0.1052,
+      "B1": 0.048,
+      "B2": 0.0428,
+      "B3": 0.1423,
+      "R1": 0.0728,
+      "M1": 0.1045,
+      "M2": 0.0667,
+      "W1": 0.0279,
+      "W2": 0.0355,
+      "E1": 0.0325,
+      "none": 0.2238
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2927,
+     "probabilities": {
+      "peace": 0.4403,
+      "war": 0.0503,
+      "abundance": 0.04,
+      "wisdom": 0.4695
+     }
+    }
+   },
+   "latencyMs": 11870.9,
+   "tokens": 684
+  }
+ },
+ "hard-9.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.0963,
+     "probabilities": {
+      "G1": 0.0634,
+      "G2": 0.1206,
+      "G3": 0.0423,
+      "G4": 0.0223,
+      "P1": 0.0795,
+      "B1": 0.0697,
+      "B2": 0.0286,
+      "B3": 0.0509,
+      "R1": 0.0512,
+      "M1": 0.1608,
+      "M2": 0.151,
+      "W1": 0.0389,
+      "W2": 0.0607,
+      "E1": 0.06
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1439,
+     "probabilities": {
+      "G1": 0.0527,
+      "G2": 0.1113,
+      "G3": 0.0295,
+      "G4": 0.0278,
+      "P1": 0.0626,
+      "B1": 0.0488,
+      "B2": 0.0766,
+      "B3": 0.0374,
+      "R1": 0.0457,
+      "M1": 0.0856,
+      "M2": 0.081,
+      "W1": 0.0442,
+      "W2": 0.0393,
+      "E1": 0.0565,
+      "none": 0.201
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.342,
+     "probabilities": {
+      "peace": 0.5065,
+      "war": 0.0493,
+      "abundance": 0.0906,
+      "wisdom": 0.3536
+     }
+    }
+   },
+   "latencyMs": 2346.6,
+   "tokens": 665
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.4501,
+     "probabilities": {
+      "G1": 0.0232,
+      "G2": 0.049,
+      "G3": 0.0276,
+      "G4": 0.0053,
+      "P1": 0.0934,
+      "B1": 0.0465,
+      "B2": 0.0279,
+      "B3": 0.1017,
+      "R1": 0.0222,
+      "M1": 0.4894,
+      "M2": 0.0789,
+      "W1": 0.0066,
+      "W2": 0.0141,
+      "E1": 0.0143
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.187,
+     "probabilities": {
+      "G1": 0.0165,
+      "G2": 0.027,
+      "G3": 0.0193,
+      "G4": 0.017,
+      "P1": 0.0274,
+      "B1": 0.0363,
+      "B2": 0.1103,
+      "B3": 0.0551,
+      "R1": 0.0134,
+      "M1": 0.2412,
+      "M2": 0.071,
+      "W1": 0.1641,
+      "W2": 0.0545,
+      "E1": 0.0174,
+      "none": 0.1296
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "peace",
+     "confidence": 0.5528,
+     "probabilities": {
+      "peace": 0.6646,
+      "war": 0.0202,
+      "abundance": 0.019,
+      "wisdom": 0.2962
+     }
+    }
+   },
+   "latencyMs": 11745.2,
+   "tokens": 665
+  }
+ },
+ "hard-10.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0673,
+     "probabilities": {
+      "G1": 0.0962,
+      "G2": 0.1135,
+      "G3": 0.0307,
+      "G4": 0.0405,
+      "P1": 0.075,
+      "B1": 0.0628,
+      "B2": 0.0435,
+      "B3": 0.0645,
+      "R1": 0.0546,
+      "M1": 0.1094,
+      "M2": 0.1339,
+      "W1": 0.0396,
+      "W2": 0.0669,
+      "E1": 0.0687
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.156,
+     "probabilities": {
+      "G1": 0.0657,
+      "G2": 0.0869,
+      "G3": 0.0136,
+      "G4": 0.0404,
+      "P1": 0.0536,
+      "B1": 0.0434,
+      "B2": 0.1372,
+      "B3": 0.064,
+      "R1": 0.0519,
+      "M1": 0.0336,
+      "M2": 0.0586,
+      "W1": 0.0355,
+      "W2": 0.0465,
+      "E1": 0.0568,
+      "none": 0.2122
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2496,
+     "probabilities": {
+      "peace": 0.4028,
+      "war": 0.0703,
+      "abundance": 0.0897,
+      "wisdom": 0.4372
+     }
+    }
+   },
+   "latencyMs": 2350.3,
+   "tokens": 675
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "W2",
+     "confidence": 0.3486,
+     "probabilities": {
+      "G1": 0.0343,
+      "G2": 0.0311,
+      "G3": 0.0173,
+      "G4": 0.0063,
+      "P1": 0.074,
+      "B1": 0.027,
+      "B2": 0.0353,
+      "B3": 0.0615,
+      "R1": 0.0204,
+      "M1": 0.0387,
+      "M2": 0.0508,
+      "W1": 0.1986,
+      "W2": 0.3951,
+      "E1": 0.0096
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "W2",
+     "confidence": 0.4136,
+     "probabilities": {
+      "G1": 0.0152,
+      "G2": 0.0146,
+      "G3": 0.0096,
+      "G4": 0.0079,
+      "P1": 0.0226,
+      "B1": 0.0177,
+      "B2": 0.0377,
+      "B3": 0.0412,
+      "R1": 0.0085,
+      "M1": 0.0529,
+      "M2": 0.0473,
+      "W1": 0.1588,
+      "W2": 0.4527,
+      "E1": 0.0116,
+      "none": 0.1018
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "war",
+     "confidence": 0.5301,
+     "probabilities": {
+      "peace": 0.0672,
+      "war": 0.6476,
+      "abundance": 0.0246,
+      "wisdom": 0.2606
+     }
+    }
+   },
+   "latencyMs": 11908.3,
+   "tokens": 675
+  }
+ },
+ "hard-11.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "G2",
+     "confidence": 0.0832,
+     "probabilities": {
+      "G1": 0.0968,
+      "G2": 0.1487,
+      "G3": 0.0417,
+      "G4": 0.0364,
+      "P1": 0.0788,
+      "B1": 0.0722,
+      "B2": 0.028,
+      "B3": 0.0591,
+      "R1": 0.0555,
+      "M1": 0.0923,
+      "M2": 0.1235,
+      "W1": 0.04,
+      "W2": 0.0605,
+      "E1": 0.0664
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.104,
+     "probabilities": {
+      "G1": 0.0816,
+      "G2": 0.1245,
+      "G3": 0.0319,
+      "G4": 0.0437,
+      "P1": 0.0562,
+      "B1": 0.0506,
+      "B2": 0.0633,
+      "B3": 0.0422,
+      "R1": 0.0581,
+      "M1": 0.052,
+      "M2": 0.07,
+      "W1": 0.0479,
+      "W2": 0.0418,
+      "E1": 0.0723,
+      "none": 0.1637
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.3182,
+     "probabilities": {
+      "peace": 0.1873,
+      "war": 0.0978,
+      "abundance": 0.2263,
+      "wisdom": 0.4887
+     }
+    }
+   },
+   "latencyMs": 2363.3,
+   "tokens": 663
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "B3",
+     "confidence": 0.0898,
+     "probabilities": {
+      "G1": 0.1137,
+      "G2": 0.0815,
+      "G3": 0.0424,
+      "G4": 0.0119,
+      "P1": 0.1378,
+      "B1": 0.0624,
+      "B2": 0.0503,
+      "B3": 0.1548,
+      "R1": 0.0398,
+      "M1": 0.1348,
+      "M2": 0.0628,
+      "W1": 0.0321,
+      "W2": 0.0512,
+      "E1": 0.0244
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "M1",
+     "confidence": 0.0803,
+     "probabilities": {
+      "G1": 0.0808,
+      "G2": 0.0513,
+      "G3": 0.0316,
+      "G4": 0.0301,
+      "P1": 0.0442,
+      "B1": 0.0496,
+      "B2": 0.0629,
+      "B3": 0.0983,
+      "R1": 0.0188,
+      "M1": 0.1416,
+      "M2": 0.0722,
+      "W1": 0.0758,
+      "W2": 0.0681,
+      "E1": 0.0339,
+      "none": 0.1408
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.4249,
+     "probabilities": {
+      "peace": 0.0843,
+      "war": 0.1369,
+      "abundance": 0.2101,
+      "wisdom": 0.5687
+     }
+    }
+   },
+   "latencyMs": 12080.1,
+   "tokens": 663
+  }
+ },
+ "hard-12.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0652,
+     "probabilities": {
+      "G1": 0.0789,
+      "G2": 0.125,
+      "G3": 0.0489,
+      "G4": 0.0447,
+      "P1": 0.0749,
+      "B1": 0.0935,
+      "B2": 0.0241,
+      "B3": 0.0587,
+      "R1": 0.0616,
+      "M1": 0.0896,
+      "M2": 0.1319,
+      "W1": 0.0351,
+      "W2": 0.0678,
+      "E1": 0.0654
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1085,
+     "probabilities": {
+      "G1": 0.0726,
+      "G2": 0.1009,
+      "G3": 0.0386,
+      "G4": 0.0473,
+      "P1": 0.0572,
+      "B1": 0.0762,
+      "B2": 0.0563,
+      "B3": 0.0486,
+      "R1": 0.0657,
+      "M1": 0.0502,
+      "M2": 0.0662,
+      "W1": 0.0382,
+      "W2": 0.0459,
+      "E1": 0.0681,
+      "none": 0.1679
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "abundance",
+     "confidence": 0.2087,
+     "probabilities": {
+      "peace": 0.1548,
+      "war": 0.0592,
+      "abundance": 0.4065,
+      "wisdom": 0.3795
+     }
+    }
+   },
+   "latencyMs": 2399,
+   "tokens": 672
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "B3",
+     "confidence": 0.0663,
+     "probabilities": {
+      "G1": 0.0475,
+      "G2": 0.127,
+      "G3": 0.0798,
+      "G4": 0.0242,
+      "P1": 0.117,
+      "B1": 0.0791,
+      "B2": 0.0609,
+      "B3": 0.133,
+      "R1": 0.0576,
+      "M1": 0.0824,
+      "M2": 0.0807,
+      "W1": 0.0211,
+      "W2": 0.0582,
+      "E1": 0.0315
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.149,
+     "probabilities": {
+      "G1": 0.0305,
+      "G2": 0.0623,
+      "G3": 0.0402,
+      "G4": 0.0611,
+      "P1": 0.0353,
+      "B1": 0.0427,
+      "B2": 0.0818,
+      "B3": 0.0877,
+      "R1": 0.0304,
+      "M1": 0.1095,
+      "M2": 0.0687,
+      "W1": 0.0533,
+      "W2": 0.0576,
+      "E1": 0.0332,
+      "none": 0.2057
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "abundance",
+     "confidence": 0.7646,
+     "probabilities": {
+      "peace": 0.0366,
+      "war": 0.0183,
+      "abundance": 0.8234,
+      "wisdom": 0.1216
+     }
+    }
+   },
+   "latencyMs": 11922.6,
+   "tokens": 672
+  }
+ },
+ "hard-13.en": {
+  "Kev-0.8B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "M2",
+     "confidence": 0.0788,
+     "probabilities": {
+      "G1": 0.0667,
+      "G2": 0.1134,
+      "G3": 0.0436,
+      "G4": 0.0501,
+      "P1": 0.0603,
+      "B1": 0.0641,
+      "B2": 0.0325,
+      "B3": 0.0497,
+      "R1": 0.064,
+      "M1": 0.1072,
+      "M2": 0.1446,
+      "W1": 0.052,
+      "W2": 0.0801,
+      "E1": 0.0716
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.1547,
+     "probabilities": {
+      "G1": 0.0369,
+      "G2": 0.1136,
+      "G3": 0.0232,
+      "G4": 0.0399,
+      "P1": 0.0417,
+      "B1": 0.0441,
+      "B2": 0.1006,
+      "B3": 0.0444,
+      "R1": 0.0618,
+      "M1": 0.0478,
+      "M2": 0.0769,
+      "W1": 0.0436,
+      "W2": 0.0552,
+      "E1": 0.0594,
+      "none": 0.211
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.2671,
+     "probabilities": {
+      "peace": 0.1824,
+      "war": 0.2012,
+      "abundance": 0.1661,
+      "wisdom": 0.4503
+     }
+    }
+   },
+   "latencyMs": 2434,
+   "tokens": 680
+  },
+  "Kev-4B (CPU)": {
+   "answers": {
+    "order": {
+     "type": "choice",
+     "choice": "W2",
+     "confidence": 0.3976,
+     "probabilities": {
+      "G1": 0.0576,
+      "G2": 0.068,
+      "G3": 0.0332,
+      "G4": 0.0113,
+      "P1": 0.0564,
+      "B1": 0.0422,
+      "B2": 0.034,
+      "B3": 0.0756,
+      "R1": 0.0277,
+      "M1": 0.0384,
+      "M2": 0.0581,
+      "W1": 0.0198,
+      "W2": 0.4407,
+      "E1": 0.037
+     }
+    },
+    "forbid": {
+     "type": "choice",
+     "choice": "W2",
+     "confidence": 0.383,
+     "probabilities": {
+      "G1": 0.0403,
+      "G2": 0.0405,
+      "G3": 0.019,
+      "G4": 0.0145,
+      "P1": 0.0214,
+      "B1": 0.0287,
+      "B2": 0.0673,
+      "B3": 0.0422,
+      "R1": 0.0131,
+      "M1": 0.0479,
+      "M2": 0.0482,
+      "W1": 0.0293,
+      "W2": 0.4242,
+      "E1": 0.0307,
+      "none": 0.1327
+     }
+    },
+    "doctrine": {
+     "type": "choice",
+     "choice": "wisdom",
+     "confidence": 0.4062,
+     "probabilities": {
+      "peace": 0.1214,
+      "war": 0.1651,
+      "abundance": 0.1589,
+      "wisdom": 0.5546
+     }
+    }
+   },
+   "latencyMs": 12142.6,
+   "tokens": 680
+  }
+ }
+}

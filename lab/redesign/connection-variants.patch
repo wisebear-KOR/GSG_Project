@@ -1,0 +1,118 @@
+diff --git a/js/game/engine.js b/js/game/engine.js
+index ccbf4ff..9a383df 100644
+--- a/js/game/engine.js
++++ b/js/game/engine.js
+@@ -196,7 +196,25 @@ export function updateVision(state) {
+ 
+ export const capitalOf = (state, side) => state.tiles.find((t) => t.owner === side && t.building === 'capital');
+ export const ownedTiles = (state, side) => state.tiles.filter((t) => t.owner === side);
+-export const villageCount = (state, side) => state.tiles.filter((t) => t.owner === side && t.building === 'village').length;
++const CONN = () => (globalThis.process?.env?.GSG_V ?? '').split(',').includes('conn');
++// 수도에서 제 건물로 이어진 칸들
++export function linkedTiles(state, side) {
++  const cap = state.tiles.find((t) => t.owner === side && t.building === 'capital');
++  const seen = new Set();
++  if (!cap) return seen;
++  const stack = [cap];
++  seen.add(cap.id);
++  while (stack.length) {
++    const t = stack.pop();
++    for (const n of neighbors(state, t)) if (!seen.has(n.id) && n.owner === side && n.building) { seen.add(n.id); stack.push(n); }
++  }
++  return seen;
++}
++export const villageCount = (state, side) => {
++  if (!CONN()) return state.tiles.filter((t) => t.owner === side && t.building === 'village').length;
++  const linked = linkedTiles(state, side);
++  return state.tiles.filter((t) => t.owner === side && t.building === 'village' && linked.has(t.id)).length;
++};
+ // 교리 궁극(6칸)은 8장부터 깨어난다 (한 교리만 외쳐 6장 만에 게임을 끝내지 못하게)
+ export const ULT_ROUND = 8;
+ // 빠른 판(4×4 · 8장)은 박자를 앞당긴다
+@@ -568,6 +586,7 @@ function pickForRule(state, rule, pool) {
+     };
+     return [...cands].sort((a, b) => score(a) - score(b))[0];
+   }
++  if (CONN() && rule.type === 'build' && rule.build === 'village') { const own = linkedTiles(state, 'enemy'); const touch = (a) => neighbors(state, state.tileAt[a.tile]).some((n) => own.has(n.id)) ? 0 : 1; return [...cands].sort((a, b) => touch(a) - touch(b) || byDist(a, b))[0]; }
+   if (rule.type === 'build' && (rule.build === 'village' || rule.build === 'wall')) return [...cands].sort(byDist)[0];
+   return cands[0];
+ }
+diff --git a/js/game/interpreter.js b/js/game/interpreter.js
+index fe045ed..4b2f14e 100644
+--- a/js/game/interpreter.js
++++ b/js/game/interpreter.js
+@@ -5,7 +5,8 @@
+ import { hasLanguageModel, createBaseSession, promptJSON } from '../llm.js';
+ import { DOCTRINES, DOCTRINE, PRIESTS, TERRAIN, DOCTRINE_VOICE } from './data.js';
+ import { nouns } from './lore.js';
+-import { legalActions, actionLimit, tileName, villageCount, enemyIntent, nextEvent, gatherAmount, cathedralVillages, setPlanSig, capitalOf, distance, actionOdds } from './engine.js';
++import { legalActions, actionLimit, tileName, villageCount, enemyIntent, nextEvent, gatherAmount, cathedralVillages, setPlanSig, capitalOf, distance, actionOdds, neighbors, linkedTiles } from './engine.js';
++const E_linked = linkedTiles;
+ import { t } from './i18n.js';
+ 
+ // 실험 v5 프롬프트를 게임에 맞게 옮긴 것 (docs/EXPERIMENTS.md).
+@@ -218,6 +219,12 @@ function rankMatches(state, rule, matches, clause = '') {
+     if (UNWALLED.test(clause)) { const open = matches.filter((a) => !state.tileAt[a.tile].wall && !walls.has(a.tile)); if (open.length) matches = open; }
+     return matches.map((a, i) => ({ a, i, p: actionOdds(state, a, { wallAhead: walls.has(a.tile) }) ?? 0 })).sort((x, y) => y.p - x.p || x.i - y.i).map((x) => x.a);
+   }
++  // 실험 'cdef': 연결 규칙에서 마을 기본 배치는 이어지는 칸 먼저 (어느 쪽으로 뻗을지는 말이 정한다)
++  if ((globalThis.process?.env?.GSG_V ?? '').split(',').includes('cdef') && matches[0].build === 'village' && E_linked) {
++    const own = E_linked(state, 'player');
++    const touch = (a) => (neighbors(state, state.tileAt[a.tile]).some((x) => own.has(x.id)) ? 0 : 1);
++    return matches.map((a, i) => ({ a, i })).sort((x, y) => touch(x.a) - touch(y.a) || x.i - y.i).map((x) => x.a);
++  }
+   if (matches[0].type !== 'gather') return matches;
+   const p = state.sides.player;
+   const need = (a) => (rule.fallback ? p[a.gather] ?? 0 : 0);
+diff --git a/tools/tests/lib.mjs b/tools/tests/lib.mjs
+index ae8fadb..ca6c016 100644
+--- a/tools/tests/lib.mjs
++++ b/tools/tests/lib.mjs
+@@ -87,6 +87,47 @@ export function doAccept(state, pending) {
+     state.log.push({ round: state.round, side: 'priest', text: result.interpretation });
+   }
+   const enemyPlan = E.planEnemy(state);
++  if (globalThis.process?.env?.POSBEST) {
++    const legal = E.legalActions(state, 'player');
++    const used = new Set(accepted.map((a) => a.tile));
++    const own = E.linkedTiles ? E.linkedTiles(state, 'player') : new Set();
++    const touch = (id) => E.neighbors(state, state.tileAt[id]).filter((n) => own.has(n.id)).length;
++    const cutValue = (id) => {
++      if (!E.linkedTiles) return 0;
++      const before = E.villageCount(state, 'enemy');
++      const t = state.tileAt[id]; const o = t.owner; t.owner = null;
++      const after = E.villageCount(state, 'enemy'); t.owner = o;
++      return before - after;
++    };
++    for (let i = 0; i < accepted.length; i++) {
++      const a = accepted[i];
++      if (a.build === 'village') {
++        const alts = legal.filter((b) => b.build === 'village' && (b.tile === a.tile || !used.has(b.tile)));
++        const best = alts.sort((x, y) => touch(y.tile) - touch(x.tile))[0];
++        if (best && best.tile !== a.tile) { used.delete(a.tile); used.add(best.tile); accepted[i] = { ...best }; }
++      } else if (a.type === 'attack') {
++        const alts = legal.filter((b) => b.type === 'attack' && (b.tile === a.tile || !used.has(b.tile)));
++        const best = alts.map((b) => ({ b, v: cutValue(b.tile) * 2 + E.actionOdds(state, b) })).sort((x, y) => y.v - x.v)[0]?.b;
++        if (best && best.tile !== a.tile) { used.delete(a.tile); used.add(best.tile); accepted[i] = { ...best }; }
++      }
++    }
++    for (let i = auto.length - 1; i >= 0; i--) if (accepted.some((a) => a.tile === auto[i].tile)) auto.splice(i, 1);
++  }
++  // 실험 RANDTILE: 시킨 일마다 같은 종류의 다른 합법 칸으로 무작위로 옮긴다 (칸 고르기가 얼마나 중요한가)
++  if (globalThis.process?.env?.RANDTILE) {
++    const legal = E.legalActions(state, 'player');
++    const kindOf = (a) => `${a.type}:${a.gather ?? a.build ?? ''}`;
++    let h = state.round * 7919 + state.config.seed;
++    const rnd = () => { h = (h * 1103515245 + 12345) % 2147483648; return h / 2147483648; };
++    const used = new Set();
++    for (let i = 0; i < accepted.length; i++) {
++      const a = accepted[i];
++      const alts = legal.filter((b) => kindOf(b) === kindOf(a) && !used.has(b.tile));
++      const pick = alts.length ? alts[Math.floor(rnd() * alts.length)] : a;
++      accepted[i] = { ...pick }; used.add(pick.tile);
++    }
++    for (let i = auto.length - 1; i >= 0; i--) if (used.has(auto[i].tile)) auto.splice(i, 1);
++  }
+   const from = state.log.length;
+   if (!text) state.streak = null;
+   const pick = state.event?.choice ? pending.dilemma ?? state.dilemmaPick ?? state.event.choice[0].id : null;

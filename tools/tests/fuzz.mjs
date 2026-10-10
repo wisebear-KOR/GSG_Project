@@ -163,6 +163,19 @@ export function playGame(cfg, botSeed, { policy = 'random', hydrate = true, chec
           if (t.building && !t.owner) flag('ownerless-building', `${t.id} ${t.building}`, R);
           if (t.owner && !t.building) flag('owned-empty', `${t.id} owned by ${t.owner} w/o building`, R);
           if (t.wall && !t.building) flag('wall-empty', t.id, R);
+          // 땅의 활성도 (규칙 28): 세 단계, 쉰 장 수는 회복 문턱 아래, 튜토리얼은 늘 정상
+          if (!['rich', 'normal', 'poor'].includes(t.activity)) flag('activity-value', `${t.id} ${t.activity}`, R);
+          if (!(Number.isInteger(t.rest) && t.rest >= 0 && t.rest < (D.REST_ROUNDS[state.config.difficulty] ?? 1))) flag('rest-range', `${t.id} rest=${t.rest}`, R);
+          if (state.tutorial && t.activity !== 'normal') flag('tutorial-activity', `${t.id} ${t.activity}`, R);
+        }
+        // 장 끝: 이번 장에 거둔 땅은 풍요로 남지 않는다(한 단계 지친다), 거둔 칸 목록은 비워진다
+        if (state.worked?.length) flag('worked-not-cleared', state.worked.join(','), R);
+        for (const l of newLogs) {
+          if (l.round === R && typeof l.act === 'string' && l.act.startsWith('gather:') && l.fx?.kind === 'gain' && state.tileAt[l.fx.tile]?.activity === 'rich' && !state.tutorial) flag('worked-still-rich', `${l.fx.tile}`, R);
+        }
+        for (const id of [...(state.fortune?.now?.tiles ?? []), ...(state.fortune?.next?.tiles ?? [])]) {
+          const ft = state.tileAt[id];
+          if (!ft || ft.building === 'capital') flag('fortune-tile', `${id}`, R);
         }
         // births must respect popCap at the time (snap has tiles+sides)
         for (const l of newLogs) {

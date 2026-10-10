@@ -64,7 +64,8 @@ export function doSpeak(state, text, { reinterpret = false, seal = false } = {})
   return pending;
 }
 function interpret(state, text, naming) {
-  const result = I.interpretWithTablet(state, text);
+  // 게임과 같은 해석기: 석판 + 판정기 (석판 혼자의 회귀는 tablet-cases.mjs)
+  const result = I.interpretWithJudge(state, text);
   const forbiddenKeys = result.forbidden.map((a) => a.key);
   const { accepted, rejected } = E.validateOrders(state, 'player', result.orders, forbiddenKeys, result.doctrine);
   const auto = E.autoFill(state, 'player', accepted, forbiddenKeys, result.doctrine);

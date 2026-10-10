@@ -1,0 +1,45 @@
+### base 
+== wt base  (N=40)
+pol               5nF  5hF  5nV  5hV  6nV   all  | player win kinds
+rotm:war3b         38   20   48   30   33    34  | score:64 capital:3
+rotm:search2       55   50   40   33   40    44  | faith:64 score:21 cathedral:2
+smart              33   43   60   53   38    45  | score:58 faith:28 capital:4
+planner            73   45   80   50   63    62  | faith:59 score:53 capital:12
+warplan            80   60   60   63   68    66  | faith:63 score:52 capital:17
+skilled: blowout(|m|>=15) 40%  close(<=3) 17%
+### conn 
+== wt conn  (N=40)
+pol               5nF  5hF  5nV  5hV  6nV   all  | player win kinds
+rotm:war3b          3    8    8   10    5     7  | score:11 capital:2
+rotm:search2        3    8    3    3    0     3  | score:2 faith:4
+smart              13   13    8   10    0     9  | score:14 capital:3
+planner            23   18   20   25    5    18  | score:28 capital:8
+warplan            20   23   28   13   13    19  | capital:13 score:21 faith:4
+skilled: blowout(|m|>=15) 69%  close(<=3) 10%
+### conn RANDTILE
+== wt conn  (N=40)
+pol               5nF  5hF  5nV  5hV  6nV   all  | player win kinds
+rotm:war3b         20    8   33   13   10    17  | capital:3 score:30
+rotm:search2       13    3   20   10    3    10  | faith:13 score:5 cathedral:1
+smart              20   23   30   18   38    26  | score:37 faith:10 capital:4
+planner            63   35   58   45   53    51  | score:62 capital:9 faith:30
+warplan            38   40   63   40   43    45  | faith:32 capital:9 score:47 cathedral:1
+skilled: blowout(|m|>=15) 50%  close(<=3) 14%
+### conn POSBEST
+== wt conn  (N=40)
+pol               5nF  5hF  5nV  5hV  6nV   all  | player win kinds
+rotm:war3b         48   30   50   43   38    42  | score:83
+rotm:search2       25   20   20   15   10    18  | faith:26 score:9 cathedral:1
+smart              43   53   43   35   30    41  | score:60 faith:16 capital:5
+planner            70   55   58   43   53    56  | faith:44 score:60 capital:7
+warplan            53   45   55   45   58    51  | score:64 capital:10 faith:28
+skilled: blowout(|m|>=15) 43%  close(<=3) 17%
+### base POSBEST
+== wt base  (N=40)
+pol               5nF  5hF  5nV  5hV  6nV   all  | player win kinds
+rotm:war3b         58   20   53   40   38    42  | score:81 capital:2
+rotm:search2       55   45   33   28   23    37  | faith:58 score:11 cathedral:4
+smart              53   30   68   43   43    47  | faith:25 score:63 capital:6
+planner            75   55   75   58   60    65  | faith:54 capital:11 score:64
+warplan            70   60   73   53   68    65  | capital:14 faith:58 score:57
+skilled: blowout(|m|>=15) 34%  close(<=3) 19%

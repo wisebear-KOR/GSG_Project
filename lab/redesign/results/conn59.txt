@@ -1,0 +1,18 @@
+### conn,cdef
+== wt conn,cdef  (N=40)
+pol               5nF  5hF  5nV  5hV  6nV   all  | player win kinds
+rotm:war3b         43   38   50   33   35    40  | score:79
+rotm:search2       20   25   15   15   13    18  | faith:19 score:16
+smart              43   35   50   33   45    41  | faith:17 score:65
+planner            50   48   50   50   53    50  | faith:32 score:62 capital:6
+warplan            53   45   53   48   65    53  | faith:40 score:61 capital:4
+skilled: blowout(|m|>=15) 45%  close(<=3) 19%
+### conn,cdef POSBEST
+== wt conn,cdef  (N=40)
+pol               5nF  5hF  5nV  5hV  6nV   all  | player win kinds
+rotm:war3b         45   35   58   50   40    46  | score:89 capital:2
+rotm:search2       25   20   20   15   10    18  | score:9 faith:26 cathedral:1
+smart              35   40   38   28   33    35  | faith:13 score:52 capital:4
+planner            65   58   58   40   50    54  | faith:41 score:63 capital:4
+warplan            55   35   48   48   60    49  | faith:22 score:64 capital:12
+skilled: blowout(|m|>=15) 46%  close(<=3) 16%

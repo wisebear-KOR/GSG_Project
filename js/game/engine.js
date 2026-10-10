@@ -6,19 +6,21 @@ import {
   DOCTRINES, DOCTRINE_MAX, EVENTS, LAW_CARDS, MIRACLES, DIFFICULTY, MAP_SIZES, PLAYER_START, TUTORIAL, ENEMY_LEADERS,
   PRIESTS, PETITIONERS, PROPHECY, FIRST_HAND, SITES, JUDGEMENTS, OPPOSED, REACT,
   CATHEDRAL, EDICT_MAX, DESTINIES, DESTINY_POINTS, ACTS, DILEMMAS, FEATURES, COMMANDMENTS, MAX_COMMANDMENTS, SACRED_WORDS,
-  MIRA, MIRA_TWIST, MONTHS, TRIALS, RULESET,
+  MIRA, MIRA_TWIST, MONTHS, TRIALS, RULESET, ACTIVITY, ACTIVITY_DOWN, REST_ROUNDS, FORTUNES, FORTUNE_DECK,
 } from './data.js';
 import { generateMap, placeSites, placeFeatures, placeLegacy, holyFor } from './mapgen.js';
 import { frequentNoun, hashPick } from './lore.js';
 import { t } from './i18n.js';
 import { josa, batchim } from './i18n/ko/grammar.js';
+// 자원 묶음의 셈은 도메인 영역(domain/resources.js) 하나로 한다
+import { Res } from './domain/resources.js';
 
 export const SIDES = ['player', 'enemy'];
 export const other = (side) => (side === 'player' ? 'enemy' : 'player');
 const ROWS = 'ABCDEFGHI';
 
 // ---------- 난수 (시드 고정으로 재현 가능) ----------
-// 흐름을 둘로 나눈다: deck(사건·율법 카드 순서)과 dice(주사위·탐험).
+// 흐름을 셋으로 나눈다: deck(사건·율법 카드 순서), dice(주사위·탐험), land(땅의 운 — 규칙 28).
 // 덱은 판 시작에 미리 나눠 두므로, 플레이어가 무엇을 하든 같은 시드면 같은 계절·율법이 나온다.
 export function rand(state, stream = 'dice') {
   let t = (state.rng[stream] = (state.rng[stream] + 0x6d2b79f5) | 0);
@@ -78,10 +80,10 @@ export function createState(config = DEFAULT_CONFIG) {
   const map = tutorial ? TUTORIAL.map : generateMap({ rows: cfg.size, cols: cfg.size, seed: cfg.seed });
   const state = {
     config: cfg, tutorial, rows: map.length, cols: map[0].length,
-    rng: { deck: (tutorial ? TUTORIAL.seed : cfg.seed) ^ 0x5bd1e995, dice: tutorial ? TUTORIAL.seed : cfg.seed }, round: 0,
+    rng: { deck: (tutorial ? TUTORIAL.seed : cfg.seed) ^ 0x5bd1e995, dice: tutorial ? TUTORIAL.seed : cfg.seed, land: landSeed(tutorial ? TUTORIAL.seed : cfg.seed) }, round: 0,
     maxRounds: tutorial ? TUTORIAL.rounds : (TRIALS[cfg.trial]?.rounds ?? MAP_SIZES[cfg.size]?.rounds ?? 12),
     enemyBonus: tutorial ? TUTORIAL.enemyBonus : diff.enemyBonus,
-    tiles: [], tileAt: {}, sides: {}, eventDeck: [], lawDeck: [],
+    tiles: [], tileAt: {}, sides: {}, eventDeck: [], lawDeck: [], fortuneDeck: [], fortune: { now: null, next: null }, worked: [],
     event: null, lawCard: null, rainActive: false, leader: null, bannedWords: [], bannedNext: null, eventChoice: null,
     priest: 'loyal', names: {}, lessons: [], petition: null, prophecy: null,
     grace: { round: 0, used: 0 }, roundMods: {}, miracleHand: [...FIRST_HAND], miracleOffer: null, pendingSite: null,
@@ -100,6 +102,7 @@ export function createState(config = DEFAULT_CONFIG) {
       id: tileId(r, c), r, c,
       terrain: capital || village ? 'plain' : cell,
       owner: capital ?? village, building: capital ? 'capital' : village ? 'village' : null, wall: false, revealed: false,
+      activity: 'normal', rest: 0, workedAt: 0,
     };
     state.tiles.push(tile);
     state.tileAt[tile.id] = tile;
@@ -157,6 +160,7 @@ export function createState(config = DEFAULT_CONFIG) {
     const dilemmas = unlockedCfg(cfg, 3) ? [...DILEMMAS].sort((a, b) => hashPick([...Array(97).keys()], cfg.seed, 'dil', a.id) - hashPick([...Array(97).keys()], cfg.seed, 'dil', b.id)).slice(0, 3) : [];
     state.eventDeck = dealDeck(state, [...EVENTS, ...dilemmas], state.maxRounds + 2);
     state.lawDeck = dealDeck(state, lawPool(state), state.maxRounds * 2 + 2);
+    state.fortuneDeck = dealFortunes(state, state.maxRounds + 2);
   }
   if (cfg.trial === 'earth') state.sides.player.doctrine.abundance = 1;
   if (cfg.trial === 'last') { state.sides.enemy.pop += 2; state.sides.enemy.food += 8; }
@@ -167,6 +171,70 @@ export function createState(config = DEFAULT_CONFIG) {
   if (cfg.canon && !cfg.daily && cfg.difficulty !== 'hard' && !tutorial) state.sides.player.doctrine[cfg.canon.doctrine] += 1;
   updateVision(state);
   return state;
+}
+
+// ---------- 땅의 활성도와 땅의 운 (규칙 28) ----------
+// 튜토리얼은 땅이 바뀌지 않는다 (배우는 동안 값이 흔들리지 않게)
+export const landOn = (state) => !state.tutorial;
+const landSeed = (seed) => (seed ^ 0x2c1b3c6d) | 0;
+export const mirrorOf = (state, tl) => state.tileAt[tileId(state.rows - 1 - tl.r, state.cols - 1 - tl.c)];
+// 땅의 운 덱: 한 바퀴(FORTUNE_DECK)를 섞어 이어 붙인다 (뒤에서부터 뽑는다). land 줄기만 쓰므로 사건·율법 덱과 주사위에 닿지 않는다
+function dealFortunes(state, n) {
+  const out = [];
+  while (out.length < n) {
+    const bag = [...FORTUNE_DECK];
+    for (let i = bag.length - 1; i > 0; i--) {
+      const j = Math.floor(rand(state, 'land') * (i + 1));
+      [bag[i], bag[j]] = [bag[j], bag[i]];
+    }
+    out.push(...bag);
+  }
+  return out;
+}
+export const fortuneCard = (id) => FORTUNES.find((f) => f.id === id) ?? null;
+// 카드가 바꿀 칸: 그 자원을 내는 땅(수도 제외) 가운데 점대칭인 쌍 하나 — 이미 그 상태인 쌍은 피한다. 가운데 칸은 저 혼자 쌍이다
+// 늘 난수 하나를 쓴다 (land 줄기가 판마다 같은 길이로 흐르게)
+function fortuneTiles(state, card) {
+  const r = rand(state, 'land');
+  if (!card?.res) return [];
+  const fits = (tl) => tl.building !== 'capital' && yieldOf(tl).gather === card.res;
+  const pairs = [];
+  for (const tl of state.tiles) {
+    const m = mirrorOf(state, tl);
+    if (!m || !fits(tl) || !fits(m) || tl.id > m.id) continue;
+    pairs.push(tl.id === m.id ? [tl.id] : [tl.id, m.id]);
+  }
+  const fresh = pairs.filter((pr) => pr.some((id) => state.tileAt[id].activity !== card.to));
+  const pool = fresh.length ? fresh : pairs;
+  return pool.length ? pool[Math.floor(r * pool.length)] : [];
+}
+function drawFortune(state) {
+  if (!state.fortuneDeck.length) state.fortuneDeck = dealFortunes(state, FORTUNE_DECK.length);
+  const id = state.fortuneDeck.pop();
+  return { id, tiles: fortuneTiles(state, fortuneCard(id)) };
+}
+// 장이 열릴 때: 예고된 카드가 이번 장 땅의 운이 되어 칸을 바꾸고, 다음 장 카드를 뽑아 미리 보인다 (마지막 장이면 다음은 없다)
+function turnFortune(state) {
+  if (!landOn(state)) return;
+  const now = state.fortune?.next ?? drawFortune(state);
+  const card = fortuneCard(now.id);
+  if (card?.to) for (const id of now.tiles) { const tl = state.tileAt[id]; tl.activity = card.to; tl.rest = 0; }
+  state.fortune = { now, next: state.round < state.maxRounds ? drawFortune(state) : null };
+}
+// 장 끝: 거둔 땅은 한 단계 지치고(풍요 → 정상 → 빈곤), 아무도 거두지 않고 쉰 빈곤 땅은 정상으로 돌아온다 (어려움은 두 장을 쉬어야)
+function restLand(state) {
+  if (!landOn(state)) { state.worked = []; return; }
+  const worked = new Set(state.worked ?? []);
+  const need = REST_ROUNDS[state.config.difficulty] ?? 1;
+  for (const tl of state.tiles) {
+    if (!yieldOf(tl).gather) continue;
+    if (worked.has(tl.id)) { tl.activity = ACTIVITY_DOWN[tl.activity ?? 'normal']; tl.rest = 0; tl.workedAt = state.round; }
+    else if (tl.activity === 'poor') {
+      tl.rest = (tl.rest ?? 0) + 1;
+      if (tl.rest >= need) { tl.activity = 'normal'; tl.rest = 0; }
+    }
+  }
+  state.worked = [];
 }
 
 // 섞은 묶음을 이어 붙여 n장 이상의 덱을 만든다 (뒤에서부터 뽑는다)
@@ -333,7 +401,7 @@ export function tileName(state, tile, viewer = 'player') {
 function costText(cost) {
   return Object.entries(cost).map(([k, v]) => t('eng.cost.item', { res: RESOURCE_NAME[k], n: v })).join(', ');
 }
-const canPay = (s, cost) => Object.entries(cost).every(([k, v]) => s[k] >= v);
+const canPay = (s, cost) => Res.canPay(s, cost);
 // 건설 비용 (신전은 단계, 대성당은 공사 단계에 따라)
 export function buildCost(state, side, build) {
   const s = state.sides[side];
@@ -352,7 +420,7 @@ export function buildCost(state, side, build) {
   if (build === 'wall' && side === 'player' && s.doctrine.war >= 4) return { stone: 1 };
   return COST[build];
 }
-const pay = (s, cost) => { for (const [k, v] of Object.entries(cost)) s[k] -= v; };
+const pay = (s, cost) => Res.pay(s, cost);
 
 // 칸의 채집: 지형 + 영구 지형(오아시스·채석장)
 export function yieldOf(tile) {
@@ -361,16 +429,16 @@ export function yieldOf(tile) {
   return TERRAIN[tile.terrain];
 }
 
+// 거두면 나오는 양: 지형(영구 지형) + 활성도 (풍요 +1, 빈곤 −1) + 풍요 교리(식량 +1)
 export function gatherAmount(state, side, tile) {
   const terr = yieldOf(tile);
   let n = terr.amount;
-  if (terr.gather === 'food') {
-    if (state.event?.id === 'drought' && !state.rainActive) n -= 2;
-    if (state.event?.id === 'harvest' && (tile.terrain === 'plain' || tile.terrain === 'river')) n += 2;
-    if (state.sides[side].doctrine.abundance >= 2) n += 1;
-  }
+  if (terr.gather) n += ACTIVITY[tile.activity ?? 'normal'] ?? 0;
+  if (terr.gather === 'food' && state.sides[side].doctrine.abundance >= 2) n += 1;
   return Math.max(0, n);
 }
+// 기본 배치가 보는 양: 활성도를 빼고 지형만 (쉬움은 활성도까지 본다) — 기름진 곳을 고르는 것은 말의 몫이다
+export const defaultAmount = (state, side, tile) => (state.config.difficulty === 'easy' || state.tutorial ? gatherAmount(state, side, tile) : yieldOf(tile).amount ?? 0);
 
 function describe(state, side, a) {
   const tl = state.tileAt[a.tile];
@@ -525,7 +593,7 @@ export function autoFill(state, side, accepted, forbidden = [], doctrine = null)
     const room = () => accepted.length + filled.length < limit;
     const take = (a) => { if (!a || !room()) return false; used.add(a.tile); filled.push({ ...a, auto: true }); return true; };
     const planned = (res) => [...accepted, ...filled].filter((a) => a.gather === res).length;
-    const best = (res) => pool.filter((a) => a.gather === res && !used.has(a.tile)).sort((x, y) => gatherAmount(state, side, state.tileAt[y.tile]) - gatherAmount(state, side, state.tileAt[x.tile]))[0];
+    const best = (res) => pool.filter((a) => a.gather === res && !used.has(a.tile)).sort((x, y) => defaultAmount(state, side, state.tileAt[y.tile]) - defaultAmount(state, side, state.tileAt[x.tile]))[0];
     if (s.faith <= RULES.lowFaith) take(pool.find((a) => a.type === 'pray' && !used.has(a.tile)));
     for (let k = 0; k < 2 && s.food + 2 * planned('food') < s.pop + 2; k++) if (!take(best('food'))) break;
     for (const res of ['wood', 'stone']) if (s[res] < 2 && !planned(res)) take(best(res));
@@ -537,9 +605,12 @@ export function autoFill(state, side, accepted, forbidden = [], doctrine = null)
   if (side === 'player' && s.faith <= RULES.lowFaith && prayFirst && !used.has(prayFirst.tile) && accepted.length + filled.length < limit) {
     used.add(prayFirst.tile); filled.push({ ...prayFirst, auto: true });
   }
+  // 율법파는 닿는 땅 가운데 가장 기름진 곳부터 거둔다 (같으면 원래 순서)
+  const richest = (res) => pool.filter((a) => a.gather === res && !used.has(a.tile))
+    .map((a, i) => ({ a, i, n: gatherAmount(state, side, state.tileAt[a.tile]) })).sort((x, y) => y.n - x.n || x.i - y.i)[0]?.a;
   for (const res of [...order, ...order]) {
     if (accepted.length + filled.length >= limit) break;
-    const pick = pool.find((a) => a.gather === res && !used.has(a.tile));
+    const pick = richest(res);
     if (pick) { used.add(pick.tile); filled.push({ ...pick, auto: true }); }
   }
   // 채집할 곳이 없으면 신전에서 기도한다
@@ -569,6 +640,8 @@ function pickForRule(state, rule, pool) {
     return [...cands].sort((a, b) => score(a) - score(b))[0];
   }
   if (rule.type === 'build' && (rule.build === 'village' || rule.build === 'wall')) return [...cands].sort(byDist)[0];
+  // 율법 카드의 채집: 가장 기름진 곳부터 (같으면 원래 순서)
+  if (rule.type === 'gather') return cands.map((a, i) => ({ a, i, n: gatherAmount(state, 'enemy', state.tileAt[a.tile]) })).sort((x, y) => y.n - x.n || x.i - y.i)[0].a;
   return cands[0];
 }
 
@@ -664,6 +737,8 @@ export function startRound(state) {
   state.roundMods = {};
   state.dilemmaPick = null;
   if (state.round > 1) state.destinyOffer = null; // 1장에 고르지 않았으면 첫 소명 그대로
+  state.worked = [];
+  turnFortune(state);
   state.petition = makePetition(state);
   if (state.round === draftRound(state) && unlocked(state, 3)) {
     const pool = MIRACLES.map((m) => m.id).filter((id) => !state.miracleHand.includes(id) && !(state.config.trial === 'storm' && id === 'rain'));
@@ -692,7 +767,7 @@ function makePetition(state) {
   const who = hashPick(PETITIONERS, state.config.seed, state.round, 'petitioner');
   const threat = enemyIntent(state).find((a) => a.shown && a.type === 'attack');
   const needs = [
-    [state.event?.id === 'drought' || p.food < p.pop, { text: t('eng.petition.food'), need: { type: 'gather', gather: 'food' }, keys: t('kw.petition.food') }],
+    [state.fortune?.now?.id === 'drought' || p.food < p.pop, { text: t('eng.petition.food'), need: { type: 'gather', gather: 'food' }, keys: t('kw.petition.food') }],
     [threat, { text: t('eng.petition.threat', { place: tileName(state, state.tileAt[threat?.tile ?? capitalOf(state, 'player').id]) }), need: { type: 'build', build: 'wall' }, alt: 'attack', keys: t('kw.petition.threat') }],
     [p.faith <= RULES.lowFaith, { text: t('eng.petition.faith'), need: { type: 'pray' }, keys: t('kw.petition.faith') }],
     [state.event?.id === 'plague', { text: t('eng.petition.plague'), need: { type: 'pray' }, keys: t('kw.petition.plague') }],
@@ -863,8 +938,10 @@ export function castMiracle(state, id, targetTile) {
     if (tl.wall) { tl.wall = false; logEvent(state, 'player', t('log.lightningWall', { place: tileName(state, tl) }), null, { tile: tl.id, kind: 'lightning' }); }
     else { state.sides.enemy.pop = Math.max(0, state.sides.enemy.pop - 1); logEvent(state, 'player', t('log.lightningHit', { place: tileName(state, tl) }), null, { tile: tl.id, kind: 'lightning' }); }
   } else if (m.id === 'rain') {
-    s.faith -= cost; s.food += 3; state.rainActive = true;
-    logEvent(state, 'player', t('log.rain'), null, { kind: 'rain', gain: { food: 3 } });
+    s.faith -= cost; s.food += 3;
+    const healed = landOn(state) ? reach(state, 'player').filter((tl) => tl.activity === 'poor' && yieldOf(tl).gather === 'food') : [];
+    for (const tl of healed) { tl.activity = 'normal'; tl.rest = 0; }
+    logEvent(state, 'player', t('log.rain', { n: healed.length }), null, { kind: 'rain', gain: { food: 3 } });
   } else {
     s.faith -= cost; s.wood += 2; s.stone += 2;
     logEvent(state, 'player', t('log.bounty'), null, { kind: 'bounty', gain: { wood: 2, stone: 2 } });
@@ -980,6 +1057,7 @@ export function resolveRound(state, playerPlan, enemyPlan) {
   // 갈림길의 결과는 유지 단계 전에 (마지막 장의 승패에도 들어가게)
   if (state.pendingDilemma && !state.winner) { resolveDilemma(state, state.pendingDilemma, true); state.pendingDilemma = null; }
   if (!state.winner) upkeep(state);
+  restLand(state);
   recordHistory(state);
 }
 
@@ -1084,18 +1162,17 @@ const actOfRound = (state, r) => actOf({ ...state, round: r });
 // ---------- 결과 미리보기 (확인 화면용, 주사위 행동은 뺀다) ----------
 export function previewGains(state, plan) {
   const s = state.sides.player;
-  const d = { food: 0, wood: 0, stone: 0, faith: 0 };
-  const per = {};
+  const d = Res.zero();
   for (const a of plan) {
-    if (a.type === 'gather') { const n = gatherAmount(state, 'player', state.tileAt[a.tile]); d[a.gather] += n; per[a.key] = t('eng.preview.gain', { n, res: RESOURCE_NAME[a.gather] }); }
-    else if (a.type === 'pray') { const n = prayValue(state, 'player'); d.faith += n; per[a.key] = t('eng.preview.faith', { n }); }
-    else if (a.type === 'build') { for (const [k, v] of Object.entries(buildCost(state, 'player', a.build))) d[k] -= v; }
+    if (a.type === 'gather') d[a.gather] += gatherAmount(state, 'player', state.tileAt[a.tile]);
+    else if (a.type === 'pray') d.faith += prayValue(state, 'player');
+    else if (a.type === 'build') Res.pay(d, buildCost(state, 'player', a.build));
   }
   // 장이 끝날 때: 식량 생산(수도 2 + 마을) − 먹는 양, 신앙 수입
   d.food += 2 + villageCount(state, 'player') - s.pop - (state.commandments?.includes('noFamine') ? 1 : 0);
   d.faith += faithIncome(state, 'player');
-  const after = Object.fromEntries(Object.entries(d).map(([k, v]) => [k, s[k] + v]));
-  return { delta: d, after, per };
+  const after = Res.add(Res.of(s), d);
+  return { delta: d, after };
 }
 
 // ---------- 침묵도 계시다 ----------
@@ -1218,7 +1295,8 @@ export function serializeState(state) {
   };
 }
 export function hydrateState(obj) {
-  const ev = (id) => EVENTS.find((e) => e.id === id) ?? DILEMMAS.find((e) => e.id === id) ?? (id === 'mira' ? MIRA : undefined);
+  // 규칙 28에서 가뭄·풍년은 사건 덱에서 땅의 운으로 옮겼다 — 옛 저장의 그 사건은 평온한 계절로 읽는다
+  const ev = (id) => EVENTS.find((e) => e.id === id) ?? DILEMMAS.find((e) => e.id === id) ?? (id === 'mira' ? MIRA : ['drought', 'harvest'].includes(id) ? EVENTS.find((e) => e.id === 'calm') : undefined);
   const law = (id) => LAW_CARDS.find((c) => c.id === id);
   const state = {
     ...obj,
@@ -1229,7 +1307,9 @@ export function hydrateState(obj) {
   if ([state.event, state.lawCard, ...state.eventDeck, ...state.lawDeck].some((c) => c === undefined)) throw new Error(t('eng.unknownCard'));
   state.tileAt = Object.fromEntries(state.tiles.map((t) => [t.id, t]));
   state.bannedWords ??= []; state.bannedNext ??= null; state.eventChoice ??= null; state.history ??= [];
-  state.priest = 'loyal'; // 대사제 성향은 걷어냈다 — 옛 저장의 성향도 충직으로 state.names ??= {}; state.lessons ??= []; state.prophecy ??= null;
+  state.priest = 'loyal'; // 대사제 성향은 걷어냈다 — 옛 저장의 성향도 충직으로
+  // (34f4cbd에서 위 주석이 이 줄을 삼켰다 — 아주 옛 저장의 이름·말버릇·예언 기본값)
+  state.names ??= {}; state.lessons ??= []; state.prophecy ??= null;
   if (typeof state.lawGuard !== 'number') state.lawGuard = Math.max(state.lawGuard?.attack ?? 0, state.lawGuard?.preach ?? 0);
   state.rally ??= false; state.miracleUses ??= {};
   for (const sd of Object.values(state.sides)) sd.capitalHp = Math.min(sd.capitalHp, CAPITAL_HP);
@@ -1246,6 +1326,11 @@ export function hydrateState(obj) {
   delete state.wrath; delete state.doomUsed;
   // 규칙 10 전의 저장: 석판이 12칸이었다 — 새 한계에 닿아 곧바로 지지 않게 한 칸 아래로
   if ((state.ruleset ?? 0) < 10) for (const sd of Object.values(state.sides)) sd.edict = Math.min(sd.edict, edictMax(state) - 1);
+  // 규칙 28 전의 저장: 땅은 모두 정상에서, 땅의 운은 다음 장부터
+  for (const tl of state.tiles) { tl.activity ??= 'normal'; tl.rest ??= 0; tl.workedAt ??= 0; }
+  state.worked ??= []; state.fortune ??= { now: null, next: null };
+  state.rng.land ??= landSeed(state.tutorial ? TUTORIAL.seed : state.config.seed);
+  if (!state.fortuneDeck) { state.fortuneDeck = []; if (landOn(state)) state.fortuneDeck = dealFortunes(state, Math.max(2, state.maxRounds - state.round + 2)); }
   state.ruleset = RULESET;
   state.grace ??= { round: 0, used: 0 }; state.roundMods ??= {}; state.miracleHand ??= [...FIRST_HAND]; state.miracleOffer ??= null; state.pendingSite ??= null; state.stats ??= { converted: 0, captured: 0, miracles: 0, prophecies: 0, petitions: 0 };
   return state;
@@ -1263,6 +1348,7 @@ function resolveAction(state, a) {
       if (tl.owner === foe) return logEvent(state, side, t('log.gatherFoe', { who: side, place }), null, { tile: tl.id, kind: 'fail' });
       const n = gatherAmount(state, side, tl);
       s[a.gather] += n;
+      if (landOn(state) && !state.worked.includes(tl.id)) state.worked.push(tl.id);
       return logEvent(state, side, t('log.gather', { who: side, place, res: RESOURCE_NAME[a.gather], n }), null, { tile: tl.id, kind: 'gain', gain: { [a.gather]: n } });
     }
     case 'pray': {

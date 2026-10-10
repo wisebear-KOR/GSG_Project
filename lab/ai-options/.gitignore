@@ -1,0 +1,10 @@
+# 실험이 만든 자료 (README 참고)
+*.json
+*.jsonl
+*.npz
+*.log
+old/
+!words-train.json
+!words-eval.json
+!words-eval-b.json
+!judge-parity.json

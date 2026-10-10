@@ -7,9 +7,10 @@
 | 명령 | 하는 일 |
 |---|---|
 | `node tools/tests/det.mjs` | 같은 시드면 사건 덱 순서가 플레이와 무관한지(율법 카드는 쉬움에서만 — 보통·어려움은 지난 계시를 듣고 맞서는 카드를 고르므로 계시에 따라 바뀌는 것이 설계다, [02 §4.3](../../docs/spec/02-rules.md#43-이번-장-카드-고르기)), 저장·복원 뒤에도 결과가 같은지 |
-| `node tools/tests/fuzz.mjs [판 수=600] [random\|smart] [시드]` | 무작위/영리한 봇으로 판을 돌리며 불변식 위반(음수 자원, `undefined`/`NaN` 문구, 저장·복원 차이, 믿음의 표식 `n`이 1 ~ `E.FLIP_MARKS − 1`의 정수인지 — `ba29880`부터 상수를 읽는다, 그 전에는 1~2로 박혀 있었다 — 등)을 모은다. 결과는 `result-<정책>.json` (커밋하지 않는다) |
+| `node tools/tests/fuzz.mjs [판 수=600] [random\|smart] [시드]` | 무작위/영리한 봇으로 판을 돌리며 불변식 위반(음수 자원, `undefined`/`NaN` 문구, 저장·복원 차이, 믿음의 표식 `n`이 1 ~ `E.FLIP_MARKS − 1`의 정수인지 — `ba29880`부터 상수를 읽는다, 그 전에는 1~2로 박혀 있었다 —, 규칙 28의 땅: 활성도 세 값·쉰 장 수가 회복 문턱 아래·튜토리얼은 늘 정상·장 끝에 거둔 칸 목록이 비고 거둔 땅이 풍요로 남지 않음·땅의 운 칸이 수도가 아님 등)을 모은다. 결과는 `result-<정책>.json` (커밋하지 않는다) |
 | `node tools/tests/stats.mjs tools/tests/result-smart.json` | 퍼징 결과의 난이도·맵별 승률 표 |
 | `node tools/tests/edge.mjs` | 경계 사례 모음 (`97ddf1b`부터 10번 — 결말 종류 `outcomeKind`가 수도 점령은 `conquest`, 함락은 `conquered`, 대성당은 `cathedral`, 옛 `doom`은 `conquest`인지; 틀리면 종료 코드 1) |
+| `node tools/tests/info.mjs [판 수=60]` | 도메인 영역의 정보 객체(`js/game/domain/`, [docs/redesign/INFO.md](../../docs/redesign/INFO.md)): 자원 묶음 `Res`·일의 종류의 단위 검사, 그리고 여섯 가지 설정(튜토리얼, 지난 판의 유적·도전장이 있는 판 포함)으로 판을 돌리며 장마다 `gameInfo`가 상태를 바꾸지 않는지, 판 설정·장(새 막)·진영·자원·율법파의 뜻·할 수 있는 일·기적 고르기·건설 비용·말하기 비용·다음 장 율법 카드·확인 화면 계산값(행동마다 득, 장 끝 예상)·장 결산이 엔진과 같은지, 안개 속 칸이 새지 않는지, 대사제의 눈(`view(info, 'priest')`)이 `SEEN` 표를 따르는지(전략 재료가 빠지고, 모자란 것은 어려움에서만 빠지고, 율법 카드는 공개 뒤에만). 위반이 있으면 종료 코드 1 |
 | `node tools/tests/heresy.mjs` | 신앙 바닥(이단) 흐름 — 30자 넘는 계시만 골라 신앙을 말리는 시험이었는데, `0c95856`부터 계시 비용이 길이와 무관하게 1이라 그 전제가 사라졌다. 스크립트는 그대로 긴 계시를 쓰고, `16492f4`에서 주석만 "보통 플레이의 신앙 유지를 본다"로 고쳤다 |
 
 `lib.mjs`는 `main.js`에 있는 한 장 진행 규칙(침묵, 청원 은총, 기본 노동에 계시의 교리 넘기기, 계명 새긴 뒤 다시 채우기, 말할 때의 되풀이 판정 등)을 복제해 두었다(`doSpeak`/`doAccept`). **말한 기적은 없다** — 계시 속 "번개"·"단비"는 기적을 부르지 않고(기적은 `sim.mjs`·`fuzz.mjs`가 `castMiracle`로 따로 쓴다), 그래서 `bcdeb22`의 번개 수도 조준도 이 구동기에는 없다(골든 구동기 `tools/golden.mjs`에는 있다). `9b43bbf`부터 `doSpeak`가 비용을 치르기 전에 `pending.spoken = spokenOf(state, text)`를 두고 `doAccept`가 `recordRevelation(…, pending.spoken)`에 넘긴다 — 화면의 `speakSnap.spoken`과 같다. `main.js`의 해당 부분을 고치면 여기도 맞춰야 한다. `db4135b`부터 `doAccept`가 `main.js`처럼 해결 뒤(승자가 없고 글이 있을 때) `keepVows(state, result.forbidden, plan)`을 부른다 — 그 전 벤치 판에는 서원 은총과 칼을 금한 다음 장의 성전 반응이 없었다. `e41430e`부터 `doSpeak`가 글로 고른 갈림길 선택(`pending.dilemma = dilemmaByText`)을 두고, `doAccept`가 골든 구동기처럼 침묵이면 `streak = null`, 갈림길 비용(`payDilemma(pending.dilemma ?? dilemmaPick ?? 첫 선택)`), 성스러운 낱말(`findSacred`), 예언 봉인, 해결, 침묵 벌(`applySilence`), 전설(`markLegends`), 서원(`keepVows`), 말의 장치(`wordsAfter`), 계시 기록 순으로 부른다([KNOWN-ISSUES E12](../../docs/godot/KNOWN-ISSUES.md) 고침 — 그 전 벤치 판에는 갈림길의 득실과 「쫓아낸다」의 성전 반응, 침묵 벌, 전설이 없었다). 아직 없는 것: 말한 기적(위)과 계명 새기기. 다른 점 하나: `doSpeak`의 `reinterpret`는 석판 해석에도 다시 해석을 허용한다(화면은 석판 모드(`aiMode !== 'llm'`)면 단추를 숨긴다 — `e68a240`부터 해석 출처가 아니라 모드로 가른다). 청원 외면 벌은 `846fd60`에서 화면·골든 구동기와 함께 `lib.mjs`의 `wordsAfter`에서도 지웠다(그 전에는 `435c3cc`부터 튜토리얼 조건 `!state.tutorial`까지 화면과 같았다 — [golden README](../../docs/export/golden/README.md)). 구동기는 `config`를 받는 대로 `createState`에 넘기므로, `unlock`을 주지 않으면 모듈은 `veteran`으로 정해진다(`veteran: true`면 전부 — `8ba0ef8`의 단계 해금은 벤치의 "두 번째 판"에 들지 않는다). `8250dd7`에서 화면·골든 구동기와 함께 `doAccept`의 `applyTone`(말투의 수치)과 첫 이름의 지혜 +1을 지우고 `recordRevelation(state, text, doctrine, pending.spoken)`(비유의 `extra` 인자 없음)으로 바꿨다. 이룬 예언의 은총은 엔진(`resolveRound` 안의 `checkProphecy`)이, 모자란 것만 채우는 기본 노동은 엔진 `autoFill`이 하므로 구동기에 그대로 들어 있다. 화면과 다른 점이 더 있다: `doAccept`는 `keepVows`(서원 은총과 다음 장 율법파의 「성전」 앞당김)·`applySilence`(연속 침묵의 벌)·`markLegends`·갈림길 비용·계명 새기기를 부르지 않고, 침묵(`silence`)은 화면·골든 구동기처럼 기도 하나를 먼저 넣지 않고 `autoFill(state, 'player', [])`만 부른다(신앙 ≤ 2면 `autoFill`이 기도를 넣는다). 그래서 벤치 수치에는 서원 은총과 침묵의 벌이 없다.
@@ -17,6 +18,21 @@
 `fuzz.mjs`의 `winner-before-resolve` 보고는 **번개가 아닌** 기적이 말하기 단계에서 판을 끝냈을 때만 나온다. 번개로 끝나는 판(마지막 신도를 쓰러뜨림 → `448f553`부터는 남은 자로 수도가 흔들려 점령)은 화면이 받는 정상 경로라 세지 않는다.
 
 `extinct-no-remnant`(`fuzz.mjs:176`)는 `448f553`의 남은 자 규칙을 검사한다: 튜토리얼이 아니고 판이 이어지면 장 끝에 어느 쪽(플레이어·율법파)도 신도 0으로 남아 있으면 안 된다 — 장 중간에 0이 되어도 그 장의 승패 판정에서 수도가 흔들리고 한 명이 돌아오는 것이 정상이다. `e68a240`에서 예전 검사 `enemy-extinct-no-win`(율법파 인구가 장 중간에 0이 되면 승부가 나야 함, 남은 자 규칙 뒤로 거짓 경보)을 이것으로 바꿨다.
+
+## 리팩터링 대조 (화면·프롬프트)
+
+규칙은 golden과 퍼징이 지킨다. 화면과 대사제에게 가는 글은 아래 둘로 고치기 전과 견준다 ([docs/redesign/INFO.md §6](../../docs/redesign/INFO.md#6-검사)).
+
+| 명령 | 하는 일 |
+|---|---|
+| `node --no-warnings lab/prompt-snap.mjs > a.jsonl` | 40판의 장마다 `buildPrompt`의 글·스키마·행동 목록을 한 줄씩. 고치기 전과 뒤의 파일이 같아야 한다(`2026-10-07` 도메인 영역 작업 전후 md5 `ddbd845e…`, 382줄). 다른 사본은 루트를 `file:///` URL로 넘긴다 |
+| `lab/ui-snap.js` (브라우저 콘솔) | 다섯 장면(`SCENARIOS`)을 저장해 불러온 뒤 말하기·쓰기·확인·결산의 패널 HTML과 칸 툴팁을 떠서 `base`와 `new`를 견준다. 그린 뒤에 던진 오류도 보고한다. 사관의 과제 진행(`gsg.onboard`)이 장면마다 바뀌어 다시 그리는 횟수가 달라질 수 있으니, base를 뜬 순서대로 돌리고 첫 장면 전에 같은 값으로 맞춘다 |
+
+## 판정기 시험
+
+| 명령 | 하는 일 |
+|---|---|
+| `node tools/tests/judge.mjs [--all]` | 게임의 기본 해석기 `interpretWithJudge`(석판 + 글자 n-gram 판정기 `js/game/ai/judge.js`, [docs/redesign/AI-OPTIONS.md](../../docs/redesign/AI-OPTIONS.md)): 석판 시험 문장을 `tablet-cases.mjs`와 같은 상태·판정으로 돌려 판정기가 끼어도 알던 말을 잃지 않는지(1372/1372), 은유 세트(`lab/scenario.js` 채점 20)에서 석판보다 못하지 않은지, 같은 글이 늘 같은 판정인지. 어기면 종료 코드 1. 판정기 가중치는 `lab/ai-options/train_judge.py`가 만들고, 평가 전용 은유 116문장은 `lab/ai-options/eval_words.mjs`로 잰다 |
 
 ## 석판 해석기 회귀 시험
 
@@ -59,6 +75,7 @@
 | `smart` | 후보 계시(`SMART_REVS`)마다 한 장 앞을 두 번씩 굴려(주사위 시드만 바꿔) 승점 차·자원으로 가장 좋은 것을 고른다(평가 함수 `evalState` — `88878b6`부터 그 계시로 다음 장 율법파가 대비할 만큼 `2 × braceAhead`를 뺀다). 기적은 간단한 규칙(`smartMiracle`) |
 | `smart4`, `smartnomir` | smart에서 주사위 표본 4번 / 기적 없음 |
 | `planner` | 숙련자 대용: 절 14개(`CLAUSES` — `d7ad6e0`에서 "가장 약한 율법파 마을을 쳐라"·"약한 율법파 마을에 사랑을 전하라"를 더했다)에서 한 장에 최대 세 절을 탐욕적으로 골라 한 문장으로 잇는다 |
+| `plannerland` | planner + 규칙 28의 땅의 말 다섯 절(`LAND_CLAUSES` — "기름진 들판에서 곡식을 거두라", "쉬던 숲에서 나무를 베어라" 등). 말로 땅을 고르는 실력의 값을 잰다 (같은 판 320쌍에서 planner보다 승률 +5점, [redesign §5.3](../../docs/redesign/README.md)) |
 | `warplan` | 정복 지향: 율법파 수도를 칠 수 있고 승률 45% 이상이면 "율법파의 수도를 쳐라, 성벽을 쌓아 지켜라", 아니면 planner |
 | `foresight` (`db4135b`) | planner + 다음 장 율법 카드 내다보기: 후보 계시를 굴려 본 상태마다 `FORESIGHT`(환경 변수, 기본 1) × `lawThreat(nextLawCard(그 계시의 교리).card)`를 값에서 뺀다(`valueOf`·`plannerText`의 `foresight` 인자). 벤치의 고정 목록에는 없다 — 이름으로 따로 돌린다 |
 | `smartcath` | smart + 사람 규칙: 신전을 지을 수 있으면 "신전을 높이 세우라", `3f33be1`부터 대성당을 지을 수 있으면 먼저 수도에 성벽("우리 수도에 성벽을 쌓아라, 곡식을 거두라" — 수도에 성벽이 있거나 돌이 대성당 비용 + 2보다 적으면 "대성당을 지어라, 곡식을 거두라"), 지은 뒤에는 "우리 수도에 성벽을 쌓아라, 기도하라, 곡식을 거두라"로 버틴다. 그 밖은 smart (대성당 전략 측정용 — 그 전에는 신전·대성당을 지을 수 있으면 늘 "신전을 높이 세우라") |

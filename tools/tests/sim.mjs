@@ -63,6 +63,8 @@ export function smartChooseText(state, rng, { cands = SMART_REVS, samples = 2, r
 }
 const CLAUSES = ['강에서 물고기를 잡아라', '들판에서 곡식을 거두라', '숲의 나무를 베어라', '산에서 돌을 캐라', '마을을 넓혀라', '이웃에게 사랑을 전하라',
   '쳐라', '성벽을 쌓아 지켜라', '신전을 높이 세우라', '대성당을 지어라', '기도하라', '안개 너머를 탐험하라', '가장 약한 율법파 마을을 쳐라', '약한 율법파 마을에 사랑을 전하라'];
+// 규칙 28의 땅의 말: 기름진 곳·쉬던 땅을 짚는 절 (plannerland만 쓴다 — 말로 땅을 고르는 실력의 값을 잰다)
+const LAND_CLAUSES = ['기름진 들판에서 곡식을 거두라', '쉬던 들판에서 곡식을 거두라', '기름진 숲에서 나무를 베어라', '쉬던 숲에서 나무를 베어라', '기름진 산에서 돌을 캐라'];
 function valueOf(state, text, rng, samples = 2, foresight = 0) {
   let v = 0;
   for (let k = 0; k < samples; k++) {
@@ -76,12 +78,12 @@ function valueOf(state, text, rng, samples = 2, foresight = 0) {
   }
   return v / samples;
 }
-export function plannerText(state, rng, foresight = 0) {
+export function plannerText(state, rng, foresight = 0, clauses = CLAUSES) {
   let best = null; let bestV = valueOf(state, null, rng, 2, foresight);
   let cur = [];
   for (let depth = 0; depth < 3; depth++) {
     let stepBest = null; let stepV = -Infinity;
-    for (const c of CLAUSES) {
+    for (const c of clauses) {
       if (cur.includes(c)) continue;
       const text = [...cur, c].join(', ');
       const v = valueOf(state, text, rng, 2, foresight);
@@ -170,6 +172,11 @@ export function makePolicy(name) {
     miracle: (s) => (s.round < s.maxRounds ? smartMiracle(s) : null),
     offer: (s) => s.miracleOffer.find((x) => ['manna', 'ark', 'revive'].includes(x)) ?? s.miracleOffer[0],
     speak: (s, rng) => ({ text: plannerText(s, rng), seal: true }), site: () => 'take',
+  };
+  if (name === 'plannerland') return { // planner + 땅의 말 (기름진 곳·쉬던 땅) — 규칙 28에서 말로 땅을 고르는 값
+    miracle: (s) => (s.round < s.maxRounds ? smartMiracle(s) : null),
+    offer: (s) => s.miracleOffer.find((x) => ['manna', 'ark', 'revive'].includes(x)) ?? s.miracleOffer[0],
+    speak: (s, rng) => ({ text: plannerText(s, rng, 0, [...CLAUSES, ...LAND_CLAUSES]), seal: true }), site: () => 'take',
   };
   if (name === 'foresight') return { // planner + 다음 장 율법 카드를 내다본다
     miracle: (s) => (s.round < s.maxRounds ? smartMiracle(s) : null),
