@@ -65,11 +65,13 @@ const EDGE_DIRS = {
   odd: [[0, 1], [1, 1], [1, 0], [0, -1], [-1, 0], [-1, 1]],
 };
 const vertex = (c, i, r = R) => { const a = (Math.PI / 180) * (60 * i - 30); return { x: c.x + r * Math.cos(a), y: c.y + r * Math.sin(a) }; };
-export function borderEdges(state) {
+// board: 도메인의 판 정보 (domain/info.js boardInfo) — 안개 속 칸에는 주인이 적혀 있지 않다
+export function borderEdges(board) {
   const ROWS = 'ABCDEFGHI';
-  const at = (r, c) => state.tileAt?.[`${ROWS[r]}${c + 1}`];
+  const byId = new Map(board.tiles.map((t) => [t.id, t]));
+  const at = (r, c) => byId.get(`${ROWS[r]}${c + 1}`);
   const out = [];
-  for (const t of state.tiles) {
+  for (const t of board.tiles) {
     if (!t.owner || !t.revealed) continue;
     const c = center(t);
     (t.r % 2 ? EDGE_DIRS.odd : EDGE_DIRS.even).forEach(([dr, dc], k) => {
@@ -86,19 +88,21 @@ const lastEdges = new WeakMap();
 
 const INTENT_ICON = { attack: 'd-war', preach: 'd-peace', build: 'i-house', gather: 'i-food', pray: 'i-temple' };
 
-export function renderBoard(svg, state, { markers = [], highlight = [], hints = [], intents = [], onTileClick, selectable = [], focus = null } = {}) {
-  const { width, height } = sizeOf(state.rows ?? 5, state.cols ?? 5);
+// board: 도메인의 판 정보 (domain/info.js boardInfo) — 칸마다 자리·지형·주인·건물·성벽·이름·전설·표식, 안개 속은 자리와 "?"만
+export function renderBoard(svg, board, { markers = [], highlight = [], hints = [], intents = [], onTileClick, selectable = [], focus = null } = {}) {
+  const { width, height } = sizeOf(board.rows ?? 5, board.cols ?? 5);
+  const tileAt = new Map(board.tiles.map((t) => [t.id, t]));
   svg.setAttribute('viewBox', `0 0 ${width.toFixed(0)} ${height.toFixed(0)}`);
   svg.closest('.board-area')?.style.setProperty('--board-ar', (width / height).toFixed(4));
   svg.replaceChildren();
   frame(svg, width, height);
 
   const tiles = el('g', { class: 'tiles' });
-  for (const t of state.tiles) {
+  for (const t of board.tiles) {
     const c = center(t);
     const hidden = !t.revealed;
     const terr = hidden ? 'fog' : t.terrain;
-    const g = el('g', { class: `tile tile-${terr}${selectable.includes(t.id) ? ' selectable' : ''}${focus === t.id ? ' focused' : ''}${t.id === state.holyId && !hidden ? ' holy' : ''}`, 'data-id': t.id });
+    const g = el('g', { class: `tile tile-${terr}${selectable.includes(t.id) ? ' selectable' : ''}${focus === t.id ? ' focused' : ''}${t.holy && !hidden ? ' holy' : ''}`, 'data-id': t.id });
     g.append(el('polygon', { points: hexPoints({ x: c.x, y: c.y + 3 }), class: 'hex-base' }));
     g.append(el('polygon', { points: hexPoints(c), fill: `url(#g-${terr})`, class: 'hex' }));
     g.append(el('polygon', { points: hexPoints(c), fill: `url(#p-${terr})` }));
@@ -111,7 +115,7 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
 
     if (hidden) {
       g.append(use('s-fog', c.x, c.y, 58, { class: 'glyph fog-glyph' }));
-      if (t.site && !t.site.found) g.append(el('text', { x: c.x, y: c.y + 8, class: 'site-mark' }, '?'));
+      if (t.site) g.append(el('text', { x: c.x, y: c.y + 8, class: 'site-mark' }, '?'));
     } else if (t.building === 'capital') {
       g.append(use(`s-${t.terrain}`, c.x, c.y + 14, 34, { opacity: 0.35 }));
       g.append(use(t.owner === 'player' ? 's-temple' : 's-tower', c.x, c.y - 2, 64, { class: 'glyph building' }));
@@ -122,15 +126,14 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
       g.append(use(`s-${t.terrain}`, c.x, c.y - 2, 60, { class: 'glyph' }));
     }
     g.append(el('text', { x: c.x, y: c.y + R * 0.74, class: 'coord' }, t.id));
-    if (t.id === state.holyId && !hidden) g.append(el('polygon', { points: hexPoints(c, R - 7), class: 'holy-ring' }));
-    const cath = t.building === 'capital' && t.owner === 'player' ? state.sides?.player?.cathedral ?? 0 : 0;
-    if (cath) g.append(el('circle', { cx: c.x, cy: c.y + R * 0.5, r: 5, class: 'cath-pip on' }));
-    if (state.names?.[t.id] && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name' }, state.names[t.id]));
-    else if (state.legends?.[t.id] && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name legend' }, state.legends[t.id].name));
+    if (t.holy && !hidden) g.append(el('polygon', { points: hexPoints(c, R - 7), class: 'holy-ring' }));
+    if (t.cathedral) g.append(el('circle', { cx: c.x, cy: c.y + R * 0.5, r: 5, class: 'cath-pip on' }));
+    if (t.name && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name' }, t.name));
+    else if (t.legend && !hidden) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name legend' }, t.legend.name));
     else if (t.feature && !hidden && !t.building) g.append(el('text', { x: c.x, y: c.y - R * 0.52, class: 'tile-name feat' }, t.feature === 'oasis' ? tr('shell.feature.oasis') : tr('shell.feature.quarry')));
-    if (t.faithMarks && !hidden) {
+    if (t.marks && !hidden) {
       // 믿음의 표식: 표식 하나마다 테두리의 1/4만큼 상대 색으로 물든다 (넷이면 넘어간다)
-      g.append(el('polygon', { points: hexPoints(c, R - 5), class: `faith-mark fm-${t.faithMarks.side}`, pathLength: 12, 'stroke-dasharray': `${3 * t.faithMarks.n} 12` }));
+      g.append(el('polygon', { points: hexPoints(c, R - 5), class: `faith-mark fm-${t.marks.side}`, pathLength: 12, 'stroke-dasharray': `${3 * t.marks.n} 12` }));
     }
     const intent = intents.find((i) => i.tile === t.id);
     if (intent) {
@@ -150,7 +153,7 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
   svg.append(tiles);
 
   // 국경선: 새로 생긴 변은 잉크처럼 번진다
-  const edges = borderEdges(state);
+  const edges = borderEdges(board);
   const prev = lastEdges.get(svg);
   const now = new Map(edges.map((e) => [e.key, e.owner]));
   const borders = el('g', { class: 'borders' });
@@ -170,7 +173,7 @@ export function renderBoard(svg, state, { markers = [], highlight = [], hints = 
   for (const m of markers) { const k = `${m.tile}|${m.side}`; stack.set(k, (stack.get(k) ?? 0) + 1); }
   const seen = new Map();
   for (const m of markers) {
-    const t = state.tileAt[m.tile];
+    const t = tileAt.get(m.tile);
     if (m.side === 'enemy' && !t.revealed) continue; // 안개 속 율법파는 보이지 않는다
     const k = `${m.tile}|${m.side}`;
     const i = seen.get(k) ?? 0; seen.set(k, i + 1);

@@ -28,8 +28,6 @@ export default {
   // ---------- 비용·수익 표기 ----------
   'eng.cost.item': '{res} -{n}',
   'eng.gain.item': '{res} +{n}',
-  'eng.preview.gain': '+{n} {res}',
-  'eng.preview.faith': '+{n} 신앙',
 
   // ---------- 행동 설명 (가능한 행동 목록) ----------
   'eng.act.gather': (v) => `${v.place}에서 ${v.river ? '물고기를 잡는다' : v.verb} (${v.res} +${v.n})`,

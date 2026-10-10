@@ -10,6 +10,7 @@
 | `node tools/tests/fuzz.mjs [판 수=600] [random\|smart] [시드]` | 무작위/영리한 봇으로 판을 돌리며 불변식 위반(음수 자원, `undefined`/`NaN` 문구, 저장·복원 차이, 믿음의 표식 `n`이 1 ~ `E.FLIP_MARKS − 1`의 정수인지 — `ba29880`부터 상수를 읽는다, 그 전에는 1~2로 박혀 있었다 — 등)을 모은다. 결과는 `result-<정책>.json` (커밋하지 않는다) |
 | `node tools/tests/stats.mjs tools/tests/result-smart.json` | 퍼징 결과의 난이도·맵별 승률 표 |
 | `node tools/tests/edge.mjs` | 경계 사례 모음 (`97ddf1b`부터 10번 — 결말 종류 `outcomeKind`가 수도 점령은 `conquest`, 함락은 `conquered`, 대성당은 `cathedral`, 옛 `doom`은 `conquest`인지; 틀리면 종료 코드 1) |
+| `node tools/tests/info.mjs [판 수=60]` | 도메인 영역의 정보 객체(`js/game/domain/`, [docs/redesign/INFO.md](../../docs/redesign/INFO.md)): 자원 묶음 `Res`·일의 종류의 단위 검사, 그리고 여섯 가지 설정(튜토리얼, 지난 판의 유적·도전장이 있는 판 포함)으로 판을 돌리며 장마다 `gameInfo`가 상태를 바꾸지 않는지, 판 설정·장(새 막)·진영·자원·율법파의 뜻·할 수 있는 일·기적 고르기·건설 비용·말하기 비용·다음 장 율법 카드·확인 화면 계산값(행동마다 득, 장 끝 예상)·장 결산이 엔진과 같은지, 안개 속 칸이 새지 않는지, 대사제의 눈(`view(info, 'priest')`)이 `SEEN` 표를 따르는지(전략 재료가 빠지고, 모자란 것은 어려움에서만 빠지고, 율법 카드는 공개 뒤에만). 위반이 있으면 종료 코드 1 |
 | `node tools/tests/heresy.mjs` | 신앙 바닥(이단) 흐름 — 30자 넘는 계시만 골라 신앙을 말리는 시험이었는데, `0c95856`부터 계시 비용이 길이와 무관하게 1이라 그 전제가 사라졌다. 스크립트는 그대로 긴 계시를 쓰고, `16492f4`에서 주석만 "보통 플레이의 신앙 유지를 본다"로 고쳤다 |
 
 `lib.mjs`는 `main.js`에 있는 한 장 진행 규칙(침묵, 청원 은총, 기본 노동에 계시의 교리 넘기기, 계명 새긴 뒤 다시 채우기, 말할 때의 되풀이 판정 등)을 복제해 두었다(`doSpeak`/`doAccept`). **말한 기적은 없다** — 계시 속 "번개"·"단비"는 기적을 부르지 않고(기적은 `sim.mjs`·`fuzz.mjs`가 `castMiracle`로 따로 쓴다), 그래서 `bcdeb22`의 번개 수도 조준도 이 구동기에는 없다(골든 구동기 `tools/golden.mjs`에는 있다). `9b43bbf`부터 `doSpeak`가 비용을 치르기 전에 `pending.spoken = spokenOf(state, text)`를 두고 `doAccept`가 `recordRevelation(…, pending.spoken)`에 넘긴다 — 화면의 `speakSnap.spoken`과 같다. `main.js`의 해당 부분을 고치면 여기도 맞춰야 한다. `db4135b`부터 `doAccept`가 `main.js`처럼 해결 뒤(승자가 없고 글이 있을 때) `keepVows(state, result.forbidden, plan)`을 부른다 — 그 전 벤치 판에는 서원 은총과 칼을 금한 다음 장의 성전 반응이 없었다. `e41430e`부터 `doSpeak`가 글로 고른 갈림길 선택(`pending.dilemma = dilemmaByText`)을 두고, `doAccept`가 골든 구동기처럼 침묵이면 `streak = null`, 갈림길 비용(`payDilemma(pending.dilemma ?? dilemmaPick ?? 첫 선택)`), 성스러운 낱말(`findSacred`), 예언 봉인, 해결, 침묵 벌(`applySilence`), 전설(`markLegends`), 서원(`keepVows`), 말의 장치(`wordsAfter`), 계시 기록 순으로 부른다([KNOWN-ISSUES E12](../../docs/godot/KNOWN-ISSUES.md) 고침 — 그 전 벤치 판에는 갈림길의 득실과 「쫓아낸다」의 성전 반응, 침묵 벌, 전설이 없었다). 아직 없는 것: 말한 기적(위)과 계명 새기기. 다른 점 하나: `doSpeak`의 `reinterpret`는 석판 해석에도 다시 해석을 허용한다(화면은 석판 모드(`aiMode !== 'llm'`)면 단추를 숨긴다 — `e68a240`부터 해석 출처가 아니라 모드로 가른다). 청원 외면 벌은 `846fd60`에서 화면·골든 구동기와 함께 `lib.mjs`의 `wordsAfter`에서도 지웠다(그 전에는 `435c3cc`부터 튜토리얼 조건 `!state.tutorial`까지 화면과 같았다 — [golden README](../../docs/export/golden/README.md)). 구동기는 `config`를 받는 대로 `createState`에 넘기므로, `unlock`을 주지 않으면 모듈은 `veteran`으로 정해진다(`veteran: true`면 전부 — `8ba0ef8`의 단계 해금은 벤치의 "두 번째 판"에 들지 않는다). `8250dd7`에서 화면·골든 구동기와 함께 `doAccept`의 `applyTone`(말투의 수치)과 첫 이름의 지혜 +1을 지우고 `recordRevelation(state, text, doctrine, pending.spoken)`(비유의 `extra` 인자 없음)으로 바꿨다. 이룬 예언의 은총은 엔진(`resolveRound` 안의 `checkProphecy`)이, 모자란 것만 채우는 기본 노동은 엔진 `autoFill`이 하므로 구동기에 그대로 들어 있다. 화면과 다른 점이 더 있다: `doAccept`는 `keepVows`(서원 은총과 다음 장 율법파의 「성전」 앞당김)·`applySilence`(연속 침묵의 벌)·`markLegends`·갈림길 비용·계명 새기기를 부르지 않고, 침묵(`silence`)은 화면·골든 구동기처럼 기도 하나를 먼저 넣지 않고 `autoFill(state, 'player', [])`만 부른다(신앙 ≤ 2면 `autoFill`이 기도를 넣는다). 그래서 벤치 수치에는 서원 은총과 침묵의 벌이 없다.
@@ -17,6 +18,15 @@
 `fuzz.mjs`의 `winner-before-resolve` 보고는 **번개가 아닌** 기적이 말하기 단계에서 판을 끝냈을 때만 나온다. 번개로 끝나는 판(마지막 신도를 쓰러뜨림 → `448f553`부터는 남은 자로 수도가 흔들려 점령)은 화면이 받는 정상 경로라 세지 않는다.
 
 `extinct-no-remnant`(`fuzz.mjs:176`)는 `448f553`의 남은 자 규칙을 검사한다: 튜토리얼이 아니고 판이 이어지면 장 끝에 어느 쪽(플레이어·율법파)도 신도 0으로 남아 있으면 안 된다 — 장 중간에 0이 되어도 그 장의 승패 판정에서 수도가 흔들리고 한 명이 돌아오는 것이 정상이다. `e68a240`에서 예전 검사 `enemy-extinct-no-win`(율법파 인구가 장 중간에 0이 되면 승부가 나야 함, 남은 자 규칙 뒤로 거짓 경보)을 이것으로 바꿨다.
+
+## 리팩터링 대조 (화면·프롬프트)
+
+규칙은 golden과 퍼징이 지킨다. 화면과 대사제에게 가는 글은 아래 둘로 고치기 전과 견준다 ([docs/redesign/INFO.md §6](../../docs/redesign/INFO.md#6-검사)).
+
+| 명령 | 하는 일 |
+|---|---|
+| `node --no-warnings lab/prompt-snap.mjs > a.jsonl` | 40판의 장마다 `buildPrompt`의 글·스키마·행동 목록을 한 줄씩. 고치기 전과 뒤의 파일이 같아야 한다(`2026-10-07` 도메인 영역 작업 전후 md5 `ddbd845e…`, 382줄). 다른 사본은 루트를 `file:///` URL로 넘긴다 |
+| `lab/ui-snap.js` (브라우저 콘솔) | 다섯 장면(`SCENARIOS`)을 저장해 불러온 뒤 말하기·쓰기·확인·결산의 패널 HTML과 칸 툴팁을 떠서 `base`와 `new`를 견준다. 그린 뒤에 던진 오류도 보고한다. 사관의 과제 진행(`gsg.onboard`)이 장면마다 바뀌어 다시 그리는 횟수가 달라질 수 있으니, base를 뜬 순서대로 돌리고 첫 장면 전에 같은 값으로 맞춘다 |
 
 ## 석판 해석기 회귀 시험
 

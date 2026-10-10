@@ -540,6 +540,8 @@ export default {
   'ui.secs': '{s}초',
   'ui.preview.tip': '주사위로 정해지는 선교·공격·탐험, 율법파의 행동은 빼고 계산했다',
   'ui.preview.head': '예상 · ',
+  'ui.preview.gain': '+{n} {res}',
+  'ui.preview.faith': '+{n} 신앙',
   'ui.btn.accept': '수락하고 공개',
   'ui.btn.again': '다시 해석 · 신앙 1',
   'ui.btn.swap': '↔ 이전 해석과 바꾸기',

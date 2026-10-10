@@ -12,6 +12,8 @@ import { generateMap, placeSites, placeFeatures, placeLegacy, holyFor } from './
 import { frequentNoun, hashPick } from './lore.js';
 import { t } from './i18n.js';
 import { josa, batchim } from './i18n/ko/grammar.js';
+// 자원 묶음의 셈은 도메인 영역(domain/resources.js) 하나로 한다
+import { Res } from './domain/resources.js';
 
 export const SIDES = ['player', 'enemy'];
 export const other = (side) => (side === 'player' ? 'enemy' : 'player');
@@ -333,7 +335,7 @@ export function tileName(state, tile, viewer = 'player') {
 function costText(cost) {
   return Object.entries(cost).map(([k, v]) => t('eng.cost.item', { res: RESOURCE_NAME[k], n: v })).join(', ');
 }
-const canPay = (s, cost) => Object.entries(cost).every(([k, v]) => s[k] >= v);
+const canPay = (s, cost) => Res.canPay(s, cost);
 // 건설 비용 (신전은 단계, 대성당은 공사 단계에 따라)
 export function buildCost(state, side, build) {
   const s = state.sides[side];
@@ -352,7 +354,7 @@ export function buildCost(state, side, build) {
   if (build === 'wall' && side === 'player' && s.doctrine.war >= 4) return { stone: 1 };
   return COST[build];
 }
-const pay = (s, cost) => { for (const [k, v] of Object.entries(cost)) s[k] -= v; };
+const pay = (s, cost) => Res.pay(s, cost);
 
 // 칸의 채집: 지형 + 영구 지형(오아시스·채석장)
 export function yieldOf(tile) {
@@ -1084,18 +1086,17 @@ const actOfRound = (state, r) => actOf({ ...state, round: r });
 // ---------- 결과 미리보기 (확인 화면용, 주사위 행동은 뺀다) ----------
 export function previewGains(state, plan) {
   const s = state.sides.player;
-  const d = { food: 0, wood: 0, stone: 0, faith: 0 };
-  const per = {};
+  const d = Res.zero();
   for (const a of plan) {
-    if (a.type === 'gather') { const n = gatherAmount(state, 'player', state.tileAt[a.tile]); d[a.gather] += n; per[a.key] = t('eng.preview.gain', { n, res: RESOURCE_NAME[a.gather] }); }
-    else if (a.type === 'pray') { const n = prayValue(state, 'player'); d.faith += n; per[a.key] = t('eng.preview.faith', { n }); }
-    else if (a.type === 'build') { for (const [k, v] of Object.entries(buildCost(state, 'player', a.build))) d[k] -= v; }
+    if (a.type === 'gather') d[a.gather] += gatherAmount(state, 'player', state.tileAt[a.tile]);
+    else if (a.type === 'pray') d.faith += prayValue(state, 'player');
+    else if (a.type === 'build') Res.pay(d, buildCost(state, 'player', a.build));
   }
   // 장이 끝날 때: 식량 생산(수도 2 + 마을) − 먹는 양, 신앙 수입
   d.food += 2 + villageCount(state, 'player') - s.pop - (state.commandments?.includes('noFamine') ? 1 : 0);
   d.faith += faithIncome(state, 'player');
-  const after = Object.fromEntries(Object.entries(d).map(([k, v]) => [k, s[k] + v]));
-  return { delta: d, after, per };
+  const after = Res.add(Res.of(s), d);
+  return { delta: d, after };
 }
 
 // ---------- 침묵도 계시다 ----------
