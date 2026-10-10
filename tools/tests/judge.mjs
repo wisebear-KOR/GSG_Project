@@ -53,6 +53,15 @@ for (const s of Object.values(SAMPLE_SETS).flat().filter((x) => !x.observe)) {
   metaphor.push(`${ok(rt) ? 'O' : 'X'}${ok(rj) ? 'O' : 'X'} ${s.text} → 석판 ${rt.orders.map(kindOf).join(',') || '-'} / 함께 ${rj.orders.map(kindOf).join(',') || '-'}`);
 }
 
+// 2b) 다른 작성자의 평가 세트 B (lab/ai-options/words-eval-b.json — 학습에 쓰지 않음): 엄격 정답률 (기록용, 판정 기준 아님)
+let evalB = null;
+try {
+  const { rows } = JSON.parse(fs.readFileSync(new URL('../../lab/ai-options/words-eval-b.json', import.meta.url), 'utf8'));
+  const strict = (r, want, dont) => { const k = r.orders.map(kindOf); const f = r.forbidden.map(kindOf); return want.every((w) => k.includes(w)) && dont.every((d) => f.includes(d)) && !dont.some((d) => k.includes(d)); };
+  evalB = { n: rows.length, tablet: 0, judge: 0 };
+  for (const [text, want, dont] of rows) { evalB.tablet += strict(I.interpretWithTablet(state(), text), want, dont); evalB.judge += strict(I.interpretWithJudge(state(), text), want, dont); }
+} catch { /* 세트가 없으면 건너뛴다 */ }
+
 // 3) 결정적인가
 const det = CASES.slice(0, 200).every(([text]) => JSON.stringify(judge(text)) === JSON.stringify(judge(text)));
 
@@ -60,5 +69,6 @@ if (process.argv.includes('--all')) { console.log('은유 (석판·함께):'); f
 if (lost.length) { console.log('판정기가 끼어 잃은 문장:'); for (const l of lost) console.log('  -', l); }
 console.log(`석판 시험 문장: 석판 ${tab}/${CASES.length} · 판정기와 함께 ${jud}/${CASES.length} (판정기가 정한 문장 ${took}, 잃음 ${lost.length}, 얻음 ${won.length})`);
 console.log(`은유 세트: 석판 ${ms.tablet}/${ms.n} · 판정기와 함께 ${ms.judge}/${ms.n}`);
+if (evalB) console.log(`다른 작성자의 평가 세트 B (엄격): 석판 ${evalB.tablet}/${evalB.n} · 판정기와 함께 ${evalB.judge}/${evalB.n}`);
 console.log(`결정적: ${det}`);
 process.exitCode = jud >= CASES.length - 5 && ms.judge >= ms.tablet && det ? 0 : 1;

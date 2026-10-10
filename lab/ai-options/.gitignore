@@ -6,3 +6,4 @@
 old/
 !words-train.json
 !words-eval.json
+!words-eval-b.json

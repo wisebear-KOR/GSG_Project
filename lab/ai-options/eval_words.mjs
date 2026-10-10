@@ -1,5 +1,5 @@
 // 평가 전용 세트(words-eval.json — 학습에 쓰지 않은 은유·간접 명령·부정)에서 석판 / 판정기 / 석판 + 판정기를 잰다
-//   node --no-warnings lab/ai-options/eval_words.mjs [--all]
+//   node --no-warnings lab/ai-options/eval_words.mjs [--b] [--all]
 // 맞음(엄격): 시킨 일이 모두 나오고, 금한 일은 금지로 읽고, 금한 일을 시키지 않음
 // 맞음(느슨): 시킨 일 가운데 하나라도 나오고(시킨 일이 없으면 통과) 금한 일을 시키지 않음 — 은유 세트(scoreIntent)와 같은 기준
 import fs from 'node:fs';
@@ -8,7 +8,9 @@ const E = await import(W + 'js/game/engine.js');
 const I = await import(W + 'js/game/interpreter.js');
 const { judge } = await import(W + 'js/game/ai/judge.js');
 const { kindOf } = await import(W + 'js/game/domain/index.js');
-const { rows } = JSON.parse(fs.readFileSync(new URL('./words-eval.json', import.meta.url), 'utf8'));
+// 평가 세트 파일: 기본 words-eval.json (Claude), --b면 words-eval-b.json (다른 작성자 — 학습 세트를 보지 않고 쓴 별도 에이전트)
+const file = process.argv.includes('--b') ? './words-eval-b.json' : './words-eval.json';
+const { rows } = JSON.parse(fs.readFileSync(new URL(file, import.meta.url), 'utf8'));
 const state = () => { const s = E.createState({ mode: 'tutorial', seed: 1 }); E.startRound(s); Object.assign(s.sides.player, { wood: 6, stone: 6, food: 6 }); return s; };
 
 const score = { tablet: [0, 0, 0], judge: [0, 0, 0], both: [0, 0, 0] };
